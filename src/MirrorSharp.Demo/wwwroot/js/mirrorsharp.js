@@ -7,19 +7,6 @@
         root.mirrorsharp = factory(root.CodeMirror);
     }
 }(this, function (CodeMirror) {
-    function getCursorIndex(cm) {
-        return cm.indexFromPos(cm.getCursor());
-    }
-
-    function showCompletions(cm, completions) {
-        cm.showHint({
-            hint: function () {
-                return { list: completions };
-            },
-            completeSingle: false
-        });
-    }
-
     function Connection(socket) {
         const openPromise = new Promise(function(resolve) {
             socket.addEventListener('open', function (e) {
@@ -43,6 +30,10 @@
             return sendWhenOpen('T' + char);
         }
 
+        this.sendCommitCompletion = function (itemIndex) {
+            return sendWhenOpen('S' + itemIndex);
+        }
+
         this.onMessage = function(handler) {
             socket.addEventListener('message', function (e) {
                 const message = JSON.parse(e.data);
@@ -51,7 +42,37 @@
         }
     }
 
-    return function(textarea, options) {
+    function getCursorIndex(cm) {
+        return cm.indexFromPos(cm.getCursor());
+    }
+
+    function showCompletions(cm, completions, connection) {
+        const indexInListKey = '$mirrorsharp-indexInList';
+        var commit = function(cm, data, item) {
+            connection.sendCommitCompletion(item[indexInListKey]);
+        }
+
+        var hintResult = {
+            from: cm.posFromIndex(completions.span.start),
+            list: completions.list.map(function (c, index) {
+                const item = {
+                    displayText: c.displayText,
+                    className: c.tags.map(function (t) { return 'mirrorsharp-hint-' + t.toLowerCase(); }).join(' '),
+                    hint: commit
+                };
+                item[indexInListKey] = index;
+                if (c.span)
+                    item.from = cm.posFromIndex(c.span.start);
+                return item;
+            })
+        }
+        cm.showHint({
+            hint: function () { return hintResult; },
+            completeSingle: false
+        });
+    }
+
+    return function (textarea, options) {
         const connection = new Connection(new WebSocket(options.serviceUrl));
 
         const cmOptions = options.forCodeMirror || { gutters: [] };
@@ -59,7 +80,17 @@
         cmOptions.gutters.push('CodeMirror-lint-markers');
 
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);
-        const indexKey = '$$mirrorsharp_index$$';
+
+        var resetting = false;
+        function reset(newText, newCursorIndex) {
+            resetting = true;
+            if (newCursorIndex == null)
+                newCursorIndex = cm.indexFromPos(cm.getCursor());
+
+            cm.setValue(newText);
+            cm.setCursor(cm.posFromIndex(newCursorIndex));
+            resetting = false;
+        }
 
         (function() {
             const value = cm.getValue();
@@ -67,21 +98,28 @@
                 connection.sendReplaceText(0, 0, value, 0);
         })();
 
+        const indexKey = '$mirrorsharp-index';
         var changePending = false;
-        cm.on('beforeChange', function(s, change) {
+        cm.on('beforeChange', function (s, change) {
+            if (resetting)
+                return;
+
             change.from[indexKey] = cm.indexFromPos(change.from);
             change.to[indexKey] = cm.indexFromPos(change.to);
             changePending = true;
         });
 
         cm.on('cursorActivity', function() {
-            if (changePending)
+            if (resetting || changePending)
                 return;
             const cursorIndex = getCursorIndex(cm);
             connection.sendMoveCursor(cursorIndex);
         });
 
-        cm.on('changes', function(s, changes) {
+        cm.on('changes', function (s, changes) {
+            if (resetting)
+                return;
+
             const cursorIndex = getCursorIndex(cm);
             changePending = false;
             for (var change of changes) {
@@ -99,8 +137,12 @@
 
         connection.onMessage(function (message) {
             switch (message.type) {
+                case 'reset':
+                    reset(message.text, message.cursor);
+                    break;
+
                 case 'completions':
-                    showCompletions(cm, message.completions);
+                    showCompletions(cm, message.completions, connection);
                     break;
             }
         });

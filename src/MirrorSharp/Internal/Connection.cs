@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MirrorSharp.Internal.Results;
 using Newtonsoft.Json;
 
 namespace MirrorSharp.Internal {
@@ -13,23 +13,24 @@ namespace MirrorSharp.Internal {
             public const byte MoveCursor = (byte)'C';
             public const byte Replace = (byte)'R';
             public const byte TypeChar = (byte)'T';
+            public const byte CommitCompletion = (byte)'S';
         }
 
         private readonly WebSocket _socket;
         private readonly IWorkSession _session;
         private readonly byte[] _inputByteBuffer = new byte[2048];
-        private readonly byte[] _outputByteBuffer = new byte[2048];
+        private readonly byte[] _outputByteBuffer = new byte[4*1024];
         private readonly char[] _charBuffer = new char[2048];
 
-        private readonly JsonSerializer _jsonSerializer = new JsonSerializer();
         private readonly MemoryStream _jsonOutputStream;
-        private readonly JsonWriter _jsonOutputWriter;
+        private readonly JsonWriter _jsonWriter;
+
 
         public Connection(WebSocket socket, IWorkSession session) {
             _socket = socket;
             _session = session;
             _jsonOutputStream = new MemoryStream(_outputByteBuffer);
-            _jsonOutputWriter = new JsonTextWriter(new StreamWriter(_jsonOutputStream));
+            _jsonWriter = new JsonTextWriter(new StreamWriter(_jsonOutputStream));
         }
 
         public bool IsConnected => _socket.State == WebSocketState.Open;
@@ -72,6 +73,7 @@ namespace MirrorSharp.Internal {
                     return Task.CompletedTask;
                 }
                 case Commands.TypeChar: return ProcessTypeCharAsync(Shift(data));
+                case Commands.CommitCompletion: return ProcessCommitCompletionAsync(Shift(data));
                 default: throw new FormatException($"Unknown command: '{(char)command}'.");
             }
         }
@@ -127,16 +129,63 @@ namespace MirrorSharp.Internal {
             if (result.Completions == null)
                 return;
 
-            await SendJsonAsync(new {
-                type = "completions",
-                completions = result.Completions.Items.Select(i => $"[{string.Join(",", i.Tags)}] {i.DisplayText}")
-            }).ConfigureAwait(false);
+            await SendTypeCharResultAsync(result).ConfigureAwait(false);
         }
 
-        private Task SendJsonAsync(object value) {
+        private Task SendTypeCharResultAsync(TypeCharResult result) {
+            var completions = result.Completions;
+
+            var writer = StartJson();
+            writer.WriteStartObject();
+            writer.WriteProperty("type", "completions");
+            writer.WriteStartObjectProperty("completions");
+            writer.WritePropertyName("span");
+            // ReSharper disable once PossibleNullReferenceException
+            writer.WriteSpan(completions.DefaultSpan);
+            writer.WriteStartArrayProperty("list");
+            foreach (var item in completions.Items) {
+                writer.WriteStartObject();
+                writer.WriteProperty("displayText", item.DisplayText);
+                writer.WriteStartArrayProperty("tags");
+                foreach (var tag in item.Tags) {
+                    writer.WriteValue(tag);
+                }
+                writer.WriteEndArray();
+                if (item.Span != completions.DefaultSpan) {
+                    writer.WritePropertyName("span");
+                    writer.WriteSpan(item.Span);
+                }
+                writer.WriteEndObject();
+            }
+            writer.WriteEndArray();
+            writer.WriteEndObject();
+            writer.WriteEndObject();
+            return SendJsonAsync();
+        }
+
+        private async Task ProcessCommitCompletionAsync(ArraySegment<byte> data) {
+            var itemIndex = FastConvert.Utf8ByteArrayToInt32(data);
+            var result = await _session.CommitCompletionAsync(itemIndex);
+            await SendCommitCompletionResultAsync(result).ConfigureAwait(false);
+        }
+
+        private Task SendCommitCompletionResultAsync(CommitCompletionResult result) {
+            var writer = StartJson();
+            writer.WriteStartObject();
+            writer.WriteProperty("type", "reset");
+            writer.WriteProperty("text", result.NewText);
+            writer.WriteProperty("cursor", result.NewCursorPosition);
+            writer.WriteEndObject();
+            return SendJsonAsync();
+        }
+
+        private JsonWriter StartJson() {
             _jsonOutputStream.Seek(0, SeekOrigin.Begin);
-            _jsonSerializer.Serialize(_jsonOutputWriter, value);
-            _jsonOutputWriter.Flush();
+            return _jsonWriter;
+        }
+
+        private Task SendJsonAsync() {
+            _jsonWriter.Flush();
             return SendOutputBufferAsync((int)_jsonOutputStream.Position);
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,14 +7,15 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
+using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal {
     public class WorkSession : IWorkSession {
-
         private static readonly MefHostServices HostServices = MefHostServices.Create(MefHostServices.DefaultAssemblies.AddRange(new[] {
             Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.Features")),
             Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.CSharp.Features"))
         }));
+        private static readonly Task<TypeCharResult> TypeCharEmptyResultTask = Task.FromResult(new TypeCharResult());
 
         private readonly AdhocWorkspace _workspace;
 
@@ -21,6 +23,7 @@ namespace MirrorSharp.Internal {
         private Document _document;
         private SourceText _text;
         private int _cursorPosition;
+        private CompletionList _completionList;
 
         private readonly CompletionService _completionService;
 
@@ -44,25 +47,39 @@ namespace MirrorSharp.Internal {
 
         public void ReplaceText(int start, int length, string newText, int cursorPositionAfter) {
             _oneTextChange[0] = new TextChange(new TextSpan(start, length), newText);
-            _text = _text.WithChanges(_oneTextChange);
-            _document = _document.WithText(_text);
+            ApplyTextChanges(_oneTextChange);
             _cursorPosition = cursorPositionAfter;
         }
 
-        public void ReplaceAllText(string newText) {
-            _text = SourceText.From(newText);
+        private void ApplyTextChanges(IEnumerable<TextChange> changes) {
+            _text = _text.WithChanges(changes);
             _document = _document.WithText(_text);
-            _cursorPosition = 0;
         }
 
         public void MoveCursor(int cursorPosition) {
             _cursorPosition = cursorPosition;
         }
 
-        public async Task<TypeCharResult> TypeCharAsync(char @char) {
+        public Task<TypeCharResult> TypeCharAsync(char @char) {
             ReplaceText(_cursorPosition, 1, FastConvert.CharToString(@char), _cursorPosition + 1);
-            var completions = await _completionService.GetCompletionsAsync(_document, _cursorPosition).ConfigureAwait(false);
-            return new TypeCharResult(completions);
+            if (!_completionService.ShouldTriggerCompletion(_text, _cursorPosition, CompletionTrigger.CreateInsertionTrigger(@char)))
+                return TypeCharEmptyResultTask;
+
+            return CreateResultFromCompletionsAsync();
+        }
+
+        public async Task<CommitCompletionResult> CommitCompletionAsync(int itemIndex) {
+            var item = _completionList.Items[itemIndex];
+            var change = await _completionService.GetChangeAsync(_document, item).ConfigureAwait(false);
+            ApplyTextChanges(change.TextChanges);
+            if (change.NewPosition != null)
+                _cursorPosition = change.NewPosition.Value;
+            return new CommitCompletionResult(_text.ToString(), change.NewPosition);
+        }
+
+        private async Task<TypeCharResult> CreateResultFromCompletionsAsync() {
+            _completionList = await _completionService.GetCompletionsAsync(_document, _cursorPosition).ConfigureAwait(false);
+            return new TypeCharResult(_completionList);
         }
 
         /*private async Task CompilationLoop() {

@@ -1,3 +1,30 @@
 ﻿.CodeMirror-hints {
     font-size: inherit;
 }
+
+.mirrorsharp-hint-class::before,
+.mirrorsharp-hint-field::before,
+.mirrorsharp-hint-keyword::before,
+.mirrorsharp-hint-parameter::before {
+    content: '';
+    margin-right: 5px;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+}
+
+.mirrorsharp-hint-class::before {
+    background-image: url('icons/class.svg');
+}
+
+.mirrorsharp-hint-field::before {
+    background-image: url('icons/field.svg');
+}
+
+.mirrorsharp-hint-keyword::before {
+    background-image: url('icons/keyword.svg');
+}
+
+.mirrorsharp-hint-parameter::before {
+    background-image: url('icons/variable.svg');
+}
