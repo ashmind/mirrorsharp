@@ -1,0 +1,6 @@
+*.user
+project.lock.json
+.vs/
+**/wwwroot/external/
+bin/
+obj/

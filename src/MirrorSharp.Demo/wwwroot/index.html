@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>MirrorSharp Demo</title>
+    <link rel="stylesheet" href="external/codemirror/lib/codemirror.css" />
+    <link rel="stylesheet" href="external/codemirror/addon/lint/lint.css" />
+    <link rel="stylesheet" href="external/codemirror/addon/hint/show-hint.css" />
+  </head>
+  <body>
+    <textarea></textarea>
+
+    <script src="external/codemirror/lib/codemirror.js"></script>
+    <script src="external/codemirror/addon/lint/lint.js"></script>
+    <script src="external/codemirror/addon/hint/show-hint.js"></script>
+    <script src="js/mirrorsharp.js"></script>
+    <script type="text/javascript">
+      mirrorsharp(document.getElementsByTagName('textarea')[0], {
+        serviceUrl: window.location.href.replace(/^http(.+)\/?$/i, 'ws$1/mirrorsharp')
+      });
+    </script>
+  </body>
+</html>
