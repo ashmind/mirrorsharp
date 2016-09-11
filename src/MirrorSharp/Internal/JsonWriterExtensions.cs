@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.Text;
+﻿using Microsoft.CodeAnalysis.Text;
 using Newtonsoft.Json;
 
 namespace MirrorSharp.Internal {
@@ -22,12 +18,12 @@ namespace MirrorSharp.Internal {
             writer.WriteValue(value);
         }
 
-        public static void WriteStartArrayProperty(this JsonWriter writer, string name) {
+        public static void WritePropertyStartArray(this JsonWriter writer, string name) {
             writer.WritePropertyName(name);
             writer.WriteStartArray();
         }
 
-        public static void WriteStartObjectProperty(this JsonWriter writer, string name) {
+        public static void WritePropertyStartObject(this JsonWriter writer, string name) {
             writer.WritePropertyName(name);
             writer.WriteStartObject();
         }

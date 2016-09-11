@@ -1,16 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Immutable;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Completion;
+using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal;
 using Moq;
 using Xunit;
 
 namespace MirrorSharp.Tests {
     public class ConnectionTests {
+        private static readonly CompletionChange NoCompletionChange = CompletionChange.Create(ImmutableArray<TextChange>.Empty);
+
         [Theory]
         [InlineData("C1", 1)]
         [InlineData("C79", 79)]
@@ -49,6 +52,21 @@ namespace MirrorSharp.Tests {
 
             await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync();
             Mock.Get(sessionMock).Verify(s => s.ReplaceText(expectedStart, expectedLength, expectedText, expectedPosition));
+        }
+
+        [Theory]
+        [InlineData("S1", 1)]
+        [InlineData("S79", 79)]
+        [InlineData("S1234567890", 1234567890)]
+        public async void ReceiveAndProcessAsync_CallsGetCompletionChangeAsyncOnSession_AfterReceivingCommitCompletionCommand(string command, int expectedItemIndex) {
+            var socketMock = Mock.Of<WebSocket>();
+            SetupReceive(socketMock, command);
+            var sessionMock = Mock.Of<IWorkSession>(
+                s => s.GetCompletionChangeAsync(It.IsAny<int>()) == Task.FromResult(NoCompletionChange)
+            );
+
+            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync();
+            Mock.Get(sessionMock).Verify(s => s.GetCompletionChangeAsync(expectedItemIndex));
         }
 
         private static void SetupReceive(WebSocket socket, string command) {

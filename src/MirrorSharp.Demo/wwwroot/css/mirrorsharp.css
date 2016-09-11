@@ -2,29 +2,22 @@
     font-size: inherit;
 }
 
-.mirrorsharp-hint-class::before,
-.mirrorsharp-hint-field::before,
-.mirrorsharp-hint-keyword::before,
-.mirrorsharp-hint-parameter::before {
+.mirrorsharp-hint {
+    display: flex;
+    padding-left: 0;
+}
+
+.mirrorsharp-hint::before {
     content: '';
+    flex-shrink: 0;
     margin-right: 5px;
-    display: inline-block;
     width: 16px;
     height: 16px;
+    background-color: #fff;
 }
 
-.mirrorsharp-hint-class::before {
-    background-image: url('icons/class.svg');
-}
-
-.mirrorsharp-hint-field::before {
-    background-image: url('icons/field.svg');
-}
-
-.mirrorsharp-hint-keyword::before {
-    background-image: url('icons/keyword.svg');
-}
-
-.mirrorsharp-hint-parameter::before {
-    background-image: url('icons/variable.svg');
-}
+.mirrorsharp-hint-class::before { background-image: url('icons/class.svg'); }
+.mirrorsharp-hint-field::before { background-image: url('icons/field.svg'); }
+.mirrorsharp-hint-keyword::before { background-image: url('icons/keyword.svg'); }
+.mirrorsharp-hint-method::before { background-image: url('icons/method.svg'); }
+.mirrorsharp-hint-parameter::before { background-image: url('icons/variable.svg'); }

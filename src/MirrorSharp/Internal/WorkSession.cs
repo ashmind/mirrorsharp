@@ -21,7 +21,7 @@ namespace MirrorSharp.Internal {
 
         private readonly TextChange[] _oneTextChange = new TextChange[1];
         private Document _document;
-        private SourceText _text;
+        private SourceText _sourceText;
         private int _cursorPosition;
         private CompletionList _completionList;
 
@@ -37,8 +37,8 @@ namespace MirrorSharp.Internal {
             _workspace = new AdhocWorkspace(HostServices);
 
             var project = _workspace.AddProject("_", "C#");
-            _text = SourceText.From("");
-            _document = project.AddDocument("_", _text);
+            _sourceText = SourceText.From("");
+            _document = project.AddDocument("_", _sourceText);
 
             _completionService = CompletionService.GetService(_document);
             if (_completionService == null)
@@ -52,8 +52,8 @@ namespace MirrorSharp.Internal {
         }
 
         private void ApplyTextChanges(IEnumerable<TextChange> changes) {
-            _text = _text.WithChanges(changes);
-            _document = _document.WithText(_text);
+            _sourceText = _sourceText.WithChanges(changes);
+            _document = _document.WithText(_sourceText);
         }
 
         public void MoveCursor(int cursorPosition) {
@@ -61,20 +61,16 @@ namespace MirrorSharp.Internal {
         }
 
         public Task<TypeCharResult> TypeCharAsync(char @char) {
-            ReplaceText(_cursorPosition, 1, FastConvert.CharToString(@char), _cursorPosition + 1);
-            if (!_completionService.ShouldTriggerCompletion(_text, _cursorPosition, CompletionTrigger.CreateInsertionTrigger(@char)))
+            ReplaceText(_cursorPosition, 0, FastConvert.CharToString(@char), _cursorPosition + 1);
+            if (!_completionService.ShouldTriggerCompletion(_sourceText, _cursorPosition, CompletionTrigger.CreateInsertionTrigger(@char)))
                 return TypeCharEmptyResultTask;
 
             return CreateResultFromCompletionsAsync();
         }
 
-        public async Task<CommitCompletionResult> CommitCompletionAsync(int itemIndex) {
+        public Task<CompletionChange> GetCompletionChangeAsync(int itemIndex) {
             var item = _completionList.Items[itemIndex];
-            var change = await _completionService.GetChangeAsync(_document, item).ConfigureAwait(false);
-            ApplyTextChanges(change.TextChanges);
-            if (change.NewPosition != null)
-                _cursorPosition = change.NewPosition.Value;
-            return new CommitCompletionResult(_text.ToString(), change.NewPosition);
+            return _completionService.GetChangeAsync(_document, item);
         }
 
         private async Task<TypeCharResult> CreateResultFromCompletionsAsync() {
@@ -106,6 +102,9 @@ namespace MirrorSharp.Internal {
                 Message = d.GetMessage()
             });* /
         }*/
+
+        public SourceText SourceText => _sourceText;
+        public int CursorPosition => _cursorPosition;
 
         public async Task DisposeAsync() {
             using (_disposing) {

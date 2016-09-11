@@ -8,6 +8,25 @@ using Xunit;
 namespace MirrorSharp.Tests {
     public class SessionTests {
         [Fact]
+        public async Task TypeChar_InsertsSingleChar() {
+            var session = SessionFromTextWithCursor("class A| {}");
+
+            await session.TypeCharAsync('1');
+
+            Assert.Equal("class A1 {}", session.SourceText.ToString());
+        }
+
+        [Fact]
+        public async Task TypeChar_MovesCursorBySingleChar() {
+            var session = SessionFromTextWithCursor("class A| {}");
+            var cursorPosition = session.CursorPosition;
+
+            await session.TypeCharAsync('1');
+
+            Assert.Equal(cursorPosition + 1, session.CursorPosition);
+        }
+
+        [Fact]
         public async Task TypeChar_ProducesExpectedCompletion() {
             var session = SessionFromTextWithCursor(@"
                 class A { public int x; }

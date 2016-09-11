@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Net.WebSockets;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
@@ -9,9 +6,11 @@ using Microsoft.AspNetCore.Http;
 namespace MirrorSharp.Internal {
     public class Middleware {
         private readonly RequestDelegate _next;
+        private readonly MirrorSharpOptions _options;
 
-        public Middleware(RequestDelegate next) {
-            _next = next;
+        public Middleware([NotNull] RequestDelegate next, [CanBeNull] MirrorSharpOptions options) {
+            _next = Argument.NotNull(nameof(next), next);
+            _options = options;
         }
 
         [UsedImplicitly]
@@ -22,13 +21,11 @@ namespace MirrorSharp.Internal {
             }
 
             using (var socket = await context.WebSockets.AcceptWebSocketAsync().ConfigureAwait(false)) {
-                var output = new byte[2048];
-
                 WorkSession session = null;
                 Connection connection = null;
                 try {
                     session = new WorkSession();
-                    connection = new Connection(socket, session);
+                    connection = new Connection(socket, session, _options);
 
                     while (connection.IsConnected) {
                         try {

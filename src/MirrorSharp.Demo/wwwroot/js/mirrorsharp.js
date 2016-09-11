@@ -10,16 +10,21 @@
     function Connection(socket) {
         const openPromise = new Promise(function(resolve) {
             socket.addEventListener('open', function (e) {
+                //console.debug("[open]");
                 resolve();
             });
         });
 
         function sendWhenOpen(command) {
-            openPromise.then(function() { socket.send(command); });
+            openPromise.then(function () {
+                //console.debug("[=>]", command);
+                socket.send(command);
+            });
         }
 
-        this.sendReplaceText = function (start, length, newText, cursorIndexAfter) {
-            return sendWhenOpen('R' + start + ':' + length + ':' + cursorIndexAfter + ':' + newText);
+        this.sendReplaceText = function (isLastOrOnly, start, length, newText, cursorIndexAfter) {
+            const command = isLastOrOnly ? 'R' : 'P';
+            return sendWhenOpen(command + start + ':' + length + ':' + cursorIndexAfter + ':' + newText);
         }
 
         this.sendMoveCursor = function(cursorIndex) {
@@ -36,115 +41,126 @@
 
         this.onMessage = function(handler) {
             socket.addEventListener('message', function (e) {
+                //console.debug("[<=]", e.data);
                 const message = JSON.parse(e.data);
                 handler(message);
             });
         }
     }
 
-    function getCursorIndex(cm) {
-        return cm.indexFromPos(cm.getCursor());
-    }
-
-    function showCompletions(cm, completions, connection) {
-        const indexInListKey = '$mirrorsharp-indexInList';
-        var commit = function(cm, data, item) {
-            connection.sendCommitCompletion(item[indexInListKey]);
-        }
-
-        var hintResult = {
-            from: cm.posFromIndex(completions.span.start),
-            list: completions.list.map(function (c, index) {
-                const item = {
-                    displayText: c.displayText,
-                    className: c.tags.map(function (t) { return 'mirrorsharp-hint-' + t.toLowerCase(); }).join(' '),
-                    hint: commit
-                };
-                item[indexInListKey] = index;
-                if (c.span)
-                    item.from = cm.posFromIndex(c.span.start);
-                return item;
-            })
-        }
-        cm.showHint({
-            hint: function () { return hintResult; },
-            completeSingle: false
-        });
-    }
-
-    return function (textarea, options) {
-        const connection = new Connection(new WebSocket(options.serviceUrl));
-
+    function Editor(textarea, connection, options) {
         const cmOptions = options.forCodeMirror || { gutters: [] };
         //cmOptions.lint = { async: true, getAnnotations: lint };
         cmOptions.gutters.push('CodeMirror-lint-markers');
-
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);
 
-        var resetting = false;
-        function reset(newText, newCursorIndex) {
-            resetting = true;
-            if (newCursorIndex == null)
-                newCursorIndex = cm.indexFromPos(cm.getCursor());
-
-            cm.setValue(newText);
-            cm.setCursor(cm.posFromIndex(newCursorIndex));
-            resetting = false;
-        }
-
-        (function() {
-            const value = cm.getValue();
-            if (value !== '' && value != null)
-                connection.sendReplaceText(0, 0, value, 0);
+        (function () {
+            const text = cm.getValue();
+            if (text !== '' && text != null)
+                connection.sendReplaceText(true, 0, 0, text, 0);
         })();
 
         const indexKey = '$mirrorsharp-index';
         var changePending = false;
         cm.on('beforeChange', function (s, change) {
-            if (resetting)
-                return;
-
             change.from[indexKey] = cm.indexFromPos(change.from);
             change.to[indexKey] = cm.indexFromPos(change.to);
             changePending = true;
         });
 
-        cm.on('cursorActivity', function() {
-            if (resetting || changePending)
+        cm.on('cursorActivity', function () {
+            if (changePending)
                 return;
-            const cursorIndex = getCursorIndex(cm);
-            connection.sendMoveCursor(cursorIndex);
+            connection.sendMoveCursor(getCursorIndex(cm));
         });
 
         cm.on('changes', function (s, changes) {
-            if (resetting)
-                return;
-
             const cursorIndex = getCursorIndex(cm);
             changePending = false;
-            for (var change of changes) {
+            for (var i = 0; i < changes.length; i++) {
+                const change = changes[i];
                 const start = change.from[indexKey];
                 const length = change.to[indexKey] - start;
-                const text = change.text;
+                const text = change.text.join('\n');
                 if (cursorIndex === start + 1 && text.length === 1) {
                     connection.sendTypeChar(text);
                 }
                 else {
-                    connection.sendReplaceText(start, length, text, cursorIndex);
+                    const lastOrOnly = (i === changes.length - 1);
+                    connection.sendReplaceText(lastOrOnly, start, length, text, cursorIndex);
                 }
             }
         });
 
         connection.onMessage(function (message) {
             switch (message.type) {
-                case 'reset':
-                    reset(message.text, message.cursor);
+                case 'changes':
+                    applyChanges(message.changes, message.cursor);
                     break;
 
                 case 'completions':
-                    showCompletions(cm, message.completions, connection);
+                    showCompletions(message.completions);
+                    break;
+
+                case 'debug:compare':
+                    debugCompare(message.text, message.cursor);
                     break;
             }
         });
+
+        function getCursorIndex() {
+            return cm.indexFromPos(cm.getCursor());
+        }
+
+        function applyChanges(changes) {
+            for (var change of changes) {
+                const from = cm.posFromIndex(change.start);
+                const to = change.length > 0 ? cm.posFromIndex(change.start + change.length) : from;
+                cm.replaceRange(change.text, from, to);
+            }
+        }
+
+        function showCompletions(completions) {
+            const indexInListKey = '$mirrorsharp-indexInList';
+            var commit = function (cm, data, item) {
+                connection.sendCommitCompletion(item[indexInListKey]);
+            }
+
+            var hintResult = {
+                from: cm.posFromIndex(completions.span.start),
+                list: completions.list.map(function (c, index) {
+                    const item = {
+                        displayText: c.displayText,
+                        className: 'mirrorsharp-hint ' + c.tags.map(function (t) { return 'mirrorsharp-hint-' + t.toLowerCase(); }).join(' '),
+                        hint: commit
+                    };
+                    item[indexInListKey] = index;
+                    if (c.span)
+                        item.from = cm.posFromIndex(c.span.start);
+                    return item;
+                })
+            }
+            cm.showHint({
+                hint: function () { return hintResult; },
+                completeSingle: false
+            });
+        }
+
+        function debugCompare(serverText, serverCursorIndex) {
+            if (serverText !== undefined) {
+                const clientText = cm.getValue();
+                if (clientText !== serverText)
+                    console.error('Client text does not match server text:', { clientText: clientText, serverText: serverText });
+            }
+
+            const clientCursorIndex = getCursorIndex();
+            if (clientCursorIndex !== serverCursorIndex)
+                console.error('Client cursor position does not match server position:', { clientPosition: clientCursorIndex, serverPosition: serverCursorIndex });
+        }
+    }
+
+    return function(textarea, options) {
+        const connection = new Connection(new WebSocket(options.serviceUrl));
+        return new Editor(textarea, connection, options);
     }
 }));

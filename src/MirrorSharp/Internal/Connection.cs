@@ -4,6 +4,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Completion;
 using MirrorSharp.Internal.Results;
 using Newtonsoft.Json;
 
@@ -11,7 +12,8 @@ namespace MirrorSharp.Internal {
     public class Connection : IAsyncDisposable {
         private static class Commands {
             public const byte MoveCursor = (byte)'C';
-            public const byte Replace = (byte)'R';
+            public const byte ReplaceProgress = (byte)'P';
+            public const byte ReplaceLastOrOnly = (byte)'R';
             public const byte TypeChar = (byte)'T';
             public const byte CommitCompletion = (byte)'S';
         }
@@ -24,13 +26,14 @@ namespace MirrorSharp.Internal {
 
         private readonly MemoryStream _jsonOutputStream;
         private readonly JsonWriter _jsonWriter;
+        private readonly IConnectionOptions _options;
 
-
-        public Connection(WebSocket socket, IWorkSession session) {
+        public Connection(WebSocket socket, IWorkSession session, IConnectionOptions options = null) {
             _socket = socket;
             _session = session;
             _jsonOutputStream = new MemoryStream(_outputByteBuffer);
             _jsonWriter = new JsonTextWriter(new StreamWriter(_jsonOutputStream));
+            _options = options ?? new MirrorSharpOptions();
         }
 
         public bool IsConnected => _socket.State == WebSocketState.Open;
@@ -59,12 +62,15 @@ namespace MirrorSharp.Internal {
                 return;
 
             await ProcessMessageAsync(new ArraySegment<byte>(_inputByteBuffer, 0, received.Count)).ConfigureAwait(false);
+            if (_options.SendDebugCompareMessages)
+                await SendDebugCompareAsync(_inputByteBuffer[0]).ConfigureAwait(false);
         }
 
         private Task ProcessMessageAsync(ArraySegment<byte> data) {
             var command = data.Array[data.Offset];
             switch (command) {
-                case Commands.Replace: {
+                case Commands.ReplaceProgress:
+                case Commands.ReplaceLastOrOnly: {
                     ProcessReplace(Shift(data));
                     return Task.CompletedTask;
                 }
@@ -135,18 +141,16 @@ namespace MirrorSharp.Internal {
         private Task SendTypeCharResultAsync(TypeCharResult result) {
             var completions = result.Completions;
 
-            var writer = StartJson();
-            writer.WriteStartObject();
-            writer.WriteProperty("type", "completions");
-            writer.WriteStartObjectProperty("completions");
+            var writer = StartJsonMessage("completions");
+            writer.WritePropertyStartObject("completions");
             writer.WritePropertyName("span");
             // ReSharper disable once PossibleNullReferenceException
             writer.WriteSpan(completions.DefaultSpan);
-            writer.WriteStartArrayProperty("list");
+            writer.WritePropertyStartArray("list");
             foreach (var item in completions.Items) {
                 writer.WriteStartObject();
                 writer.WriteProperty("displayText", item.DisplayText);
-                writer.WriteStartArrayProperty("tags");
+                writer.WritePropertyStartArray("tags");
                 foreach (var tag in item.Tags) {
                     writer.WriteValue(tag);
                 }
@@ -159,32 +163,49 @@ namespace MirrorSharp.Internal {
             }
             writer.WriteEndArray();
             writer.WriteEndObject();
-            writer.WriteEndObject();
-            return SendJsonAsync();
+            return SendJsonMessageAsync();
         }
 
         private async Task ProcessCommitCompletionAsync(ArraySegment<byte> data) {
             var itemIndex = FastConvert.Utf8ByteArrayToInt32(data);
-            var result = await _session.CommitCompletionAsync(itemIndex);
-            await SendCommitCompletionResultAsync(result).ConfigureAwait(false);
+            var change = await _session.GetCompletionChangeAsync(itemIndex);
+            await SendCompletionChangeAsync(change).ConfigureAwait(false);
         }
 
-        private Task SendCommitCompletionResultAsync(CommitCompletionResult result) {
-            var writer = StartJson();
-            writer.WriteStartObject();
-            writer.WriteProperty("type", "reset");
-            writer.WriteProperty("text", result.NewText);
-            writer.WriteProperty("cursor", result.NewCursorPosition);
-            writer.WriteEndObject();
-            return SendJsonAsync();
+        private Task SendCompletionChangeAsync(CompletionChange change) {
+            var writer = StartJsonMessage("changes");
+            writer.WritePropertyStartArray("changes");
+            foreach (var textChange in change.TextChanges) {
+                writer.WriteStartObject();
+                writer.WriteProperty("text", textChange.NewText);
+                writer.WriteProperty("start", textChange.Span.Start);
+                writer.WriteProperty("length", textChange.Span.Length);
+                writer.WriteEndObject();
+            }
+            writer.WriteEndArray();
+            return SendJsonMessageAsync();
         }
 
-        private JsonWriter StartJson() {
+        private Task SendDebugCompareAsync(byte command) {
+            if (command == Commands.ReplaceProgress) // let's wait for last one
+                return Task.CompletedTask;
+
+            var writer = StartJsonMessage("debug:compare");
+            if (command != Commands.MoveCursor)
+                writer.WriteProperty("text", _session.SourceText.ToString());
+            writer.WriteProperty("cursor", _session.CursorPosition);
+            return SendJsonMessageAsync();
+        }
+
+        private JsonWriter StartJsonMessage(string messageType) {
             _jsonOutputStream.Seek(0, SeekOrigin.Begin);
+            _jsonWriter.WriteStartObject();
+            _jsonWriter.WriteProperty("type", messageType);
             return _jsonWriter;
         }
 
-        private Task SendJsonAsync() {
+        private Task SendJsonMessageAsync() {
+            _jsonWriter.WriteEndObject();
             _jsonWriter.Flush();
             return SendOutputBufferAsync((int)_jsonOutputStream.Position);
         }
