@@ -1,6 +1,6 @@
 *.user
 project.lock.json
 .vs/
-**/wwwroot/external/
+bower_components/
 bin/
 obj/

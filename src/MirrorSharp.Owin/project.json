@@ -1,0 +1,13 @@
+﻿{
+  "version": "0.9.0-*",
+
+  "dependencies": {
+    "JetBrains.Annotations": "10.1.5",
+    "MirrorSharp": "0.9.0-*",
+    "Owin": "1.0.0"
+  },
+
+  "frameworks": {
+    "net45": {}
+  }
+}

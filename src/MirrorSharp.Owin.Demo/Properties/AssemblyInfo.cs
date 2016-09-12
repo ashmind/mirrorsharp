@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MirrorSharp")]
+[assembly: AssemblyProduct("MirrorSharp.Owin.Demo")]
 [assembly: AssemblyTrademark("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -16,7 +16,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("c130c962-d17f-4741-b2b4-d74263bf380a")]
-
-[assembly:InternalsVisibleTo("MirrorSharp.AspNetCore")]
-[assembly:InternalsVisibleTo("MirrorSharp.Owin")]
+[assembly: Guid("d2eb1cdd-12b5-4fdc-a56c-8a327200e759")]

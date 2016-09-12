@@ -1,0 +1,14 @@
+﻿{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "Microsoft.Owin": "3.0.1",
+    "Microsoft.Owin.StaticFiles": "3.0.1",
+    "Microsoft.Owin.Host.SystemWeb": "3.0.1",
+    "MirrorSharp.Owin": "0.9.0-*"
+  },
+
+  "frameworks": {
+    "net45": {}
+  }
+}

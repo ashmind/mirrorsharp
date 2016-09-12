@@ -62,6 +62,7 @@
 
         const indexKey = '$mirrorsharp-index';
         var changePending = false;
+        var changesAreFromServer = false;
         cm.on('beforeChange', function (s, change) {
             change.from[indexKey] = cm.indexFromPos(change.from);
             change.to[indexKey] = cm.indexFromPos(change.to);
@@ -82,7 +83,7 @@
                 const start = change.from[indexKey];
                 const length = change.to[indexKey] - start;
                 const text = change.text.join('\n');
-                if (cursorIndex === start + 1 && text.length === 1) {
+                if (cursorIndex === start + 1 && text.length === 1 && !changesAreFromServer) {
                     connection.sendTypeChar(text);
                 }
                 else {
@@ -95,7 +96,7 @@
         connection.onMessage(function (message) {
             switch (message.type) {
                 case 'changes':
-                    applyChanges(message.changes, message.cursor);
+                    applyChangesFromServer(message.changes, message.cursor);
                     break;
 
                 case 'completions':
@@ -112,12 +113,14 @@
             return cm.indexFromPos(cm.getCursor());
         }
 
-        function applyChanges(changes) {
+        function applyChangesFromServer(changes) {
+            changesAreFromServer = true;
             for (var change of changes) {
                 const from = cm.posFromIndex(change.start);
                 const to = change.length > 0 ? cm.posFromIndex(change.start + change.length) : from;
                 cm.replaceRange(change.text, from, to);
             }
+            changesAreFromServer = false;
         }
 
         function showCompletions(completions) {

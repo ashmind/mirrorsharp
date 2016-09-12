@@ -1,5 +1,5 @@
 {
-  "name": "mirrorsharp-demo-aspnetcore",
+  "name": "mirrorsharp",
   "authors": [
     "Andrey Shchekin <ashmind@gmail.com>"
   ],
@@ -9,6 +9,6 @@
   "homepage": "",
   "private": true,
   "dependencies": {
-    "mirrorsharp": "../MirrorSharp.WebAssets/wwwroot"
+    "codemirror": "^5.18.2"
   }
 }

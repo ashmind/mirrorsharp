@@ -10,6 +10,8 @@ using Newtonsoft.Json;
 
 namespace MirrorSharp.Internal {
     public class Connection : IAsyncDisposable {
+        private static readonly Task Done = Task.FromResult((object)null);
+
         private static class Commands {
             public const byte MoveCursor = (byte)'C';
             public const byte ReplaceProgress = (byte)'P';
@@ -37,7 +39,7 @@ namespace MirrorSharp.Internal {
         }
 
         public bool IsConnected => _socket.State == WebSocketState.Open;
-
+        
         public async Task ReceiveAndProcessAsync() {
             try {
                 await ReceiveAndProcessInternalAsync().ConfigureAwait(false);
@@ -72,11 +74,11 @@ namespace MirrorSharp.Internal {
                 case Commands.ReplaceProgress:
                 case Commands.ReplaceLastOrOnly: {
                     ProcessReplace(Shift(data));
-                    return Task.CompletedTask;
+                    return Done;
                 }
                 case Commands.MoveCursor: {
                     ProcessMoveCursor(Shift(data));
-                    return Task.CompletedTask;
+                    return Done;
                 }
                 case Commands.TypeChar: return ProcessTypeCharAsync(Shift(data));
                 case Commands.CommitCompletion: return ProcessCommitCompletionAsync(Shift(data));
@@ -187,8 +189,11 @@ namespace MirrorSharp.Internal {
         }
 
         private Task SendDebugCompareAsync(byte command) {
+            if (command == Commands.CommitCompletion) // this cannot cause server changes
+                return Done;
+
             if (command == Commands.ReplaceProgress) // let's wait for last one
-                return Task.CompletedTask;
+                return Done;
 
             var writer = StartJsonMessage("debug:compare");
             if (command != Commands.MoveCursor)
