@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal.Results;
@@ -30,13 +33,20 @@ namespace MirrorSharp.Internal {
         //private readonly Task _compilationLoopTask;
         private readonly CancellationTokenSource _disposing;
 
+        private static readonly ImmutableArray<MetadataReference> DefaultReferences = ImmutableArray.Create<MetadataReference>(
+            MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Modules.First().FullyQualifiedName)
+        );
+
         public WorkSession() {
             _disposing = new CancellationTokenSource();
             //_compilationLoopTask = Task.Run(CompilationLoop);
 
             _workspace = new AdhocWorkspace(HostServices);
 
-            var project = _workspace.AddProject("_", "C#");
+            var project = _workspace.AddProject("_", "C#")
+                .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
+                .WithMetadataReferences(DefaultReferences);
+
             _sourceText = SourceText.From("");
             _document = project.AddDocument("_", _sourceText);
 
@@ -73,35 +83,15 @@ namespace MirrorSharp.Internal {
             return _completionService.GetChangeAsync(_document, item);
         }
 
+        public async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync() {
+            var compilation = await _document.Project.GetCompilationAsync().ConfigureAwait(false);
+            return compilation.GetDiagnostics();
+        }
+
         private async Task<TypeCharResult> CreateResultFromCompletionsAsync() {
             _completionList = await _completionService.GetCompletionsAsync(_document, _cursorPosition).ConfigureAwait(false);
             return new TypeCharResult(_completionList);
         }
-
-        /*private async Task CompilationLoop() {
-            var lastText = _text;
-            var lastCompilation = CSharpCompilation.Create("_", new[] {_document.GetSyntaxTreeAsync() });
-
-            while (!_disposing.IsCancellationRequested) {
-                if (_text != lastText) {
-                    _completionService.ShouldTriggerCompletion()
-
-                    var compilation = lastCompilation.ReplaceSyntaxTree(lastTree, tree);
-                    _callback(compilation.GetDiagnostics().Select(d => d.GetMessage()).ToArray());
-                    lastText = _text;
-                    lastCompilation = compilation;
-                }
-
-                try {
-                    await Task.Delay(500, _disposing.Token).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException) {}
-            }
-
-            / *return _compilation.GetDiagnostics().Select(d => new {
-                Message = d.GetMessage()
-            });* /
-        }*/
 
         public SourceText SourceText => _sourceText;
         public int CursorPosition => _cursorPosition;

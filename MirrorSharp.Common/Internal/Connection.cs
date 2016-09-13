@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
 using MirrorSharp.Internal.Results;
 using Newtonsoft.Json;
@@ -14,6 +16,7 @@ namespace MirrorSharp.Internal {
 
         private static class Commands {
             public const byte MoveCursor = (byte)'C';
+            public const byte GetDiagnostics = (byte)'D';
             public const byte ReplaceProgress = (byte)'P';
             public const byte ReplaceLastOrOnly = (byte)'R';
             public const byte TypeChar = (byte)'T';
@@ -39,7 +42,7 @@ namespace MirrorSharp.Internal {
         }
 
         public bool IsConnected => _socket.State == WebSocketState.Open;
-        
+
         public async Task ReceiveAndProcessAsync() {
             try {
                 await ReceiveAndProcessInternalAsync().ConfigureAwait(false);
@@ -82,6 +85,7 @@ namespace MirrorSharp.Internal {
                 }
                 case Commands.TypeChar: return ProcessTypeCharAsync(Shift(data));
                 case Commands.CommitCompletion: return ProcessCommitCompletionAsync(Shift(data));
+                case Commands.GetDiagnostics: return ProcessGetDiagnosticsAsync(Shift(data));
                 default: throw new FormatException($"Unknown command: '{(char)command}'.");
             }
         }
@@ -188,8 +192,28 @@ namespace MirrorSharp.Internal {
             return SendJsonMessageAsync();
         }
 
+        private async Task ProcessGetDiagnosticsAsync(ArraySegment<byte> data) {
+            var diagnostics = await _session.GetDiagnosticsAsync();
+            await SendDiagnosticsAsync(diagnostics).ConfigureAwait(false);
+        }
+
+        private Task SendDiagnosticsAsync(ImmutableArray<Diagnostic> diagnostics) {
+            var writer = StartJsonMessage("diagnostics");
+            writer.WritePropertyStartArray("diagnostics");
+            foreach (var diagnostic in diagnostics) {
+                writer.WriteStartObject();
+                writer.WriteProperty("message", diagnostic.GetMessage());
+                writer.WriteProperty("severity", diagnostic.Severity.ToString("G").ToLowerInvariant());
+                writer.WritePropertyName("span");
+                writer.WriteSpan(diagnostic.Location.SourceSpan);
+                writer.WriteEndObject();
+            }
+            writer.WriteEndArray();
+            return SendJsonMessageAsync();
+        }
+
         private Task SendDebugCompareAsync(byte command) {
-            if (command == Commands.CommitCompletion) // this cannot cause server changes
+            if (command == Commands.CommitCompletion || command == Commands.GetDiagnostics) // these cannot cause server changes
                 return Done;
 
             if (command == Commands.ReplaceProgress) // let's wait for last one

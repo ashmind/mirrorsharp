@@ -39,6 +39,10 @@
             return sendWhenOpen('S' + itemIndex);
         }
 
+        this.sendGetDiagnostics = function () {
+            return sendWhenOpen('D');
+        }
+
         this.onMessage = function(handler) {
             socket.addEventListener('message', function (e) {
                 //console.debug("[<=]", e.data);
@@ -49,15 +53,24 @@
     }
 
     function Editor(textarea, connection, options) {
-        const cmOptions = options.forCodeMirror || { gutters: [] };
-        //cmOptions.lint = { async: true, getAnnotations: lint };
+        const cmOptions = options.forCodeMirror || { mode: 'text/x-csharp', gutters: [] };
+        cmOptions.lint = { async: true, getAnnotations: requestDiagnostics };
         cmOptions.gutters.push('CodeMirror-lint-markers');
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);
 
-        (function () {
+        var initialTextSent = false;
+        var updateLinting;
+        (function sendOnStart() {
             const text = cm.getValue();
-            if (text !== '' && text != null)
-                connection.sendReplaceText(true, 0, 0, text, 0);
+            if (text === '' || text == null) {
+                initialTextSent = true;
+                return;
+            }
+
+            connection.sendReplaceText(true, 0, 0, text, 0);
+            initialTextSent = true;
+            if (updateLinting)
+                requestDiagnostics(text, updateLinting);
         })();
 
         const indexKey = '$mirrorsharp-index';
@@ -96,11 +109,15 @@
         connection.onMessage(function (message) {
             switch (message.type) {
                 case 'changes':
-                    applyChangesFromServer(message.changes, message.cursor);
+                    applyChangesFromServer(message.changes);
                     break;
 
                 case 'completions':
                     showCompletions(message.completions);
+                    break;
+
+                case 'diagnostics':
+                    showDiagnostics(message.diagnostics);
                     break;
 
                 case 'debug:compare':
@@ -147,6 +164,24 @@
                 hint: function () { return hintResult; },
                 completeSingle: false
             });
+        }
+
+        function requestDiagnostics(text, updateLintingValue) {
+            updateLinting = updateLintingValue;
+            if (initialTextSent)
+                connection.sendGetDiagnostics();
+        }
+
+        function showDiagnostics(diagnostics) {
+            const annotations = diagnostics.map(function(d) {
+                return {
+                    severity: d.severity,
+                    message: d.message,
+                    from: cm.posFromIndex(d.span.start),
+                    to: cm.posFromIndex(d.span.start + d.span.length)
+                }
+            });
+            updateLinting(annotations);
         }
 
         function debugCompare(serverText, serverCursorIndex) {

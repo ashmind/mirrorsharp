@@ -1,4 +1,8 @@
-﻿.CodeMirror-hints {
+﻿.CodeMirror, .CodeMirror-hints {
+    font-family: Consolas, Menlo, Monaco, monospace;
+}
+
+.CodeMirror-hints {
     font-size: inherit;
 }
 
@@ -10,10 +14,12 @@
 .mirrorsharp-hint::before {
     content: '';
     flex-shrink: 0;
-    margin-right: 5px;
-    width: 16px;
-    height: 16px;
+    margin-right: 0.2em;
+    padding-right: 0.2em;
+    width: 1.2em;
+    height: 1.2em;
     background-color: #fff;
+    background-repeat: no-repeat;
 }
 
 .mirrorsharp-hint-class::before { background-image: url('icons/class.svg'); }
