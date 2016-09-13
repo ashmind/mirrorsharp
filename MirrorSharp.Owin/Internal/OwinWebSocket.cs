@@ -73,24 +73,28 @@ namespace MirrorSharp.Owin.Internal {
             if (_state != WebSocketState.Open && _state != WebSocketState.CloseSent)
                 throw new InvalidOperationException($"WebSocket state is {_state}: cannot receieve data.");
 
-            var tuple = await _receiveAsync(buffer, cancellationToken).ConfigureAwait(false);
-            var messageType = MapMessageTypeToEnum(tuple.Item1);
-            if (messageType == WebSocketMessageType.Close) {
-                _state = (_state == WebSocketState.CloseSent) ? WebSocketState.Closed : WebSocketState.CloseReceived;
-                _closeStatus = (WebSocketCloseStatus?)(int?)_environment.GetValueOrDefault("websocket.ClientCloseStatus");
-                _closeDescription = (string)_environment.GetValueOrDefault("websocket.ClientCloseDescription");
-                return new WebSocketReceiveResult(
-                    tuple.Item3, messageType, tuple.Item2,
-                    _closeStatus, _closeDescription
-                );
-            }
+            try {
+                var tuple = await _receiveAsync(buffer, cancellationToken).ConfigureAwait(false);
+                var messageType = MapMessageTypeToEnum(tuple.Item1);
+                if (_state == WebSocketState.CloseSent && messageType != WebSocketMessageType.Close)
+                    throw new WebSocketException(WebSocketError.InvalidMessageType);
 
-            if (_state == WebSocketState.CloseSent) {
+                if (messageType == WebSocketMessageType.Close) {
+                    _state = (_state == WebSocketState.CloseSent) ? WebSocketState.Closed : WebSocketState.CloseReceived;
+                    _closeStatus = (WebSocketCloseStatus?)(int?)_environment.GetValueOrDefault("websocket.ClientCloseStatus");
+                    _closeDescription = (string)_environment.GetValueOrDefault("websocket.ClientCloseDescription");
+                    return new WebSocketReceiveResult(
+                        tuple.Item3, messageType, tuple.Item2,
+                        _closeStatus, _closeDescription
+                    );
+                }
+
+                return new WebSocketReceiveResult(tuple.Item3, messageType, tuple.Item2);
+            }
+            catch (WebSocketException) {
                 Abort();
-                throw new WebSocketException(WebSocketError.InvalidMessageType);
+                throw;
             }
-
-            return new WebSocketReceiveResult(tuple.Item3, messageType, tuple.Item2);
         }
 
         public override async Task SendAsync(ArraySegment<byte> buffer, WebSocketMessageType messageType, bool endOfMessage, CancellationToken cancellationToken) {
@@ -101,7 +105,7 @@ namespace MirrorSharp.Owin.Internal {
                 await _sendAsync(buffer, MapMessageTypeFromEnum(messageType), endOfMessage, cancellationToken)
                     .ConfigureAwait(false);
             }
-            catch (Exception) when (messageType == WebSocketMessageType.Close) {
+            catch (Exception ex) when (messageType == WebSocketMessageType.Close || ex is WebSocketException) {
                 Abort();
                 throw;
             }
