@@ -2,8 +2,8 @@
   "version": "0.9.0-*",
 
   "dependencies": {
-    "MirrorSharp": "*",
-    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0"
+    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
+    "MirrorSharp.Common": "*"
   },
 
   "frameworks": {

@@ -23,7 +23,10 @@ namespace MirrorSharp.Owin.Internal {
             if (!environment.TryGetValue("websocket.Accept", out accept))
                 return _next(environment);
 
-            ((WebSocketAccept) accept)(null, e => WebSocketLoopAsync(new OwinWebSocket(e)));
+            ((WebSocketAccept) accept)(null, e => {
+                var socket = new OwinWebSocket(e);
+                return Task.WhenAny(WebSocketLoopAsync(socket), socket.AbortedTask);
+            });
             return Done;
         }
 

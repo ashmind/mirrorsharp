@@ -7,7 +7,7 @@
     "xunit": "2.2.0-beta2-build3300",
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
     "Moq": "4.6.38-alpha",
-    "MirrorSharp": "*",
+    "MirrorSharp.Common": "*",
     "System.Net.WebSockets": "4.0.0"
   },
 
