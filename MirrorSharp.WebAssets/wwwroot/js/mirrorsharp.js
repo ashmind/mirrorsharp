@@ -1,4 +1,5 @@
-﻿(function (root, factory) {
+﻿/* globals define:false */
+(function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define(['CodeMirror'], factory);
     } else if (typeof module === 'object' && module.exports) {
@@ -7,13 +8,45 @@
         root.mirrorsharp = factory(root.CodeMirror);
     }
 }(this, function (CodeMirror) {
-    function Connection(socket) {
-        const openPromise = new Promise(function(resolve) {
-            socket.addEventListener('open', function (e) {
-                //console.debug("[open]");
-                resolve();
-            });
+    'use strict';
+
+    function Connection(openSocket) {
+        var socket;
+        var openPromise;
+        const handlers = {
+            open:    [],
+            message: [],
+            close:   []
+        };
+
+        open();
+        on('close', function() {
+            setTimeout(function() { open(); }, 1000);
         });
+
+        function open() {
+            socket = openSocket();
+            openPromise = new Promise(function (resolve) {
+                socket.addEventListener('open', function() {
+                    resolve();
+                });
+            });
+
+            for (var key in handlers) {
+                const keyFixed = key;
+                const handlersByKey = handlers[key];
+                socket.addEventListener(key, function (e) {
+                    var argument = (keyFixed === 'message') ? JSON.parse(e.data) : undefined;
+                    for (var handler of handlersByKey) {
+                        handler(argument);
+                    }
+                });
+            }
+        }
+
+        function on(key, handler) {
+            handlers[key].push(handler);
+        }
 
         function sendWhenOpen(command) {
             openPromise.then(function () {
@@ -21,6 +54,8 @@
                 socket.send(command);
             });
         }
+
+        this.on = on;
 
         this.sendReplaceText = function (isLastOrOnly, start, length, newText, cursorIndexAfter) {
             const command = isLastOrOnly ? 'R' : 'P';
@@ -42,14 +77,6 @@
         this.sendGetDiagnostics = function () {
             return sendWhenOpen('D');
         }
-
-        this.onMessage = function(handler) {
-            socket.addEventListener('message', function (e) {
-                //console.debug("[<=]", e.data);
-                const message = JSON.parse(e.data);
-                handler(message);
-            });
-        }
     }
 
     function Editor(textarea, connection, options) {
@@ -58,20 +85,39 @@
         cmOptions.gutters.push('CodeMirror-lint-markers');
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);
 
-        var initialTextSent = false;
+        /*(function createStatusElement() {
+            const cmWrapper = cm.getWrapperElement();
+            const element = document.createElement('div');
+            element.className = 'mirrorsharp-status';
+            cmWrapper.appendChild(element);
+            connection.onOpen(function () {
+                element.classList.add('mirrorsharp-status-connected');
+            });
+
+            return element;
+        })();*/
+
+        var lintingSuspended = true;
         var updateLinting;
-        (function sendOnStart() {
+        connection.on('open', function () {
+            hideConnectionLoss();
+
             const text = cm.getValue();
             if (text === '' || text == null) {
-                initialTextSent = true;
+                lintingSuspended = false;
                 return;
             }
 
-            connection.sendReplaceText(true, 0, 0, text, 0);
-            initialTextSent = true;
+            connection.sendReplaceText(true, 0, 0, text, getCursorIndex(cm));
+            lintingSuspended = false;
             if (updateLinting)
                 requestDiagnostics(text, updateLinting);
-        })();
+        });
+
+        connection.on('close', function () {
+            lintingSuspended = true;
+            showConnectionLoss();
+        });
 
         const indexKey = '$mirrorsharp-index';
         var changePending = false;
@@ -106,7 +152,7 @@
             }
         });
 
-        connection.onMessage(function (message) {
+        connection.on('message', function (message) {
             switch (message.type) {
                 case 'changes':
                     applyChangesFromServer(message.changes);
@@ -174,7 +220,7 @@
 
         function requestDiagnostics(text, updateLintingValue) {
             updateLinting = updateLintingValue;
-            if (initialTextSent)
+            if (!lintingSuspended)
                 connection.sendGetDiagnostics();
         }
 
@@ -201,10 +247,30 @@
             if (clientCursorIndex !== serverCursorIndex)
                 console.error('Client cursor position does not match server position:', { clientPosition: clientCursorIndex, serverPosition: serverCursorIndex });
         }
+
+        var connectionLossElement;
+        function showConnectionLoss() {
+            const wrapper = cm.getWrapperElement();
+            if (!connectionLossElement) {
+                connectionLossElement = document.createElement("div");
+                connectionLossElement.setAttribute('class', 'mirrorsharp-connection-issue');
+                connectionLossElement.innerText = 'Server connection lost, reconnecting…';
+                wrapper.appendChild(connectionLossElement);
+            }
+
+            wrapper.classList.add('mirrorsharp-connection-has-issue');
+        }
+
+        function hideConnectionLoss() {
+            cm.getWrapperElement().classList.remove('mirrorsharp-connection-has-issue');
+        }
     }
 
     return function(textarea, options) {
-        const connection = new Connection(new WebSocket(options.serviceUrl));
+        const connection = new Connection(function() {
+            return new WebSocket(options.serviceUrl);
+        });
+
         return new Editor(textarea, connection, options);
     }
 }));
