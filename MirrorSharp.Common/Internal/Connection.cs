@@ -49,7 +49,7 @@ namespace MirrorSharp.Internal {
             }
             catch (Exception ex) {
                 try {
-                    await SendTextAsync("RM-ERR-??: " + ex.Message).ConfigureAwait(false);
+                    await SendErrorAsync(ex.Message).ConfigureAwait(false);
                 }
                 catch (Exception sendException) {
                     throw new AggregateException(ex, sendException);
@@ -85,7 +85,7 @@ namespace MirrorSharp.Internal {
                 }
                 case Commands.TypeChar: return ProcessTypeCharAsync(Shift(data));
                 case Commands.CommitCompletion: return ProcessCommitCompletionAsync(Shift(data));
-                case Commands.GetDiagnostics: return ProcessGetDiagnosticsAsync(Shift(data));
+                case Commands.GetDiagnostics: return ProcessGetDiagnosticsAsync();
                 default: throw new FormatException($"Unknown command: '{(char)command}'.");
             }
         }
@@ -192,7 +192,7 @@ namespace MirrorSharp.Internal {
             return SendJsonMessageAsync();
         }
 
-        private async Task ProcessGetDiagnosticsAsync(ArraySegment<byte> data) {
+        private async Task ProcessGetDiagnosticsAsync() {
             var diagnostics = await _session.GetDiagnosticsAsync();
             await SendDiagnosticsAsync(diagnostics).ConfigureAwait(false);
         }
@@ -226,6 +226,12 @@ namespace MirrorSharp.Internal {
             return SendJsonMessageAsync();
         }
 
+        private Task SendErrorAsync(string message) {
+            var writer = StartJsonMessage("error");
+            writer.WriteProperty("message", message);
+            return SendJsonMessageAsync();
+        }
+
         private JsonWriter StartJsonMessage(string messageType) {
             _jsonOutputStream.Seek(0, SeekOrigin.Begin);
             _jsonWriter.WriteStartObject();
@@ -237,11 +243,6 @@ namespace MirrorSharp.Internal {
             _jsonWriter.WriteEndObject();
             _jsonWriter.Flush();
             return SendOutputBufferAsync((int)_jsonOutputStream.Position);
-        }
-
-        private Task SendTextAsync(string text) {
-            var byteCount = Encoding.UTF8.GetBytes(text, 0, text.Length, _outputByteBuffer, 0);
-            return SendOutputBufferAsync(byteCount);
         }
 
         private Task SendOutputBufferAsync(int byteCount) {

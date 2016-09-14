@@ -123,6 +123,12 @@
                 case 'debug:compare':
                     debugCompare(message.text, message.cursor);
                     break;
+
+                case 'error':
+                    throw new Error(message.message);
+
+                default:
+                    throw new Error('Unknown message type "' + message.type);
             }
         });
 
