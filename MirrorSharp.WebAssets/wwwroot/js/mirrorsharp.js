@@ -16,18 +16,35 @@
         const handlers = {
             open:    [],
             message: [],
+            error:   [],
             close:   []
         };
 
         open();
-        on('close', function() {
-            setTimeout(function() { open(); }, 1000);
-        });
+
+        var reopenPeriod = 0;
+        var reopening = false;
+        function tryToReopen() {
+            if (reopening)
+                return;
+
+            reopening = true;
+            setTimeout(function () {
+                open();
+                reopening = false;
+            }, reopenPeriod);
+            if (reopenPeriod < 60000)
+                reopenPeriod = Math.min(5 * (reopenPeriod + 200), 60000);
+        }
+
+        on('error', tryToReopen);
+        on('close', tryToReopen);
 
         function open() {
             socket = openSocket();
             openPromise = new Promise(function (resolve) {
-                socket.addEventListener('open', function() {
+                socket.addEventListener('open', function () {
+                    reopenPeriod = 0;
                     resolve();
                 });
             });
@@ -114,10 +131,13 @@
                 requestDiagnostics(text, updateLinting);
         });
 
-        connection.on('close', function () {
+        function onCloseOrError() {
             lintingSuspended = true;
             showConnectionLoss();
-        });
+        }
+
+        connection.on('error', onCloseOrError);
+        connection.on('close', onCloseOrError);
 
         const indexKey = '$mirrorsharp-index';
         var changePending = false;
