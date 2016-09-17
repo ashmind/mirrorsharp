@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal.Results;
@@ -33,26 +34,40 @@ namespace MirrorSharp.Internal {
         //private readonly Task _compilationLoopTask;
         private readonly CancellationTokenSource _disposing;
 
-        private static readonly ImmutableArray<MetadataReference> DefaultReferences = ImmutableArray.Create<MetadataReference>(
-            MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Modules.First().FullyQualifiedName)
+        private static readonly ImmutableList<MetadataReference> DefaultAssemblyReferences = ImmutableList.Create<MetadataReference>(
+            MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location)
         );
+
+        private static readonly ImmutableList<AnalyzerReference> DefaultAnalyzerReferences = ImmutableList.Create<AnalyzerReference>(
+            CreateAnalyzerReference("Microsoft.CodeAnalysis.CSharp.Features")
+        );
+
+        private readonly ImmutableArray<DiagnosticAnalyzer> _analyzers;
 
         public WorkSession() {
             _disposing = new CancellationTokenSource();
-            //_compilationLoopTask = Task.Run(CompilationLoop);
 
             _workspace = new AdhocWorkspace(HostServices);
-
-            var project = _workspace.AddProject("_", "C#")
-                .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-                .WithMetadataReferences(DefaultReferences);
-
+            var projectId = ProjectId.CreateNewId();
+            var project = _workspace.AddProject(ProjectInfo.Create(
+                projectId, VersionStamp.Create(), "_", "_", "C#",
+                compilationOptions: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary),
+                metadataReferences: DefaultAssemblyReferences,
+                analyzerReferences: DefaultAnalyzerReferences
+            ));
             _sourceText = SourceText.From("");
-            _document = project.AddDocument("_", _sourceText);
-
+            _document = _workspace.AddDocument(projectId, "_", _sourceText);
+            _workspace.OpenDocument(_document.Id);
             _completionService = CompletionService.GetService(_document);
             if (_completionService == null)
                 throw new Exception("Failed to retrieve the completion service.");
+
+            _analyzers = ImmutableArray.CreateRange(project.AnalyzerReferences.SelectMany(r => r.GetAnalyzers("C#")));
+        }
+
+        private static AnalyzerFileReference CreateAnalyzerReference(string assemblyName) {
+            var assembly = Assembly.Load(new AssemblyName(assemblyName));
+            return new AnalyzerFileReference(assembly.Location, new PreloadedAnalyzerAssemblyLoader(assembly));
         }
 
         public void ReplaceText(int start, int length, string newText, int cursorPositionAfter) {
@@ -74,7 +89,6 @@ namespace MirrorSharp.Internal {
             ReplaceText(_cursorPosition, 0, FastConvert.CharToString(@char), _cursorPosition + 1);
             if (!_completionService.ShouldTriggerCompletion(_sourceText, _cursorPosition, CompletionTrigger.CreateInsertionTrigger(@char)))
                 return TypeCharEmptyResultTask;
-
             return CreateResultFromCompletionsAsync();
         }
 
@@ -83,9 +97,10 @@ namespace MirrorSharp.Internal {
             return _completionService.GetChangeAsync(_document, item);
         }
 
-        public async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync() {
-            var compilation = await _document.Project.GetCompilationAsync().ConfigureAwait(false);
-            return compilation.GetDiagnostics();
+        public async Task<SlowUpdateResult> GetSlowUpdateAsync() {
+            var compilation = await _document.Project.GetCompilationAsync();
+            var diagnostics = await compilation.WithAnalyzers(_analyzers).GetAllDiagnosticsAsync();
+            return new SlowUpdateResult(diagnostics);
         }
 
         private async Task<TypeCharResult> CreateResultFromCompletionsAsync() {
@@ -99,8 +114,22 @@ namespace MirrorSharp.Internal {
         public async Task DisposeAsync() {
             using (_disposing) {
                 _disposing.Cancel();
-                //await _compilationLoopTask.ConfigureAwait(false);
                 _workspace.Dispose();
+            }
+        }
+
+        private class PreloadedAnalyzerAssemblyLoader : IAnalyzerAssemblyLoader {
+            private readonly Assembly _assembly;
+
+            public PreloadedAnalyzerAssemblyLoader(Assembly assembly) {
+                _assembly = assembly;
+            }
+
+            public Assembly LoadFromPath(string fullPath) {
+                return _assembly;
+            }
+
+            public void AddDependencyLocation(string fullPath) {
             }
         }
     }

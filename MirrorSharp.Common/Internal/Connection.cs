@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.IO;
 using System.Net.WebSockets;
 using System.Text;
@@ -15,12 +14,12 @@ namespace MirrorSharp.Internal {
         private static readonly Task Done = Task.FromResult((object)null);
 
         private static class Commands {
-            public const byte MoveCursor = (byte)'C';
-            public const byte GetDiagnostics = (byte)'D';
+            public const byte TypeChar = (byte)'C';
+            public const byte MoveCursor = (byte)'M';
             public const byte ReplaceProgress = (byte)'P';
             public const byte ReplaceLastOrOnly = (byte)'R';
-            public const byte TypeChar = (byte)'T';
             public const byte CommitCompletion = (byte)'S';
+            public const byte SlowUpdate = (byte)'U';
         }
 
         private readonly WebSocket _socket;
@@ -85,7 +84,7 @@ namespace MirrorSharp.Internal {
                 }
                 case Commands.TypeChar: return ProcessTypeCharAsync(Shift(data));
                 case Commands.CommitCompletion: return ProcessCommitCompletionAsync(Shift(data));
-                case Commands.GetDiagnostics: return ProcessGetDiagnosticsAsync();
+                case Commands.SlowUpdate: return ProcessSlowUpdateAsync();
                 default: throw new FormatException($"Unknown command: '{(char)command}'.");
             }
         }
@@ -158,7 +157,7 @@ namespace MirrorSharp.Internal {
                 writer.WriteProperty("displayText", item.DisplayText);
                 writer.WritePropertyStartArray("tags");
                 foreach (var tag in item.Tags) {
-                    writer.WriteValue(tag);
+                    writer.WriteValue(tag.ToLowerInvariant());
                 }
                 writer.WriteEndArray();
                 if (item.Span != completions.DefaultSpan) {
@@ -183,27 +182,34 @@ namespace MirrorSharp.Internal {
             writer.WritePropertyStartArray("changes");
             foreach (var textChange in change.TextChanges) {
                 writer.WriteStartObject();
-                writer.WriteProperty("text", textChange.NewText);
                 writer.WriteProperty("start", textChange.Span.Start);
                 writer.WriteProperty("length", textChange.Span.Length);
+                writer.WriteProperty("text", textChange.NewText);
                 writer.WriteEndObject();
             }
             writer.WriteEndArray();
             return SendJsonMessageAsync();
         }
 
-        private async Task ProcessGetDiagnosticsAsync() {
-            var diagnostics = await _session.GetDiagnosticsAsync();
-            await SendDiagnosticsAsync(diagnostics).ConfigureAwait(false);
+        private async Task ProcessSlowUpdateAsync() {
+            var update = await _session.GetSlowUpdateAsync().ConfigureAwait(false);
+            await SendSlowUpdateAsync(update).ConfigureAwait(false);
         }
 
-        private Task SendDiagnosticsAsync(ImmutableArray<Diagnostic> diagnostics) {
-            var writer = StartJsonMessage("diagnostics");
+        private Task SendSlowUpdateAsync(SlowUpdateResult update) {
+            var writer = StartJsonMessage("slowUpdate");
             writer.WritePropertyStartArray("diagnostics");
-            foreach (var diagnostic in diagnostics) {
+            foreach (var diagnostic in update.Diagnostics) {
                 writer.WriteStartObject();
                 writer.WriteProperty("message", diagnostic.GetMessage());
                 writer.WriteProperty("severity", diagnostic.Severity.ToString("G").ToLowerInvariant());
+                writer.WritePropertyStartArray("tags");
+                foreach (var tag in diagnostic.Descriptor.CustomTags) {
+                    if (tag != WellKnownDiagnosticTags.Unnecessary)
+                        continue;
+                    writer.WriteValue(tag.ToLowerInvariant());
+                }
+                writer.WriteEndArray();
                 writer.WritePropertyName("span");
                 writer.WriteSpan(diagnostic.Location.SourceSpan);
                 writer.WriteEndObject();
@@ -213,7 +219,7 @@ namespace MirrorSharp.Internal {
         }
 
         private Task SendDebugCompareAsync(byte command) {
-            if (command == Commands.CommitCompletion || command == Commands.GetDiagnostics) // these cannot cause server changes
+            if (command == Commands.CommitCompletion || command == Commands.SlowUpdate) // these cannot cause state changes
                 return Done;
 
             if (command == Commands.ReplaceProgress) // let's wait for last one

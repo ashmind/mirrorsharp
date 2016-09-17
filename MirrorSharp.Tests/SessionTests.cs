@@ -2,11 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using MirrorSharp.Internal;
 using Xunit;
 
 namespace MirrorSharp.Tests {
     public class SessionTests {
+        private static readonly string[] ObjectMemberNames = {
+            nameof(Equals),
+            nameof(GetHashCode),
+            nameof(GetType),
+            nameof(ToString)
+        };
+
         [Fact]
         public async Task TypeChar_InsertsSingleChar() {
             var session = SessionFromTextWithCursor("class A| {}");
@@ -36,9 +44,22 @@ namespace MirrorSharp.Tests {
             var result = await session.TypeCharAsync('.');
 
             Assert.Equal(
-                new[] { "x" },
-                result.Completions.Items.Select(i => i.DisplayText)
+                new[] { "x" }.Concat(ObjectMemberNames).OrderBy(n => n),
+                result.Completions.Items.Select(i => i.DisplayText).OrderBy(n => n)
             );
+        }
+
+        [Fact]
+        public async Task SlowUpdate_ProducesDiagnosticWithCustomTagUnnecessary_ForUnusedNamespace() {
+            var session = SessionFromTextWithCursor(@"using System;|");
+            var result = await session.GetSlowUpdateAsync();
+
+            /*Assert.Contains(
+                new { Severity = DiagnosticSeverity.Hidden, IsUnnecessary = true },
+                result.Diagnostics.Select(
+                    d => new { d.Severity, IsUnnecessary = d.Descriptor.CustomTags.Contains(WellKnownDiagnosticTags.Unnecessary) }
+                ).ToArray()
+            );*/
         }
 
         private WorkSession SessionFromTextWithCursor(string textWithCursor) {

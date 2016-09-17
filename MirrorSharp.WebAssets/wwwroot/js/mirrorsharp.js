@@ -80,41 +80,30 @@
         }
 
         this.sendMoveCursor = function(cursorIndex) {
-            return sendWhenOpen('C' + cursorIndex);
+            return sendWhenOpen('M' + cursorIndex);
         }
 
         this.sendTypeChar = function (char) {
-            return sendWhenOpen('T' + char);
+            return sendWhenOpen('C' + char);
         }
 
         this.sendCommitCompletion = function (itemIndex) {
             return sendWhenOpen('S' + itemIndex);
         }
 
-        this.sendGetDiagnostics = function () {
-            return sendWhenOpen('D');
+        this.sendSlowUpdate = function () {
+            return sendWhenOpen('U');
         }
     }
 
     function Editor(textarea, connection, options) {
+        var lintingSuspended = true;
+
         const cmOptions = options.forCodeMirror || { mode: 'text/x-csharp', gutters: [] };
-        cmOptions.lint = { async: true, getAnnotations: requestDiagnostics };
+        cmOptions.lint = { async: true, getAnnotations: requestSlowUpdate };
         cmOptions.gutters.push('CodeMirror-lint-markers');
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);
 
-        /*(function createStatusElement() {
-            const cmWrapper = cm.getWrapperElement();
-            const element = document.createElement('div');
-            element.className = 'mirrorsharp-status';
-            cmWrapper.appendChild(element);
-            connection.onOpen(function () {
-                element.classList.add('mirrorsharp-status-connected');
-            });
-
-            return element;
-        })();*/
-
-        var lintingSuspended = true;
         var updateLinting;
         connection.on('open', function () {
             hideConnectionLoss();
@@ -128,7 +117,7 @@
             connection.sendReplaceText(true, 0, 0, text, getCursorIndex(cm));
             lintingSuspended = false;
             if (updateLinting)
-                requestDiagnostics(text, updateLinting);
+                requestSlowUpdate(text, updateLinting);
         });
 
         function onCloseOrError() {
@@ -162,7 +151,7 @@
                 const start = change.from[indexKey];
                 const length = change.to[indexKey] - start;
                 const text = change.text.join('\n');
-                if (cursorIndex === start + 1 && text.length === 1 && !changesAreFromServer) {
+                if (cursorIndex === start + 1 && length === 0 && text.length === 1 && !changesAreFromServer) {
                     connection.sendTypeChar(text);
                 }
                 else {
@@ -182,8 +171,8 @@
                     showCompletions(message.completions);
                     break;
 
-                case 'diagnostics':
-                    showDiagnostics(message.diagnostics);
+                case 'slowUpdate':
+                    showSlowUpdate(message);
                     break;
 
                 case 'debug:compare':
@@ -238,21 +227,40 @@
             });
         }
 
-        function requestDiagnostics(text, updateLintingValue) {
+        function requestSlowUpdate(text, updateLintingValue) {
             updateLinting = updateLintingValue;
             if (!lintingSuspended)
-                connection.sendGetDiagnostics();
+                connection.sendSlowUpdate();
         }
 
-        function showDiagnostics(diagnostics) {
-            const annotations = diagnostics.map(function(d) {
-                return {
-                    severity: d.severity,
-                    message: d.message,
-                    from: cm.posFromIndex(d.span.start),
-                    to: cm.posFromIndex(d.span.start + d.span.length)
+        var markers = [];
+        const markerOptions = { className: 'mirrorsharp-marker-unnecessary' };
+        function showSlowUpdate(update) {
+            const annotations = [];
+            for (var marker of markers) {
+                marker.clear();
+            }
+            markers = [];
+
+            for (var diagnostic of update.diagnostics) {
+                if (diagnostic.severity === 'hidden' && diagnostic.tags.indexOf('unnecessary') >= 0) {
+                    markers.push(cm.markText(
+                        cm.posFromIndex(diagnostic.span.start),
+                        cm.posFromIndex(diagnostic.span.start + diagnostic.span.length),
+                        markerOptions
+                    ));
                 }
-            });
+
+                if (diagnostic.severity !== 'error' && diagnostic.severity !== 'warning')
+                    continue;
+
+                annotations.push({
+                    severity: diagnostic.severity,
+                    message: diagnostic.message,
+                    from: cm.posFromIndex(diagnostic.span.start),
+                    to: cm.posFromIndex(diagnostic.span.start + diagnostic.span.length)
+                });
+            }
             updateLinting(annotations);
         }
 

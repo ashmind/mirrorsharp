@@ -20,7 +20,7 @@ namespace MirrorSharp.Advanced {
 
                 while (connection.IsConnected) {
                     try {
-                        await connection.ReceiveAndProcessAsync();
+                        await connection.ReceiveAndProcessAsync().ConfigureAwait(false);
                     }
                     catch {
                         // this is sent back by connection itself

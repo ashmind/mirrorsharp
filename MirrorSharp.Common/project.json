@@ -11,7 +11,10 @@
   },
 
   "frameworks": {
-    "netstandard1.3": {
+    "netstandard1.5": {
+      "buildOptions": {
+        "define": ["NETSTANDARD"]
+      },
       "dependencies": {
         "System.Net.WebSockets": "4.0.0",
         "System.Threading.Tasks": "4.0.11"

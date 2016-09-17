@@ -6,20 +6,6 @@
     font-size: inherit;
 }
 
-/*.mirrorsharp-status {
-    position: absolute;
-    width: 0.7em;
-    height: 0.7em;
-    right: 0.35em;
-    top: 0.35em;
-    transform: rotate(45deg);
-    opacity: 0.7;
-}
-
-.mirrorsharp-status-connected {
-    background-color: #2ecc71;
-}*/
-
 .mirrorsharp-connection-issue {
     display: none;
     position: absolute;
@@ -45,6 +31,10 @@
 
 .CodeMirror.mirrorsharp-connection-has-issue .CodeMirror-code * {
     color: inherit;
+}
+
+.mirrorsharp-marker-unnecessary {
+    opacity: 0.5;
 }
 
 .mirrorsharp-hint {

@@ -14,6 +14,6 @@ namespace MirrorSharp.Internal {
         void MoveCursor(int cursorPosition);
         Task<TypeCharResult> TypeCharAsync(char @char);
         Task<CompletionChange> GetCompletionChangeAsync(int itemIndex);
-        Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync();
+        Task<SlowUpdateResult> GetSlowUpdateAsync();
     }
 }
