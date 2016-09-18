@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.WebSockets;
+using System.Threading;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
 
@@ -11,7 +12,7 @@ namespace MirrorSharp.Advanced {
             _options = options;
         }
 
-        protected async Task WebSocketLoopAsync(WebSocket socket) {
+        protected async Task WebSocketLoopAsync(WebSocket socket, CancellationToken cancellationToken) {
             WorkSession session = null;
             Connection connection = null;
             try {
@@ -20,14 +21,14 @@ namespace MirrorSharp.Advanced {
 
                 while (connection.IsConnected) {
                     try {
-                        await connection.ReceiveAndProcessAsync().ConfigureAwait(false);
+                        await connection.ReceiveAndProcessAsync(cancellationToken).ConfigureAwait(false);
                     }
                     catch {
                         // this is sent back by connection itself
                     }
                 }
             }
-            catch (Exception) when (connection == null && session != null) {
+            catch when (connection == null && session != null) {
                 await session.DisposeAsync().ConfigureAwait(false);
                 throw;
             }

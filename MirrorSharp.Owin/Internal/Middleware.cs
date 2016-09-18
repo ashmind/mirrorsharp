@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.WebSockets;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MirrorSharp.Advanced;
+using MirrorSharp.Internal;
 
 namespace MirrorSharp.Owin.Internal {
     using AppFunc = Func<IDictionary<string, object>, Task>;
@@ -37,9 +39,13 @@ namespace MirrorSharp.Owin.Internal {
                     );
                 }
 
-                using (context.WebSocket) {
-                    await WebSocketLoopAsync(context.WebSocket).ConfigureAwait(false);
-                }
+                var callCancelled = (CancellationToken)e["websocket.CallCancelled"];
+                // there is a weird issue where a socket never gets closed (deadlock?)
+                // if the loop is done in the standard ASP.NET thread
+                await Task.Run(
+                    () => WebSocketLoopAsync(context.WebSocket, callCancelled),
+                    callCancelled
+                );
             });
             return Done;
         }

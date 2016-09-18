@@ -30,8 +30,6 @@ namespace MirrorSharp.Internal {
         private CompletionList _completionList;
 
         private readonly CompletionService _completionService;
-
-        //private readonly Task _compilationLoopTask;
         private readonly CancellationTokenSource _disposing;
 
         private static readonly ImmutableList<MetadataReference> DefaultAssemblyReferences = ImmutableList.Create<MetadataReference>(
@@ -85,26 +83,26 @@ namespace MirrorSharp.Internal {
             _cursorPosition = cursorPosition;
         }
 
-        public Task<TypeCharResult> TypeCharAsync(char @char) {
+        public Task<TypeCharResult> TypeCharAsync(char @char, CancellationToken cancellationToken) {
             ReplaceText(_cursorPosition, 0, FastConvert.CharToString(@char), _cursorPosition + 1);
             if (!_completionService.ShouldTriggerCompletion(_sourceText, _cursorPosition, CompletionTrigger.CreateInsertionTrigger(@char)))
                 return TypeCharEmptyResultTask;
-            return CreateResultFromCompletionsAsync();
+            return CreateResultFromCompletionsAsync(cancellationToken);
         }
 
-        public Task<CompletionChange> GetCompletionChangeAsync(int itemIndex) {
+        public Task<CompletionChange> GetCompletionChangeAsync(int itemIndex, CancellationToken cancellationToken) {
             var item = _completionList.Items[itemIndex];
-            return _completionService.GetChangeAsync(_document, item);
+            return _completionService.GetChangeAsync(_document, item, cancellationToken: cancellationToken);
         }
 
-        public async Task<SlowUpdateResult> GetSlowUpdateAsync() {
-            var compilation = await _document.Project.GetCompilationAsync();
-            var diagnostics = await compilation.WithAnalyzers(_analyzers).GetAllDiagnosticsAsync();
+        public async Task<SlowUpdateResult> GetSlowUpdateAsync(CancellationToken cancellationToken) {
+            var compilation = await _document.Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
+            var diagnostics = await compilation.WithAnalyzers(_analyzers).GetAllDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
             return new SlowUpdateResult(diagnostics);
         }
 
-        private async Task<TypeCharResult> CreateResultFromCompletionsAsync() {
-            _completionList = await _completionService.GetCompletionsAsync(_document, _cursorPosition).ConfigureAwait(false);
+        private async Task<TypeCharResult> CreateResultFromCompletionsAsync(CancellationToken cancellationToken) {
+            _completionList = await _completionService.GetCompletionsAsync(_document, _cursorPosition, cancellationToken: cancellationToken).ConfigureAwait(false);
             return new TypeCharResult(_completionList);
         }
 

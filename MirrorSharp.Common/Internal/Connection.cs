@@ -42,13 +42,13 @@ namespace MirrorSharp.Internal {
 
         public bool IsConnected => _socket.State == WebSocketState.Open;
 
-        public async Task ReceiveAndProcessAsync() {
+        public async Task ReceiveAndProcessAsync(CancellationToken cancellationToken) {
             try {
-                await ReceiveAndProcessInternalAsync().ConfigureAwait(false);
+                await ReceiveAndProcessInternalAsync(cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex) {
                 try {
-                    await SendErrorAsync(ex.Message).ConfigureAwait(false);
+                    await SendErrorAsync(ex.Message, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception sendException) {
                     throw new AggregateException(ex, sendException);
@@ -57,20 +57,22 @@ namespace MirrorSharp.Internal {
             }
         }
 
-        private async Task ReceiveAndProcessInternalAsync() {
-            var received = await _socket.ReceiveAsync(new ArraySegment<byte>(_inputByteBuffer), CancellationToken.None).ConfigureAwait(false);
+        private async Task ReceiveAndProcessInternalAsync(CancellationToken cancellationToken) {
+            var received = await _socket.ReceiveAsync(new ArraySegment<byte>(_inputByteBuffer), cancellationToken).ConfigureAwait(false);
             if (received.MessageType == WebSocketMessageType.Binary)
                 throw new FormatException("Expected text data (received binary).");
 
-            if (received.MessageType == WebSocketMessageType.Close)
+            if (received.MessageType == WebSocketMessageType.Close) {
+                await _socket.CloseAsync(received.CloseStatus ?? WebSocketCloseStatus.Empty, received.CloseStatusDescription, cancellationToken).ConfigureAwait(false);
                 return;
+            }
 
-            await ProcessMessageAsync(new ArraySegment<byte>(_inputByteBuffer, 0, received.Count)).ConfigureAwait(false);
+            await ProcessMessageAsync(new ArraySegment<byte>(_inputByteBuffer, 0, received.Count), cancellationToken).ConfigureAwait(false);
             if (_options.SendDebugCompareMessages)
-                await SendDebugCompareAsync(_inputByteBuffer[0]).ConfigureAwait(false);
+                await SendDebugCompareAsync(_inputByteBuffer[0], cancellationToken).ConfigureAwait(false);
         }
 
-        private Task ProcessMessageAsync(ArraySegment<byte> data) {
+        private Task ProcessMessageAsync(ArraySegment<byte> data, CancellationToken cancellationToken) {
             var command = data.Array[data.Offset];
             switch (command) {
                 case Commands.ReplaceProgress:
@@ -82,9 +84,9 @@ namespace MirrorSharp.Internal {
                     ProcessMoveCursor(Shift(data));
                     return Done;
                 }
-                case Commands.TypeChar: return ProcessTypeCharAsync(Shift(data));
-                case Commands.CommitCompletion: return ProcessCommitCompletionAsync(Shift(data));
-                case Commands.SlowUpdate: return ProcessSlowUpdateAsync();
+                case Commands.TypeChar: return ProcessTypeCharAsync(Shift(data), cancellationToken);
+                case Commands.CommitCompletion: return ProcessCommitCompletionAsync(Shift(data), cancellationToken);
+                case Commands.SlowUpdate: return ProcessSlowUpdateAsync(cancellationToken);
                 default: throw new FormatException($"Unknown command: '{(char)command}'.");
             }
         }
@@ -133,17 +135,17 @@ namespace MirrorSharp.Internal {
             _session.MoveCursor(cursorPosition);
         }
 
-        private async Task ProcessTypeCharAsync(ArraySegment<byte> data) {
+        private async Task ProcessTypeCharAsync(ArraySegment<byte> data, CancellationToken cancellationToken) {
             var @char = FastConvert.Utf8ByteArrayToChar(data, _charBuffer);
 
-            var result = await _session.TypeCharAsync(@char).ConfigureAwait(false);
+            var result = await _session.TypeCharAsync(@char, cancellationToken).ConfigureAwait(false);
             if (result.Completions == null)
                 return;
 
-            await SendTypeCharResultAsync(result).ConfigureAwait(false);
+            await SendTypeCharResultAsync(result, cancellationToken).ConfigureAwait(false);
         }
 
-        private Task SendTypeCharResultAsync(TypeCharResult result) {
+        private Task SendTypeCharResultAsync(TypeCharResult result, CancellationToken cancellationToken) {
             var completions = result.Completions;
 
             var writer = StartJsonMessage("completions");
@@ -168,16 +170,16 @@ namespace MirrorSharp.Internal {
             }
             writer.WriteEndArray();
             writer.WriteEndObject();
-            return SendJsonMessageAsync();
+            return SendJsonMessageAsync(cancellationToken);
         }
 
-        private async Task ProcessCommitCompletionAsync(ArraySegment<byte> data) {
+        private async Task ProcessCommitCompletionAsync(ArraySegment<byte> data, CancellationToken cancellationToken) {
             var itemIndex = FastConvert.Utf8ByteArrayToInt32(data);
-            var change = await _session.GetCompletionChangeAsync(itemIndex);
-            await SendCompletionChangeAsync(change).ConfigureAwait(false);
+            var change = await _session.GetCompletionChangeAsync(itemIndex, cancellationToken);
+            await SendCompletionChangeAsync(change, cancellationToken).ConfigureAwait(false);
         }
 
-        private Task SendCompletionChangeAsync(CompletionChange change) {
+        private Task SendCompletionChangeAsync(CompletionChange change, CancellationToken cancellationToken) {
             var writer = StartJsonMessage("changes");
             writer.WritePropertyStartArray("changes");
             foreach (var textChange in change.TextChanges) {
@@ -188,15 +190,15 @@ namespace MirrorSharp.Internal {
                 writer.WriteEndObject();
             }
             writer.WriteEndArray();
-            return SendJsonMessageAsync();
+            return SendJsonMessageAsync(cancellationToken);
         }
 
-        private async Task ProcessSlowUpdateAsync() {
-            var update = await _session.GetSlowUpdateAsync().ConfigureAwait(false);
-            await SendSlowUpdateAsync(update).ConfigureAwait(false);
+        private async Task ProcessSlowUpdateAsync(CancellationToken cancellationToken) {
+            var update = await _session.GetSlowUpdateAsync(cancellationToken).ConfigureAwait(false);
+            await SendSlowUpdateAsync(update, cancellationToken).ConfigureAwait(false);
         }
 
-        private Task SendSlowUpdateAsync(SlowUpdateResult update) {
+        private Task SendSlowUpdateAsync(SlowUpdateResult update, CancellationToken cancellationToken) {
             var writer = StartJsonMessage("slowUpdate");
             writer.WritePropertyStartArray("diagnostics");
             foreach (var diagnostic in update.Diagnostics) {
@@ -215,10 +217,10 @@ namespace MirrorSharp.Internal {
                 writer.WriteEndObject();
             }
             writer.WriteEndArray();
-            return SendJsonMessageAsync();
+            return SendJsonMessageAsync(cancellationToken);
         }
 
-        private Task SendDebugCompareAsync(byte command) {
+        private Task SendDebugCompareAsync(byte command, CancellationToken cancellationToken) {
             if (command == Commands.CommitCompletion || command == Commands.SlowUpdate) // these cannot cause state changes
                 return Done;
 
@@ -229,13 +231,13 @@ namespace MirrorSharp.Internal {
             if (command != Commands.MoveCursor)
                 writer.WriteProperty("text", _session.SourceText.ToString());
             writer.WriteProperty("cursor", _session.CursorPosition);
-            return SendJsonMessageAsync();
+            return SendJsonMessageAsync(cancellationToken);
         }
 
-        private Task SendErrorAsync(string message) {
+        private Task SendErrorAsync(string message, CancellationToken cancellationToken) {
             var writer = StartJsonMessage("error");
             writer.WriteProperty("message", message);
-            return SendJsonMessageAsync();
+            return SendJsonMessageAsync(cancellationToken);
         }
 
         private JsonWriter StartJsonMessage(string messageType) {
@@ -245,14 +247,13 @@ namespace MirrorSharp.Internal {
             return _jsonWriter;
         }
 
-        private Task SendJsonMessageAsync() {
+        private Task SendJsonMessageAsync(CancellationToken cancellationToken) {
             _jsonWriter.WriteEndObject();
             _jsonWriter.Flush();
-            return SendOutputBufferAsync((int)_jsonOutputStream.Position);
-        }
-
-        private Task SendOutputBufferAsync(int byteCount) {
-            return _socket.SendAsync(new ArraySegment<byte>(_outputByteBuffer, 0, byteCount), WebSocketMessageType.Text, true, CancellationToken.None);
+            return _socket.SendAsync(
+                new ArraySegment<byte>(_outputByteBuffer, 0, (int)_jsonOutputStream.Position),
+                WebSocketMessageType.Text, true, cancellationToken
+            );
         }
 
         public Task DisposeAsync() => _session.DisposeAsync();

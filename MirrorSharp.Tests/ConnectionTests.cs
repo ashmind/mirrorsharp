@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Classification;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal;
@@ -27,7 +26,7 @@ namespace MirrorSharp.Tests {
             SetupReceive(socketMock, command);
             var sessionMock = Mock.Of<IWorkSession>();
 
-            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync();
+            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync(CancellationToken.None);
             Mock.Get(sessionMock).Verify(s => s.MoveCursor(expectedPosition));
         }
 
@@ -40,9 +39,10 @@ namespace MirrorSharp.Tests {
             var socketMock = Mock.Of<WebSocket>();
             SetupReceive(socketMock, command);
             var sessionMock = Mock.Of<IWorkSession>();
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync();
-            Mock.Get(sessionMock).Verify(s => s.TypeCharAsync(expectedChar));
+            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync(cancellationToken);
+            Mock.Get(sessionMock).Verify(s => s.TypeCharAsync(expectedChar, cancellationToken));
         }
 
         [Theory]
@@ -54,7 +54,7 @@ namespace MirrorSharp.Tests {
             SetupReceive(socketMock, command);
             var sessionMock = Mock.Of<IWorkSession>();
 
-            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync();
+            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync(CancellationToken.None);
             Mock.Get(sessionMock).Verify(s => s.ReplaceText(expectedStart, expectedLength, expectedText, expectedPosition));
         }
 
@@ -66,11 +66,12 @@ namespace MirrorSharp.Tests {
             var socketMock = Mock.Of<WebSocket>();
             SetupReceive(socketMock, command);
             var sessionMock = Mock.Of<IWorkSession>(
-                s => s.GetCompletionChangeAsync(It.IsAny<int>()) == Task.FromResult(NoCompletionChange)
+                s => s.GetCompletionChangeAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()) == Task.FromResult(NoCompletionChange)
             );
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync();
-            Mock.Get(sessionMock).Verify(s => s.GetCompletionChangeAsync(expectedItemIndex));
+            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync(cancellationToken);
+            Mock.Get(sessionMock).Verify(s => s.GetCompletionChangeAsync(expectedItemIndex, cancellationToken));
         }
 
         [Fact]
@@ -78,11 +79,12 @@ namespace MirrorSharp.Tests {
             var socketMock = Mock.Of<WebSocket>();
             SetupReceive(socketMock, "U");
             var sessionMock = Mock.Of<IWorkSession>(
-                s => s.GetSlowUpdateAsync() == Task.FromResult(NoSlowUpdate)
+                s => s.GetSlowUpdateAsync(It.IsAny<CancellationToken>()) == Task.FromResult(NoSlowUpdate)
             );
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync();
-            Mock.Get(sessionMock).Verify(s => s.GetSlowUpdateAsync());
+            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync(cancellationToken);
+            Mock.Get(sessionMock).Verify(s => s.GetSlowUpdateAsync(cancellationToken));
         }
 
         private static void SetupReceive(WebSocket socket, string command) {

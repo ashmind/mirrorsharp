@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using MirrorSharp.Advanced;
@@ -19,7 +20,7 @@ namespace MirrorSharp.AspNetCore.Internal {
             }
 
             using (var socket = await context.WebSockets.AcceptWebSocketAsync().ConfigureAwait(false)) {
-                await WebSocketLoopAsync(socket).ConfigureAwait(false);
+                await WebSocketLoopAsync(socket, CancellationToken.None).ConfigureAwait(false);
             }
         }
     }
