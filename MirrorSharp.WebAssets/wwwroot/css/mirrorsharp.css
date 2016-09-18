@@ -1,9 +1,24 @@
-﻿.CodeMirror, .CodeMirror-hints {
+﻿.CodeMirror, .CodeMirror-hints, .CodeMirror-lint-tooltip {
     font-family: Consolas, Menlo, Monaco, monospace;
 }
 
 .CodeMirror-hints {
     font-size: inherit;
+}
+
+.mirrorsharp .cm-string {
+    color: #a31515;
+}
+
+.mirrorsharp .cm-keyword,
+.mirrorsharp .cm-atom {
+    color: #0000ff;
+}
+
+.mirrorsharp .cm-def,
+.mirrorsharp .cm-variable-3,
+.mirrorsharp .cm-number {
+    color: #000000;
 }
 
 .mirrorsharp-connection-issue {

@@ -23,10 +23,16 @@
         open();
 
         var reopenPeriod = 0;
+        var reopenPeriodResetTimer;
         var reopening = false;
         function tryToReopen() {
             if (reopening)
                 return;
+
+            if (reopenPeriodResetTimer) {
+                clearTimeout(reopenPeriodResetTimer);
+                reopenPeriodResetTimer = null;
+            }
 
             reopening = true;
             setTimeout(function () {
@@ -44,7 +50,7 @@
             socket = openSocket();
             openPromise = new Promise(function (resolve) {
                 socket.addEventListener('open', function () {
-                    reopenPeriod = 0;
+                    reopenPeriodReset = setTimeout(function () { reopenPeriod = 0; }, reopenPeriod);
                     resolve();
                 });
             });
@@ -103,6 +109,8 @@
         cmOptions.lint = { async: true, getAnnotations: requestSlowUpdate };
         cmOptions.gutters.push('CodeMirror-lint-markers');
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);
+
+        cm.getWrapperElement().classList.add('mirrorsharp');
 
         var updateLinting;
         connection.on('open', function () {
