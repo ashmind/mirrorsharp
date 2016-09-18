@@ -10,7 +10,7 @@ using MirrorSharp.Internal.Results;
 using Newtonsoft.Json;
 
 namespace MirrorSharp.Internal {
-    public class Connection : IAsyncDisposable {
+    public class Connection : IDisposable {
         private static readonly Task Done = Task.FromResult((object)null);
 
         private static class Commands {
@@ -256,6 +256,6 @@ namespace MirrorSharp.Internal {
             );
         }
 
-        public Task DisposeAsync() => _session.DisposeAsync();
+        public void Dispose() => _session.Dispose();
     }
 }

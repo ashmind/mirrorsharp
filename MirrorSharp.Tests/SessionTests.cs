@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -46,7 +44,7 @@ namespace MirrorSharp.Tests {
 
             Assert.Equal(
                 new[] { "x" }.Concat(ObjectMemberNames).OrderBy(n => n),
-                result.Completions.Items.Select(i => i.DisplayText).OrderBy(n => n)
+                result.Completions?.Items.Select(i => i.DisplayText).OrderBy(n => n)
             );
         }
 

@@ -1,11 +1,12 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal {
-    public interface IWorkSession : IAsyncDisposable {
+    public interface IWorkSession : IDisposable {
         SourceText SourceText { get; }
         int CursorPosition { get; }
 

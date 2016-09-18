@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net.WebSockets;
+﻿using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
@@ -28,13 +27,13 @@ namespace MirrorSharp.Advanced {
                     }
                 }
             }
-            catch when (connection == null && session != null) {
-                await session.DisposeAsync().ConfigureAwait(false);
-                throw;
-            }
             finally {
-                if (connection != null)
-                    await connection.DisposeAsync().ConfigureAwait(false);
+                if (connection != null) {
+                    connection.Dispose();
+                }
+                else {
+                    session?.Dispose();
+                }
             }
         }
     }

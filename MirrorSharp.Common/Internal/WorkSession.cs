@@ -30,7 +30,6 @@ namespace MirrorSharp.Internal {
         private CompletionList _completionList;
 
         private readonly CompletionService _completionService;
-        private readonly CancellationTokenSource _disposing;
 
         private static readonly ImmutableList<MetadataReference> DefaultAssemblyReferences = ImmutableList.Create<MetadataReference>(
             MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location)
@@ -43,8 +42,6 @@ namespace MirrorSharp.Internal {
         private readonly ImmutableArray<DiagnosticAnalyzer> _analyzers;
 
         public WorkSession() {
-            _disposing = new CancellationTokenSource();
-
             _workspace = new AdhocWorkspace(HostServices);
             var projectId = ProjectId.CreateNewId();
             var project = _workspace.AddProject(ProjectInfo.Create(
@@ -109,11 +106,8 @@ namespace MirrorSharp.Internal {
         public SourceText SourceText => _sourceText;
         public int CursorPosition => _cursorPosition;
 
-        public async Task DisposeAsync() {
-            using (_disposing) {
-                _disposing.Cancel();
-                _workspace.Dispose();
-            }
+        public void Dispose() {
+            _workspace.Dispose();
         }
 
         private class PreloadedAnalyzerAssemblyLoader : IAnalyzerAssemblyLoader {

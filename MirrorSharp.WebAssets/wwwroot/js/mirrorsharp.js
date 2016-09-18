@@ -50,7 +50,7 @@
             socket = openSocket();
             openPromise = new Promise(function (resolve) {
                 socket.addEventListener('open', function () {
-                    reopenPeriodReset = setTimeout(function () { reopenPeriod = 0; }, reopenPeriod);
+                    reopenPeriodResetTimer = setTimeout(function () { reopenPeriod = 0; }, reopenPeriod);
                     resolve();
                 });
             });

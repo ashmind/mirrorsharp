@@ -5,6 +5,9 @@ using System.ComponentModel;
 using JetBrains.Annotations;
 
 // ReSharper disable CheckNamespace
+// ReSharper disable UnusedMember.Global
+// ReSharper disable ArrangeStaticMemberQualifier
+
 /// <summary>
 /// Provides methods for verification of argument preconditions.
 /// </summary>
@@ -39,7 +42,7 @@ internal static class Argument {
     /// <param name="value">Argument value.</param>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="value"/> is <c>null</c>.</exception>
     /// <returns><paramref name="value"/> if it is not <c>null</c>.</returns>
-    [NotNull, AssertionMethod]
+    [AssertionMethod]
     [ContractAnnotation("value:null => halt")]
     public static T NotNull<T>(
         [NotNull, InvokerParameterName] string name,

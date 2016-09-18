@@ -1,6 +1,4 @@
 ﻿using Microsoft.Owin;
-using Microsoft.Owin.StaticFiles;
-using MirrorSharp.Owin;
 using MirrorSharp.Owin.Demo;
 using Owin;
 

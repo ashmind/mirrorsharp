@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MirrorSharp.Advanced;
-using MirrorSharp.Internal;
 
 namespace MirrorSharp.Owin.Internal {
     using AppFunc = Func<IDictionary<string, object>, Task>;
