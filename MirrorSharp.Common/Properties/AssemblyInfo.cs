@@ -18,5 +18,6 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("c130c962-d17f-4741-b2b4-d74263bf380a")]
 
-[assembly:InternalsVisibleTo("MirrorSharp.AspNetCore")]
-[assembly:InternalsVisibleTo("MirrorSharp.Owin")]
+[assembly: InternalsVisibleTo("MirrorSharp.AspNetCore")]
+[assembly: InternalsVisibleTo("MirrorSharp.Owin")]
+[assembly: InternalsVisibleTo("MirrorSharp.Tests")]

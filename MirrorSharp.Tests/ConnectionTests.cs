@@ -4,87 +4,32 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Completion;
-using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal;
-using MirrorSharp.Internal.Results;
+using MirrorSharp.Internal.Commands;
 using Moq;
 using Xunit;
 
 namespace MirrorSharp.Tests {
     public class ConnectionTests {
-        private static readonly CompletionChange NoCompletionChange = CompletionChange.Create(ImmutableArray<TextChange>.Empty);
-        private static readonly SlowUpdateResult NoSlowUpdate = new SlowUpdateResult(ImmutableArray<Diagnostic>.Empty);
-
-        [Theory]
-        [InlineData("M1", 1)]
-        [InlineData("M79", 79)]
-        [InlineData("M1234567890", 1234567890)]
-        public async void ReceiveAndProcessAsync_CallsMoveCursorOnSession_AfterReceivingMoveCursorCommand(string command, int expectedPosition) {
-            var socketMock = Mock.Of<WebSocket>();
-            SetupReceive(socketMock, command);
-            var sessionMock = Mock.Of<IWorkSession>();
-
-            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync(CancellationToken.None);
-            Mock.Get(sessionMock).Verify(s => s.MoveCursor(expectedPosition));
-        }
-
-        [Theory]
-        [InlineData("C1", '1')]
-        [InlineData("Ca", 'a')]
-        [InlineData("C\u0216", '\u0216')]
-        [InlineData("C月", '月')]
-        public async void ReceiveAndProcessAsync_CallsTypeCharAsyncOnSession_AfterReceivingTypeCharCommand(string command, char expectedChar) {
-            var socketMock = Mock.Of<WebSocket>();
-            SetupReceive(socketMock, command);
-            var sessionMock = Mock.Of<IWorkSession>();
-            var cancellationToken = new CancellationTokenSource().Token;
-
-            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync(cancellationToken);
-            Mock.Get(sessionMock).Verify(s => s.TypeCharAsync(expectedChar, cancellationToken));
-        }
-
-        [Theory]
-        [InlineData("R1:10:1:text", 1, 10, 1, "text")]
-        [InlineData("R1:10:1:", 1, 10, 1, "")]
-        [InlineData("R1:1:1:t:e:xt", 1, 1, 1, "t:e:xt")]
-        public async void ReceiveAndProcessAsync_CallsReplaceTextOnSession_AfterReceivingReplaceCommand(string command, int expectedStart, int expectedLength, int expectedPosition, string expectedText) {
-            var socketMock = Mock.Of<WebSocket>();
-            SetupReceive(socketMock, command);
-            var sessionMock = Mock.Of<IWorkSession>();
-
-            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync(CancellationToken.None);
-            Mock.Get(sessionMock).Verify(s => s.ReplaceText(expectedStart, expectedLength, expectedText, expectedPosition));
-        }
-
-        [Theory]
-        [InlineData("S1", 1)]
-        [InlineData("S79", 79)]
-        [InlineData("S1234567890", 1234567890)]
-        public async void ReceiveAndProcessAsync_CallsGetCompletionChangeAsyncOnSession_AfterReceivingCommitCompletionCommand(string command, int expectedItemIndex) {
-            var socketMock = Mock.Of<WebSocket>();
-            SetupReceive(socketMock, command);
-            var sessionMock = Mock.Of<IWorkSession>(
-                s => s.GetCompletionChangeAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()) == Task.FromResult(NoCompletionChange)
-            );
-            var cancellationToken = new CancellationTokenSource().Token;
-
-            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync(cancellationToken);
-            Mock.Get(sessionMock).Verify(s => s.GetCompletionChangeAsync(expectedItemIndex, cancellationToken));
-        }
-
         [Fact]
-        public async void ReceiveAndProcessAsync_CallsGetSlowUpdateAsyncOnSession_AfterReceivingSlowUpdateCommand() {
+        public async void ReceiveAndProcessAsync_CallsMatchingCommand() {
             var socketMock = Mock.Of<WebSocket>();
-            SetupReceive(socketMock, "U");
-            var sessionMock = Mock.Of<IWorkSession>(
-                s => s.GetSlowUpdateAsync(It.IsAny<CancellationToken>()) == Task.FromResult(NoSlowUpdate)
-            );
+            SetupReceive(socketMock, "X");
+
+            var session = new WorkSession();
+            // ReSharper disable once PossibleUnintendedReferenceComparison
+            var handler = Mock.Of<ICommandHandler>(h => h.CommandIds == ImmutableList.Create('X'));
+            var connection = new Connection(socketMock, session, CreateCommandHandlers(handler));
             var cancellationToken = new CancellationTokenSource().Token;
 
-            await new Connection(socketMock, sessionMock).ReceiveAndProcessAsync(cancellationToken);
-            Mock.Get(sessionMock).Verify(s => s.GetSlowUpdateAsync(cancellationToken));
+            await connection.ReceiveAndProcessAsync(cancellationToken);
+            Mock.Get(handler).Verify(s => s.ExecuteAsync(It.IsAny<ArraySegment<byte>>(), session, connection, cancellationToken));
+        }
+
+        private ImmutableArray<ICommandHandler> CreateCommandHandlers(ICommandHandler handler) {
+            var handlers = new ICommandHandler[26];
+            handlers[handler.CommandIds[0] - 'A'] = handler;
+            return ImmutableArray.CreateRange(handlers);
         }
 
         private static void SetupReceive(WebSocket socket, string command) {

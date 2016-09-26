@@ -1,35 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
-using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal {
-    public class WorkSession : IWorkSession {
+    public class WorkSession {
         private static readonly MefHostServices HostServices = MefHostServices.Create(MefHostServices.DefaultAssemblies.AddRange(new[] {
             Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.Features")),
             Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.CSharp.Features"))
         }));
-        private static readonly Task<TypeCharResult> TypeCharEmptyResultTask = Task.FromResult(new TypeCharResult());
 
         private readonly AdhocWorkspace _workspace;
 
-        private readonly TextChange[] _oneTextChange = new TextChange[1];
-        private Document _document;
         private SourceText _sourceText;
-        private int _cursorPosition;
-        private CompletionList _completionList;
-
-        private readonly CompletionService _completionService;
+        private bool _documentOutOfDate;
+        private Document _document;
 
         private static readonly ImmutableList<MetadataReference> DefaultAssemblyReferences = ImmutableList.Create<MetadataReference>(
             MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location)
@@ -38,8 +30,6 @@ namespace MirrorSharp.Internal {
         private static readonly ImmutableList<AnalyzerReference> DefaultAnalyzerReferences = ImmutableList.Create<AnalyzerReference>(
             CreateAnalyzerReference("Microsoft.CodeAnalysis.CSharp.Features")
         );
-
-        private readonly ImmutableArray<DiagnosticAnalyzer> _analyzers;
 
         public WorkSession() {
             _workspace = new AdhocWorkspace(HostServices);
@@ -53,11 +43,12 @@ namespace MirrorSharp.Internal {
             _sourceText = SourceText.From("");
             _document = _workspace.AddDocument(projectId, "_", _sourceText);
             _workspace.OpenDocument(_document.Id);
-            _completionService = CompletionService.GetService(_document);
-            if (_completionService == null)
+            CompletionService = CompletionService.GetService(_document);
+            if (CompletionService == null)
                 throw new Exception("Failed to retrieve the completion service.");
 
-            _analyzers = ImmutableArray.CreateRange(project.AnalyzerReferences.SelectMany(r => r.GetAnalyzers("C#")));
+            Analyzers = ImmutableArray.CreateRange(project.AnalyzerReferences.SelectMany(r => r.GetAnalyzers("C#")));
+            Buffers = new Buffers();
         }
 
         private static AnalyzerFileReference CreateAnalyzerReference(string assemblyName) {
@@ -65,64 +56,36 @@ namespace MirrorSharp.Internal {
             return new AnalyzerFileReference(assembly.Location, new PreloadedAnalyzerAssemblyLoader(assembly));
         }
 
-        public void ReplaceText(int start, int length, string newText, int cursorPositionAfter) {
-            _oneTextChange[0] = new TextChange(new TextSpan(start, length), newText);
-            ApplyTextChanges(_oneTextChange);
-            _cursorPosition = cursorPositionAfter;
+        public int CursorPosition { get; set; }
+
+        public SourceText SourceText {
+            get { return _sourceText; }
+            set {
+                _sourceText = value;
+                _documentOutOfDate = true;
+            }
         }
 
-        private void ApplyTextChanges(IEnumerable<TextChange> changes) {
-            _sourceText = _sourceText.WithChanges(changes);
-            _document = _document.WithText(_sourceText);
+        public Document Document {
+            get {
+                if (_documentOutOfDate) {
+                    _document = _document.WithText(_sourceText);
+                    _documentOutOfDate = false;
+                }
+                return _document;
+            }
         }
 
-        public void MoveCursor(int cursorPosition) {
-            _cursorPosition = cursorPosition;
-        }
+        [NotNull] public CompletionService CompletionService { get; }
+        [CanBeNull] public CompletionList CurrentCompletionList { get; set; }
 
-        public Task<TypeCharResult> TypeCharAsync(char @char, CancellationToken cancellationToken) {
-            ReplaceText(_cursorPosition, 0, FastConvert.CharToString(@char), _cursorPosition + 1);
-            if (!_completionService.ShouldTriggerCompletion(_sourceText, _cursorPosition, CompletionTrigger.CreateInsertionTrigger(@char)))
-                return TypeCharEmptyResultTask;
-            return CreateResultFromCompletionsAsync(cancellationToken);
-        }
+        public Project Project => Document.Project;
+        public ImmutableArray<DiagnosticAnalyzer> Analyzers { get; }
 
-        public Task<CompletionChange> GetCompletionChangeAsync(int itemIndex, CancellationToken cancellationToken) {
-            var item = _completionList.Items[itemIndex];
-            return _completionService.GetChangeAsync(_document, item, cancellationToken: cancellationToken);
-        }
-
-        public async Task<SlowUpdateResult> GetSlowUpdateAsync(CancellationToken cancellationToken) {
-            var compilation = await _document.Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
-            var diagnostics = await compilation.WithAnalyzers(_analyzers).GetAllDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
-            return new SlowUpdateResult(diagnostics);
-        }
-
-        private async Task<TypeCharResult> CreateResultFromCompletionsAsync(CancellationToken cancellationToken) {
-            _completionList = await _completionService.GetCompletionsAsync(_document, _cursorPosition, cancellationToken: cancellationToken).ConfigureAwait(false);
-            return new TypeCharResult(_completionList);
-        }
-
-        public SourceText SourceText => _sourceText;
-        public int CursorPosition => _cursorPosition;
+        public Buffers Buffers { get; }
 
         public void Dispose() {
             _workspace.Dispose();
-        }
-
-        private class PreloadedAnalyzerAssemblyLoader : IAnalyzerAssemblyLoader {
-            private readonly Assembly _assembly;
-
-            public PreloadedAnalyzerAssemblyLoader(Assembly assembly) {
-                _assembly = assembly;
-            }
-
-            public Assembly LoadFromPath(string fullPath) {
-                return _assembly;
-            }
-
-            public void AddDependencyLocation(string fullPath) {
-            }
         }
     }
 }
