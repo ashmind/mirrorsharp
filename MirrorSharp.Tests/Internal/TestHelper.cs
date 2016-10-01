@@ -19,5 +19,9 @@ namespace MirrorSharp.Tests.Internal {
         public static ArraySegment<byte> ToByteArraySegment(params char[] chars) {
             return new ArraySegment<byte>(Encoding.UTF8.GetBytes(chars));
         }
+
+        public static ArraySegment<byte> ToByteArraySegment(int value) {
+            return ToByteArraySegment(value.ToString().ToCharArray());
+        }
     }
 }

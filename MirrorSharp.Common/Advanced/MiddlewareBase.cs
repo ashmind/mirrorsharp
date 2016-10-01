@@ -19,6 +19,7 @@ namespace MirrorSharp.Advanced {
         private ImmutableArray<ICommandHandler> CreateCommands() {
             var commands = new ICommandHandler[26];
             foreach (var command in new ICommandHandler[] {
+                new ApplyDiagnosticActionHandler(),
                 new CommitCompletionHandler(),
                 new MoveCursorHandler(),
                 new ReplaceTextHandler(),

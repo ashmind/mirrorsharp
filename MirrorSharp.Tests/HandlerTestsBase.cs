@@ -19,13 +19,21 @@ namespace MirrorSharp.Tests {
             _commandResultSender = MockCommandResultSender();
         }
 
-        protected virtual Task ExecuteAsync(WorkSession session, ArraySegment<byte> data) {
-            return new THandler().ExecuteAsync(data, session, _commandResultSender, CancellationToken.None);
+        protected virtual Task ExecuteAsync(ICommandHandler handler, WorkSession session, ArraySegment<byte> data) {
+            return handler.ExecuteAsync(data, session, _commandResultSender, CancellationToken.None);
         }
 
-        protected virtual async Task<TResult> ExecuteAndCaptureResultAsync<TResult>(WorkSession session, ArraySegment<byte> data = default(ArraySegment<byte>)) {
-            await ExecuteAsync(session, data);
+        protected virtual Task ExecuteAsync(WorkSession session, ArraySegment<byte> data) {
+            return ExecuteAsync(new THandler(), session, data);
+        }
+
+        protected virtual async Task<TResult> ExecuteAndCaptureResultAsync<TResult>(ICommandHandler handler, WorkSession session, ArraySegment<byte> data = default(ArraySegment<byte>)) {
+            await ExecuteAsync(handler, session, data);
             return JsonConvert.DeserializeObject<TResult>(_lastJsonMessage);
+        }
+
+        protected virtual Task<TResult> ExecuteAndCaptureResultAsync<TResult>(WorkSession session, ArraySegment<byte> data = default(ArraySegment<byte>)) {
+            return ExecuteAndCaptureResultAsync<TResult>(new THandler(), session, data);
         }
 
         protected virtual ICommandResultSender MockCommandResultSender() {

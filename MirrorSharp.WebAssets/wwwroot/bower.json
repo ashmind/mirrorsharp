@@ -9,6 +9,7 @@
   "homepage": "",
   "private": true,
   "dependencies": {
-    "codemirror": "^5.18.2"
+    "codemirror": "^5.18.2",
+    "codemirror-addon-lint-fix": "https://github.com/ashmind/codemirror-addon-lint-fix.git"
   }
 }

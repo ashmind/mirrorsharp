@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -24,19 +23,16 @@ namespace MirrorSharp.Tests {
             );
         }
 
-        // ReSharper disable ClassNeverInstantiated.Local
-        // ReSharper disable CollectionNeverUpdated.Local
-        // ReSharper disable UnusedAutoPropertyAccessor.Local
-        private class SlowUpdateResult {
-            public IList<ResultDiagnostic> Diagnostics { get; } = new List<ResultDiagnostic>();
-        }
-        private class ResultDiagnostic {
-            public string Severity { get; set; }
-            public IList<string> Tags { get; } = new List<string>();
-        }
-        // ReSharper restore ClassNeverInstantiated.Local
-        // ReSharper restore CollectionNeverUpdated.Local
-        // ReSharper restore UnusedAutoPropertyAccessor.Local
+        [Fact]
+        public async Task SlowUpdate_ProducesAllExpectedActions_ForTypeFromUnreferencedNamespace() {
+            var session = SessionFromTextWithCursor(@"class C { Action a;| }");
+            var result = await ExecuteAndCaptureResultAsync<SlowUpdateResult>(session);
+            var diagnostic = result.Diagnostics.Single(d => d.Message.Contains("Action"));
 
+            Assert.Equal(
+                new[] { "System.Action", "using System;" },
+                diagnostic.Actions.Select(a => a.Title).OrderBy(t => t).ToArray()
+            );
+        }
     }
 }

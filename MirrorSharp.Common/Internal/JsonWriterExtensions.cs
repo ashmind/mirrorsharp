@@ -13,6 +13,11 @@ namespace MirrorSharp.Internal {
             writer.WriteValue(value);
         }
 
+        public static void WriteProperty(this JsonWriter writer, string name, bool value) {
+            writer.WritePropertyName(name);
+            writer.WriteValue(value);
+        }
+
         public static void WriteProperty(this JsonWriter writer, string name, string value) {
             writer.WritePropertyName(name);
             writer.WriteValue(value);
@@ -32,6 +37,14 @@ namespace MirrorSharp.Internal {
             writer.WriteStartObject();
             writer.WriteProperty("start", span.Start);
             writer.WriteProperty("length", span.Length);
+            writer.WriteEndObject();
+        }
+
+        public static void WriteChange(this JsonWriter writer, TextChange change) {
+            writer.WriteStartObject();
+            writer.WriteProperty("start", change.Span.Start);
+            writer.WriteProperty("length", change.Span.Length);
+            writer.WriteProperty("text", change.NewText);
             writer.WriteEndObject();
         }
     }

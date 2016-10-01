@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using MirrorSharp.Advanced;
 
 namespace MirrorSharp.Owin.Internal {
+    using AshMind.Extensions;
     using AppFunc = Func<IDictionary<string, object>, Task>;
     using WebSocketAccept = Action<IDictionary<string, object>, Func<IDictionary<string, object>, Task>>;
 

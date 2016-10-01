@@ -1,8 +1,8 @@
-﻿.CodeMirror, .CodeMirror-hints, .CodeMirror-lint-tooltip {
+.CodeMirror, .CodeMirror-hints, .CodeMirror-lint-tooltip, .CodeMirror-lintfix-popup {
     font-family: Consolas, Menlo, Monaco, monospace;
 }
 
-.CodeMirror-hints {
+.CodeMirror-hints, .CodeMirror-lintfix-popup {
     font-size: inherit;
 }
 

@@ -1,5 +1,6 @@
-﻿/* globals define:false */
+/* globals console:false */
 (function (root, factory) {
+    'use strict';
     if (typeof define === 'function' && define.amd) {
         define(['CodeMirror'], factory);
     } else if (typeof module === 'object' && module.exports) {
@@ -58,12 +59,14 @@
             for (var key in handlers) {
                 const keyFixed = key;
                 const handlersByKey = handlers[key];
+                /* jshint -W083 */
                 socket.addEventListener(key, function (e) {
                     var argument = (keyFixed === 'message') ? JSON.parse(e.data) : undefined;
                     for (var handler of handlersByKey) {
                         handler(argument);
                     }
                 });
+                /* jshint +W083 */
             }
         }
 
@@ -83,30 +86,39 @@
         this.sendReplaceText = function (isLastOrOnly, start, length, newText, cursorIndexAfter) {
             const command = isLastOrOnly ? 'R' : 'P';
             return sendWhenOpen(command + start + ':' + length + ':' + cursorIndexAfter + ':' + newText);
-        }
+        };
 
         this.sendMoveCursor = function(cursorIndex) {
             return sendWhenOpen('M' + cursorIndex);
-        }
+        };
 
-        this.sendTypeChar = function (char) {
+        this.sendTypeChar = function(char) {
             return sendWhenOpen('C' + char);
-        }
+        };
 
-        this.sendCommitCompletion = function (itemIndex) {
+        this.sendCommitCompletion = function(itemIndex) {
             return sendWhenOpen('S' + itemIndex);
-        }
+        };
 
-        this.sendSlowUpdate = function () {
+        this.sendSlowUpdate = function() {
             return sendWhenOpen('U');
-        }
+        };
+
+        this.sendApplyDiagnosticAction = function(actionId) {
+            return sendWhenOpen('F' + actionId);
+        };
     }
 
     function Editor(textarea, connection, options) {
         var lintingSuspended = true;
 
-        const cmOptions = options.forCodeMirror || { mode: 'text/x-csharp', gutters: [] };
+        const cmOptions = options.forCodeMirror || {
+            lineSeparator: '\r\n',
+            mode: 'text/x-csharp',
+            gutters: []
+        };
         cmOptions.lint = { async: true, getAnnotations: requestSlowUpdate };
+        cmOptions.lintFix = { getFixes: getFixes };
         cmOptions.gutters.push('CodeMirror-lint-markers');
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);
 
@@ -139,6 +151,7 @@
         const indexKey = '$mirrorsharp-index';
         var changePending = false;
         var changesAreFromServer = false;
+        var doNotSendChanges = false;
         cm.on('beforeChange', function (s, change) {
             change.from[indexKey] = cm.indexFromPos(change.from);
             change.to[indexKey] = cm.indexFromPos(change.to);
@@ -146,7 +159,7 @@
         });
 
         cm.on('cursorActivity', function () {
-            if (changePending)
+            if (changePending && !doNotSendChanges)
                 return;
             connection.sendMoveCursor(getCursorIndex(cm));
         });
@@ -154,6 +167,8 @@
         cm.on('changes', function (s, changes) {
             const cursorIndex = getCursorIndex(cm);
             changePending = false;
+            if (doNotSendChanges)
+                return;
             for (var i = 0; i < changes.length; i++) {
                 const change = changes[i];
                 const start = change.from[indexKey];
@@ -172,7 +187,7 @@
         connection.on('message', function (message) {
             switch (message.type) {
                 case 'changes':
-                    applyChangesFromServer(message.changes);
+                    applyChangesFromServer(message.changes, message.echo);
                     break;
 
                 case 'completions':
@@ -199,13 +214,15 @@
             return cm.indexFromPos(cm.getCursor());
         }
 
-        function applyChangesFromServer(changes) {
+        function applyChangesFromServer(changes, echo) {
             changesAreFromServer = true;
+            doNotSendChanges = !echo;
             for (var change of changes) {
                 const from = cm.posFromIndex(change.start);
                 const to = change.length > 0 ? cm.posFromIndex(change.start + change.length) : from;
                 cm.replaceRange(change.text, from, to);
             }
+            doNotSendChanges = false;
             changesAreFromServer = false;
         }
 
@@ -213,7 +230,7 @@
             const indexInListKey = '$mirrorsharp-indexInList';
             var commit = function (cm, data, item) {
                 connection.sendCommitCompletion(item[indexInListKey]);
-            }
+            };
 
             var hintResult = {
                 from: cm.posFromIndex(completions.span.start),
@@ -228,11 +245,33 @@
                         item.from = cm.posFromIndex(c.span.start);
                     return item;
                 })
-            }
+            };
             cm.showHint({
                 hint: function () { return hintResult; },
                 completeSingle: false
             });
+        }
+
+        function getFixes(cm, line, annotations) {
+            var fixes = [];
+            for (var i = 0; i < annotations.length; i++) {
+                const diagnostic = annotations[i].diagnostic;
+                if (!diagnostic.actions)
+                    continue;
+                for (var j = 0; j < diagnostic.actions.length; j++) {
+                    var action = diagnostic.actions[j];
+                    fixes.push({
+                        text: action.title,
+                        apply: requestApplyFixAction,
+                        id: action.id
+                    });
+                }
+            }
+            return fixes;
+        }
+
+        function requestApplyFixAction(cm, line, fix) {
+            connection.sendApplyDiagnosticAction(fix.id);
         }
 
         function requestSlowUpdate(text, updateLintingValue) {
@@ -266,7 +305,8 @@
                     severity: diagnostic.severity,
                     message: diagnostic.message,
                     from: cm.posFromIndex(diagnostic.span.start),
-                    to: cm.posFromIndex(diagnostic.span.start + diagnostic.span.length)
+                    to: cm.posFromIndex(diagnostic.span.start + diagnostic.span.length),
+                    diagnostic: diagnostic
                 });
             }
             updateLinting(annotations);
@@ -308,5 +348,5 @@
         });
 
         return new Editor(textarea, connection, options);
-    }
+    };
 }));

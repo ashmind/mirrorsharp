@@ -14,13 +14,10 @@ namespace MirrorSharp.Internal.Commands {
             var change = await session.CompletionService.GetChangeAsync(session.Document, item, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             var writer = sender.StartJsonMessage("changes");
+            writer.WriteProperty("echo", true);
             writer.WritePropertyStartArray("changes");
             foreach (var textChange in change.TextChanges) {
-                writer.WriteStartObject();
-                writer.WriteProperty("start", textChange.Span.Start);
-                writer.WriteProperty("length", textChange.Span.Length);
-                writer.WriteProperty("text", textChange.NewText);
-                writer.WriteEndObject();
+                writer.WriteChange(textChange);
             }
             writer.WriteEndArray();
             await sender.SendJsonMessageAsync(cancellationToken).ConfigureAwait(false);

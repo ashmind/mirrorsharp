@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -12,6 +16,7 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace MirrorSharp.Internal {
     public class WorkSession {
+        private static readonly TextChange[] NoTextChanges = new TextChange[0];
         private static readonly MefHostServices HostServices = MefHostServices.Create(MefHostServices.DefaultAssemblies.AddRange(new[] {
             Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.Features")),
             Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.CSharp.Features"))
@@ -31,23 +36,28 @@ namespace MirrorSharp.Internal {
             CreateAnalyzerReference("Microsoft.CodeAnalysis.CSharp.Features")
         );
 
+        private static readonly ImmutableArray<DiagnosticAnalyzer> DefaultAnalyzers = CreateDefaultAnalyzers();
+        private static readonly ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> DefaultCodeFixProviders = CreateDefaultCodeFixProviders();
+
         public WorkSession() {
             _workspace = new AdhocWorkspace(HostServices);
             var projectId = ProjectId.CreateNewId();
-            var project = _workspace.AddProject(ProjectInfo.Create(
+            _workspace.AddProject(ProjectInfo.Create(
                 projectId, VersionStamp.Create(), "_", "_", "C#",
                 compilationOptions: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary),
                 metadataReferences: DefaultAssemblyReferences,
                 analyzerReferences: DefaultAnalyzerReferences
             ));
             _sourceText = SourceText.From("");
-            _document = _workspace.AddDocument(projectId, "_", _sourceText);
-            _workspace.OpenDocument(_document.Id);
+            var closedDocument = _workspace.AddDocument(projectId, "_", _sourceText);
+            _workspace.OpenDocument(closedDocument.Id);
+            _document = _workspace.CurrentSolution.GetDocument(closedDocument.Id);
             CompletionService = CompletionService.GetService(_document);
             if (CompletionService == null)
                 throw new Exception("Failed to retrieve the completion service.");
 
-            Analyzers = ImmutableArray.CreateRange(project.AnalyzerReferences.SelectMany(r => r.GetAnalyzers("C#")));
+            Analyzers = DefaultAnalyzers;
+            CodeFixProviders = DefaultCodeFixProviders;
             Buffers = new Buffers();
         }
 
@@ -56,11 +66,42 @@ namespace MirrorSharp.Internal {
             return new AnalyzerFileReference(assembly.Location, new PreloadedAnalyzerAssemblyLoader(assembly));
         }
 
+        private static ImmutableArray<DiagnosticAnalyzer> CreateDefaultAnalyzers() {
+            return ImmutableArray.CreateRange(DefaultAnalyzerReferences.SelectMany(r => r.GetAnalyzers("C#")));
+        }
+
+        private static ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CreateDefaultCodeFixProviders() {
+            var codeFixProviderTypes = DefaultAnalyzerReferences
+                .OfType<AnalyzerFileReference>()
+                .Select(a => a.GetAssembly())
+                .SelectMany(a => a.DefinedTypes)
+                .Where(t => t.IsDefined(typeof(ExportCodeFixProviderAttribute)));
+
+            var providersByDiagnosticIds = new Dictionary<string, IList<CodeFixProvider>>();
+            foreach (var type in codeFixProviderTypes) {
+                var provider = (CodeFixProvider)Activator.CreateInstance(type.AsType());
+
+                foreach (var id in provider.FixableDiagnosticIds) {
+                    IList<CodeFixProvider> list;
+                    if (!providersByDiagnosticIds.TryGetValue(id, out list)) {
+                        list = new List<CodeFixProvider>();
+                        providersByDiagnosticIds.Add(id, list);
+                    }
+                    list.Add(provider);
+                }
+            }
+            return ImmutableDictionary.CreateRange(
+                providersByDiagnosticIds.Select(p => new KeyValuePair<string, ImmutableArray<CodeFixProvider>>(p.Key, ImmutableArray.CreateRange(p.Value)))
+            );
+        }
+
         public int CursorPosition { get; set; }
 
         public SourceText SourceText {
             get { return _sourceText; }
             set {
+                if (value == _sourceText)
+                    return;
                 _sourceText = value;
                 _documentOutOfDate = true;
             }
@@ -68,24 +109,53 @@ namespace MirrorSharp.Internal {
 
         public Document Document {
             get {
-                if (_documentOutOfDate) {
-                    _document = _document.WithText(_sourceText);
-                    _documentOutOfDate = false;
-                }
+                EnsureDocumentUpToDate();
                 return _document;
             }
         }
 
         [NotNull] public CompletionService CompletionService { get; }
         [CanBeNull] public CompletionList CurrentCompletionList { get; set; }
+        [NotNull] public IList<CodeAction> CurrentCodeActions { get; } = new List<CodeAction>();
 
+        public Workspace Workspace {
+            get {
+                EnsureDocumentUpToDate();
+                return _workspace;
+            }
+        }
         public Project Project => Document.Project;
         public ImmutableArray<DiagnosticAnalyzer> Analyzers { get; }
+        public ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CodeFixProviders { get; }
 
         public Buffers Buffers { get; }
+
+        private void EnsureDocumentUpToDate() {
+            if (!_documentOutOfDate)
+                return;
+
+            var document = _document.WithText(_sourceText);
+            if (!_workspace.TryApplyChanges(document.Project.Solution))
+                throw new Exception("Failed to apply changes to workspace.");
+            _document = _workspace.CurrentSolution.GetDocument(document.Id);
+            _documentOutOfDate = false;
+        }
+
+        public async Task<IReadOnlyList<TextChange>> UpdateFromWorkspaceAsync() {
+            EnsureDocumentUpToDate();
+            var project = _workspace.CurrentSolution.GetProject(Project.Id);
+            if (project == Project)
+                return NoTextChanges;
+
+            var oldText = _sourceText;
+            _document = project.GetDocument(_document.Id);
+            _sourceText = await _document.GetTextAsync();
+            return _sourceText.GetTextChanges(oldText);
+        }
 
         public void Dispose() {
             _workspace.Dispose();
         }
     }
 }
+
