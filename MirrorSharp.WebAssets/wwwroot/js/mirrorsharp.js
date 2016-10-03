@@ -110,10 +110,11 @@
     }
 
     function Editor(textarea, connection, options) {
+        var lineSeparator = '\r\n';
         var lintingSuspended = true;
 
         const cmOptions = options.forCodeMirror || {
-            lineSeparator: '\r\n',
+            lineSeparator: lineSeparator,
             mode: 'text/x-csharp',
             gutters: []
         };
@@ -121,6 +122,7 @@
         cmOptions.lintFix = { getFixes: getFixes };
         cmOptions.gutters.push('CodeMirror-lint-markers');
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);
+        cm.setValue(textarea.value.replace(/(\r\n|\r|\n)/g, '\r\n'));
 
         cm.getWrapperElement().classList.add('mirrorsharp');
 
@@ -173,7 +175,7 @@
                 const change = changes[i];
                 const start = change.from[indexKey];
                 const length = change.to[indexKey] - start;
-                const text = change.text.join('\n');
+                const text = change.text.join(lineSeparator);
                 if (cursorIndex === start + 1 && length === 0 && text.length === 1 && !changesAreFromServer) {
                     connection.sendTypeChar(text);
                 }
