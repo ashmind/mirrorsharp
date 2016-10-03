@@ -282,29 +282,19 @@
                 connection.sendSlowUpdate();
         }
 
-        var markers = [];
-        const markerOptions = { className: 'mirrorsharp-marker-unnecessary' };
         function showSlowUpdate(update) {
             const annotations = [];
-            for (var marker of markers) {
-                marker.clear();
-            }
-            markers = [];
-
             for (var diagnostic of update.diagnostics) {
-                if (diagnostic.severity === 'hidden' && diagnostic.tags.indexOf('unnecessary') >= 0) {
-                    markers.push(cm.markText(
-                        cm.posFromIndex(diagnostic.span.start),
-                        cm.posFromIndex(diagnostic.span.start + diagnostic.span.length),
-                        markerOptions
-                    ));
+                var severity = diagnostic.severity;
+                if (diagnostic.severity === 'hidden') {
+                    if (diagnostic.tags.indexOf('unnecessary') === 0)
+                        continue;
+
+                    severity = 'unnecessary';
                 }
 
-                if (diagnostic.severity !== 'error' && diagnostic.severity !== 'warning')
-                    continue;
-
                 annotations.push({
-                    severity: diagnostic.severity,
+                    severity: severity,
                     message: diagnostic.message,
                     from: cm.posFromIndex(diagnostic.span.start),
                     to: cm.posFromIndex(diagnostic.span.start + diagnostic.span.length),
