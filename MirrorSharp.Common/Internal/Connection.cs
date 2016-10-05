@@ -5,26 +5,23 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using MirrorSharp.Internal.Commands;
-using Newtonsoft.Json;
 
 namespace MirrorSharp.Internal {
     public class Connection : ICommandResultSender, IDisposable {
         private readonly WebSocket _socket;
         private readonly WorkSession _session;
         private readonly ImmutableArray<ICommandHandler> _handlers;
-        private readonly byte[] _inputByteBuffer = new byte[2048];
-        private readonly byte[] _outputByteBuffer = new byte[4*1024];
+        private readonly byte[] _inputBuffer = new byte[4096];
+        private readonly byte[] _outputBuffer = new byte[4096];
 
-        private readonly MemoryStream _jsonOutputStream;
-        private readonly JsonWriter _jsonWriter;
+        private readonly FastJsonWriter _messageWriter;
         private readonly IConnectionOptions _options;
 
         public Connection(WebSocket socket, WorkSession session, ImmutableArray<ICommandHandler> handlers, IConnectionOptions options = null) {
             _socket = socket;
             _session = session;
             _handlers = handlers;
-            _jsonOutputStream = new MemoryStream(_outputByteBuffer);
-            _jsonWriter = new JsonTextWriter(new StreamWriter(_jsonOutputStream));
+            _messageWriter = new FastJsonWriter(_outputBuffer);
             _options = options ?? new MirrorSharpOptions();
         }
 
@@ -46,7 +43,7 @@ namespace MirrorSharp.Internal {
         }
 
         private async Task ReceiveAndProcessInternalAsync(CancellationToken cancellationToken) {
-            var received = await _socket.ReceiveAsync(new ArraySegment<byte>(_inputByteBuffer), cancellationToken).ConfigureAwait(false);
+            var received = await _socket.ReceiveAsync(new ArraySegment<byte>(_inputBuffer), cancellationToken).ConfigureAwait(false);
             if (received.MessageType == WebSocketMessageType.Binary)
                 throw new FormatException("Expected text data (received binary).");
 
@@ -55,7 +52,7 @@ namespace MirrorSharp.Internal {
                 return;
             }
 
-            var data = new ArraySegment<byte>(_inputByteBuffer, 0, received.Count);
+            var data = new ArraySegment<byte>(_inputBuffer, 0, received.Count);
             var commandId = data.Array[data.Offset];
             var handler = ResolveHandler(commandId);
             await handler.ExecuteAsync(Shift(data), _session, this, cancellationToken).ConfigureAwait(false);
@@ -100,25 +97,24 @@ namespace MirrorSharp.Internal {
             return SendJsonMessageAsync(cancellationToken);
         }
 
-        private JsonWriter StartJsonMessage(string messageTypeName) {
-            _jsonOutputStream.Seek(0, SeekOrigin.Begin);
-            _jsonWriter.WriteStartObject();
-            _jsonWriter.WriteProperty("type", messageTypeName);
-            return _jsonWriter;
+        private FastJsonWriter StartJsonMessage(string messageTypeName) {
+            _messageWriter.Reset();
+            _messageWriter.WriteStartObject();
+            _messageWriter.WriteProperty("type", messageTypeName);
+            return _messageWriter;
         }
 
         private Task SendJsonMessageAsync(CancellationToken cancellationToken) {
-            _jsonWriter.WriteEndObject();
-            _jsonWriter.Flush();
+            _messageWriter.WriteEndObject();
             return _socket.SendAsync(
-                new ArraySegment<byte>(_outputByteBuffer, 0, (int)_jsonOutputStream.Position),
+                _messageWriter.WrittenSegment,
                 WebSocketMessageType.Text, true, cancellationToken
             );
         }
 
         public void Dispose() => _session.Dispose();
 
-        JsonWriter ICommandResultSender.StartJsonMessage(string messageTypeName) => StartJsonMessage(messageTypeName);
+        FastJsonWriter ICommandResultSender.StartJsonMessage(string messageTypeName) => StartJsonMessage(messageTypeName);
         Task ICommandResultSender.SendJsonMessageAsync(CancellationToken cancellationToken) => SendJsonMessageAsync(cancellationToken);
     }
 }
