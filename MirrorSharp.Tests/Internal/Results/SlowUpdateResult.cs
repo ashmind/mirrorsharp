@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
-using JetBrains.Annotations;
 
-namespace MirrorSharp.Tests.Internal {
-    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable CollectionNeverUpdated.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
+namespace MirrorSharp.Tests.Internal.Results {
     public class SlowUpdateResult {
         public IList<ResultDiagnostic> Diagnostics { get; } = new List<ResultDiagnostic>();
 
-        [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
         public class ResultDiagnostic {
             public string Message { get; set; }
             public string Severity { get; set; }
@@ -14,7 +15,6 @@ namespace MirrorSharp.Tests.Internal {
             public IList<ResultAction> Actions { get; } = new List<ResultAction>();
         }
 
-        [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
         public class ResultAction {
             public int Id { get; set; }
             public string Title { get; set; }

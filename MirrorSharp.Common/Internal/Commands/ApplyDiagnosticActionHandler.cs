@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,7 +17,6 @@ namespace MirrorSharp.Internal.Commands {
             var changes = await session.UpdateFromWorkspaceAsync().ConfigureAwait(false);
 
             var writer = sender.StartJsonMessage("changes");
-            writer.WriteProperty("echo", false);
             writer.WritePropertyStartArray("changes");
             foreach (var change in changes) {
                 writer.WriteChange(change);

@@ -20,7 +20,7 @@ namespace MirrorSharp.Advanced {
             var commands = new ICommandHandler[26];
             foreach (var command in new ICommandHandler[] {
                 new ApplyDiagnosticActionHandler(),
-                new CommitCompletionHandler(),
+                new CompletionChoiceHandler(),
                 new MoveCursorHandler(),
                 new ReplaceTextHandler(),
                 new SlowUpdateHandler(),

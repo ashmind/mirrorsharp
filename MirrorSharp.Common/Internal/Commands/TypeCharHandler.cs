@@ -9,17 +9,25 @@ namespace MirrorSharp.Internal.Commands {
     public class TypeCharHandler : ICommandHandler {
         public IImmutableList<char> CommandIds { get; } = ImmutableList.Create('C');
 
-        public async Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+        public Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var @char = FastConvert.Utf8ByteArrayToChar(data, session.Buffers.CharArray);
             session.SourceText = session.SourceText.WithChanges(
                 new TextChange(new TextSpan(session.CursorPosition, 0), FastConvert.CharToString(@char))
             );
             session.CursorPosition += 1;
+            if (session.CurrentCompletionList != null) {
+                return TaskEx.CompletedTask;
+            }
 
-            if (!session.CompletionService.ShouldTriggerCompletion(session.SourceText, session.CursorPosition, CompletionTrigger.CreateInsertionTrigger(@char)))
-                return;
+            var trigger = CompletionTrigger.CreateInsertionTrigger(@char);
+            if (!session.CompletionService.ShouldTriggerCompletion(session.SourceText, session.CursorPosition, trigger))
+                return TaskEx.CompletedTask;
 
-            session.CurrentCompletionList = await session.CompletionService.GetCompletionsAsync(session.Document, session.CursorPosition, cancellationToken: cancellationToken).ConfigureAwait(false);
+            return TriggerCompletionAsync(session, sender, cancellationToken, trigger);
+        }
+
+        private async Task TriggerCompletionAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken, CompletionTrigger trigger) {
+            session.CurrentCompletionList = await session.CompletionService.GetCompletionsAsync(session.Document, session.CursorPosition, trigger, cancellationToken: cancellationToken).ConfigureAwait(false);
             if (session.CurrentCompletionList == null)
                 return;
 
@@ -35,6 +43,7 @@ namespace MirrorSharp.Internal.Commands {
             writer.WritePropertyStartArray("list");
             foreach (var item in completionList.Items) {
                 writer.WriteStartObject();
+                writer.WriteProperty("filterText", item.FilterText);
                 writer.WriteProperty("displayText", item.DisplayText);
                 writer.WritePropertyStartArray("tags");
                 foreach (var tag in item.Tags) {

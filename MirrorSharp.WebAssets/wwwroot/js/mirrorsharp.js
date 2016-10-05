@@ -96,8 +96,8 @@
             return sendWhenOpen('C' + char);
         };
 
-        this.sendCommitCompletion = function(itemIndex) {
-            return sendWhenOpen('S' + itemIndex);
+        this.sendCompletionChoice = function(index) {
+            return sendWhenOpen('S' + (index != null ? index : 'X'));
         };
 
         this.sendSlowUpdate = function() {
@@ -109,8 +109,52 @@
         };
     }
 
+    function Hinter(cm, connection) {
+        const indexInListKey = '$mirrorsharp-indexInList';
+
+        var committed = false;
+        const commit = function (cm, data, item) {
+            connection.sendCompletionChoice(item[indexInListKey]);
+            committed = true;
+        };
+
+        cm.on('endCompletion', function() {
+            if (committed)
+                return;
+            connection.sendCompletionChoice(null);
+        });
+
+        this.start = function(completions) {
+            committed = false;
+            const hintStart = cm.posFromIndex(completions.span.start);
+            const hintList = completions.list.map(function (c, index) {
+                const item = {
+                    text: c.filterText,
+                    displayText: c.displayText,
+                    className: 'mirrorsharp-hint ' + c.tags.map(function (t) { return 'mirrorsharp-hint-' + t.toLowerCase(); }).join(' '),
+                    hint: commit
+                };
+                item[indexInListKey] = index;
+                if (c.span)
+                    item.from = cm.posFromIndex(c.span.start);
+                return item;
+            });
+            cm.showHint({
+                hint: function() {
+                    const prefix = cm.getRange(hintStart, cm.getCursor());
+                    var list = hintList;
+                    if (prefix.length > 0)
+                        list = hintList.filter(function(item) { return item.text.indexOf(prefix) === 0; });
+
+                    return { from: hintStart, list: list };
+                },
+                completeSingle: false
+            });
+        };
+    }
+
     function Editor(textarea, connection, options) {
-        var lineSeparator = '\r\n';
+        const lineSeparator = '\r\n';
         var lintingSuspended = true;
 
         const cmOptions = options.forCodeMirror || {
@@ -125,6 +169,8 @@
         cm.setValue(textarea.value.replace(/(\r\n|\r|\n)/g, '\r\n'));
 
         cm.getWrapperElement().classList.add('mirrorsharp');
+
+        const hinter = new Hinter(cm, connection);
 
         var updateLinting;
         connection.on('open', function () {
@@ -153,7 +199,6 @@
         const indexKey = '$mirrorsharp-index';
         var changePending = false;
         var changesAreFromServer = false;
-        var doNotSendChanges = false;
         cm.on('beforeChange', function (s, change) {
             change.from[indexKey] = cm.indexFromPos(change.from);
             change.to[indexKey] = cm.indexFromPos(change.to);
@@ -161,7 +206,7 @@
         });
 
         cm.on('cursorActivity', function () {
-            if (changePending && !doNotSendChanges)
+            if (changePending)
                 return;
             connection.sendMoveCursor(getCursorIndex(cm));
         });
@@ -169,8 +214,11 @@
         cm.on('changes', function (s, changes) {
             const cursorIndex = getCursorIndex(cm);
             changePending = false;
-            if (doNotSendChanges)
+            if (changesAreFromServer) {
+                connection.sendMoveCursor(cursorIndex);
                 return;
+            }
+
             for (var i = 0; i < changes.length; i++) {
                 const change = changes[i];
                 const start = change.from[indexKey];
@@ -189,11 +237,11 @@
         connection.on('message', function (message) {
             switch (message.type) {
                 case 'changes':
-                    applyChangesFromServer(message.changes, message.echo);
+                    applyChangesFromServer(message.changes);
                     break;
 
                 case 'completions':
-                    showCompletions(message.completions);
+                    hinter.start(message.completions);
                     break;
 
                 case 'slowUpdate':
@@ -216,42 +264,14 @@
             return cm.indexFromPos(cm.getCursor());
         }
 
-        function applyChangesFromServer(changes, echo) {
+        function applyChangesFromServer(changes) {
             changesAreFromServer = true;
-            doNotSendChanges = !echo;
             for (var change of changes) {
                 const from = cm.posFromIndex(change.start);
                 const to = change.length > 0 ? cm.posFromIndex(change.start + change.length) : from;
-                cm.replaceRange(change.text, from, to);
+                cm.replaceRange(change.text, from, to, '+server');
             }
-            doNotSendChanges = false;
             changesAreFromServer = false;
-        }
-
-        function showCompletions(completions) {
-            const indexInListKey = '$mirrorsharp-indexInList';
-            var commit = function (cm, data, item) {
-                connection.sendCommitCompletion(item[indexInListKey]);
-            };
-
-            var hintResult = {
-                from: cm.posFromIndex(completions.span.start),
-                list: completions.list.map(function (c, index) {
-                    const item = {
-                        displayText: c.displayText,
-                        className: 'mirrorsharp-hint ' + c.tags.map(function (t) { return 'mirrorsharp-hint-' + t.toLowerCase(); }).join(' '),
-                        hint: commit
-                    };
-                    item[indexInListKey] = index;
-                    if (c.span)
-                        item.from = cm.posFromIndex(c.span.start);
-                    return item;
-                })
-            };
-            cm.showHint({
-                hint: function () { return hintResult; },
-                completeSingle: false
-            });
         }
 
         function getFixes(cm, line, annotations) {

@@ -1,12 +1,13 @@
-﻿using System;
-using System.Text;
-using Microsoft.CodeAnalysis.Text;
+﻿using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Commands;
+using MirrorSharp.Tests.Internal;
 using Xunit;
 
 namespace MirrorSharp.Tests {
-    public class ReplaceTextHandlerTests : HandlerTestsBase<ReplaceTextHandler> {
+    using static TestHelper;
+
+    public class ReplaceTextHandlerTests {
         [Theory]
         [InlineData("abc", "0:2:0:x", "xc", 0)]
         [InlineData("abc", "0:0:0:x", "xabc", 0)]
@@ -16,9 +17,7 @@ namespace MirrorSharp.Tests {
             var session = new WorkSession {
                 SourceText = SourceText.From(initialText)
             };
-            var data = Encoding.UTF8.GetBytes(dataString);
-
-            await ExecuteAsync(session, new ArraySegment<byte>(data));
+            await ExecuteHandlerAsync<ReplaceTextHandler>(session, dataString);
 
             Assert.Equal(expectedText, session.SourceText.ToString());
             Assert.Equal(expectedCursorPosition, session.CursorPosition);
