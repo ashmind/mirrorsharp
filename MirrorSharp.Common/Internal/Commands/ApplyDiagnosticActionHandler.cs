@@ -25,6 +25,6 @@ namespace MirrorSharp.Internal.Commands {
             await sender.SendJsonMessageAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        public bool CanChangeSession => false;
+        public bool CanChangeSession => true;
     }
 }

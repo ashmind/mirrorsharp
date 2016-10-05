@@ -110,6 +110,7 @@
     }
 
     function Hinter(cm, connection) {
+        const state = this;
         const indexInListKey = '$mirrorsharp-indexInList';
 
         var committed = false;
@@ -118,13 +119,9 @@
             committed = true;
         };
 
-        cm.on('endCompletion', function() {
-            if (committed)
-                return;
-            connection.sendCompletionChoice(null);
-        });
-
+        state.active = false;
         this.start = function(completions) {
+            state.active = true;
             committed = false;
             const hintStart = cm.posFromIndex(completions.span.start);
             const hintList = completions.list.map(function (c, index) {
@@ -151,6 +148,13 @@
                 completeSingle: false
             });
         };
+
+        cm.on('endCompletion', function() {
+            state.active = false;
+            if (committed)
+                return;
+            connection.sendCompletionChoice(null);
+        });
     }
 
     function Editor(textarea, connection, options) {
@@ -249,7 +253,7 @@
                     break;
 
                 case 'debug:compare':
-                    debugCompare(message.text, message.cursor);
+                    debugCompare(message);
                     break;
 
                 case 'error':
@@ -324,16 +328,19 @@
             updateLinting(annotations);
         }
 
-        function debugCompare(serverText, serverCursorIndex) {
-            if (serverText !== undefined) {
+        function debugCompare(server) {
+            if (server.text !== undefined) {
                 const clientText = cm.getValue();
-                if (clientText !== serverText)
-                    console.error('Client text does not match server text:', { clientText: clientText, serverText: serverText });
+                if (clientText !== server.text)
+                    console.error('Client text does not match server text:', { clientText: clientText, serverText: server.text });
             }
 
             const clientCursorIndex = getCursorIndex();
-            if (clientCursorIndex !== serverCursorIndex)
-                console.error('Client cursor position does not match server position:', { clientPosition: clientCursorIndex, serverPosition: serverCursorIndex });
+            if (clientCursorIndex !== server.cursor)
+                console.error('Client cursor position does not match server position:', { clientPosition: clientCursorIndex, serverPosition: server.cursor });
+
+            if (hinter.active !== server.completion)
+                console.error('Client completion state does not match server state:', { clientCompletionActive: hinter.active, serverCompletionActive: server.completion });
         }
 
         var connectionLossElement;

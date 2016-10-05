@@ -90,6 +90,7 @@ namespace MirrorSharp.Internal {
             if (!(handler is MoveCursorHandler))
                 writer.WriteProperty("text", _session.SourceText.ToString());
             writer.WriteProperty("cursor", _session.CursorPosition);
+            writer.WriteProperty("completion", _session.CurrentCompletionList != null);
             return SendJsonMessageAsync(cancellationToken);
         }
 
