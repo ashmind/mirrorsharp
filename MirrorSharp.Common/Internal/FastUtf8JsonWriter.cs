@@ -162,9 +162,6 @@ namespace MirrorSharp.Internal {
 
         private void WriteRawBytes(byte[] bytes) {
             EnsureCanWrite(bytes.Length);
-            //for (var i = 0; i < bytes.Length; i++) {
-            //    _buffer[_position + i] = bytes[i];
-            //}
             Buffer.BlockCopy(bytes, 0, _buffer, _position, bytes.Length);
             _position += bytes.Length;
         }
@@ -176,7 +173,7 @@ namespace MirrorSharp.Internal {
             byte[] newBuffer = null;
             try {
                 newBuffer = _bufferPool.Rent(_position + requiredExtraBytes);
-                Buffer.BlockCopy(_buffer, 0, newBuffer, _position, _buffer.Length);
+                Buffer.BlockCopy(_buffer, 0, newBuffer, 0, _buffer.Length);
             }
             catch {
                 if (newBuffer != null)
