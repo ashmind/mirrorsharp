@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,9 +9,9 @@ using Microsoft.CodeAnalysis.Text;
 namespace MirrorSharp.Internal.Commands {
     public class TypeCharHandler : ICommandHandler {
         public IImmutableList<char> CommandIds { get; } = ImmutableList.Create('C');
-
+        
         public Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var @char = FastConvert.Utf8ByteArrayToChar(data, session.Buffers.CharArray);
+            var @char = FastConvert.Utf8ByteArrayToChar(data);
             session.SourceText = session.SourceText.WithChanges(
                 new TextChange(new TextSpan(session.CursorPosition, 0), FastConvert.CharToString(@char))
             );

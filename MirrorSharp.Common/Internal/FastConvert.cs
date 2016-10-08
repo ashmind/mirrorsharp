@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Buffers;
 using System.Linq;
 using System.Text;
 
 namespace MirrorSharp.Internal {
     internal static class FastConvert {
+        private static readonly ArrayPool<char> CharPool = ArrayPool<char>.Shared;
         private const byte Utf8Zero = (byte)'0';
         private const byte Utf8Nine = (byte)'9';
 
@@ -24,11 +26,19 @@ namespace MirrorSharp.Internal {
             return result;
         }
 
-        public static char Utf8ByteArrayToChar(ArraySegment<byte> bytes, char[] buffer) {
+        public static char Utf8ByteArrayToChar(ArraySegment<byte> bytes) {
             if (bytes.Count == 1)
                 return (char)bytes.Array[bytes.Offset];
 
-            var charCount = Encoding.UTF8.GetChars(bytes.Array, bytes.Offset, bytes.Count, buffer, 0);
+            var buffer = CharPool.Rent(2);
+            int charCount;
+            try {
+                charCount = Encoding.UTF8.GetChars(bytes.Array, bytes.Offset, bytes.Count, buffer, 0);
+            }
+            finally {
+                CharPool.Return(buffer);
+            }
+
             if (charCount != 1)
                 throw new FormatException($"Expected one char, but conversion produced {charCount}.");
 

@@ -20,6 +20,7 @@ namespace MirrorSharp.Tests {
         [Theory]
         [InlineData('\u0216')]
         [InlineData('月')]
+        [InlineData('❀')]
         public async Task ExecuteAsync_HandlesUnicodeChar(char @char) {
             var session = new WorkSession();
             await ExecuteHandlerAsync<TypeCharHandler>(session, @char);

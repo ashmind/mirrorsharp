@@ -58,7 +58,6 @@ namespace MirrorSharp.Internal {
 
             Analyzers = DefaultAnalyzers;
             CodeFixProviders = DefaultCodeFixProviders;
-            Buffers = new Buffers();
         }
 
         private static AnalyzerFileReference CreateAnalyzerReference(string assemblyName) {
@@ -127,8 +126,6 @@ namespace MirrorSharp.Internal {
         public Project Project => Document.Project;
         public ImmutableArray<DiagnosticAnalyzer> Analyzers { get; }
         public ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CodeFixProviders { get; }
-
-        public Buffers Buffers { get; }
 
         private void EnsureDocumentUpToDate() {
             if (!_documentOutOfDate)
