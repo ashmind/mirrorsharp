@@ -1,18 +1,25 @@
 ﻿using System;
+using System.Buffers;
 using System.Linq;
 using System.Text;
 
 namespace MirrorSharp.Internal {
-    public class FastJsonWriter {
+    public class FastUtf8JsonWriter : IDisposable {
+        private static readonly int[] PowersOfTen = {
+            1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1
+        };
+
         private int _position = 0;
         private readonly char[] _oneCharBuffer = new char[1];
-        private readonly byte[] _buffer;
+        private readonly ArrayPool<byte> _bufferPool;
+        private byte[] _buffer;
 
         private readonly State[] _stateStack = new State[32];
         private int _stateStackIndex = 0;
 
-        public FastJsonWriter(byte[] buffer) {
-            _buffer = buffer;
+        public FastUtf8JsonWriter(ArrayPool<byte> bufferPool) {
+            _bufferPool = bufferPool;
+            _buffer = bufferPool.Rent(4096);
         }
 
         public ArraySegment<byte> WrittenSegment => new ArraySegment<byte>(_buffer, 0, _position);
@@ -20,12 +27,11 @@ namespace MirrorSharp.Internal {
         public void WriteStartObject() {
             WriteStartValue();
             WriteRawByte(Utf8.CurlyOpen);
-            _stateStackIndex += 1;
-            _stateStack[_stateStackIndex] = State.ObjectStart;
+            PushState(State.ObjectStart);
         }
 
         public void WriteEndObject() {
-            _stateStackIndex -= 1;
+            PopState();
             WriteRawByte(Utf8.CurlyClose);
             WriteEndValue();
         }
@@ -33,12 +39,11 @@ namespace MirrorSharp.Internal {
         public void WriteStartArray() {
             WriteStartValue();
             WriteRawByte(Utf8.SquareOpen);
-            _stateStackIndex += 1;
-            _stateStack[_stateStackIndex] = State.ArrayStart;
+            PushState(State.ArrayStart);
         }
 
         public void WriteEndArray() {
-            _stateStackIndex -= 1;
+            PopState();
             WriteRawByte(Utf8.SquareClose);
             WriteEndValue();
         }
@@ -69,12 +74,11 @@ namespace MirrorSharp.Internal {
         }
 
         public void WritePropertyName(string name) {
-            var state = _stateStack[_stateStackIndex];
-            if (state == State.ObjectAfterProperty)
+            if (GetState() == State.ObjectAfterProperty)
                 WriteRawByte(Utf8.Comma);
             WriteValue(name);
             WriteRawByte(Utf8.Colon);
-            _stateStack[_stateStackIndex] = State.ObjectPropertyValue;
+            ReplaceState(State.ObjectPropertyValue);
         }
 
         public void WriteValue(string value) {
@@ -109,25 +113,25 @@ namespace MirrorSharp.Internal {
         }
 
         public void WriteValue(int value) {
-            if (value < 0 || value > 1000) {
-                WriteValue(value.ToString());
+            if (value < 0) {
+                WriteRawByte(Utf8.Minus);
+                value = -value;
+            }
+
+            if (value < 10) {
+                WriteRawByte(Utf8.Digits[value]);
+                WriteEndValue();
                 return;
             }
 
-            WriteInt32Fast(value);
-            WriteEndValue();
-        }
-
-        private void WriteInt32Fast(int value) {
-            if (value > 100) {
-                WriteRawByte(Utf8.Digits[value / 100]);
-                value = value % 100;
+            var remainder = value;
+            foreach (var power in PowersOfTen) {
+                if (value < power)
+                    continue;
+                WriteRawByte(Utf8.Digits[remainder / power]);
+                remainder %= power;
             }
-
-            if (value > 10)
-                WriteRawByte(Utf8.Digits[value / 10]);
-
-            WriteRawByte(Utf8.Digits[(value % 10)]);
+            WriteEndValue();
         }
 
         public void WriteValue(bool value) {
@@ -141,30 +145,75 @@ namespace MirrorSharp.Internal {
         }
 
         private void WriteEndValue() {
-            var state = _stateStack[_stateStackIndex];
+            var state = GetState();
             if (state == State.ArrayStart) {
-                _stateStack[_stateStackIndex] = State.ArrayAfterItem;
+                ReplaceState(State.ArrayAfterItem);
             }
             else if (state == State.ObjectPropertyValue) {
-                _stateStack[_stateStackIndex] = State.ObjectAfterProperty;
+                ReplaceState(State.ObjectAfterProperty);
             }
         }
 
         private void WriteRawByte(byte @byte) {
+            EnsureCanWrite(1);
             _buffer[_position] = @byte;
             _position += 1;
         }
 
         private void WriteRawBytes(byte[] bytes) {
-            bytes.CopyTo(_buffer, _position);
+            EnsureCanWrite(bytes.Length);
+            //for (var i = 0; i < bytes.Length; i++) {
+            //    _buffer[_position + i] = bytes[i];
+            //}
+            Buffer.BlockCopy(bytes, 0, _buffer, _position, bytes.Length);
             _position += bytes.Length;
+        }
+
+        private void EnsureCanWrite(int requiredExtraBytes) {
+            if (_position + requiredExtraBytes <= _buffer.Length)
+                return;
+
+            byte[] newBuffer = null;
+            try {
+                newBuffer = _bufferPool.Rent(_position + requiredExtraBytes);
+                Buffer.BlockCopy(_buffer, 0, newBuffer, _position, _buffer.Length);
+            }
+            catch {
+                if (newBuffer != null)
+                    _bufferPool.Return(newBuffer);
+                throw;
+            }
+            try {
+                _bufferPool.Return(_buffer);
+            }
+            finally {
+                _buffer = newBuffer;
+            }
         }
 
         public void Reset() {
             _position = 0;
         }
 
+        private State GetState() {
+            return _stateStack[_stateStackIndex];
+        }
+
+        private void ReplaceState(State state) {
+            _stateStack[_stateStackIndex] = state;
+        }
+
+        private void PushState(State state) {
+            _stateStackIndex += 1;
+            _stateStack[_stateStackIndex] = state;
+        }
+
+        private void PopState() {
+            _stateStackIndex -= 1;
+        }
+
         private enum State {
+            // ReSharper disable once UnusedMember.Local
             None,
             ArrayStart,
             ArrayAfterItem,
@@ -181,6 +230,8 @@ namespace MirrorSharp.Internal {
             public const byte Colon = (byte)':';
             public const byte Quote = (byte)'"';
             public const byte Comma = (byte)',';
+
+            public const byte Minus = (byte)'-';
             public static readonly byte[] Digits = Enumerable.Range(0, 10)
                 .Select(i => (byte)i.ToString()[0])
                 .ToArray();
@@ -204,6 +255,15 @@ namespace MirrorSharp.Internal {
 
             public static readonly byte[] EscapedSlash = Encoding.UTF8.GetBytes("\\\\");
             public static readonly byte[] EscapedQuote = Encoding.UTF8.GetBytes("\\\"");
+        }
+
+        public void Dispose() {
+            _bufferPool.Return(_buffer);
+            GC.SuppressFinalize(this);
+        }
+
+        ~FastUtf8JsonWriter() {
+            _bufferPool.Return(_buffer);
         }
     }
 }

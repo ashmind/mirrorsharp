@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace MirrorSharp.Internal.Commands {
     public interface ICommandResultSender {
-        FastJsonWriter StartJsonMessage(string messageTypeName);
+        FastUtf8JsonWriter StartJsonMessage(string messageTypeName);
         Task SendJsonMessageAsync(CancellationToken cancellationToken);
     }
 }

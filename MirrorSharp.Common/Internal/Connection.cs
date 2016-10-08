@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Immutable;
-using System.IO;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,16 +12,15 @@ namespace MirrorSharp.Internal {
         private readonly WorkSession _session;
         private readonly ImmutableArray<ICommandHandler> _handlers;
         private readonly byte[] _inputBuffer = new byte[4096];
-        private readonly byte[] _outputBuffer = new byte[4096];
 
-        private readonly FastJsonWriter _messageWriter;
+        private readonly FastUtf8JsonWriter _messageWriter;
         private readonly IConnectionOptions _options;
 
         public Connection(WebSocket socket, WorkSession session, ImmutableArray<ICommandHandler> handlers, IConnectionOptions options = null) {
             _socket = socket;
             _session = session;
             _handlers = handlers;
-            _messageWriter = new FastJsonWriter(_outputBuffer);
+            _messageWriter = new FastUtf8JsonWriter(ArrayPool<byte>.Shared);
             _options = options ?? new MirrorSharpOptions();
         }
 
@@ -97,7 +96,7 @@ namespace MirrorSharp.Internal {
             return SendJsonMessageAsync(cancellationToken);
         }
 
-        private FastJsonWriter StartJsonMessage(string messageTypeName) {
+        private FastUtf8JsonWriter StartJsonMessage(string messageTypeName) {
             _messageWriter.Reset();
             _messageWriter.WriteStartObject();
             _messageWriter.WriteProperty("type", messageTypeName);
@@ -112,9 +111,12 @@ namespace MirrorSharp.Internal {
             );
         }
 
-        public void Dispose() => _session.Dispose();
+        public void Dispose() {
+            _messageWriter.Dispose();
+            _session.Dispose();
+        }
 
-        FastJsonWriter ICommandResultSender.StartJsonMessage(string messageTypeName) => StartJsonMessage(messageTypeName);
+        FastUtf8JsonWriter ICommandResultSender.StartJsonMessage(string messageTypeName) => StartJsonMessage(messageTypeName);
         Task ICommandResultSender.SendJsonMessageAsync(CancellationToken cancellationToken) => SendJsonMessageAsync(cancellationToken);
     }
 }

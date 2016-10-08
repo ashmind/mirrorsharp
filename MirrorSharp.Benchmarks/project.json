@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "emitEntryPoint": true
+  },
+
+  "dependencies": {
+    "BenchmarkDotNet": "0.9.9",
+    "Newtonsoft.Json": "9.0.1",
+    "MirrorSharp.Common": "*",
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.0"
+    }
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": [ "dnxcore50", "portable-net45+win8+wp8+wpa81", "portable-net45+win8" ]
+    }
+  }
+}

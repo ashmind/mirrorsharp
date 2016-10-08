@@ -43,7 +43,7 @@ namespace MirrorSharp.Internal {
         }
 
         private static string SlowUtf8ByteArrayToString(ArraySegment<byte> bytes) {
-            return Encoding.UTF8.GetString(bytes.Array, bytes.Offset, bytes.Count);
+            return Encoding.UTF8.GetString(bytes);
         }
     }
 }
