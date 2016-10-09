@@ -40,22 +40,43 @@ namespace MirrorSharp.Internal.Commands {
                 var actions = await GetCodeActionsAsync(diagnostic, session, cancellationToken).ConfigureAwait(false);
                 if (actions.Count > 0) {
                     writer.WritePropertyStartArray("actions");
-                    foreach (var action in actions) {
-                        if (!RoslynInternals.GetIsInvokable(action)) // TODO: support subactions
-                            continue;
-                        var id = session.CurrentCodeActions.Count;
-                        session.CurrentCodeActions.Add(action);
-                        writer.WriteStartObject();
-                        writer.WriteProperty("id", id);
-                        writer.WriteProperty("title", action.Title);
-                        writer.WriteEndObject();
-                    }
+                    WriteActions(writer, actions, session);
                     writer.WriteEndArray();
                 }
                 writer.WriteEndObject();
             }
             writer.WriteEndArray();
             await sender.SendJsonMessageAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        private static void WriteActions(FastUtf8JsonWriter writer, IReadOnlyCollection<CodeAction> actions, WorkSession session) {
+            foreach (var action in actions) {
+                if (!IsSupported(action))
+                    continue; 
+
+                if (!RoslynInternals.GetIsInvokable(action)) {
+                    WriteActions(writer, RoslynInternals.GetCodeActions(action), session);
+                    continue;
+                }
+                var id = session.CurrentCodeActions.Count;
+                session.CurrentCodeActions.Add(action);
+                writer.WriteStartObject();
+                writer.WriteProperty("id", id);
+                writer.WriteProperty("title", action.Title);
+                writer.WriteEndObject();
+            }
+        }
+
+        private static bool IsSupported(CodeAction action) {
+            // Hacky, raised as https://github.com/dotnet/roslyn/issues/14393
+
+            if (action.Title.EndsWith("...")) // dispays UI?
+                return false;
+
+            if (action.Title.Contains("in new file"))
+                return false;
+
+            return true;
         }
 
         private async Task<IReadOnlyCollection<CodeAction>> GetCodeActionsAsync(Diagnostic diagnostic, WorkSession session, CancellationToken cancellationToken) {

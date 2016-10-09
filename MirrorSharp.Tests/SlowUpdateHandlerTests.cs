@@ -31,7 +31,12 @@ namespace MirrorSharp.Tests {
             var diagnostic = result.Diagnostics.Single(d => d.Message.Contains("Action"));
 
             Assert.Equal(
-                new[] { "System.Action", "using System;" },
+                new[] {
+                    "Generate class 'Action'",
+                    "Generate nested class 'Action'",
+                    "System.Action",
+                    "using System;"
+                },
                 diagnostic.Actions.Select(a => a.Title).OrderBy(t => t).ToArray()
             );
         }
