@@ -61,7 +61,11 @@
     width: 16px;
     vertical-align: middle;
     position: relative;
-    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAclBMVEX///87OzvMqgA7OzvMqgDOrAA7OzvOrADPrQDOrADPrADMqgBFQzY+Pj7OrADOrADTsADOqwDZtgDatwDTsADWswDOrADUsgC5nxW6nxWVgBaVgBZiYmL/2AD40gCdnZ3OqwBra2vjvgD30ADkvwDivgBee4cgAAAAHXRSTlMAEBQoUGFkaWtxc3iK8PP09PX19fX19vb39/j5/HCAOPcAAAB4SURBVHhedY3bDoMgEAURqK2itoq9exa8/f8vuoml3ZdOwsNMzgb1B22d1cIPjZ+69vjzfgYwX4q0b9gZaj9X1gMxRqCze3AL2PitTiwgFvpMYAfd0s+nO3Gga6kS5es5Pd7sX6oxjJUS5CGEXIasHupMSYwxwiQbOZAJCXPHB8MAAAAASUVORK5CYII=");
+    background-image: url(icons/lint/unnecessary.png);
+}
+
+.CodeMirror-lint-marker-unnecessary.CodeMirror-lintfix-marker-fixable::before {
+    display: none;
 }
 
 .mirrorsharp-hint {
