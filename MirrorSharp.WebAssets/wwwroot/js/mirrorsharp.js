@@ -120,11 +120,11 @@
         };
 
         state.active = false;
-        this.start = function(completions) {
+        this.start = function(list, span) {
             state.active = true;
             committed = false;
-            const hintStart = cm.posFromIndex(completions.span.start);
-            const hintList = completions.list.map(function (c, index) {
+            const hintStart = cm.posFromIndex(span.start);
+            const hintList = list.map(function (c, index) {
                 const item = {
                     text: c.filterText,
                     displayText: c.displayText,
@@ -157,6 +157,48 @@
         });
     }
 
+    function SignatureTip(cm) {
+        const displayKindToClassMap = {
+            keyword: 'cm-keyword'
+        };
+
+        var tooltip;
+        var ol;
+        this.show = function(signatures, span) {
+            if (!tooltip) {
+                tooltip = document.createElement('div');
+                tooltip.className = 'mirrorsharp-theme mirrorsharp-signatures-tooltip';
+                ol = document.createElement('ol');
+                tooltip.appendChild(ol);
+            }
+            while (ol.firstChild) {
+                ol.removeChild(ol.firstChild);
+            }
+            for (var signature of signatures) {
+                var li = document.createElement('li');
+                for (var part of signature) {
+                    const className = displayKindToClassMap[part.kind];
+                    var child;
+                    if (className) {
+                        child = document.createElement('span');
+                        child.className = className;
+                        child.textContent = part.text;
+                    }
+                    else {
+                        child = document.createTextNode(part.text);
+                    }
+                    li.appendChild(child);
+                }
+                ol.appendChild(li);
+            }
+
+            const startCharCoords = cm.charCoords(cm.posFromIndex(span.start));
+            tooltip.style.top = startCharCoords.bottom + 'px';
+            tooltip.style.left = startCharCoords.left + 'px';
+            document.body.appendChild(tooltip);
+        };
+    }
+
     function Editor(textarea, connection, options) {
         const lineSeparator = '\r\n';
         var lintingSuspended = true;
@@ -172,9 +214,12 @@
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);
         cm.setValue(textarea.value.replace(/(\r\n|\r|\n)/g, '\r\n'));
 
-        cm.getWrapperElement().classList.add('mirrorsharp');
+        const cmWrapper = cm.getWrapperElement();
+        cmWrapper.classList.add('mirrorsharp');
+        cmWrapper.classList.add('mirrorsharp-theme');
 
         const hinter = new Hinter(cm, connection);
+        const signatureTip = new SignatureTip(cm);
 
         var updateLinting;
         connection.on('open', function () {
@@ -245,7 +290,11 @@
                     break;
 
                 case 'completions':
-                    hinter.start(message.completions);
+                    hinter.start(message.completions, message.span);
+                    break;
+
+                case 'signatures':
+                    signatureTip.show(message.signatures, message.span);
                     break;
 
                 case 'slowUpdate':

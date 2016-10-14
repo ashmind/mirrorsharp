@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
+using MirrorSharp.Internal.Reflection;
 
 namespace MirrorSharp.Internal.Commands {
     public class SlowUpdateHandler : ICommandHandler {
@@ -54,8 +55,8 @@ namespace MirrorSharp.Internal.Commands {
                 if (!IsSupported(action))
                     continue; 
 
-                if (!RoslynInternals.GetIsInvokable(action)) {
-                    WriteActions(writer, RoslynInternals.GetCodeActions(action), session);
+                if (!RoslynInternalCalls.GetIsInvokable(action)) {
+                    WriteActions(writer, RoslynInternalCalls.GetCodeActions(action), session);
                     continue;
                 }
                 var id = session.CurrentCodeActions.Count;

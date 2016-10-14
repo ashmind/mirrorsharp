@@ -12,7 +12,7 @@
   },
 
   "frameworks": {
-    "netcoreapp1.1": {
+    "netcoreapp1.0": {
       "imports": [ "dnxcore50", "portable-net45+win8+wp8+wpa81", "portable-net45+win8" ],
       "dependencies": {
         "Microsoft.NETCore.App": {

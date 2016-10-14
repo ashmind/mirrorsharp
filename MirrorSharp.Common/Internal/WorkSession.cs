@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
+using MirrorSharp.Internal.Reflection;
 
 namespace MirrorSharp.Internal {
     public class WorkSession {
@@ -38,6 +39,7 @@ namespace MirrorSharp.Internal {
 
         private static readonly ImmutableArray<DiagnosticAnalyzer> DefaultAnalyzers = CreateDefaultAnalyzers();
         private static readonly ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> DefaultCodeFixProviders = CreateDefaultCodeFixProviders();
+        private static readonly ImmutableArray<ISignatureHelpProviderWrapper> DefaultSignatureHelpProviders = CreateDefaultSignatureHelpProviders();
 
         public WorkSession() {
             _workspace = new AdhocWorkspace(HostServices);
@@ -58,15 +60,12 @@ namespace MirrorSharp.Internal {
 
             Analyzers = DefaultAnalyzers;
             CodeFixProviders = DefaultCodeFixProviders;
+            SignatureHelpProviders = DefaultSignatureHelpProviders;
         }
 
         private static AnalyzerFileReference CreateAnalyzerReference(string assemblyName) {
             var assembly = Assembly.Load(new AssemblyName(assemblyName));
             return new AnalyzerFileReference(assembly.Location, new PreloadedAnalyzerAssemblyLoader(assembly));
-        }
-
-        private static ImmutableArray<DiagnosticAnalyzer> CreateDefaultAnalyzers() {
-            return ImmutableArray.CreateRange(DefaultAnalyzerReferences.SelectMany(r => r.GetAnalyzers("C#")));
         }
 
         private static ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CreateDefaultCodeFixProviders() {
@@ -91,6 +90,18 @@ namespace MirrorSharp.Internal {
             }
             return ImmutableDictionary.CreateRange(
                 providersByDiagnosticIds.Select(p => new KeyValuePair<string, ImmutableArray<CodeFixProvider>>(p.Key, ImmutableArray.CreateRange(p.Value)))
+            );
+        }
+
+        private static ImmutableArray<DiagnosticAnalyzer> CreateDefaultAnalyzers() {
+            return ImmutableArray.CreateRange(DefaultAnalyzerReferences.SelectMany(r => r.GetAnalyzers("C#")));
+        }
+
+        private static ImmutableArray<ISignatureHelpProviderWrapper> CreateDefaultSignatureHelpProviders() {
+            return ImmutableArray.CreateRange(
+                RoslynInternalCalls.GetSignatureHelpProvidersSlow(HostServices)
+                    .Where(l => l.Metadata.Language == "C#")
+                    .Select(l => l.Value)
             );
         }
 
@@ -126,6 +137,7 @@ namespace MirrorSharp.Internal {
         public Project Project => Document.Project;
         public ImmutableArray<DiagnosticAnalyzer> Analyzers { get; }
         public ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CodeFixProviders { get; }
+        internal ImmutableArray<ISignatureHelpProviderWrapper> SignatureHelpProviders { get; }
 
         private void EnsureDocumentUpToDate() {
             if (!_documentOutOfDate)

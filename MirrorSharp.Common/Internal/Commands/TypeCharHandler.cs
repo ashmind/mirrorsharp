@@ -1,24 +1,43 @@
 ﻿using System;
-using System.Buffers;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
+using MirrorSharp.Internal.Reflection;
 
 namespace MirrorSharp.Internal.Commands {
     public class TypeCharHandler : ICommandHandler {
         public IImmutableList<char> CommandIds { get; } = ImmutableList.Create('C');
-        
-        public Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+
+        public async Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var @char = FastConvert.Utf8ByteArrayToChar(data);
             session.SourceText = session.SourceText.WithChanges(
                 new TextChange(new TextSpan(session.CursorPosition, 0), FastConvert.CharToString(@char))
             );
             session.CursorPosition += 1;
-            if (session.CurrentCompletionList != null) {
-                return TaskEx.CompletedTask;
+
+            await CheckCompletionAsync(@char, session, sender, cancellationToken).ConfigureAwait(false);
+            await CheckSignatureHelpAsync(@char, session, sender, cancellationToken).ConfigureAwait(false);
+        }
+
+        private async Task CheckSignatureHelpAsync(char @char, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            var trigger = new SignatureHelpTriggerInfoData(SignatureHelpTriggerReason.TypeCharCommand, @char);
+            foreach (var provider in session.SignatureHelpProviders) {
+                if (!provider.IsTriggerCharacter(@char))
+                    continue;
+
+                var help = await provider.GetItemsAsync(session.Document, session.CursorPosition, trigger, cancellationToken).ConfigureAwait(false);
+                if (help == null)
+                    continue;
+
+                await SendSignatureHelpAsync(help, sender, cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        private Task CheckCompletionAsync(char @char, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            if (session.CurrentCompletionList != null)
+                return TaskEx.CompletedTask;
 
             var trigger = CompletionTrigger.CreateInsertionTrigger(@char);
             if (!session.CompletionService.ShouldTriggerCompletion(session.SourceText, session.CursorPosition, trigger))
@@ -32,16 +51,15 @@ namespace MirrorSharp.Internal.Commands {
             if (session.CurrentCompletionList == null)
                 return;
 
-            await SendListAsync(session.CurrentCompletionList, sender, cancellationToken).ConfigureAwait(false);
+            await SendCompletionListAsync(session.CurrentCompletionList, sender, cancellationToken).ConfigureAwait(false);
         }
 
-        private Task SendListAsync(CompletionList completionList, ICommandResultSender sender, CancellationToken cancellationToken) {
+        private Task SendCompletionListAsync(CompletionList completionList, ICommandResultSender sender, CancellationToken cancellationToken) {
             var writer = sender.StartJsonMessage("completions");
-            writer.WritePropertyStartObject("completions");
             writer.WritePropertyName("span");
             // ReSharper disable once PossibleNullReferenceException
             writer.WriteSpan(completionList.DefaultSpan);
-            writer.WritePropertyStartArray("list");
+            writer.WritePropertyStartArray("completions");
             foreach (var item in completionList.Items) {
                 writer.WriteStartObject();
                 writer.WriteProperty("filterText", item.FilterText);
@@ -58,7 +76,25 @@ namespace MirrorSharp.Internal.Commands {
                 writer.WriteEndObject();
             }
             writer.WriteEndArray();
-            writer.WriteEndObject();
+            return sender.SendJsonMessageAsync(cancellationToken);
+        }
+
+        private Task SendSignatureHelpAsync(SignatureHelpItemsData items, ICommandResultSender sender, CancellationToken cancellationToken) {
+            var writer = sender.StartJsonMessage("signatures");
+            writer.WritePropertyName("span");
+            writer.WriteSpan(items.ApplicableSpan);
+            writer.WritePropertyStartArray("signatures");
+            foreach (var item in items.ItemWrappers) {
+                writer.WriteStartArray();
+                foreach (var part in item.GetAllPartsOrdered()) {
+                    writer.WriteStartObject();
+                    writer.WriteProperty("text", part.ToString());
+                    writer.WriteProperty("kind", part.Kind.ToString("G").ToLowerInvariant());
+                    writer.WriteEndObject();
+                }
+                writer.WriteEndArray();
+            }
+            writer.WriteEndArray();
             return sender.SendJsonMessageAsync(cancellationToken);
         }
 

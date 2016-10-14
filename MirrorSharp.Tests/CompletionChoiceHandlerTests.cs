@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Commands;
@@ -14,7 +15,7 @@ namespace MirrorSharp.Tests {
         public async Task ExecuteAsync_AppliesSelected_WhenIndexIsProvided() {
             var session = SessionFromTextWithCursor("class C { void M(object o) { o| } }");
             var completions = await TypeAndGetCompletionsAsync('.', session);
-            var index = completions.List.Select((c, i) => new { c, i }).First(x => x.c.DisplayText.Contains("ToString")).i;
+            var index = completions.Select((c, i) => new { c, i }).First(x => x.c.DisplayText.Contains("ToString")).i;
 
             await ExecuteHandlerAsync<CompletionChoiceHandler>(session, index);
 
@@ -36,8 +37,8 @@ namespace MirrorSharp.Tests {
             Assert.Null(session.CurrentCompletionList);
         }
 
-        private static async Task<TypeCharResult.ResultCompletions> TypeAndGetCompletionsAsync(char @char, WorkSession session) {
-            return (await ExecuteHandlerAsync<TypeCharHandler, TypeCharResult>(session, @char)).Completions;
+        private static async Task<IList<CompletionsResult.ResultCompletion>> TypeAndGetCompletionsAsync(char @char, WorkSession session) {
+            return (await ExecuteHandlerAsync<TypeCharHandler, CompletionsResult>(session, @char)).Completions;
         }
     }
 }

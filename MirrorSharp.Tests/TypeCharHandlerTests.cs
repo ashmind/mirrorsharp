@@ -50,14 +50,30 @@ namespace MirrorSharp.Tests {
                 class A { public int x; }
                 class B { void M(A a) { a| } }
             ");
-            var result = await ExecuteHandlerAsync<TypeCharHandler, TypeCharResult>(session, '.');
+            var result = await ExecuteHandlerAsync<TypeCharHandler, CompletionsResult>(session, '.');
 
             Assert.Equal(
                 new[] { "x" }.Concat(ObjectMemberNames).OrderBy(n => n),
-                result.Completions.List.Select(i => i.DisplayText).OrderBy(n => n)
+                result.Completions.Select(i => i.DisplayText).OrderBy(n => n)
             );
         }
 
-
+        [Theory]
+        [InlineData("void M(int a) {}", new[] { "void C.M(int a)" })]
+        [InlineData("void M(int a, string b) {}", new[] { "void C.M(int a, string b)" })]
+        [InlineData("void M(int a) {} void M(string b) {}", new[] { "void C.M(int a)", "void C.M(string b)" })]
+        public async Task ExecuteAsync_ProducesExpectedSignatureHelp(string methods, string[] expected) {
+            var session = SessionFromTextWithCursor(@"
+                class C {
+                    " + methods + @"
+                    void T() { M| }
+                }
+            ");
+            var result = await ExecuteHandlerAsync<TypeCharHandler, SignaturesResult>(session, '(');
+            Assert.Equal(
+                expected,
+                result.Signatures.Select(s => string.Join("", s.Select(p => p.Text)))
+            );
+        }
     }
 }

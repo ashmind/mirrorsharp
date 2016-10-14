@@ -1,4 +1,8 @@
-.CodeMirror, .CodeMirror-hints, .CodeMirror-lint-tooltip, .CodeMirror-lintfix-popup {
+.CodeMirror,
+.CodeMirror-hints,
+.CodeMirror-lint-tooltip,
+.CodeMirror-lintfix-popup,
+.mirrorsharp-signatures-tooltip {
     font-family: Consolas, Menlo, Monaco, monospace;
 }
 
@@ -6,18 +10,18 @@
     font-size: inherit;
 }
 
-.mirrorsharp .cm-string {
+.mirrorsharp-theme .cm-string {
     color: #a31515;
 }
 
-.mirrorsharp .cm-keyword,
-.mirrorsharp .cm-atom {
+.mirrorsharp-theme .cm-keyword,
+.mirrorsharp-theme .cm-atom {
     color: #0000ff;
 }
 
-.mirrorsharp .cm-def,
-.mirrorsharp .cm-variable-3,
-.mirrorsharp .cm-number {
+.mirrorsharp-theme .cm-def,
+.mirrorsharp-theme .cm-variable-3,
+.mirrorsharp-theme .cm-number {
     color: #000000;
 }
 
@@ -89,3 +93,26 @@
 .mirrorsharp-hint-keyword::before { background-image: url('icons/keyword.svg'); }
 .mirrorsharp-hint-method::before { background-image: url('icons/method.svg'); }
 .mirrorsharp-hint-parameter::before { background-image: url('icons/variable.svg'); }
+
+.mirrorsharp-signatures-tooltip {
+    position: absolute;
+    margin-top: 2px;
+    font-size: 80%;
+    opacity: 0.7;
+    background: #eee;
+    border: 1px solid silver;
+    border-radius: 3px;
+    -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+    -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+    box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+}
+
+.mirrorsharp-signatures-tooltip ol {
+    margin: 0;
+    padding: 2px;
+    list-style-type: none;
+}
+
+.mirrorsharp-signatures-tooltip li {
+    padding: 0 4px;
+}

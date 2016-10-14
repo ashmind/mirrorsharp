@@ -24,6 +24,7 @@
     },
     "net45": {
       "frameworkAssemblies": {
+        "System.ComponentModel.Composition": "4.0.0", 
         "System.Threading.Tasks": "4.0.0"
       }
     }
