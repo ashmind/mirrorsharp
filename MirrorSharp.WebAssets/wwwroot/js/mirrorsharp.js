@@ -167,7 +167,7 @@
         this.show = function(signatures, span) {
             if (!tooltip) {
                 tooltip = document.createElement('div');
-                tooltip.className = 'mirrorsharp-theme mirrorsharp-signatures-tooltip';
+                tooltip.className = 'mirrorsharp-theme mirrorsharp-signature-tooltip';
                 ol = document.createElement('ol');
                 tooltip.appendChild(ol);
             }
@@ -176,10 +176,13 @@
             }
             for (var signature of signatures) {
                 var li = document.createElement('li');
-                for (var part of signature) {
+                if (signature.selected)
+                    li.className = 'mirrorsharp-signature-selected';
+
+                for (var part of signature.parts) {
                     var className = displayKindToClassMap[part.kind] || '';
                     if (part.selected)
-                        className += ' mirrorsharp-signatures-part-selected';
+                        className += ' mirrorsharp-signature-part-selected';
 
                     var child;
                     if (className) {

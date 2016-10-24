@@ -2,7 +2,7 @@
 .CodeMirror-hints,
 .CodeMirror-lint-tooltip,
 .CodeMirror-lintfix-popup,
-.mirrorsharp-signatures-tooltip {
+.mirrorsharp-signature-tooltip {
     font-family: Consolas, Menlo, Monaco, monospace;
 }
 
@@ -94,7 +94,7 @@
 .mirrorsharp-hint-method::before { background-image: url('icons/method.svg'); }
 .mirrorsharp-hint-parameter::before { background-image: url('icons/variable.svg'); }
 
-.mirrorsharp-signatures-tooltip {
+.mirrorsharp-signature-tooltip {
     position: absolute;
     margin-top: 2px;
     font-size: 80%;
@@ -107,16 +107,20 @@
     box-shadow: 2px 3px 5px rgba(0,0,0,.2);
 }
 
-.mirrorsharp-signatures-tooltip ol {
+.mirrorsharp-signature-tooltip ol {
     margin: 0;
     padding: 2px;
     list-style-type: none;
 }
 
-.mirrorsharp-signatures-tooltip li {
-    padding: 0 4px;
+.mirrorsharp-signature-tooltip li {
+    padding: 1px 4px;
 }
 
-.mirrorsharp-signatures-part-selected {
+.mirrorsharp-signature-selected {
+    background: #fff;
+}
+
+.mirrorsharp-signature-part-selected {
     font-weight: bold;
 }

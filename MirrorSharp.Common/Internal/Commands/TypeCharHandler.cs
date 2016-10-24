@@ -80,12 +80,20 @@ namespace MirrorSharp.Internal.Commands {
         }
 
         private Task SendSignatureHelpAsync(SignatureHelpItemsData items, ICommandResultSender sender, CancellationToken cancellationToken) {
+            var selectedItemIndex = items.SelectedItemIndex;
+
             var writer = sender.StartJsonMessage("signatures");
             writer.WritePropertyName("span");
             writer.WriteSpan(items.ApplicableSpan);
             writer.WritePropertyStartArray("signatures");
+            var itemIndex = 0;
             foreach (var item in items.Items) {
-                writer.WriteStartArray();
+                writer.WriteStartObject();
+                if (selectedItemIndex == null && items.ArgumentCount <= item.ParameterCount)
+                    selectedItemIndex = itemIndex;
+                if (itemIndex == selectedItemIndex)
+                    writer.WriteProperty("selected", true);
+                writer.WritePropertyStartArray("parts");
                 writer.WriteSymbolDisplayParts(item.PrefixDisplayParts);
                 var parameterIndex = 0;
                 foreach (var parameter in item.Parameters) {
@@ -99,6 +107,8 @@ namespace MirrorSharp.Internal.Commands {
                 }
                 writer.WriteSymbolDisplayParts(item.SuffixDisplayParts);
                 writer.WriteEndArray();
+                writer.WriteEndObject();
+                itemIndex += 1;
             }
             writer.WriteEndArray();
             return sender.SendJsonMessageAsync(cancellationToken);

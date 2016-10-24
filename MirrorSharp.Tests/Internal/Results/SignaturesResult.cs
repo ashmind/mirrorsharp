@@ -7,7 +7,12 @@ using Microsoft.CodeAnalysis;
 
 namespace MirrorSharp.Tests.Internal.Results {
     public class SignaturesResult {
-        public IList<ResultSignaturePart[]> Signatures { get; } = new List<ResultSignaturePart[]>();
+        public IList<ResultSignature> Signatures { get; } = new List<ResultSignature>();
+
+        public class ResultSignature {
+            public bool Selected { get; set; }
+            public IList<ResultSignaturePart> Parts { get; } = new List<ResultSignaturePart>();
+        }
 
         public class ResultSignaturePart {
             public string Text { get; set; }

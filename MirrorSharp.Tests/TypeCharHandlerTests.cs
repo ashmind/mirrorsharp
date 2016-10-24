@@ -73,13 +73,13 @@ namespace MirrorSharp.Tests {
             var result = await ExecuteHandlerAsync<TypeCharHandler, SignaturesResult>(session, '(');
             Assert.Equal(
                 expected,
-                result.Signatures.Select(s => string.Join("", s.Select(p => p.Text)))
+                result.Signatures.Select(s => string.Join("", s.Parts.Select(p => p.Text)))
             );
         }
 
         [Theory]
         [InlineData("void M(int a, int b, int c) {}", "void C.M(int a, *int b*, int c)")]
-        public async Task ExecuteAsync_ProducesSignatureHelpWithExpectedSelectedParameter(string methods, string expected) {
+        public async Task ExecuteAsync_ProducesSignatureHelpWithSelectedParameter(string methods, string expected) {
             var session = SessionFromTextWithCursor(@"
                 class C {
                     " + methods + @"
@@ -88,8 +88,22 @@ namespace MirrorSharp.Tests {
             ");
             var result = await ExecuteHandlerAsync<TypeCharHandler, SignaturesResult>(session, ',');
             var signature = result.Signatures.Single();
-            var signatureText = string.Join("", signature.GroupAdjacentBy(p => p.Selected ? "*" : "").Select(g => g.Key + string.Join("", g.Select(p => p.Text)) + g.Key));
+            var signatureText = string.Join("", signature.Parts.GroupAdjacentBy(p => p.Selected ? "*" : "").Select(g => g.Key + string.Join("", g.Select(p => p.Text)) + g.Key));
             Assert.Equal(expected, signatureText);
+        }
+
+        [Theory]
+        [InlineData("void M(int a) {} void M(int a, int b) {}", "void C.M(int a, int b)")]
+        public async Task ExecuteAsync_ProducesSignatureHelpWithSelectedSignature(string methods, string expectedSelected) {
+            var session = SessionFromTextWithCursor(@"
+                class C {
+                    " + methods + @"
+                    void T() { M(1| }
+                }
+            ");
+            var result = await ExecuteHandlerAsync<TypeCharHandler, SignaturesResult>(session, ',');
+            var selected = result.Signatures.Single(s => s.Selected);
+            Assert.Equal(expectedSelected, string.Join("", selected.Parts.Select(p => p.Text)));
         }
     }
 }
