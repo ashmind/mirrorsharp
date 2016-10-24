@@ -162,6 +162,8 @@
             keyword: 'cm-keyword'
         };
 
+        var active = false;
+        var activeRange;
         var tooltip;
         var ol;
         this.show = function(signatures, span) {
@@ -198,11 +200,39 @@
                 ol.appendChild(li);
             }
 
-            const startCharCoords = cm.charCoords(cm.posFromIndex(span.start));
+            const startPos = cm.posFromIndex(span.start);
+
+            active = true;
+            activeRange = { start: startPos, end: cm.posFromIndex(span.start + span.length) };
+
+            const startCharCoords = cm.charCoords(startPos);
             tooltip.style.top = startCharCoords.bottom + 'px';
             tooltip.style.left = startCharCoords.left + 'px';
             document.body.appendChild(tooltip);
         };
+
+        const hide = function() {
+            if (!active)
+                return;
+
+            document.body.removeChild(tooltip);
+            active = false;
+            activeRange = null;
+        };
+        this.hide = hide;
+
+        cm.on('cursorActivity', function () {
+            if (!activeRange)
+                return;
+
+            const cursor = cm.getCursor();
+            const outOfRange = (cursor.line < activeRange.start.line || cursor.line > activeRange.end.line)
+                || (cursor.line === activeRange.start.line && cursor.ch < activeRange.start.ch)
+                || (cursor.line === activeRange.end.line && cursor.ch > activeRange.end.ch);
+
+            if (outOfRange)
+                hide();
+        });
     }
 
     function Editor(textarea, connection, options) {

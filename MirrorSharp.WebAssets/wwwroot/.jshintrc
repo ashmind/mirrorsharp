@@ -10,6 +10,7 @@
   "eqnull":    true,
   "futurehostile": true,
   "latedef":   "nofunc",
+  "laxbreak":  true,
   "noarg":     true,
   "nocomma":   true,
   "strict":    true,
