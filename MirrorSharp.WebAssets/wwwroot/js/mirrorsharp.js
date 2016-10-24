@@ -177,7 +177,10 @@
             for (var signature of signatures) {
                 var li = document.createElement('li');
                 for (var part of signature) {
-                    const className = displayKindToClassMap[part.kind];
+                    var className = displayKindToClassMap[part.kind] || '';
+                    if (part.selected)
+                        className += ' mirrorsharp-signatures-part-selected';
+
                     var child;
                     if (className) {
                         child = document.createElement('span');

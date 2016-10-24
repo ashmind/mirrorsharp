@@ -28,7 +28,13 @@
     <textarea>using System;
 
 class A { public int x; }
-class B { void M(A a) { a } }</textarea>
+class B {
+    void M(int a) {}
+    void M(int a, int b) {}
+    void M(int a, int b, int c = 5, object d = null) {}
+
+    void T(A a) { a }
+}</textarea>
 
     <script src="bower_components/codemirror/lib/codemirror.js"></script>
     <script src="bower_components/codemirror/mode/clike/clike.js"></script>

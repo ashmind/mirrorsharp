@@ -116,3 +116,7 @@
 .mirrorsharp-signatures-tooltip li {
     padding: 0 4px;
 }
+
+.mirrorsharp-signatures-part-selected {
+    font-weight: bold;
+}

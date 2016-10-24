@@ -12,6 +12,7 @@ namespace MirrorSharp.Tests.Internal.Results {
         public class ResultSignaturePart {
             public string Text { get; set; }
             public SymbolDisplayPartKind Kind { get; set; }
+            public bool Selected { get; set; }
         }
     }
 }

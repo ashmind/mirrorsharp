@@ -84,14 +84,20 @@ namespace MirrorSharp.Internal.Commands {
             writer.WritePropertyName("span");
             writer.WriteSpan(items.ApplicableSpan);
             writer.WritePropertyStartArray("signatures");
-            foreach (var item in items.ItemWrappers) {
+            foreach (var item in items.Items) {
                 writer.WriteStartArray();
-                foreach (var part in item.GetAllPartsOrdered()) {
-                    writer.WriteStartObject();
-                    writer.WriteProperty("text", part.ToString());
-                    writer.WriteProperty("kind", part.Kind.ToString("G").ToLowerInvariant());
-                    writer.WriteEndObject();
+                writer.WriteSymbolDisplayParts(item.PrefixDisplayParts);
+                var parameterIndex = 0;
+                foreach (var parameter in item.Parameters) {
+                    if (parameterIndex > 0)
+                        writer.WriteSymbolDisplayParts(item.SeparatorDisplayParts);
+                    var selected = items.ArgumentIndex == parameterIndex;
+                    writer.WriteSymbolDisplayParts(parameter.PrefixDisplayParts, selected);
+                    writer.WriteSymbolDisplayParts(parameter.DisplayParts, selected);
+                    writer.WriteSymbolDisplayParts(parameter.SuffixDisplayParts, selected);
+                    parameterIndex += 1;
                 }
+                writer.WriteSymbolDisplayParts(item.SuffixDisplayParts);
                 writer.WriteEndArray();
             }
             writer.WriteEndArray();

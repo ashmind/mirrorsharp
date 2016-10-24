@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using AshMind.Extensions;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Commands;
 using MirrorSharp.Tests.Internal;
@@ -74,6 +75,21 @@ namespace MirrorSharp.Tests {
                 expected,
                 result.Signatures.Select(s => string.Join("", s.Select(p => p.Text)))
             );
+        }
+
+        [Theory]
+        [InlineData("void M(int a, int b, int c) {}", "void C.M(int a, *int b*, int c)")]
+        public async Task ExecuteAsync_ProducesSignatureHelpWithExpectedSelectedParameter(string methods, string expected) {
+            var session = SessionFromTextWithCursor(@"
+                class C {
+                    " + methods + @"
+                    void T() { M(1| }
+                }
+            ");
+            var result = await ExecuteHandlerAsync<TypeCharHandler, SignaturesResult>(session, ',');
+            var signature = result.Signatures.Single();
+            var signatureText = string.Join("", signature.GroupAdjacentBy(p => p.Selected ? "*" : "").Select(g => g.Key + string.Join("", g.Select(p => p.Text)) + g.Key));
+            Assert.Equal(expected, signatureText);
         }
     }
 }
