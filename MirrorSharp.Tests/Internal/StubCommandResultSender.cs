@@ -1,11 +1,9 @@
 ﻿using System.Buffers;
-using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
-using MirrorSharp.Internal.Commands;
-using Newtonsoft.Json;
+using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Tests.Internal {
     public class StubCommandResultSender : ICommandResultSender {

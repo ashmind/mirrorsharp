@@ -4,8 +4,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Text;
+using MirrorSharp.Internal.Results;
 
-namespace MirrorSharp.Internal.Commands {
+namespace MirrorSharp.Internal.Handlers {
     public class ReplaceTextHandler : ICommandHandler {
         public IImmutableList<char> CommandIds { get; } = ImmutableList.Create('P', 'R');
 

@@ -2,8 +2,9 @@
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using MirrorSharp.Internal.Results;
 
-namespace MirrorSharp.Internal.Commands {
+namespace MirrorSharp.Internal.Handlers {
     public class ApplyDiagnosticActionHandler : ICommandHandler {
         public IImmutableList<char> CommandIds { get; } = ImmutableList.Create('F');
 

@@ -3,8 +3,9 @@ using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Text;
+using MirrorSharp.Internal.Results;
 
-namespace MirrorSharp.Internal.Commands {
+namespace MirrorSharp.Internal.Handlers {
     public class CompletionChoiceHandler : ICommandHandler {
         public IImmutableList<char> CommandIds { get; } = ImmutableList.Create('S');
 

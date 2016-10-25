@@ -8,8 +8,9 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using MirrorSharp.Internal.Reflection;
+using MirrorSharp.Internal.Results;
 
-namespace MirrorSharp.Internal.Commands {
+namespace MirrorSharp.Internal.Handlers {
     public class SlowUpdateHandler : ICommandHandler {
         private static readonly IReadOnlyCollection<CodeAction> NoCodeActions = new CodeAction[0];
         public IImmutableList<char> CommandIds { get; } = ImmutableList.Create('U');
@@ -53,7 +54,7 @@ namespace MirrorSharp.Internal.Commands {
         private static void WriteActions(FastUtf8JsonWriter writer, IReadOnlyCollection<CodeAction> actions, WorkSession session) {
             foreach (var action in actions) {
                 if (!IsSupported(action))
-                    continue; 
+                    continue;
 
                 if (!RoslynInternalCalls.GetIsInvokable(action)) {
                     WriteActions(writer, RoslynInternalCalls.GetCodeActions(action), session);

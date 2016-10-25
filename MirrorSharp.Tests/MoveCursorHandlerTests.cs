@@ -1,7 +1,9 @@
 ﻿using System.Text;
+using System.Threading.Tasks;
 using MirrorSharp.Internal;
-using MirrorSharp.Internal.Commands;
+using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Tests.Internal;
+using MirrorSharp.Tests.Internal.Results;
 using Xunit;
 
 namespace MirrorSharp.Tests {
@@ -14,9 +16,21 @@ namespace MirrorSharp.Tests {
         [InlineData("1234567890", 1234567890)]
         public async void ExecuteAsync_UpdatesSessionCursorPosition(string dataString, int expectedPosition) {
             var session = new WorkSession();
-            var data = Encoding.UTF8.GetBytes(dataString);
-            await ExecuteHandlerAsync<MoveCursorHandler>(session, data);
+            await ExecuteHandlerAsync<MoveCursorHandler>(session, dataString);
             Assert.Equal(expectedPosition, session.CursorPosition);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_ProducesEmptySignatureHelp_IfCursorIsMovedOutsideOfSignatureSpan() {
+            var session = SessionFromTextWithCursor(@"
+                class C {
+                    void M() {}
+                    void T() { M| }
+                }
+            ");
+            var signatures = await ExecuteHandlerAsync<TypeCharHandler, SignaturesResult>(session, '(');
+            var result = await ExecuteHandlerAsync<MoveCursorHandler, SignaturesResult>(session, signatures.Span.Start - 1);
+            Assert.Equal(0, result.Signatures.Count);
         }
     }
 }

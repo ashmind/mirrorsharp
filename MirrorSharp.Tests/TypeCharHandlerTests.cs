@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using AshMind.Extensions;
 using MirrorSharp.Internal;
-using MirrorSharp.Internal.Commands;
+using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Tests.Internal;
 using MirrorSharp.Tests.Internal.Results;
 using Xunit;
@@ -104,6 +104,19 @@ namespace MirrorSharp.Tests {
             var result = await ExecuteHandlerAsync<TypeCharHandler, SignaturesResult>(session, ',');
             var selected = result.Signatures.Single(s => s.Selected);
             Assert.Equal(expectedSelected, string.Join("", selected.Parts.Select(p => p.Text)));
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_ProducesEmptySignatureHelp_OnClosingParenthesis() {
+            var session = SessionFromTextWithCursor(@"
+                class C {
+                    void M() {}
+                    void T() { M| }
+                }
+            ");
+            await ExecuteHandlerAsync<TypeCharHandler>(session, '(');
+            var result = await ExecuteHandlerAsync<TypeCharHandler, SignaturesResult>(session, ')');
+            Assert.Equal(0, result.Signatures.Count);
         }
     }
 }

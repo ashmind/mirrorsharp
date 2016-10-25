@@ -2,11 +2,13 @@
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal.Reflection;
+using MirrorSharp.Internal.Results;
 
-namespace MirrorSharp.Internal.Commands {
+namespace MirrorSharp.Internal.Handlers {
     public class TypeCharHandler : ICommandHandler {
         public IImmutableList<char> CommandIds { get; } = ImmutableList.Create('C');
 
@@ -23,16 +25,35 @@ namespace MirrorSharp.Internal.Commands {
 
         private async Task CheckSignatureHelpAsync(char @char, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var trigger = new SignatureHelpTriggerInfoData(SignatureHelpTriggerReason.TypeCharCommand, @char);
-            foreach (var provider in session.SignatureHelpProviders) {
-                if (!provider.IsTriggerCharacter(@char))
-                    continue;
+            if (session.CurrentSignatureHelp != null) {
+                var provider = session.CurrentSignatureHelp.Value.Provider;
+                if (provider.IsRetriggerCharacter(@char)) {
+                    session.CurrentSignatureHelp = null;
+                    await SendSignatureHelpAsync(null, sender, cancellationToken).ConfigureAwait(false);
+                    return;
+                }
 
-                var help = await provider.GetItemsAsync(session.Document, session.CursorPosition, trigger, cancellationToken).ConfigureAwait(false);
-                if (help == null)
-                    continue;
-
-                await SendSignatureHelpAsync(help, sender, cancellationToken).ConfigureAwait(false);
+                await TryApplySignatureHelpAsync(provider, trigger, session, sender, cancellationToken, sendIfEmpty: true).ConfigureAwait(false);
+                return;
             }
+
+            foreach (var provider in session.SignatureHelpProviders) {
+                if (await TryApplySignatureHelpAsync(provider, trigger, session, sender, cancellationToken).ConfigureAwait(false))
+                    return;
+            }
+        }
+
+        private async Task<bool> TryApplySignatureHelpAsync(ISignatureHelpProviderWrapper provider, SignatureHelpTriggerInfoData trigger, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken, bool sendIfEmpty = false) {
+            if (!provider.IsTriggerCharacter(trigger.TriggerCharacter.Value))
+                return false;
+
+            var help = await provider.GetItemsAsync(session.Document, session.CursorPosition, trigger, cancellationToken).ConfigureAwait(false);
+            if (!sendIfEmpty && help == null)
+                return false;
+
+            session.CurrentSignatureHelp = help != null ? new CurrentSignatureHelp(provider, help) : (CurrentSignatureHelp?)null;
+            await SendSignatureHelpAsync(help, sender, cancellationToken).ConfigureAwait(false);
+            return true;
         }
 
         private Task CheckCompletionAsync(char @char, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
@@ -79,10 +100,12 @@ namespace MirrorSharp.Internal.Commands {
             return sender.SendJsonMessageAsync(cancellationToken);
         }
 
-        private Task SendSignatureHelpAsync(SignatureHelpItemsData items, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var selectedItemIndex = items.SelectedItemIndex;
-
+        private Task SendSignatureHelpAsync([CanBeNull] SignatureHelpItemsData items, ICommandResultSender sender, CancellationToken cancellationToken) {
             var writer = sender.StartJsonMessage("signatures");
+            if (items == null)
+                return sender.SendJsonMessageAsync(cancellationToken);
+
+            var selectedItemIndex = items.SelectedItemIndex;
             writer.WritePropertyName("span");
             writer.WriteSpan(items.ApplicableSpan);
             writer.WritePropertyStartArray("signatures");
@@ -117,3 +140,4 @@ namespace MirrorSharp.Internal.Commands {
         public bool CanChangeSession => true;
     }
 }
+

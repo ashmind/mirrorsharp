@@ -4,7 +4,8 @@ using System.Collections.Immutable;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
-using MirrorSharp.Internal.Commands;
+using MirrorSharp.Internal.Handlers;
+using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal {
     public class Connection : ICommandResultSender, IDisposable {

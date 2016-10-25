@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal;
-using MirrorSharp.Internal.Commands;
+using MirrorSharp.Internal.Handlers;
 using Newtonsoft.Json;
 
 namespace MirrorSharp.Tests.Internal {

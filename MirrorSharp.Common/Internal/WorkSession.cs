@@ -127,6 +127,7 @@ namespace MirrorSharp.Internal {
         [NotNull] public CompletionService CompletionService { get; }
         [CanBeNull] public CompletionList CurrentCompletionList { get; set; }
         [NotNull] public IList<CodeAction> CurrentCodeActions { get; } = new List<CodeAction>();
+        [CanBeNull] internal CurrentSignatureHelp? CurrentSignatureHelp { get; set; }
 
         public Workspace Workspace {
             get {

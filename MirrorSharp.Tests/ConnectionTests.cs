@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
-using MirrorSharp.Internal.Commands;
+using MirrorSharp.Internal.Handlers;
 using Moq;
 using Xunit;
 

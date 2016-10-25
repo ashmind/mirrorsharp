@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using MirrorSharp.Internal;
-using MirrorSharp.Internal.Commands;
+using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Tests.Internal;
 
 namespace MirrorSharp.Benchmarks {
@@ -25,7 +21,7 @@ namespace MirrorSharp.Benchmarks {
 
         [Benchmark]
         public void TypeCharNotExpectingSignatureHelp() {
-            TestHelper.ExecuteHandlerAsync<TypeCharHandler>(_sessionWithHelp, ';');
+            TestHelper.ExecuteHandlerAsync<TypeCharHandler>(_sessionWithNoHelp, ';');
         }
     }
 }

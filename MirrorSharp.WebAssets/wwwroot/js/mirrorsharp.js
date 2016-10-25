@@ -163,16 +163,31 @@
         };
 
         var active = false;
-        var activeRange;
         var tooltip;
         var ol;
-        this.show = function(signatures, span) {
+
+        const hide = function() {
+            if (!active)
+                return;
+
+            document.body.removeChild(tooltip);
+            active = false;
+        };
+
+        this.update = function(signatures, span) {
             if (!tooltip) {
                 tooltip = document.createElement('div');
                 tooltip.className = 'mirrorsharp-theme mirrorsharp-signature-tooltip';
                 ol = document.createElement('ol');
                 tooltip.appendChild(ol);
             }
+
+            if (!signatures || signatures.length === 0) {
+                if (active)
+                    hide();
+                return;
+            }
+
             while (ol.firstChild) {
                 ol.removeChild(ol.firstChild);
             }
@@ -203,7 +218,6 @@
             const startPos = cm.posFromIndex(span.start);
 
             active = true;
-            activeRange = { start: startPos, end: cm.posFromIndex(span.start + span.length) };
 
             const startCharCoords = cm.charCoords(startPos);
             tooltip.style.top = startCharCoords.bottom + 'px';
@@ -211,28 +225,7 @@
             document.body.appendChild(tooltip);
         };
 
-        const hide = function() {
-            if (!active)
-                return;
-
-            document.body.removeChild(tooltip);
-            active = false;
-            activeRange = null;
-        };
         this.hide = hide;
-
-        cm.on('cursorActivity', function () {
-            if (!activeRange)
-                return;
-
-            const cursor = cm.getCursor();
-            const outOfRange = (cursor.line < activeRange.start.line || cursor.line > activeRange.end.line)
-                || (cursor.line === activeRange.start.line && cursor.ch < activeRange.start.ch)
-                || (cursor.line === activeRange.end.line && cursor.ch > activeRange.end.ch);
-
-            if (outOfRange)
-                hide();
-        });
     }
 
     function Editor(textarea, connection, options) {
@@ -330,7 +323,7 @@
                     break;
 
                 case 'signatures':
-                    signatureTip.show(message.signatures, message.span);
+                    signatureTip.update(message.signatures, message.span);
                     break;
 
                 case 'slowUpdate':

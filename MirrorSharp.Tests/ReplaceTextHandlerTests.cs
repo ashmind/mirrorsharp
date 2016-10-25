@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal;
-using MirrorSharp.Internal.Commands;
+using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Tests.Internal;
 using Xunit;
 
