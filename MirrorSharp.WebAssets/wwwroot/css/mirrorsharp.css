@@ -90,6 +90,7 @@
 
 .mirrorsharp-hint-class::before { background-image: url('icons/class.svg'); }
 .mirrorsharp-hint-structure::before { background-image: url('icons/structure.svg'); }
+.mirrorsharp-hint-interface::before { background-image: url('icons/interface.svg'); }
 .mirrorsharp-hint-field::before { background-image: url('icons/field.svg'); }
 .mirrorsharp-hint-keyword::before { background-image: url('icons/keyword.svg'); }
 .mirrorsharp-hint-method::before { background-image: url('icons/method.svg'); }
