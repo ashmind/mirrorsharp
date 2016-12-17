@@ -88,6 +88,7 @@
     background-repeat: no-repeat;
 }
 
+.mirrorsharp-hint-namespace::before { background-image: url('icons/namespace.svg'); }
 .mirrorsharp-hint-class::before { background-image: url('icons/class.svg'); }
 .mirrorsharp-hint-structure::before { background-image: url('icons/structure.svg'); }
 .mirrorsharp-hint-enum::before { background-image: url('icons/enum.svg'); }
