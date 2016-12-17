@@ -93,6 +93,7 @@
 .mirrorsharp-hint-structure::before { background-image: url('icons/structure.svg'); }
 .mirrorsharp-hint-enum::before { background-image: url('icons/enum.svg'); }
 .mirrorsharp-hint-interface::before { background-image: url('icons/interface.svg'); }
+.mirrorsharp-hint-delegate::before { background-image: url('icons/delegate.svg'); }
 .mirrorsharp-hint-field::before { background-image: url('icons/field.svg'); }
 .mirrorsharp-hint-keyword::before { background-image: url('icons/keyword.svg'); }
 .mirrorsharp-hint-method::before { background-image: url('icons/method.svg'); }
