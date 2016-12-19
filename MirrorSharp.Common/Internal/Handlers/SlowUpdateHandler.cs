@@ -53,7 +53,7 @@ namespace MirrorSharp.Internal.Handlers {
 
         private static void WriteActions(FastUtf8JsonWriter writer, IReadOnlyCollection<CodeAction> actions, WorkSession session) {
             foreach (var action in actions) {
-                if (!IsSupported(action))
+                if (action is CodeActionWithOptions)
                     continue;
 
                 if (!RoslynInternalCalls.GetIsInvokable(action)) {
@@ -67,15 +67,6 @@ namespace MirrorSharp.Internal.Handlers {
                 writer.WriteProperty("title", action.Title);
                 writer.WriteEndObject();
             }
-        }
-
-        private static bool IsSupported(CodeAction action) {
-            // Hacky, raised as https://github.com/dotnet/roslyn/issues/14393
-
-            if (action.Title.EndsWith("...")) // dispays UI?
-                return false;
-
-            return true;
         }
 
         private async Task<IReadOnlyCollection<CodeAction>> GetCodeActionsAsync(Diagnostic diagnostic, WorkSession session, CancellationToken cancellationToken) {
