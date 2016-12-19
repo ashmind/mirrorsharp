@@ -75,9 +75,6 @@ namespace MirrorSharp.Internal.Handlers {
             if (action.Title.EndsWith("...")) // dispays UI?
                 return false;
 
-            if (action.Title.Contains("in new file"))
-                return false;
-
             return true;
         }
 

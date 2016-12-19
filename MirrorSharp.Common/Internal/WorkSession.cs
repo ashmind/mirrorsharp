@@ -23,7 +23,7 @@ namespace MirrorSharp.Internal {
             Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.CSharp.Features"))
         }));
 
-        private readonly AdhocWorkspace _workspace;
+        private readonly CustomWorkspace _workspace;
 
         private SourceText _sourceText;
         private bool _documentOutOfDate;
@@ -42,18 +42,23 @@ namespace MirrorSharp.Internal {
         private static readonly ImmutableArray<ISignatureHelpProviderWrapper> DefaultSignatureHelpProviders = CreateDefaultSignatureHelpProviders();
 
         public WorkSession() {
-            _workspace = new AdhocWorkspace(HostServices);
             var projectId = ProjectId.CreateNewId();
-            _workspace.AddProject(ProjectInfo.Create(
+            var projectInfo = ProjectInfo.Create(
                 projectId, VersionStamp.Create(), "_", "_", "C#",
                 compilationOptions: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary),
                 metadataReferences: DefaultAssemblyReferences,
                 analyzerReferences: DefaultAnalyzerReferences
-            ));
+            );
+            var documentId = DocumentId.CreateNewId(projectId);
             _sourceText = SourceText.From("");
-            var closedDocument = _workspace.AddDocument(projectId, "_", _sourceText);
-            _workspace.OpenDocument(closedDocument.Id);
-            _document = _workspace.CurrentSolution.GetDocument(closedDocument.Id);
+
+            _workspace = new CustomWorkspace(HostServices);
+            var solution = _workspace.CurrentSolution
+                .AddProject(projectInfo)
+                .AddDocument(documentId, "_", _sourceText);
+            solution = _workspace.SetCurrentSolution(solution);
+            _workspace.OpenDocument(documentId);
+            _document = solution.GetDocument(documentId);
             CompletionService = CompletionService.GetService(_document);
             if (CompletionService == null)
                 throw new Exception("Failed to retrieve the completion service.");
@@ -129,7 +134,7 @@ namespace MirrorSharp.Internal {
         [NotNull] public IList<CodeAction> CurrentCodeActions { get; } = new List<CodeAction>();
         [CanBeNull] internal CurrentSignatureHelp? CurrentSignatureHelp { get; set; }
 
-        public Workspace Workspace {
+        public CustomWorkspace Workspace {
             get {
                 EnsureDocumentUpToDate();
                 return _workspace;
