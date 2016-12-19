@@ -1,6 +1,8 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Text;
+using MirrorSharp.Advanced;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
 using Newtonsoft.Json;
@@ -8,17 +10,19 @@ using Newtonsoft.Json;
 namespace MirrorSharp.Tests.Internal {
     public static class TestHelper {
         public static Task ExecuteHandlerAsync<TCommandHandler>(WorkSession session, HandlerTestArgument argument = default(HandlerTestArgument))
-            where TCommandHandler: ICommandHandler, new()
+            where TCommandHandler: ICommandHandler
         {
-            return new TCommandHandler().ExecuteAsync(argument.ToArraySegment(), session, new StubCommandResultSender(), CancellationToken.None);
+            var handler = new CommandFactory().Create<TCommandHandler>();
+            return handler.ExecuteAsync(argument.ToArraySegment(), session, new StubCommandResultSender(), CancellationToken.None);
         }
 
         public static async Task<TResult> ExecuteHandlerAsync<TCommandHandler, TResult>(WorkSession session, HandlerTestArgument argument = default(HandlerTestArgument))
-            where TCommandHandler : ICommandHandler, new()
+            where TCommandHandler : ICommandHandler
             where TResult : class
         {
             var sender = new StubCommandResultSender();
-            await new TCommandHandler().ExecuteAsync(argument.ToArraySegment(), session, sender, CancellationToken.None);
+            var handler = new CommandFactory().Create<TCommandHandler>();
+            await handler.ExecuteAsync(argument.ToArraySegment(), session, sender, CancellationToken.None);
             return sender.LastMessageJson != null ? JsonConvert.DeserializeObject<TResult>(sender.LastMessageJson) : null;
         }
 
@@ -31,6 +35,21 @@ namespace MirrorSharp.Tests.Internal {
                 SourceText = SourceText.From(text)
             };
             return session;
+        }
+
+        public static async Task TypeCharsAsync(WorkSession session, string value) {
+            foreach (var @char in value) {
+                await ExecuteHandlerAsync<TypeCharHandler>(session, @char);
+            }
+        }
+
+        private class CommandFactory : MiddlewareBase {
+            public CommandFactory() : base(new MirrorSharpOptions()) {
+            }
+
+            public TCommandHandler Create<TCommandHandler>() {
+                return CreateCommands().OfType<TCommandHandler>().First();
+            }
         }
     }
 }

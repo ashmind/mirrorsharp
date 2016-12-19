@@ -4,11 +4,17 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Text;
+using MirrorSharp.Internal.Handlers.Shared;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
     public class ReplaceTextHandler : ICommandHandler {
         public IImmutableList<char> CommandIds { get; } = ImmutableList.Create('P', 'R');
+        private readonly ISignatureHelpSupport _signatureHelp;
+
+        public ReplaceTextHandler(ISignatureHelpSupport signatureHelp) {
+            _signatureHelp = signatureHelp;
+        }
 
         public Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var endOffset = data.Offset + data.Count - 1;
@@ -46,7 +52,7 @@ namespace MirrorSharp.Internal.Handlers {
 
             session.SourceText = session.SourceText.WithChanges(new TextChange(new TextSpan(start.Value, length.Value), text));
             session.CursorPosition = cursorPosition.Value;
-            return TaskEx.CompletedTask;
+            return _signatureHelp.ApplyCursorPositionChangeAsync(session, sender, cancellationToken);
         }
 
         public bool CanChangeSession => true;

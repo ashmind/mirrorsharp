@@ -4,11 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
+using MirrorSharp.Internal.Handlers.Shared;
 
 namespace MirrorSharp.Advanced {
     public abstract class MiddlewareBase {
-        private ImmutableArray<ICommandHandler> _commands;
-
+        private readonly ImmutableArray<ICommandHandler> _commands;
         private readonly MirrorSharpOptions _options;
 
         protected MiddlewareBase(MirrorSharpOptions options) {
@@ -16,15 +16,16 @@ namespace MirrorSharp.Advanced {
             _commands = CreateCommands();
         }
 
-        private ImmutableArray<ICommandHandler> CreateCommands() {
+        protected virtual ImmutableArray<ICommandHandler> CreateCommands() {
             var commands = new ICommandHandler[26];
+            var signatureHelp = new SignatureHelpSupport();
             foreach (var command in new ICommandHandler[] {
                 new ApplyDiagnosticActionHandler(),
                 new CompletionChoiceHandler(),
-                new MoveCursorHandler(),
-                new ReplaceTextHandler(),
+                new MoveCursorHandler(signatureHelp),
+                new ReplaceTextHandler(signatureHelp),
                 new SlowUpdateHandler(),
-                new TypeCharHandler()
+                new TypeCharHandler(signatureHelp)
             }) {
                 foreach (var id in command.CommandIds) {
                     commands[id - 'A'] = command;

@@ -88,8 +88,7 @@ namespace MirrorSharp.Tests {
             ");
             var result = await ExecuteHandlerAsync<TypeCharHandler, SignaturesResult>(session, ',');
             var signature = result.Signatures.Single();
-            var signatureText = string.Join("", signature.Parts.GroupAdjacentBy(p => p.Selected ? "*" : "").Select(g => g.Key + string.Join("", g.Select(p => p.Text)) + g.Key));
-            Assert.Equal(expected, signatureText);
+            Assert.Equal(expected, signature.ToString());
         }
 
         [Theory]

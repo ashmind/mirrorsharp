@@ -1,7 +1,10 @@
-﻿using Microsoft.CodeAnalysis.Text;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Tests.Internal;
+using MirrorSharp.Tests.Internal.Results;
 using Xunit;
 
 namespace MirrorSharp.Tests {
@@ -22,5 +25,43 @@ namespace MirrorSharp.Tests {
             Assert.Equal(expectedText, session.SourceText.ToString());
             Assert.Equal(expectedCursorPosition, session.CursorPosition);
         }
+
+        [Fact]
+        public async Task ExecuteAsync_ProducesEmptySignatureHelp_IfCursorIsMovedOutsideOfSignatureSpan() {
+            var session = SessionFromTextWithCursor(@"
+                class C {
+                    void M() {}
+                    void T() { M| }
+                }
+            ");
+            await ExecuteHandlerAsync<TypeCharHandler, SignaturesResult>(session, '(');
+            var newPosition = session.CursorPosition - "T() { M(".Length;
+            var result = await ExecuteHandlerAsync<ReplaceTextHandler, SignaturesResult>(
+                session, Argument(newPosition, 0, "X", newPosition)
+            );
+            Assert.Equal(0, result.Signatures.Count);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_ProducesSignatureHelpWithNewSelectedParameter_IfCursorIsMovedMovedBetweenParameters() {
+            var session = SessionFromTextWithCursor(@"
+                class C {
+                    void M(int a, int b, int c) {}
+                    void T() { M(1| }
+                }
+            ");
+            await TypeCharsAsync(session, ",2,");
+
+            var newPosition = session.CursorPosition - "2,".Length;
+            var result = await ExecuteHandlerAsync<ReplaceTextHandler, SignaturesResult>(
+                session, Argument(newPosition, "2,".Length, "", newPosition)
+            );
+            var signature = result.Signatures.Single();
+            Assert.Equal("void C.M(int a, *int b*, int c)", signature.ToString());
+        }
+
+        private HandlerTestArgument Argument(int start, int length, string newText, int newCursorPosition) {
+            return $"{start}:{length}:{newCursorPosition}:{newText}";
+        } 
     }
 }

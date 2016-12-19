@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Buffers;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using MirrorSharp.Benchmarks.Of.Json;
-using MirrorSharp.Internal;
-using Newtonsoft.Json;
 
-namespace MirrorSharp.Benchmarks {
+namespace MirrorSharp.Benchmarks.Of.Json {
     public class WriteValueInt32Benchmarks : JsonBenchmarksBase {
         [Params(-111, 1, 1111111)]
         public int Value { get; set; }

@@ -1,4 +1,4 @@
-﻿using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
@@ -31,6 +31,21 @@ namespace MirrorSharp.Tests {
             var signatures = await ExecuteHandlerAsync<TypeCharHandler, SignaturesResult>(session, '(');
             var result = await ExecuteHandlerAsync<MoveCursorHandler, SignaturesResult>(session, signatures.Span.Start - 1);
             Assert.Equal(0, result.Signatures.Count);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_ProducesSignatureHelpWithNewSelectedParameter_IfCursorIsMovedMovedBetweenParameters() {
+            var session = SessionFromTextWithCursor(@"
+                class C {
+                    void M(int a, int b, int c) {}
+                    void T() { M(1| }
+                }
+            ");
+            await TypeCharsAsync(session, ",2,");
+
+            var result = await ExecuteHandlerAsync<MoveCursorHandler, SignaturesResult>(session, session.CursorPosition - 1);
+            var signature = result.Signatures.Single();
+            Assert.Equal("void C.M(int a, *int b*, int c)", signature.ToString());
         }
     }
 }
