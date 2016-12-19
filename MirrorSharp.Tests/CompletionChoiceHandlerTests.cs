@@ -12,12 +12,25 @@ namespace MirrorSharp.Tests {
 
     public class CompletionChoiceHandlerTests {
         [Fact]
-        public async Task ExecuteAsync_AppliesSelected_WhenIndexIsProvided() {
+        public async Task ExecuteAsync_InsertsSelectedCompletion() {
             var session = SessionFromTextWithCursor("class C { void M(object o) { o| } }");
             var completions = await TypeAndGetCompletionsAsync('.', session);
-            var index = completions.Select((c, i) => new { c, i }).First(x => x.c.DisplayText.Contains("ToString")).i;
+            await ExecuteHandlerAsync<CompletionChoiceHandler>(session, IndexOf(completions, "ToString"));
 
-            await ExecuteHandlerAsync<CompletionChoiceHandler>(session, index);
+            Assert.Equal(
+                "class C { void M(object o) { o.ToString } }",
+                session.SourceText.ToString()
+            );
+            Assert.Null(session.CurrentCompletionList);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_ReplacesInterimTypedText() {
+            var session = SessionFromTextWithCursor("class C { void M(object o) { o| } }");
+            var completions = await TypeAndGetCompletionsAsync('.', session);
+            await TypeCharsAsync(session, "To");
+
+            await ExecuteHandlerAsync<CompletionChoiceHandler>(session, IndexOf(completions, "ToString"));
 
             Assert.Equal(
                 "class C { void M(object o) { o.ToString } }",
@@ -39,6 +52,10 @@ namespace MirrorSharp.Tests {
 
         private static async Task<IList<CompletionsResult.ResultCompletion>> TypeAndGetCompletionsAsync(char @char, WorkSession session) {
             return (await ExecuteHandlerAsync<TypeCharHandler, CompletionsResult>(session, @char)).Completions;
+        }
+
+        private static int IndexOf(IEnumerable<CompletionsResult.ResultCompletion> completions, string displayText) {
+            return completions.Select((c, i) => new { c, i }).First(x => x.c.DisplayText.Contains(displayText)).i;
         }
     }
 }

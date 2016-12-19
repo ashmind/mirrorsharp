@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal.Results;
 
@@ -24,9 +26,8 @@ namespace MirrorSharp.Internal.Handlers {
             var change = await session.CompletionService.GetChangeAsync(session.Document, item, cancellationToken: cancellationToken).ConfigureAwait(false);
             session.CurrentCompletionList = null;
 
-            var textChanges = change.TextChanges.Insert(
-                0, new TextChange(TextSpan.FromBounds(completion.DefaultSpan.Start, session.CursorPosition), "")
-            );
+            var textChanges = ReplaceIncompleteText(session, completion, change.TextChanges);
+
             session.SourceText = session.SourceText.WithChanges(textChanges);
 
             var writer = sender.StartJsonMessage("changes");
@@ -36,6 +37,23 @@ namespace MirrorSharp.Internal.Handlers {
             }
             writer.WriteEndArray();
             await sender.SendJsonMessageAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        private static ImmutableArray<TextChange> ReplaceIncompleteText(WorkSession session, CompletionList completion, ImmutableArray<TextChange> textChanges) {
+            if (session.CursorPosition <= completion.DefaultSpan.Start)
+                return textChanges;
+
+            if (textChanges.Length == 1) {
+                // optimization
+                var span = textChanges[0].Span;
+                var newStart = Math.Min(span.Start, completion.DefaultSpan.Start);
+                var newLength = Math.Max(span.End, session.CursorPosition) - newStart;
+                textChanges = ImmutableArray.Create(new TextChange(new TextSpan(newStart, newLength), textChanges[0].NewText));
+            }
+            else {
+                session.SourceText = session.SourceText.WithChanges(new TextChange(new TextSpan(completion.DefaultSpan.Start, session.CursorPosition - completion.DefaultSpan.Start), ""));
+            }
+            return textChanges;
         }
 
         public bool CanChangeSession => true;
