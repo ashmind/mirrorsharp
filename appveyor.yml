@@ -6,3 +6,6 @@ before_build:
 
 build:
   verbosity: minimal
+
+test_script:
+- cmd: dotnet test MirrorSharp.Tests
