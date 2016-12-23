@@ -5,6 +5,7 @@
         define([
           'codemirror',
           'codemirror-addon-lint-fix',
+          'codemirror/addon/hint/show-hint',
           'codemirror/mode/clike/clike',
           'codemirror/mode/vb/vb'
         ], factory);
@@ -12,6 +13,7 @@
         module.exports = factory(
           require('codemirror'),
           require('codemirror-addon-lint-fix'),
+          require('codemirror/addon/hint/show-hint'),
           require('codemirror/mode/clike/clike'),
           require('codemirror/mode/vb/vb')
         );
@@ -246,7 +248,7 @@
             }
         }
         return target;
-    }
+    };
 
     function Editor(textarea, connection, options) {
         const lineSeparator = '\r\n';
