@@ -58,7 +58,7 @@ namespace MirrorSharp.Internal.Handlers {
             }
             writer.WriteEndArray();
             if (_extension != null) {
-                writer.WritePropertyStartObject("custom");
+                writer.WritePropertyStartObject("x");
                 _extension.Write(writer, extensionResult, cancellationToken);
                 writer.WriteEndObject();
             }

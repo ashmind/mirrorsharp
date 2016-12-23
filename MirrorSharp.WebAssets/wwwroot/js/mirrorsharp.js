@@ -238,19 +238,33 @@
         this.hide = hide;
     }
 
+    var assign = Object.assign || function (target) {
+        for (var i = 1; i < arguments.length; i++) {
+            var source = arguments[i];
+            for (var key of source) {
+                target[key] = source[key];
+            }
+        }
+        return target;
+    }
+
     function Editor(textarea, connection, options) {
         const lineSeparator = '\r\n';
         var lintingSuspended = true;
         var capturedUpdateLinting;
 
-        const cmOptions = options.forCodeMirror || {
+        options = assign({}, {
+            forCodeMirror: {},
+            afterSlowUpdate: function() {}
+        }, options);
+        const cmOptions = assign({}, { gutters: [] }, options.forCodeMirror, {
             lineSeparator: lineSeparator,
             mode: 'text/x-csharp',
-            gutters: []
-        };
-        cmOptions.lint = { async: true, getAnnotations: lintGetAnnotations };
-        cmOptions.lintFix = { getFixes: getFixes };
+            lint: { async: true, getAnnotations: lintGetAnnotations },
+            lintFix: { getFixes: getFixes }
+        });
         cmOptions.gutters.push('CodeMirror-lint-markers');
+
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);
         // see https://github.com/codemirror/CodeMirror/blob/dbaf6a94f1ae50d387fa77893cf6b886988c2147/addon/lint/lint.js#L133
         // ensures that next 'id' will be -1 whther a change happened or not
@@ -427,6 +441,10 @@
                 });
             }
             capturedUpdateLinting(annotations);
+            options.afterSlowUpdate({
+                diagnostics: update.diagnostics,
+                x: update.x
+            });
         }
 
         function debugCompare(server) {
