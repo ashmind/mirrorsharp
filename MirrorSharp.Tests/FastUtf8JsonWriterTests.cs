@@ -4,7 +4,16 @@ using MirrorSharp.Internal;
 using Xunit;
 
 namespace MirrorSharp.Tests {
-    public class FastJsonWriterTests {
+    public class FastUtf8JsonWriterTests {
+        [Fact]
+        public void WriteValue_WritesNull() {
+            var writer = CreateWriter();
+            writer.WriteValue(null);
+
+            var result = GetWrittenAsString(writer);
+            Assert.Equal("null", result);
+        }
+
         [Theory]
         [InlineData("a\nb", @"""a\nb""")]
         [InlineData("a\"b", @"""a\""b""")]
@@ -56,6 +65,42 @@ namespace MirrorSharp.Tests {
 
             var result = GetWrittenAsString(writer);
             Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void WriteValue_WritesCommaBeforeSecondArrayValue_WhenValueIsString() {
+            var writer = CreateWriter();
+            writer.WriteStartArray();
+            writer.WriteValue("e1");
+            writer.WriteValue("e2");
+            writer.WriteEndArray();
+
+            var result = GetWrittenAsString(writer);
+            Assert.Equal("[\"e1\",\"e2\"]", result);
+        }
+
+        [Fact]
+        public void WriteValue_WritesCommaBeforeSecondArrayValue_WhenValueIsInt32() {
+            var writer = CreateWriter();
+            writer.WriteStartArray();
+            writer.WriteValue(1);
+            writer.WriteValue(2);
+            writer.WriteEndArray();
+
+            var result = GetWrittenAsString(writer);
+            Assert.Equal("[1,2]", result);
+        }
+
+        [Fact]
+        public void WriteValue_WritesCommaBeforeSecondArrayValue_WhenValueIsBoolean() {
+            var writer = CreateWriter();
+            writer.WriteStartArray();
+            writer.WriteValue(false);
+            writer.WriteValue(true);
+            writer.WriteEndArray();
+
+            var result = GetWrittenAsString(writer);
+            Assert.Equal("[false,true]", result);
         }
 
         [Fact]

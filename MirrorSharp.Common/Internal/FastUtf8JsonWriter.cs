@@ -84,6 +84,12 @@ namespace MirrorSharp.Internal {
 
         public void WriteValue(string value) {
             WriteStartValue();
+            if (value == null) {
+                WriteRawBytes(Utf8.Null);
+                WriteEndValue();
+                return;
+            }
+
             WriteRawByte(Utf8.Quote);
             foreach (var @char in value) {
                 if (@char < 32) {
@@ -114,6 +120,7 @@ namespace MirrorSharp.Internal {
         }
 
         public void WriteValue(int value) {
+            WriteStartValue();
             if (value < 0) {
                 WriteRawByte(Utf8.Minus);
                 value = -value;
@@ -136,6 +143,7 @@ namespace MirrorSharp.Internal {
         }
 
         public void WriteValue(bool value) {
+            WriteStartValue();
             WriteRawBytes(value ? Utf8.True : Utf8.False);
             WriteEndValue();
         }
@@ -236,6 +244,7 @@ namespace MirrorSharp.Internal {
 
             public static readonly byte[] True = Encoding.UTF8.GetBytes("true");
             public static readonly byte[] False = Encoding.UTF8.GetBytes("false");
+            public static readonly byte[] Null = Encoding.UTF8.GetBytes("null");
 
             public static readonly byte[][] Escaped = Enumerable.Range(0, 32)
                 .Select(i => {
