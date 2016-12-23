@@ -1,10 +1,11 @@
 {
   "name": "mirrorsharp",
+  "version": "0.0.0",
   "authors": [
     "Andrey Shchekin <ashmind@gmail.com>"
   ],
   "description": "",
-  "main": "",
+  "main": "js/mirrorsharp.js",
   "license": "MIT",
   "homepage": "",
   "private": true,

@@ -2,9 +2,19 @@
 (function (root, factory) {
     'use strict';
     if (typeof define === 'function' && define.amd) {
-        define(['CodeMirror'], factory);
+        define([
+          'codemirror',
+          'codemirror-addon-lint-fix',
+          'codemirror/mode/clike/clike',
+          'codemirror/mode/vb/vb'
+        ], factory);
     } else if (typeof module === 'object' && module.exports) {
-        module.exports = factory(require('CodeMirror'));
+        module.exports = factory(
+          require('codemirror'),
+          require('codemirror-addon-lint-fix'),
+          require('codemirror/mode/clike/clike'),
+          require('codemirror/mode/vb/vb')
+        );
     } else {
         root.mirrorsharp = factory(root.CodeMirror);
     }
@@ -231,16 +241,20 @@
     function Editor(textarea, connection, options) {
         const lineSeparator = '\r\n';
         var lintingSuspended = true;
+        var capturedUpdateLinting;
 
         const cmOptions = options.forCodeMirror || {
             lineSeparator: lineSeparator,
             mode: 'text/x-csharp',
             gutters: []
         };
-        cmOptions.lint = { async: true, getAnnotations: requestSlowUpdate };
+        cmOptions.lint = { async: true, getAnnotations: lintGetAnnotations };
         cmOptions.lintFix = { getFixes: getFixes };
         cmOptions.gutters.push('CodeMirror-lint-markers');
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);
+        // see https://github.com/codemirror/CodeMirror/blob/dbaf6a94f1ae50d387fa77893cf6b886988c2147/addon/lint/lint.js#L133
+        // ensures that next 'id' will be -1 whther a change happened or not
+        cm.state.lint.waitingFor = -2;
         cm.setValue(textarea.value.replace(/(\r\n|\r|\n)/g, '\r\n'));
 
         const cmWrapper = cm.getWrapperElement();
@@ -249,8 +263,6 @@
 
         const hinter = new Hinter(cm, connection);
         const signatureTip = new SignatureTip(cm);
-
-        var updateLinting;
         connection.on('open', function () {
             hideConnectionLoss();
 
@@ -262,8 +274,8 @@
 
             connection.sendReplaceText(true, 0, 0, text, getCursorIndex(cm));
             lintingSuspended = false;
-            if (updateLinting)
-                requestSlowUpdate(text, updateLinting);
+            if (capturedUpdateLinting)
+                requestSlowUpdate();
         });
 
         function onCloseOrError() {
@@ -342,6 +354,18 @@
             }
         });
 
+        function lintGetAnnotations(text, updateLinting) {
+            if (!capturedUpdateLinting) {
+                capturedUpdateLinting = function() {
+                    // see https://github.com/codemirror/CodeMirror/blob/dbaf6a94f1ae50d387fa77893cf6b886988c2147/addon/lint/lint.js#L133
+                    // ensures that next 'id' will always match 'waitingFor'
+                    cm.state.lint.waitingFor = -1;
+                    updateLinting.apply(this, arguments);
+                };
+            }
+            requestSlowUpdate(text);
+        }
+
         function getCursorIndex() {
             return cm.indexFromPos(cm.getCursor());
         }
@@ -378,8 +402,7 @@
             connection.sendApplyDiagnosticAction(fix.id);
         }
 
-        function requestSlowUpdate(text, updateLintingValue) {
-            updateLinting = updateLintingValue;
+        function requestSlowUpdate() {
             if (!lintingSuspended)
                 connection.sendSlowUpdate();
         }
@@ -403,7 +426,7 @@
                     diagnostic: diagnostic
                 });
             }
-            updateLinting(annotations);
+            capturedUpdateLinting(annotations);
         }
 
         function debugCompare(server) {
