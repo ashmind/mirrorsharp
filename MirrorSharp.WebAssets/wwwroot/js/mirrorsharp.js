@@ -259,7 +259,7 @@
             forCodeMirror: {},
             afterSlowUpdate: function() {}
         }, options);
-        const cmOptions = assign({}, { gutters: [] }, options.forCodeMirror, {
+        const cmOptions = assign({}, { gutters: [], indentUnit: 4 }, options.forCodeMirror, {
             lineSeparator: lineSeparator,
             mode: 'text/x-csharp',
             lint: { async: true, getAnnotations: lintGetAnnotations },
