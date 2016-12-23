@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
+using MirrorSharp.Internal.Languages;
 using Newtonsoft.Json;
 
 namespace MirrorSharp.Tests.Internal {
@@ -26,11 +27,16 @@ namespace MirrorSharp.Tests.Internal {
             return sender.LastMessageJson != null ? JsonConvert.DeserializeObject<TResult>(sender.LastMessageJson) : null;
         }
 
+        public static WorkSession Session() => new WorkSession(new CSharpLanguage());
+        public static WorkSession SessionFromText(string text) => new WorkSession(new CSharpLanguage()) {
+            SourceText = SourceText.From(text)
+        };
+
         public static WorkSession SessionFromTextWithCursor(string textWithCursor) {
             var cursorPosition = textWithCursor.LastIndexOf('|');
             var text = textWithCursor.Remove(cursorPosition, 1);
 
-            var session = new WorkSession {
+            var session = new WorkSession(new CSharpLanguage()) {
                 CursorPosition = cursorPosition,
                 SourceText = SourceText.From(text)
             };
@@ -48,7 +54,7 @@ namespace MirrorSharp.Tests.Internal {
             }
 
             public TCommandHandler Create<TCommandHandler>() {
-                return CreateCommands().OfType<TCommandHandler>().First();
+                return CreateHandlers().OfType<TCommandHandler>().First();
             }
         }
     }

@@ -1,7 +1,5 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using AshMind.Extensions;
-using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Tests.Internal;
 using MirrorSharp.Tests.Internal.Results;
@@ -23,7 +21,7 @@ namespace MirrorSharp.Tests {
         [InlineData('月')]
         [InlineData('❀')]
         public async Task ExecuteAsync_HandlesUnicodeChar(char @char) {
-            var session = new WorkSession();
+            var session = Session();
             await ExecuteHandlerAsync<TypeCharHandler>(session, @char);
             Assert.Equal(@char.ToString(), session.SourceText.ToString());
         }

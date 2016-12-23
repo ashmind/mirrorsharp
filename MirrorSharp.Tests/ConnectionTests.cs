@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
+using MirrorSharp.Internal.Languages;
 using Moq;
 using Xunit;
 
@@ -16,7 +17,7 @@ namespace MirrorSharp.Tests {
             var socketMock = Mock.Of<WebSocket>();
             SetupReceive(socketMock, "X");
 
-            var session = new WorkSession();
+            var session = new WorkSession(new CSharpLanguage());
             // ReSharper disable once PossibleUnintendedReferenceComparison
             var handler = Mock.Of<ICommandHandler>(h => h.CommandIds == ImmutableList.Create('X'));
             var connection = new Connection(socketMock, session, CreateCommandHandlers(handler));

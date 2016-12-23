@@ -2,9 +2,10 @@
 using System.Buffers;
 using System.Linq;
 using System.Text;
+using MirrorSharp.Advanced;
 
 namespace MirrorSharp.Internal {
-    public class FastUtf8JsonWriter : IDisposable {
+    public class FastUtf8JsonWriter : IFastJsonWriter {
         private static readonly int[] PowersOfTen = {
             1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1
         };
