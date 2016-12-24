@@ -9,7 +9,7 @@ namespace MirrorSharp.Owin.Demo {
         public void Configuration(IAppBuilder app) {
             app.UseDefaultFiles()
                .UseStaticFiles()
-               .UseMirrorSharp(new MirrorSharpOptions { SendDebugCompareMessages = true });
+               .UseMirrorSharp(new MirrorSharpOptions { SelfDebugEnabled = true });
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
@@ -55,7 +54,5 @@ namespace MirrorSharp.Internal.Handlers {
             }
             return textChanges;
         }
-
-        public bool CanChangeSession => true;
     }
 }

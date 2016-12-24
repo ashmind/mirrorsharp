@@ -70,7 +70,5 @@ namespace MirrorSharp.Internal.Handlers {
             writer.WriteEndArray();
             return sender.SendJsonMessageAsync(cancellationToken);
         }
-
-        public bool CanChangeSession => true;
     }
 }

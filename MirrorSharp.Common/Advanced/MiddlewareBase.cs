@@ -38,7 +38,8 @@ namespace MirrorSharp.Advanced {
                 new CompletionChoiceHandler(),
                 new MoveCursorHandler(signatureHelp),
                 new ReplaceTextHandler(signatureHelp),
-                new SetOptionsHandler(_languages), 
+                new RequestSelfDebugDataHandler(),
+                new SetOptionsHandler(_languages),
                 new SlowUpdateHandler(_options.SlowUpdate),
                 new TypeCharHandler(signatureHelp)
             };
@@ -48,7 +49,7 @@ namespace MirrorSharp.Advanced {
             WorkSession session = null;
             Connection connection = null;
             try {
-                session = new WorkSession(_languages.OfType<CSharpLanguage>().First());
+                session = new WorkSession(_languages.OfType<CSharpLanguage>().First(), _options.SelfDebugEnabled ? new SelfDebug() : null);
                 connection = new Connection(socket, session, _handlers, _options);
 
                 while (connection.IsConnected) {

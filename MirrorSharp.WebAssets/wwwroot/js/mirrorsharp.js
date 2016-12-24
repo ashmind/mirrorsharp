@@ -23,7 +23,69 @@
 }(this, function (CodeMirror) {
     'use strict';
 
-    function Connection(openSocket) {
+    function SelfDebug() {
+        var getText;
+        var getCursorIndex;
+        const clientLog = [];
+        var clientLogSnapshot;
+
+        this.watchEditor = function(getTextValue, getCursorIndexValue) {
+            getText = getTextValue;
+            getCursorIndex = getCursorIndexValue;
+        }
+
+        this.log = function(event, message) {
+            clientLog.push({
+                time: new Date(),
+                event: event,
+                message: message,
+                text: getText(),
+                cursor: getCursorIndex()
+            });
+            while (clientLog.length > 100) {
+                clientLog.shift();
+            }
+        };
+
+        this.requestData = function(connection) {
+            clientLogSnapshot = clientLog.slice(0);
+            connection.sendRequestSelfDebugData();
+        }
+
+        this.displayData = function(serverData) {
+            const log = [];
+            for (var i = 0; i < clientLog.length; i++) {
+                log.push({ entry: clientLog[i], on: 'client', index: i });
+            }
+            for (var i = 0; i < serverData.log.length; i++) {
+                log.push({ entry: serverData.log[i], on: 'server', index: i });
+            }
+            log.sort(function(a, b) {
+                if (a.on !== b.on) {
+                    if (a.entry.time > b.entry.time) return +1;
+                    if (a.entry.time < b.entry.time) return -1;
+                    return 0;
+                }
+                if (a.index > b.index) return +1;
+                if (a.index < b.index) return -1;
+                return 0;
+            });
+
+            console.table(log.map(function(l) {
+                var time = l.entry.time;
+                var displayTime = ('0' + time.getHours()).slice(-2) + ':' + ('0' + time.getMinutes()).slice(-2) + ':' + ('0' + time.getSeconds()).slice(-2) + '.' + time.getMilliseconds();
+                return {
+                    time: displayTime,
+                    message: l.entry.message,
+                    event: l.on + ':' + l.entry.event,
+                    cursor: l.entry.cursor,
+                    text: l.entry.text
+                };
+            }));
+        }
+    }
+
+    function Connection(openSocket, selfDebug) {
         var socket;
         var openPromise;
         const handlers = {
@@ -73,10 +135,22 @@
                 const handlersByKey = handlers[key];
                 /* jshint -W083 */
                 socket.addEventListener(key, function (e) {
-                    var argument = (keyFixed === 'message') ? JSON.parse(e.data) : undefined;
+                    var argument = undefined;
+                    if (keyFixed === 'message') {
+                        argument = JSON.parse(e.data);
+                        if (argument.type === 'self:debug') {
+                            for (var entry of argument.log) {
+                                entry.time = new Date(entry.time);
+                            }
+                        }
+                        if (selfDebug)
+                            selfDebug.log('before', JSON.stringify(argument));
+                    }
                     for (var handler of handlersByKey) {
                         handler(argument);
                     }
+                    if (selfDebug && keyFixed === 'message')
+                        selfDebug.log('after', JSON.stringify(argument));
                 });
                 /* jshint +W083 */
             }
@@ -89,12 +163,13 @@
         function sendWhenOpen(command) {
             openPromise.then(function () {
                 //console.debug("[=>]", command);
+                if (selfDebug)
+                    selfDebug.log('send', command);
                 socket.send(command);
             });
         }
 
         this.on = on;
-
         this.sendReplaceText = function (isLastOrOnly, start, length, newText, cursorIndexAfter) {
             const command = isLastOrOnly ? 'R' : 'P';
             return sendWhenOpen(command + start + ':' + length + ':' + cursorIndexAfter + ':' + newText);
@@ -119,6 +194,10 @@
         this.sendApplyDiagnosticAction = function(actionId) {
             return sendWhenOpen('F' + actionId);
         };
+
+        this.sendRequestSelfDebugData = function() {
+            return sendWhenOpen('Y');
+        }
     }
 
     function Hinter(cm, connection) {
@@ -250,7 +329,7 @@
         return target;
     };
 
-    function Editor(textarea, connection, options) {
+    function Editor(textarea, connection, selfDebug, options) {
         const lineSeparator = '\r\n';
         var lintingSuspended = true;
         var capturedUpdateLinting;
@@ -263,8 +342,14 @@
             lineSeparator: lineSeparator,
             mode: 'text/x-csharp',
             lint: { async: true, getAnnotations: lintGetAnnotations },
-            lintFix: { getFixes: getFixes }
+            lintFix: { getFixes: getFixes },
+            extraKeys: {}
         });
+        if (selfDebug) {
+            cmOptions.extraKeys['Shift-Ctrl-Y'] = function() {
+                selfDebug.requestData(connection);
+            };
+        }
         cmOptions.gutters.push('CodeMirror-lint-markers');
 
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);
@@ -272,6 +357,9 @@
         // ensures that next 'id' will be -1 whther a change happened or not
         cm.state.lint.waitingFor = -2;
         cm.setValue(textarea.value.replace(/(\r\n|\r|\n)/g, '\r\n'));
+        
+        if (selfDebug)
+            selfDebug.watchEditor(function() { return cm.getValue(); }, getCursorIndex);
 
         const cmWrapper = cm.getWrapperElement();
         cmWrapper.classList.add('mirrorsharp');
@@ -358,8 +446,8 @@
                     showSlowUpdate(message);
                     break;
 
-                case 'debug:compare':
-                    debugCompare(message);
+                case 'self:debug':
+                    selfDebug.displayData(message);
                     break;
 
                 case 'error':
@@ -449,21 +537,6 @@
             });
         }
 
-        function debugCompare(server) {
-            if (server.text !== undefined) {
-                const clientText = cm.getValue();
-                if (clientText !== server.text)
-                    console.error('Client text does not match server text:', { clientText: clientText, serverText: server.text });
-            }
-
-            const clientCursorIndex = getCursorIndex();
-            if (clientCursorIndex !== server.cursor)
-                console.error('Client cursor position does not match server position:', { clientPosition: clientCursorIndex, serverPosition: server.cursor });
-
-            if (hinter.active !== server.completion)
-                console.error('Client completion state does not match server state:', { clientCompletionActive: hinter.active, serverCompletionActive: server.completion });
-        }
-
         var connectionLossElement;
         function showConnectionLoss() {
             const wrapper = cm.getWrapperElement();
@@ -483,10 +556,11 @@
     }
 
     return function(textarea, options) {
+        const selfDebug = options.selfDebugEnabled ? new SelfDebug() : null;
         const connection = new Connection(function() {
             return new WebSocket(options.serviceUrl);
-        });
+        }, selfDebug);
 
-        return new Editor(textarea, connection, options);
+        return new Editor(textarea, connection, selfDebug, options);
     };
 }));

@@ -20,7 +20,7 @@ namespace MirrorSharp.Demo {
             app.UseDefaultFiles()
                .UseStaticFiles()
                .UseWebSockets()
-               .UseMirrorSharp(new MirrorSharpOptions { SendDebugCompareMessages = true });
+               .UseMirrorSharp(new MirrorSharpOptions { SelfDebugEnabled = true });
         }
     }
 }

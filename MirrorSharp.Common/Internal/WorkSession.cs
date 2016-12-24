@@ -31,8 +31,9 @@ namespace MirrorSharp.Internal {
         private ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> _codeFixProviders;
         private ImmutableArray<ISignatureHelpProviderWrapper> _signatureHelpProviders;
 
-        internal WorkSession([NotNull] ILanguage language) {
+        internal WorkSession([NotNull] ILanguage language, [CanBeNull] SelfDebug selfDebug = null) {
             Language = Argument.NotNull(nameof(language), language);
+            SelfDebug = selfDebug;
         }
 
         internal void ChangeLanguage([NotNull] ILanguage language) {
@@ -138,6 +139,8 @@ namespace MirrorSharp.Internal {
             }
             private set { _signatureHelpProviders = value; }
         }
+
+        [CanBeNull] public SelfDebug SelfDebug { get; }
 
         private void EnsureInitialized() {
             if (_workspace != null)

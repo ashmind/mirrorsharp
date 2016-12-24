@@ -1,5 +1,4 @@
-﻿using System.Dynamic;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 
 namespace MirrorSharp.Advanced {

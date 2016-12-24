@@ -106,7 +106,5 @@ namespace MirrorSharp.Internal.Handlers {
             }
             return actions ?? NoCodeActions;
         }
-
-        public bool CanChangeSession => false;
     }
 }

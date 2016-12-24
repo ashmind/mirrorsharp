@@ -47,8 +47,6 @@ namespace MirrorSharp.Internal.Handlers {
 
             session.ChangeLanguage(language);
         }
-
-        public bool CanChangeSession => true;
     }
 }
 
