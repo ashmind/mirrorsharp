@@ -57,6 +57,21 @@ namespace MirrorSharp.Tests {
             );
         }
 
+        [Fact]
+        public async Task ExecuteAsync_ProducesExpectedCompletion_WhenCompletionWasAlreadyActive() {
+            var session = SessionFromTextWithCursor(@"
+                class A { public int x; }
+                class B { void M(A a) { | } }
+            ");
+            await TypeCharsAsync(session, "a");
+            var result = await ExecuteHandlerAsync<TypeCharHandler, CompletionsResult>(session, '.');
+
+            Assert.Equal(
+                new[] { "x" }.Concat(ObjectMemberNames).OrderBy(n => n),
+                result.Completions.Select(i => i.DisplayText).OrderBy(n => n)
+            );
+        }
+
         [Theory]
         [InlineData("void M(int a) {}", new[] { "void C.M(int a)" })]
         [InlineData("void M(int a, string b) {}", new[] { "void C.M(int a, string b)" })]
