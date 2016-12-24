@@ -336,7 +336,8 @@
 
         options = assign({}, {
             forCodeMirror: {},
-            afterSlowUpdate: function() {}
+            afterSlowUpdate: function() {},
+            onServerError: function(message) { throw new Error(message); }
         }, options);
         const cmOptions = assign({}, { gutters: [], indentUnit: 4 }, options.forCodeMirror, {
             lineSeparator: lineSeparator,
@@ -451,7 +452,8 @@
                     break;
 
                 case 'error':
-                    throw new Error(message.message);
+                    options.onServerError(message.message);
+                    break;
 
                 default:
                     throw new Error('Unknown message type "' + message.type);
