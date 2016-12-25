@@ -337,6 +337,7 @@
         options = assign({}, {
             forCodeMirror: {},
             afterSlowUpdate: function() {},
+            afterTextChange: function() {},
             onServerError: function(message) { throw new Error(message); }
         }, options);
         const cmOptions = assign({}, { gutters: [], indentUnit: 4 }, options.forCodeMirror, {
@@ -358,9 +359,10 @@
         // ensures that next 'id' will be -1 whther a change happened or not
         cm.state.lint.waitingFor = -2;
         cm.setValue(textarea.value.replace(/(\r\n|\r|\n)/g, '\r\n'));
-        
+
+        const getText = cm.getValue.bind(cm);
         if (selfDebug)
-            selfDebug.watchEditor(function() { return cm.getValue(); }, getCursorIndex);
+            selfDebug.watchEditor(getText, getCursorIndex);
 
         const cmWrapper = cm.getWrapperElement();
         cmWrapper.classList.add('mirrorsharp');
@@ -411,6 +413,7 @@
             changePending = false;
             if (changesAreFromServer) {
                 connection.sendMoveCursor(cursorIndex);
+                options.afterTextChange(getText);
                 return;
             }
 
@@ -427,6 +430,7 @@
                     connection.sendReplaceText(lastOrOnly, start, length, text, cursorIndex);
                 }
             }
+            options.afterTextChange(getText);
         });
 
         connection.on('message', function (message) {
