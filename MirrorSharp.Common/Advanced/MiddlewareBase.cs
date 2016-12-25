@@ -49,7 +49,7 @@ namespace MirrorSharp.Advanced {
             WorkSession session = null;
             Connection connection = null;
             try {
-                session = new WorkSession(_languages.OfType<CSharpLanguage>().First(), _options.SelfDebugEnabled ? new SelfDebug() : null);
+                session = new WorkSession(_languages.OfType<CSharpLanguage>().First(), _options);
                 connection = new Connection(socket, session, _handlers, _options);
 
                 while (connection.IsConnected) {

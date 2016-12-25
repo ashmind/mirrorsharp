@@ -19,6 +19,7 @@ namespace MirrorSharp.Internal {
     public class WorkSession : IWorkSession {
         private static readonly TextChange[] NoTextChanges = new TextChange[0];
 
+        [CanBeNull] private readonly IWorkSessionOptions _options;
         private CustomWorkspace _workspace;
 
         private SourceText _sourceText;
@@ -31,9 +32,10 @@ namespace MirrorSharp.Internal {
         private ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> _codeFixProviders;
         private ImmutableArray<ISignatureHelpProviderWrapper> _signatureHelpProviders;
 
-        internal WorkSession([NotNull] ILanguage language, [CanBeNull] SelfDebug selfDebug = null) {
+        internal WorkSession([NotNull] ILanguage language, [CanBeNull] IWorkSessionOptions options = null) {
             Language = Argument.NotNull(nameof(language), language);
-            SelfDebug = selfDebug;
+            _options = options;
+            SelfDebug = (options?.SelfDebugEnabled ?? false) ? new SelfDebug() : null;
         }
 
         internal void ChangeLanguage([NotNull] ILanguage language) {
@@ -51,6 +53,7 @@ namespace MirrorSharp.Internal {
             var projectInfo = ProjectInfo.Create(
                 projectId, VersionStamp.Create(), "_", "_", Language.Name,
                 compilationOptions: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary),
+                parseOptions: _options?.GetDefaultParseOptionsByLanguageName(Language.Name),
                 metadataReferences: Language.DefaultAssemblyReferences,
                 analyzerReferences: Language.DefaultAnalyzerReferences
             );
