@@ -9,6 +9,8 @@ using MirrorSharp.Internal.Reflection;
 namespace MirrorSharp.Internal.Languages {
     internal interface ILanguage {
         [NotNull] string Name { get; }
+        [NotNull] ParseOptions DefaultParseOptions { get; }
+        [NotNull] CompilationOptions DefaultCompilationOptions { get; }
         [NotNull] [ItemNotNull] ImmutableList<MetadataReference> DefaultAssemblyReferences { get; }
         [NotNull] [ItemNotNull] ImmutableList<AnalyzerReference> DefaultAnalyzerReferences { get; }
         [ItemNotNull] ImmutableArray<DiagnosticAnalyzer> DefaultAnalyzers { get; }

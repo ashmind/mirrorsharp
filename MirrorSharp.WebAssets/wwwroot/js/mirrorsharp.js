@@ -161,7 +161,7 @@
         }
 
         function sendWhenOpen(command) {
-            openPromise.then(function () {
+            return openPromise.then(function () {
                 //console.debug("[=>]", command);
                 if (selfDebug)
                     selfDebug.log('send', command);
@@ -193,6 +193,14 @@
 
         this.sendApplyDiagnosticAction = function(actionId) {
             return sendWhenOpen('F' + actionId);
+        };
+
+        this.sendSetOptions = function(options) {
+            const optionPairs = [];
+            for (var key in options) {
+                optionPairs.push(key + "=" + options[key]);
+            }
+            return sendWhenOpen('O' + optionPairs.join(','));
         };
 
         this.sendRequestSelfDebugData = function() {
@@ -513,8 +521,9 @@
         }
 
         function requestSlowUpdate() {
-            if (!lintingSuspended)
-                connection.sendSlowUpdate();
+            if (lintingSuspended)
+                return null;
+            return connection.sendSlowUpdate();
         }
 
         function showSlowUpdate(update) {
@@ -559,6 +568,16 @@
         function hideConnectionLoss() {
             cm.getWrapperElement().classList.remove('mirrorsharp-connection-has-issue');
         }
+
+        this.requestSlowUpdate = requestSlowUpdate;
+    }
+
+    function Facade(connection, editor) {
+        this.setServerOptions = function(options) {
+            return connection.sendSetOptions(options).then(function() {
+                return editor.requestSlowUpdate();
+            });
+        }
     }
 
     return function(textarea, options) {
@@ -566,7 +585,7 @@
         const connection = new Connection(function() {
             return new WebSocket(options.serviceUrl);
         }, selfDebug);
-
-        return new Editor(textarea, connection, selfDebug, options);
+        const editor = new Editor(textarea, connection, selfDebug, options);
+        return new Facade(connection, editor);
     };
 }));

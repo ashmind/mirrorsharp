@@ -14,5 +14,28 @@ namespace MirrorSharp.Tests {
             await ExecuteHandlerAsync<SetOptionsHandler>(session, "language=" + languageName);
             Assert.Equal(languageName, session.Language.Name);
         }
+
+        [Theory]
+        [InlineData("debug",   OptimizationLevel.Debug)]
+        [InlineData("release", OptimizationLevel.Release)]
+        public async void ExecuteAsync_UpdatesSessionCompilationOptimizationsLevel(string value, OptimizationLevel expectedLevel) {
+            var session = Session();
+            await ExecuteHandlerAsync<SetOptionsHandler>(session, "optimize=" + value);
+            Assert.Equal(expectedLevel, session.Project.CompilationOptions.OptimizationLevel);
+        }
+
+        [Fact]
+        public async void ExecuteAsync_PreservesSessionSourceText_WhenUpdatingOptions() {
+            var session = SessionFromText("test");
+            await ExecuteHandlerAsync<SetOptionsHandler>(session, "optimize=debug");
+            Assert.Equal("test", session.SourceText.ToString());
+        }
+
+        [Fact]
+        public async void ExecuteAsync_PreservesSessionCursorPosition_WhenUpdatingOptions() {
+            var session = SessionFromTextWithCursor("test|");
+            await ExecuteHandlerAsync<SetOptionsHandler>(session, "optimize=debug");
+            Assert.Equal(4, session.CursorPosition);
+        }
     }
 }

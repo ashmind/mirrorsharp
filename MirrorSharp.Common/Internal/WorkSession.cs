@@ -8,7 +8,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Completion;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Advanced;
@@ -20,6 +19,10 @@ namespace MirrorSharp.Internal {
         private static readonly TextChange[] NoTextChanges = new TextChange[0];
 
         [CanBeNull] private readonly IWorkSessionOptions _options;
+        [NotNull] private ILanguage _language;
+        [NotNull] private IDictionary<string, Func<ParseOptions, ParseOptions>> _parseOptionsChanges = new Dictionary<string, Func<ParseOptions, ParseOptions>>();
+        [NotNull] private IDictionary<string, Func<CompilationOptions, CompilationOptions>> _compilationOptionsChanges = new Dictionary<string, Func<CompilationOptions, CompilationOptions>>();
+
         private CustomWorkspace _workspace;
 
         private SourceText _sourceText;
@@ -33,32 +36,64 @@ namespace MirrorSharp.Internal {
         private ImmutableArray<ISignatureHelpProviderWrapper> _signatureHelpProviders;
 
         internal WorkSession([NotNull] ILanguage language, [CanBeNull] IWorkSessionOptions options = null) {
-            Language = Argument.NotNull(nameof(language), language);
+            _language = Argument.NotNull(nameof(language), language);
             _options = options;
+
             SelfDebug = (options?.SelfDebugEnabled ?? false) ? new SelfDebug() : null;
         }
 
         internal void ChangeLanguage([NotNull] ILanguage language) {
             Argument.NotNull(nameof(language), language);
-            if (Language == language)
+            if (language == _language)
                 return;
+            _language = language;
+            Reset();
+        }
 
-            Language = language;
+        public void ChangeParseOptions([NotNull] string key, [NotNull] Func<ParseOptions, ParseOptions> change) {
+            Argument.NotNull(nameof(key), key);
+            Argument.NotNull(nameof(change), change);
+            if (_parseOptionsChanges.GetValueOrDefault(key) == change)
+                return;
+            _parseOptionsChanges[key] = change;
+            Reset();
+        }
+
+        public void ChangeCompilationOptions([NotNull] string key, [NotNull] Func<CompilationOptions, CompilationOptions> change) {
+            Argument.NotNull(nameof(key), key);
+            Argument.NotNull(nameof(change), change);
+            if (_compilationOptionsChanges.GetValueOrDefault(key) == change)
+                return;
+            _compilationOptionsChanges[key] = change;
+            Reset();
+        }
+
+        private void Reset() {
             _workspace?.Dispose();
             _workspace = null;
         }
 
         private void Initialize() {
             var projectId = ProjectId.CreateNewId();
+
+            var parseOptions = _options?.GetDefaultParseOptionsByLanguageName?.Invoke(Language.Name) ?? Language.DefaultParseOptions;
+            foreach (var change in _parseOptionsChanges.Values) {
+                parseOptions = change(parseOptions);
+            }
+            var compilationOptions = _options?.GetDefaultCompilationOptionsByLanguageName?.Invoke(Language.Name) ?? Language.DefaultCompilationOptions;
+            foreach (var change in _compilationOptionsChanges.Values) {
+                compilationOptions = change(compilationOptions);
+            }
+
             var projectInfo = ProjectInfo.Create(
                 projectId, VersionStamp.Create(), "_", "_", Language.Name,
-                compilationOptions: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary),
-                parseOptions: _options?.GetDefaultParseOptionsByLanguageName(Language.Name),
+                parseOptions: parseOptions,
+                compilationOptions: compilationOptions,
                 metadataReferences: Language.DefaultAssemblyReferences,
                 analyzerReferences: Language.DefaultAnalyzerReferences
             );
             var documentId = DocumentId.CreateNewId(projectId);
-            _sourceText = SourceText.From("");
+            _sourceText = _sourceText ?? SourceText.From("");
 
             _workspace = new CustomWorkspace(Language.HostServices);
             var solution = _workspace.CurrentSolution
@@ -76,8 +111,7 @@ namespace MirrorSharp.Internal {
             _signatureHelpProviders = Language.DefaultSignatureHelpProviders;
         }
 
-        internal ILanguage Language { get; private set; }
-
+        internal ILanguage Language => _language;
         public int CursorPosition { get; set; }
 
         public SourceText SourceText {

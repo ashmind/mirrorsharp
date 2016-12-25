@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AshMind.Extensions;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using MirrorSharp.Internal.Languages;
 using MirrorSharp.Internal.Results;
 
@@ -21,7 +23,8 @@ namespace MirrorSharp.Internal.Handlers {
 
         internal SetOptionsHandler(IReadOnlyCollection<ILanguage> languages) {
             _optionSetters = new Dictionary<string, Action<WorkSession, string>> {
-                { "language", SetLanguage }
+                { "language", SetLanguage },
+                { "optimize", SetOptimize }
             };
             _languages = languages;
         }
@@ -46,6 +49,11 @@ namespace MirrorSharp.Internal.Handlers {
                 throw new NotSupportedException($"Language '{value}' is not supported.");
 
             session.ChangeLanguage(language);
+        }
+
+        private void SetOptimize(WorkSession session, string value) {
+            var level = (OptimizationLevel)Enum.Parse(typeof(OptimizationLevel), value, true);
+            session.ChangeCompilationOptions(nameof(CompilationOptions.OptimizationLevel), o => o.WithOptimizationLevel(level));
         }
     }
 }

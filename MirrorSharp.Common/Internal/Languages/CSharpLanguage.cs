@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Host.Mef;
 using MirrorSharp.Internal.Reflection;
@@ -16,6 +17,8 @@ namespace MirrorSharp.Internal.Languages {
                 Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.Features")),
                 Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.CSharp.Features"))
             }));
+            DefaultParseOptions = new CSharpParseOptions();
+            DefaultCompilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
             DefaultAssemblyReferences = ImmutableList.Create<MetadataReference>(
                 MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location)
             );
@@ -30,6 +33,8 @@ namespace MirrorSharp.Internal.Languages {
         }
 
         public string Name => LanguageNames.CSharp;
+        public ParseOptions DefaultParseOptions { get; }
+        public CompilationOptions DefaultCompilationOptions { get; }
         public ImmutableList<MetadataReference> DefaultAssemblyReferences { get; }
         public ImmutableList<AnalyzerReference> DefaultAnalyzerReferences { get; }
         public ImmutableArray<DiagnosticAnalyzer> DefaultAnalyzers { get; }
