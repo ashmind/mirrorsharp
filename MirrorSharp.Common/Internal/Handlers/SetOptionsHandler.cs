@@ -38,18 +38,24 @@ namespace MirrorSharp.Internal.Handlers {
             var parts = optionsString.Split(Comma);
             foreach (var part in parts) {
                 var nameAndValue = part.Split(EqualsSign);
-                if (nameAndValue[0].StartsWith("x-")) {
-                    if (!(_extension?.TrySetOption(session, nameAndValue[0], nameAndValue[1]) ?? false))
-                        throw new FormatException($"Extension option '{nameAndValue[0]}' was not recognized.");
+                var name = nameAndValue[0];
+                var value = nameAndValue[1];
+
+                if (name.StartsWith("x-")) {
+                    if (!(_extension?.TrySetOption(session, name, value) ?? false))
+                        throw new FormatException($"Extension option '{name}' was not recognized.");
+                    session.RawOptionsFromClient[name] = value;
                     continue;
                 }
 
-                var setOption = _optionSetters.GetValueOrDefault(nameAndValue[0]);
+                var setOption = _optionSetters.GetValueOrDefault(name);
                 if (setOption == null)
-                    throw new FormatException($"Option '{nameAndValue[0]}' was not recognized (to use {nameof(ISetOptionsFromClientExtension)}, make sure your option name starts with 'x-').");
-                setOption(session, nameAndValue[1]);
+                    throw new FormatException($"Option '{name}' was not recognized (to use {nameof(ISetOptionsFromClientExtension)}, make sure your option name starts with 'x-').");
+                setOption(session, value);
+                session.RawOptionsFromClient[name] = value;
             }
-            return TaskEx.CompletedTask;
+
+            return SendOptionsEchoAsync(session, sender, cancellationToken);
         }
 
         private void SetLanguage(WorkSession session, string value) {
@@ -63,6 +69,17 @@ namespace MirrorSharp.Internal.Handlers {
         private void SetOptimize(WorkSession session, string value) {
             var level = (OptimizationLevel)Enum.Parse(typeof(OptimizationLevel), value, true);
             session.ChangeCompilationOptions(nameof(CompilationOptions.OptimizationLevel), o => o.WithOptimizationLevel(level));
+        }
+
+        private async Task SendOptionsEchoAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            session.CurrentCodeActions.Clear();
+            var writer = sender.StartJsonMessage("optionsEcho");
+            writer.WritePropertyStartObject("options");
+            foreach (var pair in session.RawOptionsFromClient) {
+                writer.WriteProperty(pair.Key, pair.Value);
+            }
+            writer.WriteEndObject();
+            await sender.SendJsonMessageAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 }

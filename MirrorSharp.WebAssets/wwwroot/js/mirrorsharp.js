@@ -23,6 +23,16 @@
 }(this, function (CodeMirror) {
     'use strict';
 
+    const assign = Object.assign || function (target) {
+        for (var i = 1; i < arguments.length; i++) {
+            var source = arguments[i];
+            for (var key of source) {
+                target[key] = source[key];
+            }
+        }
+        return target;
+    };
+
     function SelfDebug() {
         var getText;
         var getCursorIndex;
@@ -162,7 +172,6 @@
 
         function sendWhenOpen(command) {
             return openPromise.then(function () {
-                //console.debug("[=>]", command);
                 if (selfDebug)
                     selfDebug.log('send', command);
                 socket.send(command);
@@ -327,18 +336,9 @@
         this.hide = hide;
     }
 
-    var assign = Object.assign || function (target) {
-        for (var i = 1; i < arguments.length; i++) {
-            var source = arguments[i];
-            for (var key of source) {
-                target[key] = source[key];
-            }
-        }
-        return target;
-    };
-
     function Editor(textarea, connection, selfDebug, options) {
         const lineSeparator = '\r\n';
+        var serverOptions;
         var lintingSuspended = true;
         var capturedUpdateLinting;
 
@@ -380,6 +380,8 @@
         const signatureTip = new SignatureTip(cm);
         connection.on('open', function () {
             hideConnectionLoss();
+            if (serverOptions)
+                connection.sendSetOptions(serverOptions);
 
             const text = cm.getValue();
             if (text === '' || text == null) {
@@ -457,6 +459,10 @@
 
                 case 'slowUpdate':
                     showSlowUpdate(message);
+                    break;
+
+                case 'optionsEcho':
+                    serverOptions = message.options;
                     break;
 
                 case 'self:debug':
@@ -569,15 +575,12 @@
             cm.getWrapperElement().classList.remove('mirrorsharp-connection-has-issue');
         }
 
-        this.requestSlowUpdate = requestSlowUpdate;
-    }
-
-    function Facade(connection, editor) {
-        this.setServerOptions = function(options) {
-            return connection.sendSetOptions(options).then(function() {
-                return editor.requestSlowUpdate();
+        function sendServerOptions(value) {
+            return connection.sendSetOptions(value).then(function() {
+                return requestSlowUpdate();
             });
         }
+        this.sendServerOptions = sendServerOptions;
     }
 
     return function(textarea, options) {
@@ -586,6 +589,8 @@
             return new WebSocket(options.serviceUrl);
         }, selfDebug);
         const editor = new Editor(textarea, connection, selfDebug, options);
-        return new Facade(connection, editor);
+        return {
+            sendServerOptions: editor.sendServerOptions.bind(editor)
+        };
     };
 }));

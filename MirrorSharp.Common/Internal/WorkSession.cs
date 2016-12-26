@@ -181,6 +181,7 @@ namespace MirrorSharp.Internal {
             private set { _signatureHelpProviders = value; }
         }
 
+        public IDictionary<string, string> RawOptionsFromClient { get; } = new Dictionary<string, string>();
         [CanBeNull] public SelfDebug SelfDebug { get; }
         public IDictionary<string, object> ExtensionData { get; } = new Dictionary<string, object>();
 

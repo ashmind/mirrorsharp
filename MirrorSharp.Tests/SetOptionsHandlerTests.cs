@@ -1,9 +1,11 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
+﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Tests.Internal;
+using MirrorSharp.Tests.Internal.Results;
 using Moq;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace MirrorSharp.Tests {
@@ -60,6 +62,25 @@ namespace MirrorSharp.Tests {
                 session, "x-testkey=testvalue", new MirrorSharpOptions { SetOptionsFromClient = extensionMock.Object }
             );
             extensionMock.Verify(x => x.TrySetOption(session, "x-testkey", "testvalue"));
+        }
+
+        [Fact]
+        public async void ExecuteAsync_EchoesOptionsIncludingPreviousCalls() {
+            var extensionMock = new Mock<ISetOptionsFromClientExtension>();
+            extensionMock.SetReturnsDefault(true);
+            var mirrorSharpOptions = new MirrorSharpOptions {SetOptionsFromClient = extensionMock.Object};
+
+            var session = Session();
+            await ExecuteHandlerAsync<SetOptionsHandler>(session, "optimize=release,x-key1=value1", mirrorSharpOptions);
+            var optionsEcho = await ExecuteHandlerAsync<SetOptionsHandler, OptionsEchoResult>(session, "x-key2=value2", mirrorSharpOptions);
+            Assert.Equal(
+                new Dictionary<string, string> {
+                    ["optimize"] = "release",
+                    ["x-key1"] = "value1",
+                    ["x-key2"] = "value2"
+                },
+                optionsEcho.Options
+            );
         }
     }
 }
