@@ -1,12 +1,11 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 
 namespace MirrorSharp.Advanced {
     [PublicAPI]
     public interface IWorkSession {
         [NotNull] Project Project { get; }
-
-        [CanBeNull] T Get<T>();
-        void Set<T>([CanBeNull] T value);
+        [NotNull] IDictionary<string, object> ExtensionData { get; }
     }
 }

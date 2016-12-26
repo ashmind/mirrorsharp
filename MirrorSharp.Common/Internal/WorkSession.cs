@@ -29,7 +29,6 @@ namespace MirrorSharp.Internal {
         private bool _documentOutOfDate;
         private Document _document;
 
-        private readonly IDictionary<Type, object> _data = new Dictionary<Type, object>();
         private CompletionService _completionService;
         private ImmutableArray<DiagnosticAnalyzer> _analyzers;
         private ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> _codeFixProviders;
@@ -56,6 +55,8 @@ namespace MirrorSharp.Internal {
             if (_parseOptionsChanges.GetValueOrDefault(key) == change)
                 return;
             _parseOptionsChanges[key] = change;
+            if (_workspace != null && change(Project.ParseOptions) == Project.ParseOptions)
+                return;
             Reset();
         }
 
@@ -65,6 +66,8 @@ namespace MirrorSharp.Internal {
             if (_compilationOptionsChanges.GetValueOrDefault(key) == change)
                 return;
             _compilationOptionsChanges[key] = change;
+            if (_workspace != null && change(Project.CompilationOptions) == Project.CompilationOptions)
+                return;
             Reset();
         }
 
@@ -112,6 +115,7 @@ namespace MirrorSharp.Internal {
         }
 
         internal ILanguage Language => _language;
+        public IWorkSessionOptions Options => _options;
         public int CursorPosition { get; set; }
 
         public SourceText SourceText {
@@ -178,6 +182,7 @@ namespace MirrorSharp.Internal {
         }
 
         [CanBeNull] public SelfDebug SelfDebug { get; }
+        public IDictionary<string, object> ExtensionData { get; } = new Dictionary<string, object>();
 
         private void EnsureInitialized() {
             if (_workspace != null)
@@ -209,8 +214,6 @@ namespace MirrorSharp.Internal {
             return _sourceText.GetTextChanges(oldText);
         }
 
-        public T Get<T>() => (T)_data.GetValueOrDefault(typeof(T));
-        public void Set<T>(T value) => _data[typeof(T)] = value;
 
         public void Dispose() {
             _workspace.Dispose();

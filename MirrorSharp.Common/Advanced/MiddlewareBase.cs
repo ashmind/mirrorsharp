@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Internal.Handlers.Shared;
@@ -11,16 +12,17 @@ using MirrorSharp.Internal.Languages;
 
 namespace MirrorSharp.Advanced {
     public abstract class MiddlewareBase {
-        private readonly ImmutableArray<ICommandHandler> _handlers;
-        private readonly MirrorSharpOptions _options;
-        private readonly IReadOnlyCollection<ILanguage> _languages;
+        [CanBeNull] private readonly MirrorSharpOptions _options;
+        [NotNull, ItemNotNull] private readonly IReadOnlyCollection<ILanguage> _languages;
+        [ItemNotNull] private readonly ImmutableArray<ICommandHandler> _handlers;
 
-        protected MiddlewareBase(MirrorSharpOptions options) {
+        protected MiddlewareBase([CanBeNull] MirrorSharpOptions options) {
             _options = options;
             _languages = new[] {new CSharpLanguage()};
             _handlers = CreateHandlersIndexedByCommandId();
         }
 
+        [ItemNotNull]
         private ImmutableArray<ICommandHandler> CreateHandlersIndexedByCommandId() {
             var handlers = new ICommandHandler[26];
             foreach (var handler in CreateHandlers()) {
@@ -31,6 +33,7 @@ namespace MirrorSharp.Advanced {
             return ImmutableArray.CreateRange(handlers);
         }
 
+        [NotNull, ItemNotNull]
         protected IReadOnlyCollection<ICommandHandler> CreateHandlers() {
             var signatureHelp = new SignatureHelpSupport();
             return new ICommandHandler[] {
@@ -39,13 +42,14 @@ namespace MirrorSharp.Advanced {
                 new MoveCursorHandler(signatureHelp),
                 new ReplaceTextHandler(signatureHelp),
                 new RequestSelfDebugDataHandler(),
-                new SetOptionsHandler(_languages),
-                new SlowUpdateHandler(_options.SlowUpdate),
+                new SetOptionsHandler(_languages, _options?.SetOptionsFromClient),
+                new SlowUpdateHandler(_options?.SlowUpdate),
                 new TypeCharHandler(signatureHelp)
             };
         }
 
-        protected async Task WebSocketLoopAsync(WebSocket socket, CancellationToken cancellationToken) {
+        [NotNull]
+        protected async Task WebSocketLoopAsync([NotNull] WebSocket socket, CancellationToken cancellationToken) {
             WorkSession session = null;
             Connection connection = null;
             try {

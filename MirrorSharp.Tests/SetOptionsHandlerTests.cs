@@ -1,6 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Tests.Internal;
+using Moq;
 using Xunit;
 
 namespace MirrorSharp.Tests {
@@ -25,6 +28,15 @@ namespace MirrorSharp.Tests {
         }
 
         [Fact]
+        public async void ExecuteAsync_PreservesSessionWorkspace_WhenUpdatingOptimizeToTheSameValue() {
+            var session = SessionFromText("test");
+            session.ChangeCompilationOptions(nameof(CompilationOptions.OptimizationLevel), c => c.WithOptimizationLevel(OptimizationLevel.Release));
+            var workspace = session.Workspace;
+            await ExecuteHandlerAsync<SetOptionsHandler>(session, "optimize=release");
+            Assert.Same(workspace, session.Workspace);
+        }
+
+        [Fact]
         public async void ExecuteAsync_PreservesSessionSourceText_WhenUpdatingOptions() {
             var session = SessionFromText("test");
             await ExecuteHandlerAsync<SetOptionsHandler>(session, "optimize=debug");
@@ -36,6 +48,18 @@ namespace MirrorSharp.Tests {
             var session = SessionFromTextWithCursor("test|");
             await ExecuteHandlerAsync<SetOptionsHandler>(session, "optimize=debug");
             Assert.Equal(4, session.CursorPosition);
+        }
+
+        [Fact]
+        public async void ExecuteAsync_CallsSetOptionExtension_IfOptionHasExtensionPrefix() {
+            var extensionMock = new Mock<ISetOptionsFromClientExtension>();
+            extensionMock.SetReturnsDefault(true);
+
+            var session = Session();
+            await ExecuteHandlerAsync<SetOptionsHandler>(
+                session, "x-testkey=testvalue", new MirrorSharpOptions { SetOptionsFromClient = extensionMock.Object }
+            );
+            extensionMock.Verify(x => x.TrySetOption(session, "x-testkey", "testvalue"));
         }
     }
 }

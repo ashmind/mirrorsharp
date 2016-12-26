@@ -10,25 +10,25 @@ using Newtonsoft.Json;
 
 namespace MirrorSharp.Tests.Internal {
     public static class TestHelper {
-        public static Task ExecuteHandlerAsync<TCommandHandler>(WorkSession session, HandlerTestArgument argument = default(HandlerTestArgument))
+        public static Task ExecuteHandlerAsync<TCommandHandler>(WorkSession session, HandlerTestArgument argument = default(HandlerTestArgument), MirrorSharpOptions options = null)
             where TCommandHandler: ICommandHandler
         {
-            var handler = new CommandFactory().Create<TCommandHandler>();
+            var handler = new CommandFactory(options).Create<TCommandHandler>();
             return handler.ExecuteAsync(argument.ToArraySegment(), session, new StubCommandResultSender(), CancellationToken.None);
         }
 
-        public static async Task<TResult> ExecuteHandlerAsync<TCommandHandler, TResult>(WorkSession session, HandlerTestArgument argument = default(HandlerTestArgument))
+        public static async Task<TResult> ExecuteHandlerAsync<TCommandHandler, TResult>(WorkSession session, HandlerTestArgument argument = default(HandlerTestArgument), MirrorSharpOptions options = null)
             where TCommandHandler : ICommandHandler
             where TResult : class
         {
             var sender = new StubCommandResultSender();
-            var handler = new CommandFactory().Create<TCommandHandler>();
+            var handler = new CommandFactory(options).Create<TCommandHandler>();
             await handler.ExecuteAsync(argument.ToArraySegment(), session, sender, CancellationToken.None);
             return sender.LastMessageJson != null ? JsonConvert.DeserializeObject<TResult>(sender.LastMessageJson) : null;
         }
 
         public static WorkSession Session() => new WorkSession(new CSharpLanguage());
-        public static WorkSession SessionFromText(string text) => new WorkSession(new CSharpLanguage()) {
+        public static WorkSession SessionFromText(string text, IWorkSessionOptions options = null) => new WorkSession(new CSharpLanguage(), options) {
             SourceText = SourceText.From(text)
         };
 
@@ -50,7 +50,7 @@ namespace MirrorSharp.Tests.Internal {
         }
 
         private class CommandFactory : MiddlewareBase {
-            public CommandFactory() : base(new MirrorSharpOptions()) {
+            public CommandFactory(MirrorSharpOptions options = null) : base(options) {
             }
 
             public TCommandHandler Create<TCommandHandler>() {
