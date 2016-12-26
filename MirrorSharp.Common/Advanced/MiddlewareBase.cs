@@ -35,16 +35,17 @@ namespace MirrorSharp.Advanced {
 
         [NotNull, ItemNotNull]
         protected IReadOnlyCollection<ICommandHandler> CreateHandlers() {
+            var completion = new CompletionSupport();
             var signatureHelp = new SignatureHelpSupport();
             return new ICommandHandler[] {
                 new ApplyDiagnosticActionHandler(),
-                new CompletionChoiceHandler(),
+                new CompletionStateHandler(completion),
                 new MoveCursorHandler(signatureHelp),
                 new ReplaceTextHandler(signatureHelp),
                 new RequestSelfDebugDataHandler(),
                 new SetOptionsHandler(_languages, _options?.SetOptionsFromClient),
                 new SlowUpdateHandler(_options?.SlowUpdate),
-                new TypeCharHandler(signatureHelp)
+                new TypeCharHandler(completion, signatureHelp)
             };
         }
 

@@ -10,6 +10,13 @@ using Newtonsoft.Json;
 
 namespace MirrorSharp.Tests.Internal {
     public static class TestHelper {
+        public static readonly string[] ObjectMemberNames = {
+            nameof(Equals),
+            nameof(GetHashCode),
+            nameof(GetType),
+            nameof(ToString)
+        };
+
         public static Task ExecuteHandlerAsync<TCommandHandler>(WorkSession session, HandlerTestArgument argument = default(HandlerTestArgument), MirrorSharpOptions options = null)
             where TCommandHandler: ICommandHandler
         {

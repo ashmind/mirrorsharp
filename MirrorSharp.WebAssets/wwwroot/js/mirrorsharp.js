@@ -192,8 +192,10 @@
             return sendWhenOpen('C' + char);
         };
 
-        this.sendCompletionChoice = function(index) {
-            return sendWhenOpen('S' + (index != null ? index : 'X'));
+        const completionStateCommandMap = { cancel: 'X', empty: 'E', nonEmptyAfterEmpty: 'B' };
+        this.sendCompletionState = function(indexOrCommand) {
+            const argument = completionStateCommandMap[indexOrCommand] || indexOrCommand;
+            return sendWhenOpen('S' + argument);
         };
 
         this.sendSlowUpdate = function() {
@@ -218,19 +220,16 @@
     }
 
     function Hinter(cm, connection) {
-        const state = this;
         const indexInListKey = '$mirrorsharp-indexInList';
 
-        var committed = false;
+        var state = 'stopped';
         const commit = function (cm, data, item) {
-            connection.sendCompletionChoice(item[indexInListKey]);
-            committed = true;
+            connection.sendCompletionState(item[indexInListKey]);
+            state = 'committed';
         };
 
-        state.active = false;
         this.start = function(list, span) {
-            state.active = true;
-            committed = false;
+            state = 'starting';
             const hintStart = cm.posFromIndex(span.start);
             const hintList = list.map(function (c, index) {
                 const item = {
@@ -248,20 +247,35 @@
                 hint: function() {
                     const prefix = cm.getRange(hintStart, cm.getCursor());
                     var list = hintList;
-                    if (prefix.length > 0)
+                    if (prefix.length > 0) {
                         list = hintList.filter(function(item) { return item.text.indexOf(prefix) === 0; });
+                        const isEmpty = list.length === 0;
+                        if (isEmpty !== (state === 'empty')) {
+                            if (isEmpty) {
+                                connection.sendCompletionState('empty');
+                                state = 'empty';
+                            }
+                            else {
+                                connection.sendCompletionState('nonEmptyAfterEmpty');
+                                state = 'started';
+                            }
+                        }
+                    }
 
                     return { from: hintStart, list: list };
                 },
                 completeSingle: false
             });
+            state = 'started';
         };
 
         cm.on('endCompletion', function() {
-            state.active = false;
-            if (committed)
+            if (state === 'starting')
                 return;
-            connection.sendCompletionChoice(null);
+
+            if (state === 'started')
+                connection.sendCompletionState('cancel');
+            state = 'stopped';
         });
     }
 

@@ -9,13 +9,6 @@ namespace MirrorSharp.Tests {
     using static TestHelper;
 
     public class TypeCharHandlerTests {
-        private static readonly string[] ObjectMemberNames = {
-            nameof(Equals),
-            nameof(GetHashCode),
-            nameof(GetType),
-            nameof(ToString)
-        };
-
         [Theory]
         [InlineData('\u0216')]
         [InlineData('月')]
@@ -49,21 +42,6 @@ namespace MirrorSharp.Tests {
                 class A { public int x; }
                 class B { void M(A a) { a| } }
             ");
-            var result = await ExecuteHandlerAsync<TypeCharHandler, CompletionsResult>(session, '.');
-
-            Assert.Equal(
-                new[] { "x" }.Concat(ObjectMemberNames).OrderBy(n => n),
-                result.Completions.Select(i => i.DisplayText).OrderBy(n => n)
-            );
-        }
-
-        [Fact]
-        public async Task ExecuteAsync_ProducesExpectedCompletion_WhenCompletionWasAlreadyActive() {
-            var session = SessionFromTextWithCursor(@"
-                class A { public int x; }
-                class B { void M(A a) { | } }
-            ");
-            await TypeCharsAsync(session, "a");
             var result = await ExecuteHandlerAsync<TypeCharHandler, CompletionsResult>(session, '.');
 
             Assert.Equal(

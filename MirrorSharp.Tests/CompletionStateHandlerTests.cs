@@ -10,12 +10,12 @@ using Xunit;
 namespace MirrorSharp.Tests {
     using static TestHelper;
 
-    public class CompletionChoiceHandlerTests {
+    public class CompletionStateHandlerTests {
         [Fact]
         public async Task ExecuteAsync_InsertsSelectedCompletion() {
             var session = SessionFromTextWithCursor("class C { void M(object o) { o| } }");
             var completions = await TypeAndGetCompletionsAsync('.', session);
-            await ExecuteHandlerAsync<CompletionChoiceHandler>(session, IndexOf(completions, "ToString"));
+            await ExecuteHandlerAsync<CompletionStateHandler>(session, IndexOf(completions, "ToString"));
 
             Assert.Equal(
                 "class C { void M(object o) { o.ToString } }",
@@ -30,7 +30,7 @@ namespace MirrorSharp.Tests {
             var completions = await TypeAndGetCompletionsAsync('.', session);
             await TypeCharsAsync(session, "To");
 
-            await ExecuteHandlerAsync<CompletionChoiceHandler>(session, IndexOf(completions, "ToString"));
+            await ExecuteHandlerAsync<CompletionStateHandler>(session, IndexOf(completions, "ToString"));
 
             Assert.Equal(
                 "class C { void M(object o) { o.ToString } }",
@@ -44,10 +44,25 @@ namespace MirrorSharp.Tests {
             var session = SessionFromTextWithCursor("class C { void M(object o) { o| } }");
             await TypeAndGetCompletionsAsync('.', session);
 
-            var result = await ExecuteHandlerAsync<CompletionChoiceHandler, ChangesResult>(session, 'X');
+            var result = await ExecuteHandlerAsync<CompletionStateHandler, ChangesResult>(session, 'X');
 
             Assert.Null(result);
             Assert.Null(session.CurrentCompletionList);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_ProducesExpectedCompletion_WhenStateEmptyIsSentDuringActiveCompletion() {
+            var session = SessionFromTextWithCursor(@"
+                class A { public int x; }
+                class B { void M(A a) { | } }
+            ");
+            await TypeCharsAsync(session, "a.");
+            var result = await ExecuteHandlerAsync<CompletionStateHandler, CompletionsResult>(session, 'E');
+
+            Assert.Equal(
+                new[] { "x" }.Concat(ObjectMemberNames).OrderBy(n => n),
+                result.Completions.Select(i => i.DisplayText).OrderBy(n => n)
+            );
         }
 
         private static async Task<IList<CompletionsResult.ResultCompletion>> TypeAndGetCompletionsAsync(char @char, WorkSession session) {

@@ -147,6 +147,7 @@ namespace MirrorSharp.Internal {
             }
         }
 
+        public bool CanRetriggerCompletion { get; set; }
         [CanBeNull] public CompletionList CurrentCompletionList { get; set; }
         [NotNull] public IList<CodeAction> CurrentCodeActions { get; } = new List<CodeAction>();
         [CanBeNull] internal CurrentSignatureHelp? CurrentSignatureHelp { get; set; }
