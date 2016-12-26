@@ -23,7 +23,7 @@ namespace MirrorSharp.Internal {
         [NotNull] private IDictionary<string, Func<ParseOptions, ParseOptions>> _parseOptionsChanges = new Dictionary<string, Func<ParseOptions, ParseOptions>>();
         [NotNull] private IDictionary<string, Func<CompilationOptions, CompilationOptions>> _compilationOptionsChanges = new Dictionary<string, Func<CompilationOptions, CompilationOptions>>();
 
-        private CustomWorkspace _workspace;
+        [CanBeNull] private CustomWorkspace _workspace;
 
         private SourceText _sourceText;
         private bool _documentOutOfDate;
@@ -87,12 +87,13 @@ namespace MirrorSharp.Internal {
             foreach (var change in _compilationOptionsChanges.Values) {
                 compilationOptions = change(compilationOptions);
             }
+            var metadataReferences = _options?.GetDefaultMetadataReferencesByLanguageName?.Invoke(Language.Name) ?? Language.DefaultAssemblyReferences;
 
             var projectInfo = ProjectInfo.Create(
                 projectId, VersionStamp.Create(), "_", "_", Language.Name,
                 parseOptions: parseOptions,
                 compilationOptions: compilationOptions,
-                metadataReferences: Language.DefaultAssemblyReferences,
+                metadataReferences: metadataReferences,
                 analyzerReferences: Language.DefaultAnalyzerReferences
             );
             var documentId = DocumentId.CreateNewId(projectId);
@@ -198,6 +199,7 @@ namespace MirrorSharp.Internal {
                 return;
 
             var document = _document.WithText(_sourceText);
+            // ReSharper disable once PossibleNullReferenceException
             if (!_workspace.TryApplyChanges(document.Project.Solution))
                 throw new Exception("Failed to apply changes to workspace.");
             _document = _workspace.CurrentSolution.GetDocument(document.Id);
@@ -206,6 +208,7 @@ namespace MirrorSharp.Internal {
 
         public async Task<IReadOnlyList<TextChange>> UpdateFromWorkspaceAsync() {
             EnsureDocumentUpToDate();
+            // ReSharper disable once PossibleNullReferenceException
             var project = _workspace.CurrentSolution.GetProject(Project.Id);
             if (project == Project)
                 return NoTextChanges;
@@ -218,7 +221,7 @@ namespace MirrorSharp.Internal {
 
 
         public void Dispose() {
-            _workspace.Dispose();
+            _workspace?.Dispose();
         }
     }
 }
