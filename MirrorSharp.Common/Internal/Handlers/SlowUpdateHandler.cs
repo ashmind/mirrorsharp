@@ -1,33 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AshMind.Extensions;
+using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
+using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Reflection;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
     public class SlowUpdateHandler : ICommandHandler {
         private static readonly IReadOnlyCollection<CodeAction> NoCodeActions = new CodeAction[0];
+        [CanBeNull] private readonly ISlowUpdateExtension _extension;
+
+        public SlowUpdateHandler([CanBeNull] ISlowUpdateExtension extension) {
+            _extension = extension;
+        }
+
         public IImmutableList<char> CommandIds { get; } = ImmutableList.Create('U');
 
         public async Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var compilation = await session.Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
-            var diagnostics = await compilation.WithAnalyzers(session.Analyzers).GetAllDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
-
-            await SendSlowUpdateAsync(diagnostics, session, sender, cancellationToken).ConfigureAwait(false);
+            var diagnostics = (IList<Diagnostic>)await compilation.WithAnalyzers(session.Analyzers).GetAllDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
+            object extensionResult = null;
+            if (_extension != null) {
+                diagnostics = diagnostics.ToList();
+                extensionResult = await _extension.ProcessAsync(session, diagnostics, cancellationToken).ConfigureAwait(false);
+            }
+            await SendSlowUpdateAsync(diagnostics.AsReadOnlyList(), session, extensionResult, sender, cancellationToken).ConfigureAwait(false);
         }
 
-        private async Task SendSlowUpdateAsync(ImmutableArray<Diagnostic> diagnostics, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+        private async Task SendSlowUpdateAsync(IReadOnlyList<Diagnostic> diagnostics, WorkSession session, object extensionResult, ICommandResultSender sender, CancellationToken cancellationToken) {
             session.CurrentCodeActions.Clear();
             var writer = sender.StartJsonMessage("slowUpdate");
             writer.WritePropertyStartArray("diagnostics");
             foreach (var diagnostic in diagnostics) {
                 writer.WriteStartObject();
+                writer.WriteProperty("id", diagnostic.Id);
                 writer.WriteProperty("message", diagnostic.GetMessage());
                 writer.WriteProperty("severity", diagnostic.Severity.ToString("G").ToLowerInvariant());
                 writer.WritePropertyStartArray("tags");
@@ -48,6 +63,11 @@ namespace MirrorSharp.Internal.Handlers {
                 writer.WriteEndObject();
             }
             writer.WriteEndArray();
+            if (_extension != null) {
+                writer.WritePropertyStartObject("x");
+                _extension.WriteResult(writer, extensionResult);
+                writer.WriteEndObject();
+            }
             await sender.SendJsonMessageAsync(cancellationToken).ConfigureAwait(false);
         }
 
@@ -86,7 +106,5 @@ namespace MirrorSharp.Internal.Handlers {
             }
             return actions ?? NoCodeActions;
         }
-
-        public bool CanChangeSession => false;
     }
 }

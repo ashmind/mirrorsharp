@@ -15,7 +15,7 @@ namespace MirrorSharp.Tests {
         [InlineData("79", 79)]
         [InlineData("1234567890", 1234567890)]
         public async void ExecuteAsync_UpdatesSessionCursorPosition(string dataString, int expectedPosition) {
-            var session = new WorkSession();
+            var session = Session();
             await ExecuteHandlerAsync<MoveCursorHandler>(session, dataString);
             Assert.Equal(expectedPosition, session.CursorPosition);
         }

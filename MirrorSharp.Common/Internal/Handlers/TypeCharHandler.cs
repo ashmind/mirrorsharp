@@ -28,9 +28,6 @@ namespace MirrorSharp.Internal.Handlers {
         }
 
         private Task CheckCompletionAsync(char @char, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            if (session.CurrentCompletionList != null)
-                return TaskEx.CompletedTask;
-
             var trigger = CompletionTrigger.CreateInsertionTrigger(@char);
             if (!session.CompletionService.ShouldTriggerCompletion(session.SourceText, session.CursorPosition, trigger))
                 return TaskEx.CompletedTask;
@@ -70,7 +67,5 @@ namespace MirrorSharp.Internal.Handlers {
             writer.WriteEndArray();
             return sender.SendJsonMessageAsync(cancellationToken);
         }
-
-        public bool CanChangeSession => true;
     }
 }

@@ -54,7 +54,5 @@ namespace MirrorSharp.Internal.Handlers {
             session.CursorPosition = cursorPosition.Value;
             return _signatureHelp.ApplyCursorPositionChangeAsync(session, sender, cancellationToken);
         }
-
-        public bool CanChangeSession => true;
     }
 }

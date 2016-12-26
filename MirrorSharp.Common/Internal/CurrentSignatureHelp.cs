@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MirrorSharp.Internal.Reflection;
+﻿using MirrorSharp.Internal.Reflection;
 
 namespace MirrorSharp.Internal {
     internal struct CurrentSignatureHelp {

@@ -1,45 +1,60 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Internal.Handlers.Shared;
+using MirrorSharp.Internal.Languages;
 
 namespace MirrorSharp.Advanced {
     public abstract class MiddlewareBase {
-        private readonly ImmutableArray<ICommandHandler> _commands;
-        private readonly MirrorSharpOptions _options;
+        [CanBeNull] private readonly MirrorSharpOptions _options;
+        [NotNull, ItemNotNull] private readonly IReadOnlyCollection<ILanguage> _languages;
+        [ItemNotNull] private readonly ImmutableArray<ICommandHandler> _handlers;
 
-        protected MiddlewareBase(MirrorSharpOptions options) {
+        protected MiddlewareBase([CanBeNull] MirrorSharpOptions options) {
             _options = options;
-            _commands = CreateCommands();
+            _languages = new[] {new CSharpLanguage()};
+            _handlers = CreateHandlersIndexedByCommandId();
         }
 
-        protected virtual ImmutableArray<ICommandHandler> CreateCommands() {
-            var commands = new ICommandHandler[26];
+        [ItemNotNull]
+        private ImmutableArray<ICommandHandler> CreateHandlersIndexedByCommandId() {
+            var handlers = new ICommandHandler[26];
+            foreach (var handler in CreateHandlers()) {
+                foreach (var id in handler.CommandIds) {
+                    handlers[id - 'A'] = handler;
+                }
+            }
+            return ImmutableArray.CreateRange(handlers);
+        }
+
+        [NotNull, ItemNotNull]
+        protected IReadOnlyCollection<ICommandHandler> CreateHandlers() {
             var signatureHelp = new SignatureHelpSupport();
-            foreach (var command in new ICommandHandler[] {
+            return new ICommandHandler[] {
                 new ApplyDiagnosticActionHandler(),
                 new CompletionChoiceHandler(),
                 new MoveCursorHandler(signatureHelp),
                 new ReplaceTextHandler(signatureHelp),
-                new SlowUpdateHandler(),
+                new RequestSelfDebugDataHandler(),
+                new SetOptionsHandler(_languages, _options?.SetOptionsFromClient),
+                new SlowUpdateHandler(_options?.SlowUpdate),
                 new TypeCharHandler(signatureHelp)
-            }) {
-                foreach (var id in command.CommandIds) {
-                    commands[id - 'A'] = command;
-                }
-            }
-            return ImmutableArray.CreateRange(commands);
+            };
         }
 
-        protected async Task WebSocketLoopAsync(WebSocket socket, CancellationToken cancellationToken) {
+        [NotNull]
+        protected async Task WebSocketLoopAsync([NotNull] WebSocket socket, CancellationToken cancellationToken) {
             WorkSession session = null;
             Connection connection = null;
             try {
-                session = new WorkSession();
-                connection = new Connection(socket, session, _commands, _options);
+                session = new WorkSession(_languages.OfType<CSharpLanguage>().First(), _options);
+                connection = new Connection(socket, session, _handlers, _options);
 
                 while (connection.IsConnected) {
                     try {

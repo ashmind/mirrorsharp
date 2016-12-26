@@ -9,6 +9,5 @@ namespace MirrorSharp.Internal.Handlers {
     public interface ICommandHandler {
         [NotNull] IImmutableList<char> CommandIds { get; }
         [NotNull] Task ExecuteAsync(ArraySegment<byte> data, [NotNull] WorkSession session, [NotNull] ICommandResultSender sender, CancellationToken cancellationToken);
-        bool CanChangeSession { get; }
     }
 }

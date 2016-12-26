@@ -25,7 +25,5 @@ namespace MirrorSharp.Internal.Handlers {
             writer.WriteEndArray();
             await sender.SendJsonMessageAsync(cancellationToken).ConfigureAwait(false);
         }
-
-        public bool CanChangeSession => true;
     }
 }

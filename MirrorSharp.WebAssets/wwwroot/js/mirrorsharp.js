@@ -2,16 +2,100 @@
 (function (root, factory) {
     'use strict';
     if (typeof define === 'function' && define.amd) {
-        define(['CodeMirror'], factory);
+        define([
+          'codemirror',
+          'codemirror-addon-lint-fix',
+          'codemirror/addon/hint/show-hint',
+          'codemirror/mode/clike/clike',
+          'codemirror/mode/vb/vb'
+        ], factory);
     } else if (typeof module === 'object' && module.exports) {
-        module.exports = factory(require('CodeMirror'));
+        module.exports = factory(
+          require('codemirror'),
+          require('codemirror-addon-lint-fix'),
+          require('codemirror/addon/hint/show-hint'),
+          require('codemirror/mode/clike/clike'),
+          require('codemirror/mode/vb/vb')
+        );
     } else {
         root.mirrorsharp = factory(root.CodeMirror);
     }
 }(this, function (CodeMirror) {
     'use strict';
 
-    function Connection(openSocket) {
+    const assign = Object.assign || function (target) {
+        for (var i = 1; i < arguments.length; i++) {
+            var source = arguments[i];
+            for (var key of source) {
+                target[key] = source[key];
+            }
+        }
+        return target;
+    };
+
+    function SelfDebug() {
+        var getText;
+        var getCursorIndex;
+        const clientLog = [];
+        var clientLogSnapshot;
+
+        this.watchEditor = function(getTextValue, getCursorIndexValue) {
+            getText = getTextValue;
+            getCursorIndex = getCursorIndexValue;
+        }
+
+        this.log = function(event, message) {
+            clientLog.push({
+                time: new Date(),
+                event: event,
+                message: message,
+                text: getText(),
+                cursor: getCursorIndex()
+            });
+            while (clientLog.length > 100) {
+                clientLog.shift();
+            }
+        };
+
+        this.requestData = function(connection) {
+            clientLogSnapshot = clientLog.slice(0);
+            connection.sendRequestSelfDebugData();
+        }
+
+        this.displayData = function(serverData) {
+            const log = [];
+            for (var i = 0; i < clientLog.length; i++) {
+                log.push({ entry: clientLog[i], on: 'client', index: i });
+            }
+            for (var i = 0; i < serverData.log.length; i++) {
+                log.push({ entry: serverData.log[i], on: 'server', index: i });
+            }
+            log.sort(function(a, b) {
+                if (a.on !== b.on) {
+                    if (a.entry.time > b.entry.time) return +1;
+                    if (a.entry.time < b.entry.time) return -1;
+                    return 0;
+                }
+                if (a.index > b.index) return +1;
+                if (a.index < b.index) return -1;
+                return 0;
+            });
+
+            console.table(log.map(function(l) {
+                var time = l.entry.time;
+                var displayTime = ('0' + time.getHours()).slice(-2) + ':' + ('0' + time.getMinutes()).slice(-2) + ':' + ('0' + time.getSeconds()).slice(-2) + '.' + time.getMilliseconds();
+                return {
+                    time: displayTime,
+                    message: l.entry.message,
+                    event: l.on + ':' + l.entry.event,
+                    cursor: l.entry.cursor,
+                    text: l.entry.text
+                };
+            }));
+        }
+    }
+
+    function Connection(openSocket, selfDebug) {
         var socket;
         var openPromise;
         const handlers = {
@@ -61,10 +145,22 @@
                 const handlersByKey = handlers[key];
                 /* jshint -W083 */
                 socket.addEventListener(key, function (e) {
-                    var argument = (keyFixed === 'message') ? JSON.parse(e.data) : undefined;
+                    var argument = undefined;
+                    if (keyFixed === 'message') {
+                        argument = JSON.parse(e.data);
+                        if (argument.type === 'self:debug') {
+                            for (var entry of argument.log) {
+                                entry.time = new Date(entry.time);
+                            }
+                        }
+                        if (selfDebug)
+                            selfDebug.log('before', JSON.stringify(argument));
+                    }
                     for (var handler of handlersByKey) {
                         handler(argument);
                     }
+                    if (selfDebug && keyFixed === 'message')
+                        selfDebug.log('after', JSON.stringify(argument));
                 });
                 /* jshint +W083 */
             }
@@ -75,14 +171,14 @@
         }
 
         function sendWhenOpen(command) {
-            openPromise.then(function () {
-                //console.debug("[=>]", command);
+            return openPromise.then(function () {
+                if (selfDebug)
+                    selfDebug.log('send', command);
                 socket.send(command);
             });
         }
 
         this.on = on;
-
         this.sendReplaceText = function (isLastOrOnly, start, length, newText, cursorIndexAfter) {
             const command = isLastOrOnly ? 'R' : 'P';
             return sendWhenOpen(command + start + ':' + length + ':' + cursorIndexAfter + ':' + newText);
@@ -107,6 +203,18 @@
         this.sendApplyDiagnosticAction = function(actionId) {
             return sendWhenOpen('F' + actionId);
         };
+
+        this.sendSetOptions = function(options) {
+            const optionPairs = [];
+            for (var key in options) {
+                optionPairs.push(key + "=" + options[key]);
+            }
+            return sendWhenOpen('O' + optionPairs.join(','));
+        };
+
+        this.sendRequestSelfDebugData = function() {
+            return sendWhenOpen('Y');
+        }
     }
 
     function Hinter(cm, connection) {
@@ -228,20 +336,41 @@
         this.hide = hide;
     }
 
-    function Editor(textarea, connection, options) {
+    function Editor(textarea, connection, selfDebug, options) {
         const lineSeparator = '\r\n';
+        var serverOptions;
         var lintingSuspended = true;
+        var capturedUpdateLinting;
 
-        const cmOptions = options.forCodeMirror || {
+        options = assign({}, {
+            forCodeMirror: {},
+            afterSlowUpdate: function() {},
+            afterTextChange: function() {},
+            onServerError: function(message) { throw new Error(message); }
+        }, options);
+        const cmOptions = assign({}, { gutters: [], indentUnit: 4 }, options.forCodeMirror, {
             lineSeparator: lineSeparator,
             mode: 'text/x-csharp',
-            gutters: []
-        };
-        cmOptions.lint = { async: true, getAnnotations: requestSlowUpdate };
-        cmOptions.lintFix = { getFixes: getFixes };
+            lint: { async: true, getAnnotations: lintGetAnnotations },
+            lintFix: { getFixes: getFixes },
+            extraKeys: {}
+        });
+        if (selfDebug) {
+            cmOptions.extraKeys['Shift-Ctrl-Y'] = function() {
+                selfDebug.requestData(connection);
+            };
+        }
         cmOptions.gutters.push('CodeMirror-lint-markers');
+
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);
+        // see https://github.com/codemirror/CodeMirror/blob/dbaf6a94f1ae50d387fa77893cf6b886988c2147/addon/lint/lint.js#L133
+        // ensures that next 'id' will be -1 whther a change happened or not
+        cm.state.lint.waitingFor = -2;
         cm.setValue(textarea.value.replace(/(\r\n|\r|\n)/g, '\r\n'));
+
+        const getText = cm.getValue.bind(cm);
+        if (selfDebug)
+            selfDebug.watchEditor(getText, getCursorIndex);
 
         const cmWrapper = cm.getWrapperElement();
         cmWrapper.classList.add('mirrorsharp');
@@ -249,10 +378,10 @@
 
         const hinter = new Hinter(cm, connection);
         const signatureTip = new SignatureTip(cm);
-
-        var updateLinting;
         connection.on('open', function () {
             hideConnectionLoss();
+            if (serverOptions)
+                connection.sendSetOptions(serverOptions);
 
             const text = cm.getValue();
             if (text === '' || text == null) {
@@ -262,8 +391,8 @@
 
             connection.sendReplaceText(true, 0, 0, text, getCursorIndex(cm));
             lintingSuspended = false;
-            if (updateLinting)
-                requestSlowUpdate(text, updateLinting);
+            if (capturedUpdateLinting)
+                requestSlowUpdate();
         });
 
         function onCloseOrError() {
@@ -294,6 +423,7 @@
             changePending = false;
             if (changesAreFromServer) {
                 connection.sendMoveCursor(cursorIndex);
+                options.afterTextChange(getText);
                 return;
             }
 
@@ -310,6 +440,7 @@
                     connection.sendReplaceText(lastOrOnly, start, length, text, cursorIndex);
                 }
             }
+            options.afterTextChange(getText);
         });
 
         connection.on('message', function (message) {
@@ -330,17 +461,34 @@
                     showSlowUpdate(message);
                     break;
 
-                case 'debug:compare':
-                    debugCompare(message);
+                case 'optionsEcho':
+                    serverOptions = message.options;
+                    break;
+
+                case 'self:debug':
+                    selfDebug.displayData(message);
                     break;
 
                 case 'error':
-                    throw new Error(message.message);
+                    options.onServerError(message.message);
+                    break;
 
                 default:
                     throw new Error('Unknown message type "' + message.type);
             }
         });
+
+        function lintGetAnnotations(text, updateLinting) {
+            if (!capturedUpdateLinting) {
+                capturedUpdateLinting = function() {
+                    // see https://github.com/codemirror/CodeMirror/blob/dbaf6a94f1ae50d387fa77893cf6b886988c2147/addon/lint/lint.js#L133
+                    // ensures that next 'id' will always match 'waitingFor'
+                    cm.state.lint.waitingFor = -1;
+                    updateLinting.apply(this, arguments);
+                };
+            }
+            requestSlowUpdate(text);
+        }
 
         function getCursorIndex() {
             return cm.indexFromPos(cm.getCursor());
@@ -378,10 +526,10 @@
             connection.sendApplyDiagnosticAction(fix.id);
         }
 
-        function requestSlowUpdate(text, updateLintingValue) {
-            updateLinting = updateLintingValue;
-            if (!lintingSuspended)
-                connection.sendSlowUpdate();
+        function requestSlowUpdate() {
+            if (lintingSuspended)
+                return null;
+            return connection.sendSlowUpdate();
         }
 
         function showSlowUpdate(update) {
@@ -403,22 +551,11 @@
                     diagnostic: diagnostic
                 });
             }
-            updateLinting(annotations);
-        }
-
-        function debugCompare(server) {
-            if (server.text !== undefined) {
-                const clientText = cm.getValue();
-                if (clientText !== server.text)
-                    console.error('Client text does not match server text:', { clientText: clientText, serverText: server.text });
-            }
-
-            const clientCursorIndex = getCursorIndex();
-            if (clientCursorIndex !== server.cursor)
-                console.error('Client cursor position does not match server position:', { clientPosition: clientCursorIndex, serverPosition: server.cursor });
-
-            if (hinter.active !== server.completion)
-                console.error('Client completion state does not match server state:', { clientCompletionActive: hinter.active, serverCompletionActive: server.completion });
+            capturedUpdateLinting(annotations);
+            options.afterSlowUpdate({
+                diagnostics: update.diagnostics,
+                x: update.x
+            });
         }
 
         var connectionLossElement;
@@ -437,13 +574,23 @@
         function hideConnectionLoss() {
             cm.getWrapperElement().classList.remove('mirrorsharp-connection-has-issue');
         }
+
+        function sendServerOptions(value) {
+            return connection.sendSetOptions(value).then(function() {
+                return requestSlowUpdate();
+            });
+        }
+        this.sendServerOptions = sendServerOptions;
     }
 
     return function(textarea, options) {
+        const selfDebug = options.selfDebugEnabled ? new SelfDebug() : null;
         const connection = new Connection(function() {
             return new WebSocket(options.serviceUrl);
-        });
-
-        return new Editor(textarea, connection, options);
+        }, selfDebug);
+        const editor = new Editor(textarea, connection, selfDebug, options);
+        return {
+            sendServerOptions: editor.sendServerOptions.bind(editor)
+        };
     };
 }));

@@ -44,7 +44,8 @@ class B {
     <script src="bower_components/mirrorsharp/js/mirrorsharp.js"></script>
     <script>
       mirrorsharp(document.getElementsByTagName('textarea')[0], {
-        serviceUrl: window.location.href.replace(/^http(.+)\/?$/i, 'ws$1/mirrorsharp')
+        serviceUrl: window.location.href.replace(/^http(.+)\/?$/i, 'ws$1/mirrorsharp'),
+        selfDebugEnabled: true
       });
     </script>
   </body>

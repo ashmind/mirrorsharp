@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Immutable;
 using System.Net.WebSockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MirrorSharp.Internal.Handlers;
@@ -52,12 +53,17 @@ namespace MirrorSharp.Internal {
                 return;
             }
 
+            // it is important to record this conditionally on SelfDebug being enabled, otherwise
+            // we lose no-allocation performance by allocating here
+            var messageForDebug = _session.SelfDebug != null ? Encoding.UTF8.GetString(_inputBuffer, 0, received.Count) : null;
+            _session.SelfDebug?.Log("before", messageForDebug, _session.CursorPosition, _session.SourceText);
+
             var data = new ArraySegment<byte>(_inputBuffer, 0, received.Count);
             var commandId = data.Array[data.Offset];
             var handler = ResolveHandler(commandId);
             await handler.ExecuteAsync(Shift(data), _session, this, cancellationToken).ConfigureAwait(false);
-            if (_options.SendDebugCompareMessages)
-                await SendDebugCompareAsync(handler, commandId, cancellationToken).ConfigureAwait(false);
+
+            _session.SelfDebug?.Log("after", messageForDebug, _session.CursorPosition, _session.SourceText);
         }
 
         private ICommandHandler ResolveHandler(byte commandId) {
@@ -73,22 +79,6 @@ namespace MirrorSharp.Internal {
 
         private ArraySegment<byte> Shift(ArraySegment<byte> data) {
             return new ArraySegment<byte>(data.Array, data.Offset + 1, data.Count - 1);
-        }
-
-        private Task SendDebugCompareAsync(ICommandHandler handler, byte commandId, CancellationToken cancellationToken) {
-            if (!handler.CanChangeSession)
-                return TaskEx.CompletedTask;
-
-            // TODO: Replace with something better
-            if (commandId == 'P') // let's wait for last one
-                return TaskEx.CompletedTask;
-
-            var writer = StartJsonMessage("debug:compare");
-            if (!(handler is MoveCursorHandler))
-                writer.WriteProperty("text", _session.SourceText.ToString());
-            writer.WriteProperty("cursor", _session.CursorPosition);
-            writer.WriteProperty("completion", _session.CurrentCompletionList != null);
-            return SendJsonMessageAsync(cancellationToken);
         }
 
         private Task SendErrorAsync(string message, CancellationToken cancellationToken) {
