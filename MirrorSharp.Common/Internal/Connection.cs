@@ -34,7 +34,8 @@ namespace MirrorSharp.Internal {
             }
             catch (Exception ex) {
                 try {
-                    await SendErrorAsync(ex.Message, cancellationToken).ConfigureAwait(false);
+                    var error = _options.IncludeExceptionDetails ? ex.ToString() : "A server error has occurred.";
+                    await SendErrorAsync(error, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception sendException) {
                     throw new AggregateException(ex, sendException);

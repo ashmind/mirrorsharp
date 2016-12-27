@@ -14,6 +14,7 @@ namespace MirrorSharp {
         public Func<string, ImmutableList<MetadataReference>> GetDefaultMetadataReferencesByLanguageName { get; set; }
         [CanBeNull] public ISlowUpdateExtension SlowUpdate { get; set; }
         [CanBeNull] public ISetOptionsFromClientExtension SetOptionsFromClient { get; set; }
+        public bool IncludeExceptionDetails { get; set; }
         public bool SelfDebugEnabled { get; set; }
     }
 }
