@@ -248,7 +248,8 @@
                     const prefix = cm.getRange(hintStart, cm.getCursor());
                     var list = hintList;
                     if (prefix.length > 0) {
-                        list = hintList.filter(function(item) { return item.text.indexOf(prefix) === 0; });
+                        var regexp = new RegExp('^' + prefix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
+                        list = hintList.filter(function(item) { return regexp.test(item.text); });
                         const isEmpty = list.length === 0;
                         if (isEmpty !== (state === 'empty')) {
                             if (isEmpty) {
