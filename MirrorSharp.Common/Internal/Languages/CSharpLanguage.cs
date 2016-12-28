@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Host.Mef;
 using MirrorSharp.Internal.Reflection;
 
 namespace MirrorSharp.Internal.Languages {
-    public class CSharpLanguage : ILanguage {
+    internal class CSharpLanguage : ILanguage {
         public CSharpLanguage() {
             HostServices = MefHostServices.Create(MefHostServices.DefaultAssemblies.AddRange(new[] {
                 Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.Features")),
@@ -29,7 +29,7 @@ namespace MirrorSharp.Internal.Languages {
             DefaultAnalyzers = ImmutableArray.CreateRange(
                 DefaultAnalyzerReferences.SelectMany(r => r.GetAnalyzers(Name))
             );
-            SignatureHelpProviders = CreateDefaultSignatureHelpProviders();
+            DefaultSignatureHelpProviders = CreateDefaultSignatureHelpProviders();
         }
 
         public string Name => LanguageNames.CSharp;
@@ -39,8 +39,7 @@ namespace MirrorSharp.Internal.Languages {
         public ImmutableList<AnalyzerReference> DefaultAnalyzerReferences { get; }
         public ImmutableArray<DiagnosticAnalyzer> DefaultAnalyzers { get; }
         public ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> DefaultCodeFixProvidersIndexedByDiagnosticIds { get; }
-        internal ImmutableArray<ISignatureHelpProviderWrapper> SignatureHelpProviders { get; }
-        ImmutableArray <ISignatureHelpProviderWrapper> ILanguage.DefaultSignatureHelpProviders => SignatureHelpProviders;
+        public ImmutableArray<ISignatureHelpProviderWrapper> DefaultSignatureHelpProviders { get; }
         public MefHostServices HostServices { get; }
 
         private ImmutableArray<ISignatureHelpProviderWrapper> CreateDefaultSignatureHelpProviders() {

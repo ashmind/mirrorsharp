@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 
 namespace MirrorSharp.Internal {
-    public interface IWorkSessionOptions {
+    internal interface IWorkSessionOptions {
         [CanBeNull] Func<string, ParseOptions> GetDefaultParseOptionsByLanguageName { get; }
         [CanBeNull] Func<string, CompilationOptions> GetDefaultCompilationOptionsByLanguageName { get; }
         [CanBeNull] Func<string, ImmutableList<MetadataReference>> GetDefaultMetadataReferencesByLanguageName { get; }

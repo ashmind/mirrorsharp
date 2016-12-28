@@ -1,5 +1,5 @@
 namespace MirrorSharp.Internal {
-    public interface IConnectionOptions {
+    internal interface IConnectionOptions {
         bool IncludeExceptionDetails { get; set; }
     }
 }

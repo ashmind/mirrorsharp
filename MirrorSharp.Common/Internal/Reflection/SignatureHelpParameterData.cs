@@ -4,7 +4,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 
 namespace MirrorSharp.Internal.Reflection {
-    public class SignatureHelpParameterData {
+    internal class SignatureHelpParameterData {
         public SignatureHelpParameterData(IList<SymbolDisplayPart> displayParts, IList<SymbolDisplayPart> prefixDisplayParts, IList<SymbolDisplayPart> suffixDisplayParts) {
             DisplayParts = displayParts;
             PrefixDisplayParts = prefixDisplayParts;

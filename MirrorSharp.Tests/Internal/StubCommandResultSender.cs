@@ -6,13 +6,13 @@ using MirrorSharp.Internal;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Tests.Internal {
-    public class StubCommandResultSender : ICommandResultSender {
+    internal class StubCommandResultSender : ICommandResultSender {
         private readonly FastUtf8JsonWriter _writer = new FastUtf8JsonWriter(ArrayPool<byte>.Shared);
 
         public string LastMessageTypeName { get; private set; }
         public string LastMessageJson { get; private set; }
 
-        public FastUtf8JsonWriter StartJsonMessage(string messageTypeName) {
+        public IFastJsonWriterInternal StartJsonMessage(string messageTypeName) {
             LastMessageTypeName = messageTypeName;
             _writer.Reset();
             _writer.WriteStartObject();

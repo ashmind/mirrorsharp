@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers.Shared {
-    public class CompletionSupport : ICompletionSupport {
+    internal class CompletionSupport : ICompletionSupport {
         private const string ChangeReasonCompletion = "completion";
 
         public Task ApplyTypedCharAsync(char @char, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {

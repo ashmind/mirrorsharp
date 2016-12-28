@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+using MirrorSharp.Advanced;
 
 namespace MirrorSharp.Internal {
-    public static class FastUtf8JsonWriterExtensions {
-        public static void WriteSpan(this FastUtf8JsonWriter writer, TextSpan span) {
+    internal static class FastJsonWriterExtensions {
+        public static void WriteSpan(this IFastJsonWriter writer, TextSpan span) {
             writer.WriteStartObject();
             writer.WriteProperty("start", span.Start);
             writer.WriteProperty("length", span.Length);
             writer.WriteEndObject();
         }
 
-        public static void WriteChange(this FastUtf8JsonWriter writer, TextChange change) {
+        public static void WriteChange(this IFastJsonWriter writer, TextChange change) {
             writer.WriteStartObject();
             writer.WriteProperty("start", change.Span.Start);
             writer.WriteProperty("length", change.Span.Length);
@@ -19,7 +20,7 @@ namespace MirrorSharp.Internal {
             writer.WriteEndObject();
         }
 
-        public static void WriteSymbolDisplayParts<TCollection>(this FastUtf8JsonWriter writer, TCollection parts, bool selected = false)
+        public static void WriteSymbolDisplayParts<TCollection>(this IFastJsonWriter writer, TCollection parts, bool selected = false)
             where TCollection : IEnumerable<SymbolDisplayPart>
         {
             foreach (var part in parts) {
@@ -27,7 +28,7 @@ namespace MirrorSharp.Internal {
             }
         }
 
-        public static void WriteSymbolDisplayPart(this FastUtf8JsonWriter writer, SymbolDisplayPart part, bool selected) {
+        public static void WriteSymbolDisplayPart(this IFastJsonWriter writer, SymbolDisplayPart part, bool selected) {
             writer.WriteStartObject();
             writer.WriteProperty("text", part.ToString());
             writer.WriteProperty("kind", part.Kind.ToString("G").ToLowerInvariant());

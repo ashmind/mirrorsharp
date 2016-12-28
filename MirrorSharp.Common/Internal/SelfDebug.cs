@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.Text;
 using Nito;
 
 namespace MirrorSharp.Internal {
-    public class SelfDebug {
+    internal class SelfDebug {
         private readonly Deque<LogEntry> _log = new Deque<LogEntry>();
 
         public void Log(string eventType, string message, int cursorPosition, SourceText sourceText) {

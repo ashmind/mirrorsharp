@@ -9,7 +9,7 @@ using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal {
-    public class Connection : ICommandResultSender, IDisposable {
+    internal class Connection : ICommandResultSender, IDisposable {
         private readonly WebSocket _socket;
         private readonly WorkSession _session;
         private readonly ImmutableArray<ICommandHandler> _handlers;
@@ -108,7 +108,7 @@ namespace MirrorSharp.Internal {
             _session.Dispose();
         }
 
-        FastUtf8JsonWriter ICommandResultSender.StartJsonMessage(string messageTypeName) => StartJsonMessage(messageTypeName);
+        IFastJsonWriterInternal ICommandResultSender.StartJsonMessage(string messageTypeName) => StartJsonMessage(messageTypeName);
         Task ICommandResultSender.SendJsonMessageAsync(CancellationToken cancellationToken) => SendJsonMessageAsync(cancellationToken);
     }
 }

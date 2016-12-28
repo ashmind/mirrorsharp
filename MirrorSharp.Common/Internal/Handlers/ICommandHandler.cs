@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
-    public interface ICommandHandler {
+    internal interface ICommandHandler {
         char CommandId { get; }
         [NotNull] Task ExecuteAsync(ArraySegment<byte> data, [NotNull] WorkSession session, [NotNull] ICommandResultSender sender, CancellationToken cancellationToken);
     }

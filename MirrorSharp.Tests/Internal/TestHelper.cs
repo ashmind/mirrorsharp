@@ -9,7 +9,7 @@ using MirrorSharp.Internal.Languages;
 using Newtonsoft.Json;
 
 namespace MirrorSharp.Tests.Internal {
-    public static class TestHelper {
+    internal static class TestHelper {
         public static readonly string[] ObjectMemberNames = {
             nameof(Equals),
             nameof(GetHashCode),

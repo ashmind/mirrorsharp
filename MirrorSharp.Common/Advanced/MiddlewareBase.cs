@@ -32,7 +32,7 @@ namespace MirrorSharp.Advanced {
         }
 
         [NotNull, ItemNotNull]
-        protected IReadOnlyCollection<ICommandHandler> CreateHandlers() {
+        internal IReadOnlyCollection<ICommandHandler> CreateHandlers() {
             var completion = new CompletionSupport();
             var signatureHelp = new SignatureHelpSupport();
             return new ICommandHandler[] {

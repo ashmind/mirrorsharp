@@ -15,7 +15,7 @@ using MirrorSharp.Internal.Languages;
 using MirrorSharp.Internal.Reflection;
 
 namespace MirrorSharp.Internal {
-    public class WorkSession : IWorkSession {
+    internal class WorkSession : IWorkSession {
         private static readonly TextChange[] NoTextChanges = new TextChange[0];
 
         [CanBeNull] private readonly IWorkSessionOptions _options;
@@ -117,7 +117,7 @@ namespace MirrorSharp.Internal {
             _signatureHelpProviders = Language.DefaultSignatureHelpProviders;
         }
 
-        internal ILanguage Language => _language;
+        public ILanguage Language => _language;
         public IWorkSessionOptions Options => _options;
         public int CursorPosition { get; set; }
 
@@ -151,7 +151,7 @@ namespace MirrorSharp.Internal {
         }
         
         [NotNull] public IList<CodeAction> CurrentCodeActions { get; } = new List<CodeAction>();
-        [CanBeNull] internal CurrentSignatureHelp? CurrentSignatureHelp { get; set; }
+        [CanBeNull] public CurrentSignatureHelp? CurrentSignatureHelp { get; set; }
 
         public CustomWorkspace Workspace {
             get {
@@ -175,7 +175,7 @@ namespace MirrorSharp.Internal {
             }
         }
 
-        internal ImmutableArray<ISignatureHelpProviderWrapper> SignatureHelpProviders {
+        public ImmutableArray<ISignatureHelpProviderWrapper> SignatureHelpProviders {
             get {
                 EnsureInitialized();
                 return _signatureHelpProviders;
@@ -225,6 +225,3 @@ namespace MirrorSharp.Internal {
         }
     }
 }
-
-
-

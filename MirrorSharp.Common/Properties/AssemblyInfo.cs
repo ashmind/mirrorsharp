@@ -19,5 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: Guid("c130c962-d17f-4741-b2b4-d74263bf380a")]
 
 [assembly: InternalsVisibleTo("MirrorSharp.AspNetCore")]
+[assembly: InternalsVisibleTo("MirrorSharp.Benchmarks")]
 [assembly: InternalsVisibleTo("MirrorSharp.Owin")]
 [assembly: InternalsVisibleTo("MirrorSharp.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

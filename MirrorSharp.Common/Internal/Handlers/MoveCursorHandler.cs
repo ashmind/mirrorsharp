@@ -5,7 +5,7 @@ using MirrorSharp.Internal.Handlers.Shared;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
-    public class MoveCursorHandler : ICommandHandler {
+    internal class MoveCursorHandler : ICommandHandler {
         public char CommandId => 'M';
         private readonly ISignatureHelpSupport _signatureHelp;
 

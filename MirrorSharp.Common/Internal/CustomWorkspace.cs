@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis.Host;
 
 namespace MirrorSharp.Internal {
-    public class CustomWorkspace : Workspace {
+    internal class CustomWorkspace : Workspace {
         public CustomWorkspace(HostServices host) : base(host, "Custom" /* same as AdHoc */) {
         }
 

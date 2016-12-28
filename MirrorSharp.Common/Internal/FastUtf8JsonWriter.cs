@@ -2,10 +2,9 @@
 using System.Buffers;
 using System.Linq;
 using System.Text;
-using MirrorSharp.Advanced;
 
 namespace MirrorSharp.Internal {
-    public class FastUtf8JsonWriter : IFastJsonWriter {
+    internal class FastUtf8JsonWriter : IFastJsonWriterInternal {
         private static readonly int[] PowersOfTen = {
             1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1
         };
@@ -54,7 +53,7 @@ namespace MirrorSharp.Internal {
             WriteValue(value);
         }
 
-        internal void WriteProperty(string name, CharListString value) {
+        public void WriteProperty(string name, CharListString value) {
             WritePropertyName(name);
             WriteValue(value);
         }
@@ -108,7 +107,7 @@ namespace MirrorSharp.Internal {
             WriteEndValue();
         }
 
-        internal void WriteValue(CharListString value) {
+        public void WriteValue(CharListString value) {
             WriteStartValue();
             WriteRawByte(Utf8.Quote);
             foreach (var @char in value) {

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
-    public class ApplyDiagnosticActionHandler : ICommandHandler {
+    internal class ApplyDiagnosticActionHandler : ICommandHandler {
         public char CommandId => 'F';
 
         public async Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {

@@ -10,7 +10,7 @@ namespace MirrorSharp.Benchmarks.Of.Json {
         // ReSharper disable InconsistentNaming
         protected MemoryStream _memoryStream;
         protected JsonTextWriter _newtonsoftJsonWriter;
-        protected FastUtf8JsonWriter _fastJsonWriter;
+        internal FastUtf8JsonWriter _fastJsonWriter;
         // ReSharper restore InconsistentNaming
 
         [Setup]

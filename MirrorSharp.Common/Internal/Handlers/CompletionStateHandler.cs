@@ -5,7 +5,7 @@ using MirrorSharp.Internal.Handlers.Shared;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
-    public class CompletionStateHandler : ICommandHandler {
+    internal class CompletionStateHandler : ICommandHandler {
         public char CommandId => 'S';
         private readonly ICompletionSupport _completion;
 

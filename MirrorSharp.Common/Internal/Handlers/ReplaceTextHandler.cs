@@ -8,7 +8,7 @@ using MirrorSharp.Internal.Handlers.Shared;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
-    public class ReplaceTextHandler : ICommandHandler {
+    internal class ReplaceTextHandler : ICommandHandler {
         public char CommandId => 'R';
         [NotNull] private readonly ISignatureHelpSupport _signatureHelp;
         [NotNull] private readonly ICompletionSupport _completion;

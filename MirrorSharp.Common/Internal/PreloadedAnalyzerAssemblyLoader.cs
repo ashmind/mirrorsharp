@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis;
 
 namespace MirrorSharp.Internal {
-    public class PreloadedAnalyzerAssemblyLoader : IAnalyzerAssemblyLoader {
+    internal class PreloadedAnalyzerAssemblyLoader : IAnalyzerAssemblyLoader {
         private readonly Assembly _assembly;
 
         public PreloadedAnalyzerAssemblyLoader(Assembly assembly) {

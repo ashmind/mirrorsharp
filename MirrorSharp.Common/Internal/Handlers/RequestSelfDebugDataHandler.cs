@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
-    public class RequestSelfDebugDataHandler : ICommandHandler {
+    internal class RequestSelfDebugDataHandler : ICommandHandler {
         public char CommandId => 'Y';
 
         public Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {

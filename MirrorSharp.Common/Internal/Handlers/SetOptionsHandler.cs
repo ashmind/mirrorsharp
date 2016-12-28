@@ -12,7 +12,7 @@ using MirrorSharp.Internal.Languages;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
-    public class SetOptionsHandler : ICommandHandler {
+    internal class SetOptionsHandler : ICommandHandler {
         private static readonly char[] Comma = { ',' };
         private static readonly char[] EqualsSign = { '=' };
 

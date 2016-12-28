@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis.Completion;
 
 namespace MirrorSharp.Internal {
-    public class Completion {
+    internal class Completion {
         public Completion(CompletionService service) {
             Service = service;
         }

@@ -15,7 +15,7 @@ using MirrorSharp.Internal.Reflection;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
-    public class SlowUpdateHandler : ICommandHandler {
+    internal class SlowUpdateHandler : ICommandHandler {
         private static readonly IReadOnlyCollection<CodeAction> NoCodeActions = new CodeAction[0];
         [CanBeNull] private readonly ISlowUpdateExtension _extension;
 
@@ -71,7 +71,7 @@ namespace MirrorSharp.Internal.Handlers {
             await sender.SendJsonMessageAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        private static void WriteActions(FastUtf8JsonWriter writer, IReadOnlyCollection<CodeAction> actions, WorkSession session) {
+        private static void WriteActions(IFastJsonWriterInternal writer, IReadOnlyCollection<CodeAction> actions, WorkSession session) {
             foreach (var action in actions) {
                 if (action is CodeActionWithOptions)
                     continue;

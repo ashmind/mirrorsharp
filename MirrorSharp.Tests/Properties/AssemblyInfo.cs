@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
@@ -16,3 +17,5 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("09f91a91-3db9-44ff-a65e-5db5a3f3a7a5")]
+
+[assembly: InternalsVisibleTo("MirrorSharp.Benchmarks")]

@@ -5,7 +5,7 @@ using MirrorSharp.Internal.Reflection;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers.Shared {
-    public class SignatureHelpSupport : ISignatureHelpSupport {
+    internal class SignatureHelpSupport : ISignatureHelpSupport {
         public Task ApplyCursorPositionChangeAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var currentHelp = session.CurrentSignatureHelp;
             if (currentHelp == null)
