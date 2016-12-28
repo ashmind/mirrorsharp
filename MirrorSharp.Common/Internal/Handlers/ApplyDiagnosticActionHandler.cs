@@ -18,8 +18,8 @@ namespace MirrorSharp.Internal.Handlers {
             var changes = await session.UpdateFromWorkspaceAsync().ConfigureAwait(false);
 
             var writer = sender.StartJsonMessage("changes");
-            writer.WritePropertyStartArray("changes");
             writer.WriteProperty("reason", "fix");
+            writer.WritePropertyStartArray("changes");
             foreach (var change in changes) {
                 writer.WriteChange(change);
             }
