@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
     public class RequestSelfDebugDataHandler : ICommandHandler {
-        public IImmutableList<char> CommandIds { get; } = ImmutableList.Create('Y');
+        public char CommandId => 'Y';
 
         public Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var writer = sender.StartJsonMessage("self:debug");

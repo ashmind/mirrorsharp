@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using MirrorSharp.Internal.Handlers.Shared;
@@ -7,7 +6,7 @@ using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
     public class CompletionStateHandler : ICommandHandler {
-        public IImmutableList<char> CommandIds { get; } = ImmutableList.Create('S');
+        public char CommandId => 'S';
         private readonly ICompletionSupport _completion;
 
         public CompletionStateHandler(ICompletionSupport completion) {

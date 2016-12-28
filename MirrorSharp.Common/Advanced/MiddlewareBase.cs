@@ -26,9 +26,7 @@ namespace MirrorSharp.Advanced {
         private ImmutableArray<ICommandHandler> CreateHandlersIndexedByCommandId() {
             var handlers = new ICommandHandler[26];
             foreach (var handler in CreateHandlers()) {
-                foreach (var id in handler.CommandIds) {
-                    handlers[id - 'A'] = handler;
-                }
+                handlers[handler.CommandId - 'A'] = handler;
             }
             return ImmutableArray.CreateRange(handlers);
         }

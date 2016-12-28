@@ -23,7 +23,7 @@ namespace MirrorSharp.Internal.Handlers {
             _extension = extension;
         }
 
-        public IImmutableList<char> CommandIds { get; } = ImmutableList.Create('U');
+        public char CommandId => 'U';
 
         public async Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var compilation = await session.Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);

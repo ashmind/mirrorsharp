@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +9,7 @@ using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
     public class ReplaceTextHandler : ICommandHandler {
-        public IImmutableList<char> CommandIds { get; } = ImmutableList.Create('P', 'R');
+        public char CommandId => 'R';
         [NotNull] private readonly ISignatureHelpSupport _signatureHelp;
         [NotNull] private readonly ICompletionSupport _completion;
 

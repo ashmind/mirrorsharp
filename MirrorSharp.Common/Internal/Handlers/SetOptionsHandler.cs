@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -21,7 +20,7 @@ namespace MirrorSharp.Internal.Handlers {
         private readonly IReadOnlyCollection<ILanguage> _languages;
         [CanBeNull] private readonly ISetOptionsFromClientExtension _extension;
 
-        public IImmutableList<char> CommandIds { get; } = ImmutableList.Create('O');
+        public char CommandId => 'O';
 
         internal SetOptionsHandler([NotNull] IReadOnlyCollection<ILanguage> languages, [CanBeNull] ISetOptionsFromClientExtension extension) {
             _optionSetters = new Dictionary<string, Action<WorkSession, string>> {

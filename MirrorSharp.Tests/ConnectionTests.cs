@@ -19,7 +19,7 @@ namespace MirrorSharp.Tests {
 
             var session = new WorkSession(new CSharpLanguage());
             // ReSharper disable once PossibleUnintendedReferenceComparison
-            var handler = Mock.Of<ICommandHandler>(h => h.CommandIds == ImmutableList.Create('X'));
+            var handler = Mock.Of<ICommandHandler>(h => h.CommandId == 'X');
             var connection = new Connection(socketMock, session, CreateCommandHandlers(handler));
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -29,7 +29,7 @@ namespace MirrorSharp.Tests {
 
         private ImmutableArray<ICommandHandler> CreateCommandHandlers(ICommandHandler handler) {
             var handlers = new ICommandHandler[26];
-            handlers[handler.CommandIds[0] - 'A'] = handler;
+            handlers[handler.CommandId - 'A'] = handler;
             return ImmutableArray.CreateRange(handlers);
         }
 
