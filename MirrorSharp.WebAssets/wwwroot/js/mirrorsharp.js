@@ -400,6 +400,7 @@
         const lineSeparator = '\r\n';
         var serverOptions;
         var lintingSuspended = true;
+        var hadChangesSinceLastLinting = false;
         var capturedUpdateLinting;
 
         options = assign({}, {
@@ -452,6 +453,7 @@
 
             connection.sendReplaceText(0, 0, text, getCursorIndex(cm));
             lintingSuspended = false;
+            hadChangesSinceLastLinting = true;
             if (capturedUpdateLinting)
                 requestSlowUpdate();
         });
@@ -481,14 +483,9 @@
         });
 
         cm.on('changes', function (s, changes) {
-            const cursorIndex = getCursorIndex(cm);
+            hadChangesSinceLastLinting = true;
             changePending = false;
-            if (changesAreFromServer && changeReason === 'fix' /*TODO, gh-38*/) {
-                connection.sendMoveCursor(cursorIndex);
-                options.afterTextChange(getText);
-                return;
-            }
-
+            const cursorIndex = getCursorIndex(cm);
             for (var i = 0; i < changes.length; i++) {
                 const change = changes[i];
                 const start = change.from[indexKey];
@@ -595,8 +592,9 @@
         }
 
         function requestSlowUpdate() {
-            if (lintingSuspended)
+            if (lintingSuspended || !hadChangesSinceLastLinting)
                 return null;
+            hadChangesSinceLastLinting = false;
             return connection.sendSlowUpdate();
         }
 

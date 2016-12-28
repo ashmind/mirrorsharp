@@ -107,14 +107,27 @@ namespace MirrorSharp.Internal {
             _workspace.OpenDocument(documentId);
             _document = solution.GetDocument(documentId);
 
-            var completionService = CompletionService.GetService(_document);
-            if (completionService == null)
-                throw new Exception("Failed to retrieve the completion service.");
-            _completion = new Completion(completionService);
+            InitializeCompletion();
 
             _analyzers = Language.DefaultAnalyzers;
             _codeFixProviders = Language.DefaultCodeFixProvidersIndexedByDiagnosticIds;
             _signatureHelpProviders = Language.DefaultSignatureHelpProviders;
+        }
+
+        private void InitializeCompletion() {
+            var completionService = CompletionService.GetService(_document);
+            if (completionService == null)
+                throw new Exception("Failed to retrieve the completion service.");
+            _completion = new Completion(completionService);
+        }
+
+        public void RevertTo(SourceText sourceText, Solution solution) {
+            if (_workspace != solution.Workspace)
+                throw new InvalidOperationException("Solution revert cannot be performed if session options have changed.");
+            // ReSharper disable once PossibleNullReferenceException
+            _document = _workspace.SetCurrentSolution(solution).GetDocument(_document.Id);
+            _sourceText = sourceText;
+            InitializeCompletion();
         }
 
         public ILanguage Language => _language;
@@ -206,19 +219,19 @@ namespace MirrorSharp.Internal {
             _documentOutOfDate = false;
         }
 
-        public async Task<IReadOnlyList<TextChange>> UpdateFromWorkspaceAsync() {
+        public async Task<IReadOnlyList<TextChange>> RollbackWorkspaceChangesAsync() {
             EnsureDocumentUpToDate();
+            var oldProject = _document.Project;
             // ReSharper disable once PossibleNullReferenceException
-            var project = _workspace.CurrentSolution.GetProject(Project.Id);
-            if (project == Project)
+            var newProject = _workspace.CurrentSolution.GetProject(Project.Id);
+            if (newProject == oldProject)
                 return NoTextChanges;
 
-            var oldText = _sourceText;
-            _document = project.GetDocument(_document.Id);
-            _sourceText = await _document.GetTextAsync();
-            return _sourceText.GetTextChanges(oldText);
-        }
+            var newText = await newProject.GetDocument(_document.Id).GetTextAsync().ConfigureAwait(false);
+            _document = _workspace.SetCurrentSolution(oldProject.Solution).GetDocument(_document.Id);
 
+            return newText.GetTextChanges(_sourceText);
+        }
 
         public void Dispose() {
             _workspace?.Dispose();
