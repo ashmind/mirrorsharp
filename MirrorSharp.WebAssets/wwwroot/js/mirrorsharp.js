@@ -179,9 +179,8 @@
         }
 
         this.on = on;
-        this.sendReplaceText = function (isLastOrOnly, start, length, newText, cursorIndexAfter, reason) {
-            const command = isLastOrOnly ? 'R' : 'P';
-            return sendWhenOpen(command + start + ':' + length + ':' + cursorIndexAfter + ':' + (reason || '') + ':' + newText);
+        this.sendReplaceText = function (start, length, newText, cursorIndexAfter, reason) {
+            return sendWhenOpen('R' + start + ':' + length + ':' + cursorIndexAfter + ':' + (reason || '') + ':' + newText);
         };
 
         this.sendMoveCursor = function(cursorIndex) {
@@ -450,7 +449,7 @@
                 return;
             }
 
-            connection.sendReplaceText(true, 0, 0, text, getCursorIndex(cm));
+            connection.sendReplaceText(0, 0, text, getCursorIndex(cm));
             lintingSuspended = false;
             if (capturedUpdateLinting)
                 requestSlowUpdate();
@@ -494,12 +493,13 @@
                 const start = change.from[indexKey];
                 const length = change.to[indexKey] - start;
                 const text = change.text.join(lineSeparator);
-                if (cursorIndex === start + 1 && length === 0 && text.length === 1 && !changesAreFromServer) {
+                if (cursorIndex === start + 1 && text.length === 1 && !changesAreFromServer) {
+                    if (length > 0)
+                        connection.sendReplaceText(start, length, '', cursorIndex - 1);
                     connection.sendTypeChar(text);
                 }
                 else {
-                    const lastOrOnly = (i === changes.length - 1);
-                    connection.sendReplaceText(lastOrOnly, start, length, text, cursorIndex, changeReason);
+                    connection.sendReplaceText(start, length, text, cursorIndex, changeReason);
                 }
             }
             options.afterTextChange(getText);
