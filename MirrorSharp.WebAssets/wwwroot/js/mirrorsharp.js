@@ -192,8 +192,9 @@
             return sendWhenOpen('C' + char);
         };
 
+        const completionCommandMap = { cancel: 'X', force: 'F' };
         this.sendCompletionState = function(indexOrCommand) {
-            const argument = indexOrCommand === 'cancel' ? 'X' : indexOrCommand;
+            const argument = completionCommandMap[indexOrCommand] || indexOrCommand;
             return sendWhenOpen('S' + argument);
         };
 
@@ -368,18 +369,18 @@
             afterTextChange: function() {},
             onServerError: function(message) { throw new Error(message); }
         }, options);
-        const cmOptions = assign({}, { gutters: [], indentUnit: 4 }, options.forCodeMirror, {
+        const cmOptions = assign({ gutters: [], indentUnit: 4 }, options.forCodeMirror, {
             lineSeparator: lineSeparator,
             mode: 'text/x-csharp',
             lint: { async: true, getAnnotations: lintGetAnnotations },
             lintFix: { getFixes: getFixes },
             extraKeys: {}
         });
-        if (selfDebug) {
-            cmOptions.extraKeys['Shift-Ctrl-Y'] = function() {
-                selfDebug.requestData(connection);
-            };
-        }
+        cmOptions.extraKeys = assign({
+            'Ctrl-Space': function() { connection.sendCompletionState('force'); },
+            'Shift-Ctrl-Y': selfDebug ? function() { selfDebug.requestData(connection); } : null
+        }, cmOptions.extraKeys);
+
         cmOptions.gutters.push('CodeMirror-lint-markers');
 
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);

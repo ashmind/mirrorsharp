@@ -79,7 +79,11 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             session.Completion.PendingTrigger = null;
             return TaskEx.CompletedTask;
         }
-        
+
+        public Task ApplyCompletionForceAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            return TriggerCompletionAsync(session, sender, cancellationToken, CompletionTrigger.Default);
+        }
+
         private Task CheckCompletionAsync(CompletionTrigger trigger, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             if (!session.Completion.Service.ShouldTriggerCompletion(session.SourceText, session.CursorPosition, trigger))
                 return TaskEx.CompletedTask;

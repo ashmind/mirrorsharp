@@ -8,5 +8,6 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         Task ApplyReplacedTextAsync(string reason, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken);
         Task ApplyCompletionSelectionAsync(int selectedIndex, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken);
         Task ApplyCompletionCancellationAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken);
+        Task ApplyCompletionForceAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken);
     }
 }

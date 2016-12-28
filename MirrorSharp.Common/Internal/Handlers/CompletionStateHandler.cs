@@ -19,6 +19,9 @@ namespace MirrorSharp.Internal.Handlers {
             if (first == (byte)'X')
                 return _completion.ApplyCompletionCancellationAsync(session, sender, cancellationToken);
 
+            if (first == (byte)'F')
+                return _completion.ApplyCompletionForceAsync(session, sender, cancellationToken);
+
             var itemIndex = FastConvert.Utf8ByteArrayToInt32(data);
             return _completion.ApplyCompletionSelectionAsync(itemIndex, session, sender, cancellationToken);
         }

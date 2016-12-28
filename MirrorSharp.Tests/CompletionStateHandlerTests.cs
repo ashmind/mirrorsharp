@@ -51,6 +51,19 @@ namespace MirrorSharp.Tests {
             Assert.Null(session.Completion.CurrentList);
         }
 
+        [Fact]
+        public async Task ExecuteAsync_ForcesCompletion_WhenFIsProvidedInsteadOfIndex() {
+            var session = SessionFromTextWithCursor("class C { void M(object o) { o.| } }");
+
+            var result = await ExecuteHandlerAsync<CompletionStateHandler, CompletionsResult>(session, 'F');
+
+            Assert.NotNull(result);
+            Assert.Equal(
+                ObjectMemberNames.OrderBy(n => n),
+                result.Completions.Select(i => i.DisplayText).OrderBy(n => n)
+            );
+        }
+
         private static async Task<IList<CompletionsResult.ResultCompletion>> TypeAndGetCompletionsAsync(char @char, WorkSession session) {
             return (await ExecuteHandlerAsync<TypeCharHandler, CompletionsResult>(session, @char)).Completions;
         }
