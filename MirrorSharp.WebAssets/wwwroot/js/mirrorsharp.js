@@ -417,6 +417,7 @@
         });
         cmOptions.extraKeys = assign({
             'Ctrl-Space': function() { connection.sendCompletionState('force'); },
+            'Ctrl-.': 'lintFixShow',
             'Shift-Ctrl-Y': selfDebug ? function() { selfDebug.requestData(connection); } : null
         }, cmOptions.extraKeys);
 
