@@ -5,7 +5,6 @@ using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Tests.Internal;
 using MirrorSharp.Tests.Internal.Results;
 using Moq;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace MirrorSharp.Tests {

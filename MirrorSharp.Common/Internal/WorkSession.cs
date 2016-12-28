@@ -29,7 +29,7 @@ namespace MirrorSharp.Internal {
         private bool _documentOutOfDate;
         private Document _document;
 
-        private CompletionService _completionService;
+        private Completion _completion;
         private ImmutableArray<DiagnosticAnalyzer> _analyzers;
         private ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> _codeFixProviders;
         private ImmutableArray<ISignatureHelpProviderWrapper> _signatureHelpProviders;
@@ -106,9 +106,11 @@ namespace MirrorSharp.Internal {
             solution = _workspace.SetCurrentSolution(solution);
             _workspace.OpenDocument(documentId);
             _document = solution.GetDocument(documentId);
-            _completionService = CompletionService.GetService(_document);
-            if (CompletionService == null)
+
+            var completionService = CompletionService.GetService(_document);
+            if (completionService == null)
                 throw new Exception("Failed to retrieve the completion service.");
+            _completion = new Completion(completionService);
 
             _analyzers = Language.DefaultAnalyzers;
             _codeFixProviders = Language.DefaultCodeFixProvidersIndexedByDiagnosticIds;
@@ -141,15 +143,13 @@ namespace MirrorSharp.Internal {
         }
 
         [NotNull]
-        public CompletionService CompletionService {
+        public Completion Completion {
             get {
                 EnsureInitialized();
-                return _completionService;
+                return _completion;
             }
         }
-
-        public bool CanRetriggerCompletion { get; set; }
-        [CanBeNull] public CompletionList CurrentCompletionList { get; set; }
+        
         [NotNull] public IList<CodeAction> CurrentCodeActions { get; } = new List<CodeAction>();
         [CanBeNull] internal CurrentSignatureHelp? CurrentSignatureHelp { get; set; }
 

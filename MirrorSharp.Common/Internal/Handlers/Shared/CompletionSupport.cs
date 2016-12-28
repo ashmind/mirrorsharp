@@ -8,28 +8,46 @@ using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers.Shared {
     public class CompletionSupport : ICompletionSupport {
+        private const string ChangeReasonCompletion = "completion";
+
         public Task ApplyTypedCharAsync(char @char, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            if (session.CurrentCompletionList != null && !session.CanRetriggerCompletion)
+            if (session.Completion.CurrentList != null)
                 return TaskEx.CompletedTask;
 
             var trigger = CompletionTrigger.CreateInsertionTrigger(@char);
+            if (session.Completion.ChangeEchoPending) {
+                session.Completion.PendingTrigger = trigger;
+                return TaskEx.CompletedTask;
+            }
             return CheckCompletionAsync(trigger, session, sender, cancellationToken);
+        }
+
+        public Task ApplyReplacedTextAsync(string reason, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            if (reason != ChangeReasonCompletion)
+                return TaskEx.CompletedTask;
+
+            session.Completion.ChangeEchoPending = false;
+            var pendingTrigger = session.Completion.PendingTrigger;
+            if (pendingTrigger == null)
+                return TaskEx.CompletedTask;
+
+            session.Completion.PendingTrigger = null;
+            return CheckCompletionAsync(pendingTrigger.Value, session, sender, cancellationToken);
         }
 
         public async Task ApplyCompletionSelectionAsync(int selectedIndex, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             // ReSharper disable once PossibleNullReferenceException
-            var completion = session.CurrentCompletionList;
+            var completion = session.Completion.CurrentList;
             // ReSharper disable once PossibleNullReferenceException
             var item = completion.Items[selectedIndex];
-            var change = await session.CompletionService.GetChangeAsync(session.Document, item, cancellationToken: cancellationToken).ConfigureAwait(false);
-            session.CurrentCompletionList = null;
-            session.CanRetriggerCompletion = true;
+            var change = await session.Completion.Service.GetChangeAsync(session.Document, item, cancellationToken: cancellationToken).ConfigureAwait(false);
+            session.Completion.CurrentList = null;
 
             var textChanges = ReplaceIncompleteText(session, completion, change.TextChanges);
-
-            session.SourceText = session.SourceText.WithChanges(textChanges);
+            session.Completion.ChangeEchoPending = true;
 
             var writer = sender.StartJsonMessage("changes");
+            writer.WriteProperty("reason", ChangeReasonCompletion);
             writer.WritePropertyStartArray("changes");
             foreach (var textChange in textChanges) {
                 writer.WriteChange(textChange);
@@ -50,58 +68,40 @@ namespace MirrorSharp.Internal.Handlers.Shared {
                 textChanges = ImmutableArray.Create(new TextChange(new TextSpan(newStart, newLength), textChanges[0].NewText));
             }
             else {
-                session.SourceText = session.SourceText.WithChanges(new TextChange(new TextSpan(completion.DefaultSpan.Start, session.CursorPosition - completion.DefaultSpan.Start), ""));
+                textChanges = textChanges.Insert(0, new TextChange(new TextSpan(completion.DefaultSpan.Start, session.CursorPosition - completion.DefaultSpan.Start), ""));
             }
             return textChanges;
         }
 
-        public Task ApplyCompletionStateChangeAsync(CompletionStateChange change, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            if (change == CompletionStateChange.Cancel) {
-                // completion cancelled/dismissed
-                session.CurrentCompletionList = null;
-                session.CanRetriggerCompletion = false;
-                return TaskEx.CompletedTask;
-            }
-
-            if (change == CompletionStateChange.Empty) {
-                // completion is empty, can recomplete
-                session.CanRetriggerCompletion = true;
-                if (session.SourceText.Length == 0)
-                    return TaskEx.CompletedTask;
-
-                var trigger = CompletionTrigger.CreateInsertionTrigger(session.SourceText[session.CursorPosition - 1]);
-                return CheckCompletionAsync(trigger, session, sender, cancellationToken);
-            }
-
-            if (change == CompletionStateChange.NonEmptyAfterEmpty) {
-                // completion is non-empty again
-                session.CanRetriggerCompletion = false;
-                return TaskEx.CompletedTask;
-            }
-
-            throw new ArgumentOutOfRangeException($"Unsupported completion state change: {change}.");
+        public Task ApplyCompletionCancellationAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            session.Completion.CurrentList = null;
+            session.Completion.ChangeEchoPending = false;
+            session.Completion.PendingTrigger = null;
+            return TaskEx.CompletedTask;
         }
         
         private Task CheckCompletionAsync(CompletionTrigger trigger, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            if (!session.CompletionService.ShouldTriggerCompletion(session.SourceText, session.CursorPosition, trigger))
+            if (!session.Completion.Service.ShouldTriggerCompletion(session.SourceText, session.CursorPosition, trigger))
                 return TaskEx.CompletedTask;
 
             return TriggerCompletionAsync(session, sender, cancellationToken, trigger);
         }
 
         private async Task TriggerCompletionAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken, CompletionTrigger trigger) {
-            var completionList = await session.CompletionService.GetCompletionsAsync(session.Document, session.CursorPosition, trigger, cancellationToken: cancellationToken).ConfigureAwait(false);
+            var completionList = await session.Completion.Service.GetCompletionsAsync(session.Document, session.CursorPosition, trigger, cancellationToken: cancellationToken).ConfigureAwait(false);
             if (completionList == null)
                 return;
 
-            session.CurrentCompletionList = completionList;
+            session.Completion.CurrentList = completionList;
+            session.Completion.ChangeEchoPending = false;
+            session.Completion.PendingTrigger = null;
             await SendCompletionListAsync(completionList, sender, cancellationToken).ConfigureAwait(false);
         }
 
         private Task SendCompletionListAsync(CompletionList completionList, ICommandResultSender sender, CancellationToken cancellationToken) {
             var writer = sender.StartJsonMessage("completions");
+            writer.WriteProperty("commitChars", new CharListString(completionList.Rules.DefaultCommitCharacters));
             writer.WritePropertyName("span");
-            // ReSharper disable once PossibleNullReferenceException
             writer.WriteSpan(completionList.DefaultSpan);
             writer.WritePropertyStartArray("completions");
             foreach (var item in completionList.Items) {

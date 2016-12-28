@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Tests.Internal;
 using MirrorSharp.Tests.Internal.Results;

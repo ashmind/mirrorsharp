@@ -19,6 +19,7 @@ namespace MirrorSharp.Internal.Handlers {
 
             var writer = sender.StartJsonMessage("changes");
             writer.WritePropertyStartArray("changes");
+            writer.WriteProperty("reason", "fix");
             foreach (var change in changes) {
                 writer.WriteChange(change);
             }

@@ -18,6 +18,7 @@ namespace MirrorSharp.Tests {
         [InlineData("a\nb", @"""a\nb""")]
         [InlineData("a\"b", @"""a\""b""")]
         [InlineData("a\\b", @"""a\\b""")]
+        [InlineData("a❀b", @"""a❀b""")]
         public void WriteValue_WritesString(string input, string expected) {
             var writer = CreateWriter();
             writer.WriteValue(input);
@@ -34,6 +35,19 @@ namespace MirrorSharp.Tests {
 
             var result = GetWrittenAsString(writer);
             Assert.Equal("\"" + input + "\"", result);
+        }
+
+        [Theory]
+        [InlineData('a',  @"""a""")]
+        [InlineData('\n', @"""\n""")]
+        [InlineData('\\', @"""\\""")]
+        [InlineData('❀', @"""❀""")]
+        public void WriteValue_WritesChar(char input, string expected) {
+            var writer = CreateWriter();
+            writer.WriteValue(input);
+
+            var result = GetWrittenAsString(writer);
+            Assert.Equal(expected, result);
         }
 
         [Theory]

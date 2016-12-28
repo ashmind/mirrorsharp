@@ -41,7 +41,7 @@ namespace MirrorSharp.Advanced {
                 new ApplyDiagnosticActionHandler(),
                 new CompletionStateHandler(completion),
                 new MoveCursorHandler(signatureHelp),
-                new ReplaceTextHandler(signatureHelp),
+                new ReplaceTextHandler(signatureHelp, completion),
                 new RequestSelfDebugDataHandler(),
                 new SetOptionsHandler(_languages, _options?.SetOptionsFromClient),
                 new SlowUpdateHandler(_options?.SlowUpdate),

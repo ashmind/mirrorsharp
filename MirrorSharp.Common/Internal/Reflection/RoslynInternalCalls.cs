@@ -50,6 +50,7 @@ namespace MirrorSharp.Internal.Reflection {
                 var metadata = metadataProperty.GetValue(export);
                 var language = (string)metadataLanguagePropery.GetValue(metadata);
                 yield return new Lazy<ISignatureHelpProviderWrapper, OrderableLanguageMetadataData>(
+                    // ReSharper disable once AccessToModifiedClosure
                     () => new SignatureHelpProviderWrapper(valueProperty.GetValue(export)),
                     new OrderableLanguageMetadataData(language)
                 );

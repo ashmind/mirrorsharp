@@ -12,16 +12,17 @@ namespace MirrorSharp.Tests {
 
     public class CompletionStateHandlerTests {
         [Fact]
-        public async Task ExecuteAsync_InsertsSelectedCompletion() {
+        public async Task ExecuteAsync_ProducesChangeForSelectedCompletion() {
             var session = SessionFromTextWithCursor("class C { void M(object o) { o| } }");
             var completions = await TypeAndGetCompletionsAsync('.', session);
-            await ExecuteHandlerAsync<CompletionStateHandler>(session, IndexOf(completions, "ToString"));
+            var changes = await ExecuteHandlerAsync<CompletionStateHandler, ChangesResult>(session, IndexOf(completions, "ToString"));
 
+            Assert.Equal("completion", changes.Reason);
             Assert.Equal(
-                "class C { void M(object o) { o.ToString } }",
-                session.SourceText.ToString()
+                new[] { new { Start = 31, Length = 0, Text = "ToString" } },
+                changes.Changes.Select(c => new { c.Start, c.Length, c.Text })
             );
-            Assert.Null(session.CurrentCompletionList);
+            Assert.Null(session.Completion.CurrentList);
         }
 
         [Fact]
@@ -30,13 +31,13 @@ namespace MirrorSharp.Tests {
             var completions = await TypeAndGetCompletionsAsync('.', session);
             await TypeCharsAsync(session, "To");
 
-            await ExecuteHandlerAsync<CompletionStateHandler>(session, IndexOf(completions, "ToString"));
+            var changes = await ExecuteHandlerAsync<CompletionStateHandler, ChangesResult>(session, IndexOf(completions, "ToString"));
 
             Assert.Equal(
-                "class C { void M(object o) { o.ToString } }",
-                session.SourceText.ToString()
+                new[] { new { Start = 31, Length = 2, Text = "ToString" } },
+                changes.Changes.Select(c => new { c.Start, c.Length, c.Text })
             );
-            Assert.Null(session.CurrentCompletionList);
+            Assert.Null(session.Completion.CurrentList);
         }
 
         [Fact]
@@ -47,22 +48,7 @@ namespace MirrorSharp.Tests {
             var result = await ExecuteHandlerAsync<CompletionStateHandler, ChangesResult>(session, 'X');
 
             Assert.Null(result);
-            Assert.Null(session.CurrentCompletionList);
-        }
-
-        [Fact]
-        public async Task ExecuteAsync_ProducesExpectedCompletion_WhenStateEmptyIsSentDuringActiveCompletion() {
-            var session = SessionFromTextWithCursor(@"
-                class A { public int x; }
-                class B { void M(A a) { | } }
-            ");
-            await TypeCharsAsync(session, "a.");
-            var result = await ExecuteHandlerAsync<CompletionStateHandler, CompletionsResult>(session, 'E');
-
-            Assert.Equal(
-                new[] { "x" }.Concat(ObjectMemberNames).OrderBy(n => n),
-                result.Completions.Select(i => i.DisplayText).OrderBy(n => n)
-            );
+            Assert.Null(session.Completion.CurrentList);
         }
 
         private static async Task<IList<CompletionsResult.ResultCompletion>> TypeAndGetCompletionsAsync(char @char, WorkSession session) {

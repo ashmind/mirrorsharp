@@ -7,6 +7,7 @@ namespace MirrorSharp.Internal.Reflection {
         private static readonly Assembly MicrosoftCodeAnalysisFeatures = typeof(CompletionProvider).GetTypeInfo().Assembly;
 
         public static readonly TypeInfo CodeAction = typeof(CodeAction).GetTypeInfo();
+        // ReSharper disable once InconsistentNaming
         public static readonly TypeInfo ISignatureHelpProvider = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.ISignatureHelpProvider", true).GetTypeInfo();
         public static readonly TypeInfo SignatureHelpTriggerInfo = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpTriggerInfo", true).GetTypeInfo();
         public static readonly TypeInfo SignatureHelpTriggerReason = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpTriggerReason", true).GetTypeInfo();

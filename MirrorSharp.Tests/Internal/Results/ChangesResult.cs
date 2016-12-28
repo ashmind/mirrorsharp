@@ -6,6 +6,7 @@
 
 namespace MirrorSharp.Tests.Internal.Results {
     public class ChangesResult {
+        public string Reason { get; set; }
         public IList<ResultChange> Changes { get; } = new List<ResultChange>();
 
         public class ResultChange {

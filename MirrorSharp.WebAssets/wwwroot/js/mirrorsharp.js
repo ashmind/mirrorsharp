@@ -179,9 +179,9 @@
         }
 
         this.on = on;
-        this.sendReplaceText = function (isLastOrOnly, start, length, newText, cursorIndexAfter) {
+        this.sendReplaceText = function (isLastOrOnly, start, length, newText, cursorIndexAfter, reason) {
             const command = isLastOrOnly ? 'R' : 'P';
-            return sendWhenOpen(command + start + ':' + length + ':' + cursorIndexAfter + ':' + newText);
+            return sendWhenOpen(command + start + ':' + length + ':' + cursorIndexAfter + ':' + (reason || '') + ':' + newText);
         };
 
         this.sendMoveCursor = function(cursorIndex) {
@@ -192,9 +192,8 @@
             return sendWhenOpen('C' + char);
         };
 
-        const completionStateCommandMap = { cancel: 'X', empty: 'E', nonEmptyAfterEmpty: 'B' };
         this.sendCompletionState = function(indexOrCommand) {
-            const argument = completionStateCommandMap[indexOrCommand] || indexOrCommand;
+            const argument = indexOrCommand === 'cancel' ? 'X' : indexOrCommand;
             return sendWhenOpen('S' + argument);
         };
 
@@ -221,15 +220,19 @@
 
     function Hinter(cm, connection) {
         const indexInListKey = '$mirrorsharp-indexInList';
-
         var state = 'stopped';
+        var currentOptions;
+        var lastCommitChar;
+
         const commit = function (cm, data, item) {
             connection.sendCompletionState(item[indexInListKey]);
             state = 'committed';
         };
 
-        this.start = function(list, span) {
+        this.start = function(list, span, options) {
             state = 'starting';
+            currentOptions = options;
+            lastCommitChar = null;
             const hintStart = cm.posFromIndex(span.start);
             const hintList = list.map(function (c, index) {
                 const item = {
@@ -250,17 +253,6 @@
                     if (prefix.length > 0) {
                         var regexp = new RegExp('^' + prefix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
                         list = hintList.filter(function(item) { return regexp.test(item.text); });
-                        const isEmpty = list.length === 0;
-                        if (isEmpty !== (state === 'empty')) {
-                            if (isEmpty) {
-                                connection.sendCompletionState('empty');
-                                state = 'empty';
-                            }
-                            else {
-                                connection.sendCompletionState('nonEmptyAfterEmpty');
-                                state = 'started';
-                            }
-                        }
                     }
 
                     return { from: hintStart, list: list };
@@ -270,10 +262,23 @@
             state = 'started';
         };
 
+        cm.on('keypress', function(_, e) {
+            if (state === 'stopped')
+                return;
+            const key = e.key || String.fromCharCode(e.charCode || e.keyCode);
+            if (currentOptions.commitChars.indexOf(key) > -1) {
+                const completion = cm.state.completionActive;
+                if (!completion.widget) {
+                    completion.close();
+                    return;
+                }
+                completion.widget.pick();
+            }
+        });
+
         cm.on('endCompletion', function() {
             if (state === 'starting')
                 return;
-
             if (state === 'started')
                 connection.sendCompletionState('cancel');
             state = 'stopped';
@@ -420,6 +425,7 @@
 
         const indexKey = '$mirrorsharp-index';
         var changePending = false;
+        var changeReason = null;
         var changesAreFromServer = false;
         cm.on('beforeChange', function (s, change) {
             change.from[indexKey] = cm.indexFromPos(change.from);
@@ -436,7 +442,7 @@
         cm.on('changes', function (s, changes) {
             const cursorIndex = getCursorIndex(cm);
             changePending = false;
-            if (changesAreFromServer) {
+            if (changesAreFromServer && changeReason === 'fix' /*TODO, gh-38*/) {
                 connection.sendMoveCursor(cursorIndex);
                 options.afterTextChange(getText);
                 return;
@@ -452,7 +458,7 @@
                 }
                 else {
                     const lastOrOnly = (i === changes.length - 1);
-                    connection.sendReplaceText(lastOrOnly, start, length, text, cursorIndex);
+                    connection.sendReplaceText(lastOrOnly, start, length, text, cursorIndex, changeReason);
                 }
             }
             options.afterTextChange(getText);
@@ -461,11 +467,11 @@
         connection.on('message', function (message) {
             switch (message.type) {
                 case 'changes':
-                    applyChangesFromServer(message.changes);
+                    applyServerChanges(message.changes, message.reason);
                     break;
 
                 case 'completions':
-                    hinter.start(message.completions, message.span);
+                    hinter.start(message.completions, message.span, { commitChars: message.commitChars });
                     break;
 
                 case 'signatures':
@@ -508,14 +514,16 @@
         function getCursorIndex() {
             return cm.indexFromPos(cm.getCursor());
         }
-
-        function applyChangesFromServer(changes) {
+        
+        function applyServerChanges(changes, reason) {
             changesAreFromServer = true;
+            changeReason = reason || 'server';
             for (var change of changes) {
                 const from = cm.posFromIndex(change.start);
                 const to = change.length > 0 ? cm.posFromIndex(change.start + change.length) : from;
                 cm.replaceRange(change.text, from, to, '+server');
             }
+            changeReason = null;
             changesAreFromServer = false;
         }
 
@@ -595,6 +603,7 @@
                 return requestSlowUpdate();
             });
         }
+
         this.sendServerOptions = sendServerOptions;
     }
 

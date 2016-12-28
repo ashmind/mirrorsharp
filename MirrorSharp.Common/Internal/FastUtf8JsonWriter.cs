@@ -54,6 +54,16 @@ namespace MirrorSharp.Internal {
             WriteValue(value);
         }
 
+        internal void WriteProperty(string name, CharListString value) {
+            WritePropertyName(name);
+            WriteValue(value);
+        }
+
+        public void WriteProperty(string name, char value) {
+            WritePropertyName(name);
+            WriteValue(value);
+        }
+
         public void WriteProperty(string name, int value) {
             WritePropertyName(name);
             WriteValue(value);
@@ -92,31 +102,53 @@ namespace MirrorSharp.Internal {
 
             WriteRawByte(Utf8.Quote);
             foreach (var @char in value) {
-                if (@char < 32) {
-                    WriteRawBytes(Utf8.Escaped[@char]);
-                    continue;
-                }
-
-                if (@char == '\\') {
-                    WriteRawBytes(Utf8.EscapedSlash);
-                    continue;
-                }
-
-                if (@char == '"') {
-                    WriteRawBytes(Utf8.EscapedQuote);
-                    continue;
-                }
-
-                if (@char < 256) {
-                    WriteRawByte((byte)@char);
-                    continue;
-                }
-
-                _oneCharBuffer[0] = @char;
-                _position += Encoding.UTF8.GetBytes(_oneCharBuffer, 0, 1, _buffer, _position);
+                WriteUnquotedChar(@char);
             }
             WriteRawByte(Utf8.Quote);
             WriteEndValue();
+        }
+
+        internal void WriteValue(CharListString value) {
+            WriteStartValue();
+            WriteRawByte(Utf8.Quote);
+            foreach (var @char in value) {
+                WriteUnquotedChar(@char);
+            }
+            WriteRawByte(Utf8.Quote);
+            WriteEndValue();
+        }
+
+        public void WriteValue(char value) {
+            WriteStartValue();
+            WriteRawByte(Utf8.Quote);
+            WriteUnquotedChar(value);
+            WriteRawByte(Utf8.Quote);
+            WriteEndValue();
+        }
+
+        private void WriteUnquotedChar(char @char) {
+            if (@char < 32) {
+                WriteRawBytes(Utf8.Escaped[@char]);
+                return;
+            }
+
+            if (@char == '\\') {
+                WriteRawBytes(Utf8.EscapedSlash);
+                return;
+            }
+
+            if (@char == '"') {
+                WriteRawBytes(Utf8.EscapedQuote);
+                return;
+            }
+
+            if (@char < 256) {
+                WriteRawByte((byte)@char);
+                return;
+            }
+
+            _oneCharBuffer[0] = @char;
+            _position += Encoding.UTF8.GetBytes(_oneCharBuffer, 0, 1, _buffer, _position);
         }
 
         public void WriteValue(int value) {
