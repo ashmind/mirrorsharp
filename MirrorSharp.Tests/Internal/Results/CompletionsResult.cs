@@ -11,6 +11,7 @@ namespace MirrorSharp.Tests.Internal.Results {
 
         public class ResultItem {
             public string DisplayText { get; set; }
+            public int? Priority { get; set; }
         }
     }
 }

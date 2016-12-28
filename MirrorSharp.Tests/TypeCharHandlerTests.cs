@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Tests.Internal;
@@ -56,6 +57,21 @@ namespace MirrorSharp.Tests {
             var result = await ExecuteHandlerAsync<TypeCharHandler, CompletionsResult>(session, 's');
 
             Assert.Equal("<lambda expression>", result.Suggestion?.DisplayText);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_ProducesExpectedCompletionWithMatchPriority_InEnumContext() {
+            var session = SessionFromTextWithCursor(@"
+                using System;
+                class C { void M() { new DateTime().DayOfWeek =| } }
+            ");
+            var result = await ExecuteHandlerAsync<TypeCharHandler, CompletionsResult>(session, ' ');
+            var dayOfWeek = result.Completions.FirstOrDefault(c => c.DisplayText == nameof(DayOfWeek));
+            var maxPriority = result.Completions.Select(c => c.Priority ?? 0).Max();
+
+            Assert.NotNull(dayOfWeek?.Priority);
+            Assert.NotEqual(0, dayOfWeek.Priority);
+            Assert.Equal(maxPriority, dayOfWeek.Priority);
         }
 
         [Theory]

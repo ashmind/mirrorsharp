@@ -221,6 +221,7 @@
 
     function Hinter(cm, connection) {
         const indexInListKey = '$mirrorsharp-indexInList';
+        const priorityKey = '$mirrorsharp-priority';
         var state = 'stopped';
         var hasSuggestion;
         var currentOptions;
@@ -249,6 +250,7 @@
                     hint: commit
                 };
                 item[indexInListKey] = index;
+                item[priorityKey] = c.priority;
                 if (c.span)
                     item.from = cm.posFromIndex(c.span.start);
                 return item;
@@ -273,6 +275,12 @@
                         });
                         if (hasSuggestion && list.length === 1)
                             list = [];
+                    }
+                    if (!hasSuggestion) {
+                        // does not seem like I can use selectedHint here, as it does not force the scroll
+                        var selectedIndex = indexOfItemWithMaxPriority(list);
+                        if (selectedIndex > 0)
+                            setTimeout(function() { cm.state.completionActive.widget.changeActive(selectedIndex); }, 0);
                     }
 
                     return { from: hintStart, list: list };
@@ -303,6 +311,19 @@
                 connection.sendCompletionState('cancel');
             state = 'stopped';
         });
+
+        function indexOfItemWithMaxPriority(list) {
+            var maxPriority = 0;
+            var result = 0;
+            for (var i = 0; i < list.length; i++) {
+                const priority = list[i][priorityKey];
+                if (priority > maxPriority) {
+                    result = i;
+                    maxPriority = priority;
+                }
+            }
+            return result;
+        }
     }
 
     function SignatureTip(cm) {

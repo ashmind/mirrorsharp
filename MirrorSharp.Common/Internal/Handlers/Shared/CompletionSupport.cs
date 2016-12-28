@@ -130,6 +130,8 @@ namespace MirrorSharp.Internal.Handlers.Shared {
                     writer.WritePropertyName("span");
                     writer.WriteSpan(item.Span);
                 }
+                if (item.Rules.MatchPriority > 0)
+                    writer.WriteProperty("priority", item.Rules.MatchPriority);
                 writer.WriteEndObject();
             }
             writer.WriteEndArray();
