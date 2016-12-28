@@ -104,9 +104,18 @@ namespace MirrorSharp.Internal.Handlers.Shared {
 
         private Task SendCompletionListAsync(CompletionList completionList, ICommandResultSender sender, CancellationToken cancellationToken) {
             var writer = sender.StartJsonMessage("completions");
+
             writer.WriteProperty("commitChars", new CharListString(completionList.Rules.DefaultCommitCharacters));
             writer.WritePropertyName("span");
             writer.WriteSpan(completionList.DefaultSpan);
+
+            var suggestionItem = completionList.SuggestionModeItem;
+            if (suggestionItem != null) {
+                writer.WritePropertyStartObject("suggestion");
+                writer.WriteProperty("displayText", suggestionItem.DisplayText);
+                writer.WriteEndObject();
+            }
+
             writer.WritePropertyStartArray("completions");
             foreach (var item in completionList.Items) {
                 writer.WriteStartObject();
@@ -124,6 +133,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
                 writer.WriteEndObject();
             }
             writer.WriteEndArray();
+
             return sender.SendJsonMessageAsync(cancellationToken);
         }
     }

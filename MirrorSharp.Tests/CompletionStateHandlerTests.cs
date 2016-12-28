@@ -56,7 +56,7 @@ namespace MirrorSharp.Tests {
             var session = SessionFromTextWithCursor("class C { void M(object o) { o.| } }");
 
             var result = await ExecuteHandlerAsync<CompletionStateHandler, CompletionsResult>(session, 'F');
-
+            
             Assert.NotNull(result);
             Assert.Equal(
                 ObjectMemberNames.OrderBy(n => n),
@@ -64,11 +64,11 @@ namespace MirrorSharp.Tests {
             );
         }
 
-        private static async Task<IList<CompletionsResult.ResultCompletion>> TypeAndGetCompletionsAsync(char @char, WorkSession session) {
+        private static async Task<IList<CompletionsResult.ResultItem>> TypeAndGetCompletionsAsync(char @char, WorkSession session) {
             return (await ExecuteHandlerAsync<TypeCharHandler, CompletionsResult>(session, @char)).Completions;
         }
 
-        private static int IndexOf(IEnumerable<CompletionsResult.ResultCompletion> completions, string displayText) {
+        private static int IndexOf(IEnumerable<CompletionsResult.ResultItem> completions, string displayText) {
             return completions.Select((c, i) => new { c, i }).First(x => x.c.DisplayText.Contains(displayText)).i;
         }
     }

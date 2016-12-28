@@ -50,6 +50,14 @@ namespace MirrorSharp.Tests {
             );
         }
 
+        [Fact]
+        public async Task ExecuteAsync_ProducesExpectedCompletionWithSuggestionItem_InLambdaContext() {
+            var session = SessionFromTextWithCursor(@"class C { void M() { System.Action a = | } }");
+            var result = await ExecuteHandlerAsync<TypeCharHandler, CompletionsResult>(session, 's');
+
+            Assert.Equal("<lambda expression>", result.Suggestion?.DisplayText);
+        }
+
         [Theory]
         [InlineData("void M(int a) {}", new[] { "void C.M(int a)" })]
         [InlineData("void M(int a, string b) {}", new[] { "void C.M(int a, string b)" })]

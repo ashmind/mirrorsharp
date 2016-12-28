@@ -222,6 +222,7 @@
     function Hinter(cm, connection) {
         const indexInListKey = '$mirrorsharp-indexInList';
         var state = 'stopped';
+        var hasSuggestion;
         var currentOptions;
         var lastCommitChar;
 
@@ -229,6 +230,11 @@
             connection.sendCompletionState(item[indexInListKey]);
             state = 'committed';
         };
+
+        const cancel = function(cm) {
+            if (cm.state.completionActive)
+                cm.state.completionActive.close();
+        }
 
         this.start = function(list, span, options) {
             state = 'starting';
@@ -247,13 +253,26 @@
                     item.from = cm.posFromIndex(c.span.start);
                 return item;
             });
+            const suggestion = options.suggestion;
+            hasSuggestion = !!suggestion;
+            if (hasSuggestion) {
+                hintList.unshift({
+                    displayText: suggestion.displayText,
+                    className: 'mirrorsharp-hint mirrorsharp-hint-suggestion',
+                    hint: cancel
+                });
+            }
             cm.showHint({
                 hint: function() {
                     const prefix = cm.getRange(hintStart, cm.getCursor());
                     var list = hintList;
                     if (prefix.length > 0) {
                         var regexp = new RegExp('^' + prefix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
-                        list = hintList.filter(function(item) { return regexp.test(item.text); });
+                        list = hintList.filter(function(item, index) {
+                            return (hasSuggestion && index === 0) || regexp.test(item.text);
+                        });
+                        if (hasSuggestion && list.length === 1)
+                            list = [];
                     }
 
                     return { from: hintStart, list: list };
@@ -268,12 +287,12 @@
                 return;
             const key = e.key || String.fromCharCode(e.charCode || e.keyCode);
             if (currentOptions.commitChars.indexOf(key) > -1) {
-                const completion = cm.state.completionActive;
-                if (!completion.widget) {
-                    completion.close();
+                const widget = cm.state.completionActive.widget;
+                if (!widget) {
+                    cancel();
                     return;
                 }
-                completion.widget.pick();
+                widget.pick();
             }
         });
 
@@ -472,7 +491,10 @@
                     break;
 
                 case 'completions':
-                    hinter.start(message.completions, message.span, { commitChars: message.commitChars });
+                    hinter.start(message.completions, message.span, {
+                        commitChars: message.commitChars,
+                        suggestion: message.suggestion
+                    });
                     break;
 
                 case 'signatures':

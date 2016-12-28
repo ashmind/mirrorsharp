@@ -6,9 +6,10 @@
 
 namespace MirrorSharp.Tests.Internal.Results {
     public class CompletionsResult {
-        public IList<ResultCompletion> Completions { get; } = new List<ResultCompletion>();
+        public ResultItem Suggestion { get; set; }
+        public IList<ResultItem> Completions { get; } = new List<ResultItem>();
 
-        public class ResultCompletion {
+        public class ResultItem {
             public string DisplayText { get; set; }
         }
     }
