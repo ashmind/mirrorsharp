@@ -14,28 +14,27 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             if (session.Completion.CurrentList != null)
                 return TaskEx.CompletedTask;
 
-            var trigger = CompletionTrigger.CreateInsertionTrigger(@char);
             if (session.Completion.ChangeEchoPending) {
-                session.Completion.PendingTrigger = trigger;
+                session.Completion.PendingChar = @char;
                 return TaskEx.CompletedTask;
             }
+            var trigger = CompletionTrigger.CreateInsertionTrigger(@char);
             return CheckCompletionAsync(trigger, session, sender, cancellationToken);
         }
 
-        public Task ApplyReplacedTextAsync(string reason, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+        public Task ApplyReplacedTextAsync(string reason, ITypedCharEffects typedCharEffects, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             if (reason != ChangeReasonCompletion)
                 return TaskEx.CompletedTask;
 
-            session.Completion.ChangeEchoPending = false;
-            var pendingTrigger = session.Completion.PendingTrigger;
-            if (pendingTrigger == null)
+            var pendingChar = session.Completion.PendingChar;
+            session.Completion.ResetPending();
+            if (pendingChar == null)
                 return TaskEx.CompletedTask;
 
-            session.Completion.PendingTrigger = null;
-            return CheckCompletionAsync(pendingTrigger.Value, session, sender, cancellationToken);
+            return typedCharEffects.ApplyTypedCharAsync(pendingChar.Value, session, sender, cancellationToken);
         }
 
-        public async Task ApplyCompletionSelectionAsync(int selectedIndex, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+        public async Task SelectCompletionAsync(int selectedIndex, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             // ReSharper disable once PossibleNullReferenceException
             var completion = session.Completion.CurrentList;
             // ReSharper disable once PossibleNullReferenceException
@@ -73,14 +72,13 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             return textChanges;
         }
 
-        public Task ApplyCompletionCancellationAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+        public Task CancelCompletionAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            session.Completion.ResetPending();
             session.Completion.CurrentList = null;
-            session.Completion.ChangeEchoPending = false;
-            session.Completion.PendingTrigger = null;
             return TaskEx.CompletedTask;
         }
 
-        public Task ApplyCompletionForceAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+        public Task ForceCompletionAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             return TriggerCompletionAsync(session, sender, cancellationToken, CompletionTrigger.Default);
         }
 
@@ -96,9 +94,8 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             if (completionList == null)
                 return;
 
+            session.Completion.ResetPending();
             session.Completion.CurrentList = completionList;
-            session.Completion.ChangeEchoPending = false;
-            session.Completion.PendingTrigger = null;
             await SendCompletionListAsync(completionList, sender, cancellationToken).ConfigureAwait(false);
         }
 

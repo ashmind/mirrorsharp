@@ -20,7 +20,7 @@ namespace MirrorSharp.Benchmarks {
         public void Setup() {
             _sessionWithHelp = TestHelper.SessionFromTextWithCursor("class C { void M(int a) { M| } }");
             _sessionWithNoHelp = TestHelper.SessionFromTextWithCursor("class C { void M(int a) { M()| } }");
-            _handler = new TypeCharHandler(new CompletionSupport(), new SignatureHelpSupport());
+            _handler = new TypeCharHandler(new TypedCharEffects(new CompletionSupport(), new SignatureHelpSupport()));
         }
 
         [Benchmark]

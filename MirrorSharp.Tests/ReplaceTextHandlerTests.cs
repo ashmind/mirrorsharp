@@ -67,14 +67,30 @@ namespace MirrorSharp.Tests {
 
             var newPosition = session.CursorPosition + ("int.".Length - "in.".Length);
             var result = await ExecuteHandlerAsync<ReplaceTextHandler, CompletionsResult>(
-                session, Argument(session.CursorPosition - "in.".Length, "in".Length, "int", newPosition, trigger: "completion")
+                session, Argument(session.CursorPosition - "in.".Length, "in".Length, "int", newPosition, reason: "completion")
             );
             Assert.NotNull(result);
             Assert.Contains(nameof(int.Parse), result.Completions.Select(c => c.DisplayText));
         }
+        [Fact]
 
-        private HandlerTestArgument Argument(int start, int length, string newText, int newCursorPosition, string trigger = "") {
-            return $"{start}:{length}:{newCursorPosition}:{trigger}:{newText}";
+        public async Task ExecuteAsync_ProducesSignatureHelp_WhenCalledAfterCommitCharThatWouldHaveProducedIt() {
+            var session = SessionFromTextWithCursor(@"class C { void M() { int.| } }");
+
+            await TypeCharsAsync(session, "Pars");
+            await ExecuteHandlerAsync<CompletionStateHandler>(session, 1); // would complete "Parse" after echo
+            await TypeCharsAsync(session, "("); // this was the commit char, happens *before* echo
+
+            var newPosition = session.CursorPosition + ("Parse(".Length - "Pars(".Length);
+            var result = await ExecuteHandlerAsync<ReplaceTextHandler, SignaturesResult>(
+                session, Argument(session.CursorPosition - "Pars(".Length, "Pars".Length, "Parse", newPosition, reason: "completion")
+            );
+            var signature = result.Signatures.First(s => s.Selected);
+            Assert.Equal("int int.Parse(*string s*)", signature.ToString());
+        }
+
+        private HandlerTestArgument Argument(int start, int length, string newText, int newCursorPosition, string reason = "") {
+            return $"{start}:{length}:{newCursorPosition}:{reason}:{newText}";
         } 
     }
 }

@@ -12,10 +12,12 @@ namespace MirrorSharp.Internal.Handlers {
         public char CommandId => 'R';
         [NotNull] private readonly ISignatureHelpSupport _signatureHelp;
         [NotNull] private readonly ICompletionSupport _completion;
+        [NotNull] private readonly ITypedCharEffects _typedCharEffects;
 
-        public ReplaceTextHandler([NotNull] ISignatureHelpSupport signatureHelp, [NotNull] ICompletionSupport completion) {
+        public ReplaceTextHandler([NotNull] ISignatureHelpSupport signatureHelp, [NotNull] ICompletionSupport completion, [NotNull] ITypedCharEffects typedCharEffects) {
             _signatureHelp = signatureHelp;
             _completion = completion;
+            _typedCharEffects = typedCharEffects;
         }
 
         public async Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
@@ -25,7 +27,7 @@ namespace MirrorSharp.Internal.Handlers {
             int? start = null;
             int? length = null;
             int? cursorPosition = null;
-            string trigger = null;
+            string reason = null;
 
             for (var i = data.Offset; i <= endOffset; i++) {
                 if (data.Array[i] != (byte)':')
@@ -50,19 +52,19 @@ namespace MirrorSharp.Internal.Handlers {
                     continue;
                 }
 
-                trigger = part.Count > 0 ? Encoding.UTF8.GetString(part.Array, part.Offset, part.Count) : string.Empty;
+                reason = part.Count > 0 ? Encoding.UTF8.GetString(part.Array, part.Offset, part.Count) : string.Empty;
                 partStart = i + 1;
                 break;
             }
-            if (start == null || length == null || cursorPosition == null || trigger == null)
-                throw new FormatException("Command arguments must be 'start:length:cursor:trigger:text'.");
+            if (start == null || length == null || cursorPosition == null || reason == null)
+                throw new FormatException("Command arguments must be 'start:length:cursor:reason:text'.");
 
             var text = Encoding.UTF8.GetString(data.Array, partStart, endOffset - partStart + 1);
 
             session.SourceText = session.SourceText.WithChanges(new TextChange(new TextSpan(start.Value, length.Value), text));
             session.CursorPosition = cursorPosition.Value;
             await _signatureHelp.ApplyCursorPositionChangeAsync(session, sender, cancellationToken).ConfigureAwait(false);
-            await _completion.ApplyReplacedTextAsync(trigger, session, sender, cancellationToken).ConfigureAwait(false);
+            await _completion.ApplyReplacedTextAsync(reason, _typedCharEffects, session, sender, cancellationToken).ConfigureAwait(false);
         }
     }
 }

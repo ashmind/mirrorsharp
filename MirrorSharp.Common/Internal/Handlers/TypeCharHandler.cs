@@ -9,23 +9,20 @@ using MirrorSharp.Internal.Results;
 namespace MirrorSharp.Internal.Handlers {
     internal class TypeCharHandler : ICommandHandler {
         public char CommandId => 'C';
-        [NotNull] private readonly ICompletionSupport _completion;
-        [NotNull] private readonly ISignatureHelpSupport _signatureHelp;
+        [NotNull] private readonly ITypedCharEffects _effects;
 
-        public TypeCharHandler([NotNull] ICompletionSupport completion, [NotNull] ISignatureHelpSupport signatureHelp) {
-            _completion = completion;
-            _signatureHelp = signatureHelp;
+        public TypeCharHandler([NotNull] ITypedCharEffects effects) {
+            _effects = effects;
         }
 
-        public async Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+        public Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var @char = FastConvert.Utf8ByteArrayToChar(data);
             session.SourceText = session.SourceText.WithChanges(
                 new TextChange(new TextSpan(session.CursorPosition, 0), FastConvert.CharToString(@char))
             );
             session.CursorPosition += 1;
 
-            await _completion.ApplyTypedCharAsync(@char, session, sender, cancellationToken).ConfigureAwait(false);
-            await _signatureHelp.ApplyTypedCharAsync(@char, session, sender, cancellationToken).ConfigureAwait(false);
+            return _effects.ApplyTypedCharAsync(@char, session, sender, cancellationToken);
         }
     }
 }
