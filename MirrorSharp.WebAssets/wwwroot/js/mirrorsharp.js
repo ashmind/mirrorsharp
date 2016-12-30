@@ -1,6 +1,7 @@
 /* globals console:false */
 (function (root, factory) {
     'use strict';
+    // ReSharper disable UndeclaredGlobalVariableUsing (R# bug, https://youtrack.jetbrains.com/issue/RSRP-462411)
     if (typeof define === 'function' && define.amd) {
         define([
           'codemirror',
@@ -20,6 +21,7 @@
     } else {
         root.mirrorsharp = factory(root.CodeMirror);
     }
+    // ReSharper restore UndeclaredGlobalVariableUsing
 }(this, function (CodeMirror) {
     'use strict';
 
@@ -42,7 +44,7 @@
         this.watchEditor = function(getTextValue, getCursorIndexValue) {
             getText = getTextValue;
             getCursorIndex = getCursorIndexValue;
-        }
+        };
 
         this.log = function(event, message) {
             clientLog.push({
@@ -60,13 +62,16 @@
         this.requestData = function(connection) {
             clientLogSnapshot = clientLog.slice(0);
             connection.sendRequestSelfDebugData();
-        }
+        };
 
         this.displayData = function(serverData) {
             const log = [];
+            // ReSharper disable once DuplicatingLocalDeclaration
             for (var i = 0; i < clientLog.length; i++) {
                 log.push({ entry: clientLog[i], on: 'client', index: i });
             }
+            /* jshint -W004 */
+            // ReSharper disable once DuplicatingLocalDeclaration
             for (var i = 0; i < serverData.log.length; i++) {
                 log.push({ entry: serverData.log[i], on: 'server', index: i });
             }
@@ -92,7 +97,7 @@
                     text: l.entry.text
                 };
             }));
-        }
+        };
     }
 
     function Connection(openSocket, selfDebug) {
@@ -145,6 +150,7 @@
                 const handlersByKey = handlers[key];
                 /* jshint -W083 */
                 socket.addEventListener(key, function (e) {
+                    /* jshint -W080 */
                     var argument = undefined;
                     if (keyFixed === 'message') {
                         argument = JSON.parse(e.data);
@@ -215,7 +221,7 @@
 
         this.sendRequestSelfDebugData = function() {
             return sendWhenOpen('Y');
-        }
+        };
     }
 
     function Hinter(cm, connection) {
@@ -234,7 +240,7 @@
         const cancel = function(cm) {
             if (cm.state.completionActive)
                 cm.state.completionActive.close();
-        }
+        };
 
         this.start = function(list, span, options) {
             state = 'starting';
@@ -556,7 +562,7 @@
         function getCursorIndex() {
             return cm.indexFromPos(cm.getCursor());
         }
-        
+
         function applyServerChanges(changes, reason) {
             changesAreFromServer = true;
             changeReason = reason || 'server';
