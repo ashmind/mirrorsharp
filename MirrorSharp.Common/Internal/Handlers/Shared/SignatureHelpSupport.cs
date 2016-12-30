@@ -21,20 +21,27 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             return TryApplySignatureHelpAsync(currentHelp.Value.Provider, new SignatureHelpTriggerInfoData(SignatureHelpTriggerReason.RetriggerCommand), session, sender, cancellationToken, true);
         }
 
-        public async Task ApplyTypedCharAsync(char @char, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+        public Task ApplyTypedCharAsync(char @char, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var trigger = new SignatureHelpTriggerInfoData(SignatureHelpTriggerReason.TypeCharCommand, @char);
             if (session.CurrentSignatureHelp != null) {
                 var provider = session.CurrentSignatureHelp.Value.Provider;
                 if (provider.IsRetriggerCharacter(@char)) {
                     session.CurrentSignatureHelp = null;
-                    await SendSignatureHelpAsync(null, sender, cancellationToken).ConfigureAwait(false);
-                    return;
+                    return SendSignatureHelpAsync(null, sender, cancellationToken);
                 }
 
-                await TryApplySignatureHelpAsync(provider, trigger, session, sender, cancellationToken, sendIfEmpty: true).ConfigureAwait(false);
-                return;
+                return TryApplySignatureHelpAsync(provider, trigger, session, sender, cancellationToken, sendIfEmpty: true);
             }
 
+            return TryApplySignatureHelpAsync(session, sender, cancellationToken, trigger);
+        }
+
+        public Task ForceSignatureHelpAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            var trigger = new SignatureHelpTriggerInfoData(SignatureHelpTriggerReason.InvokeSignatureHelpCommand);
+            return TryApplySignatureHelpAsync(session, sender, cancellationToken, trigger);
+        }
+
+        private async Task TryApplySignatureHelpAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken, SignatureHelpTriggerInfoData trigger) {
             foreach (var provider in session.SignatureHelpProviders) {
                 if (await TryApplySignatureHelpAsync(provider, trigger, session, sender, cancellationToken).ConfigureAwait(false))
                     return;

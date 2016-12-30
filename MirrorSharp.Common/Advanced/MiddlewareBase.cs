@@ -43,6 +43,7 @@ namespace MirrorSharp.Advanced {
                 new ReplaceTextHandler(signatureHelp, completion, typedCharEffects),
                 new RequestSelfDebugDataHandler(),
                 new SetOptionsHandler(_languages, _options?.SetOptionsFromClient),
+                new SignatureHelpStateHandler(signatureHelp),
                 new SlowUpdateHandler(_options?.SlowUpdate),
                 new TypeCharHandler(typedCharEffects)
             };

@@ -86,10 +86,7 @@ namespace MirrorSharp.Tests {
                 }
             ");
             var result = await ExecuteHandlerAsync<TypeCharHandler, SignaturesResult>(session, '(');
-            Assert.Equal(
-                expected,
-                result.Signatures.Select(s => string.Join("", s.Parts.Select(p => p.Text)))
-            );
+            Assert.Equal(expected, result.Signatures.Select(s => s.ToString(markSelected: false)));
         }
 
         [Theory]

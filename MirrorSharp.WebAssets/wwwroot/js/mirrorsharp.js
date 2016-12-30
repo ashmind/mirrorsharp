@@ -197,10 +197,14 @@
             return sendWhenOpen('C' + char);
         };
 
-        const completionCommandMap = { cancel: 'X', force: 'F' };
+        const stateCommandMap = { cancel: 'X', force: 'F' };
         this.sendCompletionState = function(indexOrCommand) {
-            const argument = completionCommandMap[indexOrCommand] || indexOrCommand;
+            const argument = stateCommandMap[indexOrCommand] || indexOrCommand;
             return sendWhenOpen('S' + argument);
+        };
+
+        this.sendSignatureHelpState = function(command) {
+            return sendWhenOpen('P' + stateCommandMap[command]);
         };
 
         this.sendSlowUpdate = function() {
@@ -424,6 +428,7 @@
         });
         cmOptions.extraKeys = assign({
             'Ctrl-Space': function() { connection.sendCompletionState('force'); },
+            'Shift-Ctrl-Space': function() { connection.sendSignatureHelpState('force'); },
             'Ctrl-.': 'lintFixShow',
             'Shift-Ctrl-Y': selfDebug ? function() { selfDebug.requestData(connection); } : null
         }, cmOptions.extraKeys);

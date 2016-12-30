@@ -21,8 +21,9 @@ namespace MirrorSharp.Tests.Internal.Results {
             public bool Selected { get; set; }
             public IList<ResultSignaturePart> Parts { get; } = new List<ResultSignaturePart>();
 
-            public override string ToString() {
-                return string.Join("", Parts.GroupAdjacentBy(p => p.Selected ? "*" : "").Select(g => g.Key + string.Join("", g.Select(p => p.Text)) + g.Key));
+            public override string ToString() => ToString(true);
+            public string ToString(bool markSelected) {
+                return string.Join("", Parts.GroupAdjacentBy(p => markSelected && p.Selected ? "*" : "").Select(g => g.Key + string.Join("", g.Select(p => p.Text)) + g.Key));
             }
         }
 
