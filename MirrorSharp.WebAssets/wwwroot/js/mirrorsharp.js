@@ -151,22 +151,23 @@
                 /* jshint -W083 */
                 socket.addEventListener(key, function (e) {
                     /* jshint -W080 */
-                    var argument = undefined;
+                    const handlerArguments = [e];
                     if (keyFixed === 'message') {
-                        argument = JSON.parse(e.data);
-                        if (argument.type === 'self:debug') {
-                            for (var entry of argument.log) {
+                        const data = JSON.parse(e.data);
+                        if (data.type === 'self:debug') {
+                            for (var entry of data.log) {
                                 entry.time = new Date(entry.time);
                             }
                         }
                         if (selfDebug)
-                            selfDebug.log('before', JSON.stringify(argument));
+                            selfDebug.log('before', JSON.stringify(data));
+                        handlerArguments.unshift(data);
                     }
                     for (var handler of handlersByKey) {
-                        handler(argument);
+                        handler.apply(null, handlerArguments);
                     }
                     if (selfDebug && keyFixed === 'message')
-                        selfDebug.log('after', JSON.stringify(argument));
+                        selfDebug.log('after', JSON.stringify(handlerArguments[0]));
                 });
                 /* jshint +W083 */
             }
@@ -413,12 +414,14 @@
         var hadChangesSinceLastLinting = false;
         var capturedUpdateLinting;
 
-        options = assign({}, {
-            forCodeMirror: {},
-            afterSlowUpdate: function() {},
-            afterTextChange: function() {},
-            onServerError: function(message) { throw new Error(message); }
-        }, options);
+        options = options || {};
+        options.on = assign({
+            slowUpdateResult: function() {},
+            textChange:       function() {},
+            connectionChange: function() {},
+            serverError:      function(message) { throw new Error(message); }
+        }, options.on);
+
         const cmOptions = assign({ gutters: [], indentUnit: 4 }, options.forCodeMirror, {
             lineSeparator: lineSeparator,
             mode: 'text/x-csharp',
@@ -451,7 +454,7 @@
 
         const hinter = new Hinter(cm, connection);
         const signatureTip = new SignatureTip(cm);
-        connection.on('open', function () {
+        connection.on('open', function (e) {
             hideConnectionLoss();
             if (serverOptions)
                 connection.sendSetOptions(serverOptions);
@@ -463,15 +466,17 @@
             }
 
             connection.sendReplaceText(0, 0, text, getCursorIndex(cm));
+            options.on.connectionChange('open', e);
             lintingSuspended = false;
             hadChangesSinceLastLinting = true;
             if (capturedUpdateLinting)
                 requestSlowUpdate();
         });
 
-        function onCloseOrError() {
+        function onCloseOrError(e) {
             lintingSuspended = true;
             showConnectionLoss();
+            options.on.connectionChange(e instanceof CloseEvent ? 'close' : 'error', e);
         }
 
         connection.on('error', onCloseOrError);
@@ -511,7 +516,7 @@
                     connection.sendReplaceText(start, length, text, cursorIndex, changeReason);
                 }
             }
-            options.afterTextChange(getText);
+            options.on.textChange(getText);
         });
 
         connection.on('message', function (message) {
@@ -544,7 +549,7 @@
                     break;
 
                 case 'error':
-                    options.onServerError(message.message);
+                    options.on.serverError(message.message);
                     break;
 
                 default:
@@ -629,7 +634,7 @@
                 });
             }
             capturedUpdateLinting(annotations);
-            options.afterSlowUpdate({
+            options.on.slowUpdateResult({
                 diagnostics: update.diagnostics,
                 x: update.x
             });
