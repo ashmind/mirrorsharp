@@ -5,7 +5,6 @@ try {
     Set-Content '.npmrc' "//registry.npmjs.org/:_authToken=$($env:NpmAuthToken)"
     Get-Item *.tgz | % { npm publish $($_.FullName) }
 }
-catch {
+finally {
     Remove-Item ".npmrc"
-    throw
 }
