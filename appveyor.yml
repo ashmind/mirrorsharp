@@ -21,7 +21,7 @@ artifacts:
 - path: '*.nupkg'
 - path: '*.tgz'
 
-#deploy:
+deploy:
 #  - provider: NuGet
 #    on:
 #      branch: master
