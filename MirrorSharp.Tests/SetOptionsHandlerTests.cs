@@ -15,41 +15,41 @@ namespace MirrorSharp.Tests {
         [InlineData(LanguageNames.CSharp)]
         [InlineData(LanguageNames.VisualBasic)]
         public async void ExecuteAsync_UpdatesSessionLanguage(string languageName) {
-            var test = MirrorSharpTest.StartNew();
-            await test.SendAsync(SetOptions, "language=" + languageName);
-            Assert.Equal(languageName, test.Session.Language.Name);
+            var driver = MirrorSharpTestDriver.New();
+            await driver.SendAsync(SetOptions, "language=" + languageName);
+            Assert.Equal(languageName, driver.Session.Language.Name);
         }
 
         [Theory]
         [InlineData("debug",   OptimizationLevel.Debug)]
         [InlineData("release", OptimizationLevel.Release)]
         public async void ExecuteAsync_UpdatesSessionCompilationOptimizationsLevel(string value, OptimizationLevel expectedLevel) {
-            var test = MirrorSharpTest.StartNew();
-            await test.SendAsync(SetOptions, "optimize=" + value);
-            Assert.Equal(expectedLevel, test.Session.Project.CompilationOptions.OptimizationLevel);
+            var driver = MirrorSharpTestDriver.New();
+            await driver.SendAsync(SetOptions, "optimize=" + value);
+            Assert.Equal(expectedLevel, driver.Session.Project.CompilationOptions.OptimizationLevel);
         }
 
         [Fact]
         public async void ExecuteAsync_PreservesSessionWorkspace_WhenUpdatingOptimizeToTheSameValue() {
-            var test = MirrorSharpTest.StartNew().SetText("test");
-            test.Session.ChangeCompilationOptions(nameof(CompilationOptions.OptimizationLevel), c => c.WithOptimizationLevel(OptimizationLevel.Release));
-            var workspace = test.Session.Workspace;
-            await test.SendAsync(SetOptions, "optimize=release");
-            Assert.Same(workspace, test.Session.Workspace);
+            var driver = MirrorSharpTestDriver.New().SetText("test");
+            driver.Session.ChangeCompilationOptions(nameof(CompilationOptions.OptimizationLevel), c => c.WithOptimizationLevel(OptimizationLevel.Release));
+            var workspace = driver.Session.Workspace;
+            await driver.SendAsync(SetOptions, "optimize=release");
+            Assert.Same(workspace, driver.Session.Workspace);
         }
 
         [Fact]
         public async void ExecuteAsync_PreservesSessionSourceText_WhenUpdatingOptions() {
-            var test = MirrorSharpTest.StartNew().SetText("test");
-            await test.SendAsync(SetOptions, "optimize=debug");
-            Assert.Equal("test", test.Session.SourceText.ToString());
+            var driver = MirrorSharpTestDriver.New().SetText("test");
+            await driver.SendAsync(SetOptions, "optimize=debug");
+            Assert.Equal("test", driver.Session.SourceText.ToString());
         }
 
         [Fact]
         public async void ExecuteAsync_PreservesSessionCursorPosition_WhenUpdatingOptions() {
-            var test = MirrorSharpTest.StartNew().SetTextWithCursor("test|");
-            await test.SendAsync(SetOptions, "optimize=debug");
-            Assert.Equal(4, test.Session.CursorPosition);
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor("test|");
+            await driver.SendAsync(SetOptions, "optimize=debug");
+            Assert.Equal(4, driver.Session.CursorPosition);
         }
 
         [Fact]
@@ -57,9 +57,9 @@ namespace MirrorSharp.Tests {
             var extensionMock = new Mock<ISetOptionsFromClientExtension>();
             extensionMock.SetReturnsDefault(true);
 
-            var test = MirrorSharpTest.StartNew(new MirrorSharpOptions { SetOptionsFromClient = extensionMock.Object });
-            await test.SendAsync(SetOptions, "x-testkey=testvalue");
-            extensionMock.Verify(x => x.TrySetOption(test.Session, "x-testkey", "testvalue"));
+            var driver = MirrorSharpTestDriver.New(new MirrorSharpOptions { SetOptionsFromClient = extensionMock.Object });
+            await driver.SendAsync(SetOptions, "x-testkey=testvalue");
+            extensionMock.Verify(x => x.TrySetOption(driver.Session, "x-testkey", "testvalue"));
         }
 
         [Fact]
@@ -67,9 +67,9 @@ namespace MirrorSharp.Tests {
             var extensionMock = new Mock<ISetOptionsFromClientExtension>();
             extensionMock.SetReturnsDefault(true);
 
-            var test = MirrorSharpTest.StartNew(new MirrorSharpOptions { SetOptionsFromClient = extensionMock.Object });
-            await test.SendAsync(SetOptions, "optimize=release,x-key1=value1");
-            var optionsEcho = await test.SendAsync<OptionsEchoResult>(SetOptions, "x-key2=value2");
+            var driver = MirrorSharpTestDriver.New(new MirrorSharpOptions { SetOptionsFromClient = extensionMock.Object });
+            await driver.SendAsync(SetOptions, "optimize=release,x-key1=value1");
+            var optionsEcho = await driver.SendAsync<OptionsEchoResult>(SetOptions, "x-key2=value2");
             Assert.Equal(
                 new Dictionary<string, string> {
                     ["optimize"] = "release",

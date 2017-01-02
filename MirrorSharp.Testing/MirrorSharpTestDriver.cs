@@ -11,11 +11,11 @@ using MirrorSharp.Testing.Internal;
 using Newtonsoft.Json;
 
 namespace MirrorSharp.Testing {
-    public class MirrorSharpTest {
+    public class MirrorSharpTestDriver {
         private static readonly CSharpLanguage CSharp = new CSharpLanguage();
         private static readonly VisualBasicLanguage VisualBasic = new VisualBasicLanguage();
 
-        protected MirrorSharpTest([CanBeNull] MirrorSharpOptions options = null, [CanBeNull] string languageName = LanguageNames.CSharp) {
+        private MirrorSharpTestDriver([CanBeNull] MirrorSharpOptions options = null, [CanBeNull] string languageName = LanguageNames.CSharp) {
             var language = new ILanguage[] { CSharp, VisualBasic }.First(l => l.Name == languageName);
 
             Middleware = new TestMiddleware(options);
@@ -26,11 +26,11 @@ namespace MirrorSharp.Testing {
         internal WorkSession Session { get; }
 
         [NotNull]
-        public static MirrorSharpTest StartNew([CanBeNull] MirrorSharpOptions options = null, [CanBeNull] string languageName = LanguageNames.CSharp) {
-            return new MirrorSharpTest(options, languageName);
+        public static MirrorSharpTestDriver New([CanBeNull] MirrorSharpOptions options = null, [CanBeNull] string languageName = LanguageNames.CSharp) {
+            return new MirrorSharpTestDriver(options, languageName);
         }
 
-        public MirrorSharpTest SetTextWithCursor(string textWithCursor) {
+        public MirrorSharpTestDriver SetTextWithCursor(string textWithCursor) {
             var cursorPosition = textWithCursor.LastIndexOf('|');
             var text = textWithCursor.Remove(cursorPosition, 1);
 
@@ -39,7 +39,7 @@ namespace MirrorSharp.Testing {
             return this;
         }
 
-        public MirrorSharpTest SetText(string text) {
+        public MirrorSharpTestDriver SetText(string text) {
             Session.SourceText = SourceText.From(text);
             return this;
         }

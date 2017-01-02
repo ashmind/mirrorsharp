@@ -13,49 +13,49 @@ namespace MirrorSharp.Tests {
     public class CompletionStateHandlerTests {
         [Fact]
         public async Task ExecuteAsync_ProducesChangeForSelectedCompletion() {
-            var test = MirrorSharpTest.StartNew().SetTextWithCursor("class C { void M(object o) { o| } }");
-            var completions = await TypeAndGetCompletionsAsync('.', test);
-            var changes = await test.SendAsync<ChangesResult>(CompletionState, IndexOf(completions, "ToString"));
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor("class C { void M(object o) { o| } }");
+            var completions = await TypeAndGetCompletionsAsync('.', driver);
+            var changes = await driver.SendAsync<ChangesResult>(CompletionState, IndexOf(completions, "ToString"));
 
             Assert.Equal("completion", changes.Reason);
             Assert.Equal(
                 new[] { new { Start = 31, Length = 0, Text = "ToString" } },
                 changes.Changes.Select(c => new { c.Start, c.Length, c.Text })
             );
-            Assert.Null(test.Session.Completion.CurrentList);
+            Assert.Null(driver.Session.Completion.CurrentList);
         }
 
         [Fact]
         public async Task ExecuteAsync_ReplacesInterimTypedText() {
-            var test = MirrorSharpTest.StartNew().SetTextWithCursor("class C { void M(object o) { o| } }");
-            var completions = await TypeAndGetCompletionsAsync('.', test);
-            await test.TypeCharsAsync("To");
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor("class C { void M(object o) { o| } }");
+            var completions = await TypeAndGetCompletionsAsync('.', driver);
+            await driver.TypeCharsAsync("To");
 
-            var changes = await test.SendAsync<ChangesResult>(CompletionState, IndexOf(completions, "ToString"));
+            var changes = await driver.SendAsync<ChangesResult>(CompletionState, IndexOf(completions, "ToString"));
 
             Assert.Equal(
                 new[] { new { Start = 31, Length = 2, Text = "ToString" } },
                 changes.Changes.Select(c => new { c.Start, c.Length, c.Text })
             );
-            Assert.Null(test.Session.Completion.CurrentList);
+            Assert.Null(driver.Session.Completion.CurrentList);
         }
 
         [Fact]
         public async Task ExecuteAsync_CancelsCompletion_WhenXIsProvidedInsteadOfIndex() {
-            var test = MirrorSharpTest.StartNew().SetTextWithCursor("class C { void M(object o) { o| } }");
-            await TypeAndGetCompletionsAsync('.', test);
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor("class C { void M(object o) { o| } }");
+            await TypeAndGetCompletionsAsync('.', driver);
 
-            var result = await test.SendAsync<ChangesResult>(CompletionState, 'X');
+            var result = await driver.SendAsync<ChangesResult>(CompletionState, 'X');
 
             Assert.Null(result);
-            Assert.Null(test.Session.Completion.CurrentList);
+            Assert.Null(driver.Session.Completion.CurrentList);
         }
 
         [Fact]
         public async Task ExecuteAsync_ForcesCompletion_WhenFIsProvidedInsteadOfIndex() {
-            var test = MirrorSharpTest.StartNew().SetTextWithCursor("class C { void M(object o) { o.| } }");
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor("class C { void M(object o) { o.| } }");
 
-            var result = await test.SendAsync<CompletionsResult>(CompletionState, 'F');
+            var result = await driver.SendAsync<CompletionsResult>(CompletionState, 'F');
 
             Assert.NotNull(result);
             Assert.Equal(
@@ -64,8 +64,8 @@ namespace MirrorSharp.Tests {
             );
         }
 
-        private static async Task<IList<CompletionsResult.ResultItem>> TypeAndGetCompletionsAsync(char @char, MirrorSharpTest test) {
-            return (await test.SendAsync<CompletionsResult>(TypeChar, @char)).Completions;
+        private static async Task<IList<CompletionsResult.ResultItem>> TypeAndGetCompletionsAsync(char @char, MirrorSharpTestDriver driver) {
+            return (await driver.SendAsync<CompletionsResult>(TypeChar, @char)).Completions;
         }
 
         private static int IndexOf(IEnumerable<CompletionsResult.ResultItem> completions, string displayText) {

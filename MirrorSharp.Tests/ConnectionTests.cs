@@ -17,7 +17,7 @@ namespace MirrorSharp.Tests {
             var socketMock = Mock.Of<WebSocket>();
             SetupReceive(socketMock, "X");
 
-            var session = MirrorSharpTest.StartNew().Session;
+            var session = MirrorSharpTestDriver.New().Session;
             // ReSharper disable once PossibleUnintendedReferenceComparison
             var handler = Mock.Of<ICommandHandler>(h => h.CommandId == 'X');
             var connection = new Connection(socketMock, session, CreateCommandHandlers(handler));

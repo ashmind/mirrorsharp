@@ -14,35 +14,35 @@ namespace MirrorSharp.Tests {
         [InlineData("79", 79)]
         [InlineData("1234567890", 1234567890)]
         public async void ExecuteAsync_UpdatesSessionCursorPosition(string dataString, int expectedPosition) {
-            var test = MirrorSharpTest.StartNew();
-            await test.SendAsync(MoveCursor, dataString);
-            Assert.Equal(expectedPosition, test.Session.CursorPosition);
+            var driver = MirrorSharpTestDriver.New();
+            await driver.SendAsync(MoveCursor, dataString);
+            Assert.Equal(expectedPosition, driver.Session.CursorPosition);
         }
 
         [Fact]
         public async Task ExecuteAsync_ProducesEmptySignatureHelp_IfCursorIsMovedOutsideOfSignatureSpan() {
-            var test = MirrorSharpTest.StartNew().SetTextWithCursor(@"
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"
                 class C {
                     void M() {}
                     void T() { M| }
                 }
             ");
-            var signatures = await test.SendAsync<SignaturesResult>(TypeChar, '(');
-            var result = await test.SendAsync<SignaturesResult>(MoveCursor, signatures.Span.Start - 1);
+            var signatures = await driver.SendAsync<SignaturesResult>(TypeChar, '(');
+            var result = await driver.SendAsync<SignaturesResult>(MoveCursor, signatures.Span.Start - 1);
             Assert.Equal(0, result.Signatures.Count);
         }
 
         [Fact]
         public async Task ExecuteAsync_ProducesSignatureHelpWithNewSelectedParameter_IfCursorIsMovedMovedBetweenParameters() {
-            var test = MirrorSharpTest.StartNew().SetTextWithCursor(@"
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"
                 class C {
                     void M(int a, int b, int c) {}
                     void T() { M(1| }
                 }
             ");
-            await test.TypeCharsAsync(",2,");
+            await driver.TypeCharsAsync(",2,");
 
-            var result = await test.SendAsync<SignaturesResult>(MoveCursor, test.Session.CursorPosition - 1);
+            var result = await driver.SendAsync<SignaturesResult>(MoveCursor, driver.Session.CursorPosition - 1);
             var signature = result.Signatures.Single();
             Assert.Equal("void C.M(int a, *int b*, int c)", signature.ToString());
         }

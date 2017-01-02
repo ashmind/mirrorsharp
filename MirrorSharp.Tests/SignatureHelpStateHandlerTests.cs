@@ -11,13 +11,13 @@ namespace MirrorSharp.Tests {
     public class SignatureHelpStateHandlerTests {
         [Fact]
         public async Task ExecuteAsync_ProducesExpectedSignatureHelp_WhenForceIsRequested() {
-            var test = MirrorSharpTest.StartNew().SetTextWithCursor(@"
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"
                 class C {
                     void M(int a) {}
                     void T() { M(1|) }
                 }
             ");
-            var result = await test.SendAsync<SignaturesResult>(SignatureHelpState, 'F');
+            var result = await driver.SendAsync<SignaturesResult>(SignatureHelpState, 'F');
             Assert.Equal(
                 new[] { "void C.M(*int a*)" },
                 result.Signatures.Select(s => s.ToString())

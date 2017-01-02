@@ -13,8 +13,8 @@ namespace MirrorSharp.Tests {
     public class SlowUpdateHandlerTests {
         [Fact]
         public async Task SlowUpdate_ProducesDiagnosticWithCustomTagUnnecessary_ForUnusedNamespace() {
-            var test = MirrorSharpTest.StartNew().SetTextWithCursor(@"using System;|");
-            var result = await test.SendAsync<SlowUpdateResult>(SlowUpdate);
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"using System;|");
+            var result = await driver.SendAsync<SlowUpdateResult>(SlowUpdate);
 
             Assert.Contains(
                 new { severity = DiagnosticSeverity.Hidden.ToString("G").ToLowerInvariant(), isUnnecessary = true },
@@ -26,8 +26,8 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task SlowUpdate_ProducesAllExpectedActions_ForTypeFromUnreferencedNamespace() {
-            var test = MirrorSharpTest.StartNew().SetTextWithCursor(@"class C { Action a;| }");
-            var result = await test.SendAsync<SlowUpdateResult>(SlowUpdate);
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"class C { Action a;| }");
+            var result = await driver.SendAsync<SlowUpdateResult>(SlowUpdate);
             var diagnostic = result.Diagnostics.Single(d => d.Message.Contains("Action"));
 
             Assert.Equal(
@@ -43,13 +43,13 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task SlowUpdate_Succeeds_ForValidVisualBasicCode() {
-            var test = MirrorSharpTest.StartNew(languageName: LanguageNames.VisualBasic).SetText(@"
+            var driver = MirrorSharpTestDriver.New(languageName: LanguageNames.VisualBasic).SetText(@"
                 Class C
                     Sub M()
                     End Sub
                 End Class
             ");
-            var result = await test.SendAsync<SlowUpdateResult>(SlowUpdate);
+            var result = await driver.SendAsync<SlowUpdateResult>(SlowUpdate);
 
             Assert.NotNull(result);
             Assert.Empty(result.Diagnostics);
