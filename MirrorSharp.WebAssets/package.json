@@ -1,7 +1,7 @@
 {
   "name": "mirrorsharp",
   "version": "0.9.0-pre-20170103",
-  "description": "A code editor `<textarea>` for .NET. Requires a .NET server component, see https://github.com/ashmind/mirrorsharp/blob/master/README.md.",
+  "description": "A code editor `<textarea>` for .NET.",
   "authors": [
     "Andrey Shchekin (https://github.com/ashmind)"
   ],

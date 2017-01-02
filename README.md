@@ -35,12 +35,10 @@ TODO: this library is not published yet.
 
 ### Client
 
-TODO: this library is not published yet.
-
 Use one of the following:
 
 - `npm install mirrorsharp --save`
-- `bower install mirrorsharp --save`
+- `bower install mirrorsharp --save` (TODO: this is not available yet)
 
 #### CSS
 If you are using LESS, CSS references can be done automatically by including `mirrorsharp/mirrorsharp.less`. Otherwise, make sure to include the following:
