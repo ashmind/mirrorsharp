@@ -1,71 +1,71 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MirrorSharp.Internal;
-using MirrorSharp.Internal.Handlers;
+using MirrorSharp.Testing;
+using MirrorSharp.Testing.Internal;
 using MirrorSharp.Tests.Internal;
 using MirrorSharp.Tests.Internal.Results;
 using Xunit;
 
 namespace MirrorSharp.Tests {
-    using static TestHelper;
+    using static CommandIds;
 
     public class CompletionStateHandlerTests {
         [Fact]
         public async Task ExecuteAsync_ProducesChangeForSelectedCompletion() {
-            var session = SessionFromTextWithCursor("class C { void M(object o) { o| } }");
-            var completions = await TypeAndGetCompletionsAsync('.', session);
-            var changes = await ExecuteHandlerAsync<CompletionStateHandler, ChangesResult>(session, IndexOf(completions, "ToString"));
+            var test = MirrorSharpTest.StartNew().SetTextWithCursor("class C { void M(object o) { o| } }");
+            var completions = await TypeAndGetCompletionsAsync('.', test);
+            var changes = await test.SendAsync<ChangesResult>(CompletionState, IndexOf(completions, "ToString"));
 
             Assert.Equal("completion", changes.Reason);
             Assert.Equal(
                 new[] { new { Start = 31, Length = 0, Text = "ToString" } },
                 changes.Changes.Select(c => new { c.Start, c.Length, c.Text })
             );
-            Assert.Null(session.Completion.CurrentList);
+            Assert.Null(test.Session.Completion.CurrentList);
         }
 
         [Fact]
         public async Task ExecuteAsync_ReplacesInterimTypedText() {
-            var session = SessionFromTextWithCursor("class C { void M(object o) { o| } }");
-            var completions = await TypeAndGetCompletionsAsync('.', session);
-            await TypeCharsAsync(session, "To");
+            var test = MirrorSharpTest.StartNew().SetTextWithCursor("class C { void M(object o) { o| } }");
+            var completions = await TypeAndGetCompletionsAsync('.', test);
+            await test.TypeCharsAsync("To");
 
-            var changes = await ExecuteHandlerAsync<CompletionStateHandler, ChangesResult>(session, IndexOf(completions, "ToString"));
+            var changes = await test.SendAsync<ChangesResult>(CompletionState, IndexOf(completions, "ToString"));
 
             Assert.Equal(
                 new[] { new { Start = 31, Length = 2, Text = "ToString" } },
                 changes.Changes.Select(c => new { c.Start, c.Length, c.Text })
             );
-            Assert.Null(session.Completion.CurrentList);
+            Assert.Null(test.Session.Completion.CurrentList);
         }
 
         [Fact]
         public async Task ExecuteAsync_CancelsCompletion_WhenXIsProvidedInsteadOfIndex() {
-            var session = SessionFromTextWithCursor("class C { void M(object o) { o| } }");
-            await TypeAndGetCompletionsAsync('.', session);
+            var test = MirrorSharpTest.StartNew().SetTextWithCursor("class C { void M(object o) { o| } }");
+            await TypeAndGetCompletionsAsync('.', test);
 
-            var result = await ExecuteHandlerAsync<CompletionStateHandler, ChangesResult>(session, 'X');
+            var result = await test.SendAsync<ChangesResult>(CompletionState, 'X');
 
             Assert.Null(result);
-            Assert.Null(session.Completion.CurrentList);
+            Assert.Null(test.Session.Completion.CurrentList);
         }
 
         [Fact]
         public async Task ExecuteAsync_ForcesCompletion_WhenFIsProvidedInsteadOfIndex() {
-            var session = SessionFromTextWithCursor("class C { void M(object o) { o.| } }");
+            var test = MirrorSharpTest.StartNew().SetTextWithCursor("class C { void M(object o) { o.| } }");
 
-            var result = await ExecuteHandlerAsync<CompletionStateHandler, CompletionsResult>(session, 'F');
-            
+            var result = await test.SendAsync<CompletionsResult>(CompletionState, 'F');
+
             Assert.NotNull(result);
             Assert.Equal(
-                ObjectMemberNames.OrderBy(n => n),
+                ObjectMembers.AllNames.OrderBy(n => n),
                 result.Completions.Select(i => i.DisplayText).OrderBy(n => n)
             );
         }
 
-        private static async Task<IList<CompletionsResult.ResultItem>> TypeAndGetCompletionsAsync(char @char, WorkSession session) {
-            return (await ExecuteHandlerAsync<TypeCharHandler, CompletionsResult>(session, @char)).Completions;
+        private static async Task<IList<CompletionsResult.ResultItem>> TypeAndGetCompletionsAsync(char @char, MirrorSharpTest test) {
+            return (await test.SendAsync<CompletionsResult>(TypeChar, @char)).Completions;
         }
 
         private static int IndexOf(IEnumerable<CompletionsResult.ResultItem> completions, string displayText) {

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Results;
 
-namespace MirrorSharp.Tests.Internal {
+namespace MirrorSharp.Testing.Internal {
     internal class StubCommandResultSender : ICommandResultSender {
         private readonly FastUtf8JsonWriter _writer = new FastUtf8JsonWriter(ArrayPool<byte>.Shared);
 
@@ -22,7 +22,7 @@ namespace MirrorSharp.Tests.Internal {
         public Task SendJsonMessageAsync(CancellationToken cancellationToken) {
             _writer.WriteEndObject();
             LastMessageJson = Encoding.UTF8.GetString(_writer.WrittenSegment.Array, _writer.WrittenSegment.Offset, _writer.WrittenSegment.Count);
-            return Task.CompletedTask;
+            return TaskEx.CompletedTask;
         }
     }
 }

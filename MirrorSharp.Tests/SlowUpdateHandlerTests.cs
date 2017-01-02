@@ -2,19 +2,19 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using MirrorSharp.Internal.Handlers;
-using MirrorSharp.Tests.Internal;
+using MirrorSharp.Testing;
+using MirrorSharp.Testing.Internal;
 using MirrorSharp.Tests.Internal.Results;
 using Xunit;
 
 namespace MirrorSharp.Tests {
-    using static TestHelper;
+    using static CommandIds;
 
     public class SlowUpdateHandlerTests {
         [Fact]
         public async Task SlowUpdate_ProducesDiagnosticWithCustomTagUnnecessary_ForUnusedNamespace() {
-            var session = SessionFromTextWithCursor(@"using System;|");
-            var result = await ExecuteHandlerAsync<SlowUpdateHandler, SlowUpdateResult>(session);
+            var test = MirrorSharpTest.StartNew().SetTextWithCursor(@"using System;|");
+            var result = await test.SendAsync<SlowUpdateResult>(SlowUpdate);
 
             Assert.Contains(
                 new { severity = DiagnosticSeverity.Hidden.ToString("G").ToLowerInvariant(), isUnnecessary = true },
@@ -26,8 +26,8 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task SlowUpdate_ProducesAllExpectedActions_ForTypeFromUnreferencedNamespace() {
-            var session = SessionFromTextWithCursor(@"class C { Action a;| }");
-            var result = await ExecuteHandlerAsync<SlowUpdateHandler, SlowUpdateResult>(session);
+            var test = MirrorSharpTest.StartNew().SetTextWithCursor(@"class C { Action a;| }");
+            var result = await test.SendAsync<SlowUpdateResult>(SlowUpdate);
             var diagnostic = result.Diagnostics.Single(d => d.Message.Contains("Action"));
 
             Assert.Equal(
@@ -43,13 +43,13 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task SlowUpdate_Succeeds_ForValidVisualBasicCode() {
-            var session = SessionFromText(@"
+            var test = MirrorSharpTest.StartNew(languageName: LanguageNames.VisualBasic).SetText(@"
                 Class C
                     Sub M()
                     End Sub
                 End Class
-            ", language: VisualBasic);
-            var result = await ExecuteHandlerAsync<SlowUpdateHandler, SlowUpdateResult>(session);
+            ");
+            var result = await test.SendAsync<SlowUpdateResult>(SlowUpdate);
 
             Assert.NotNull(result);
             Assert.Empty(result.Diagnostics);

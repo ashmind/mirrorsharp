@@ -6,20 +6,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
-using MirrorSharp.Tests.Internal;
+using MirrorSharp.Testing;
 using Moq;
 using Xunit;
 
 namespace MirrorSharp.Tests {
-    using static TestHelper;
-
     public class ConnectionTests {
         [Fact]
         public async void ReceiveAndProcessAsync_CallsMatchingCommand() {
             var socketMock = Mock.Of<WebSocket>();
             SetupReceive(socketMock, "X");
 
-            var session = Session();
+            var session = MirrorSharpTest.StartNew().Session;
             // ReSharper disable once PossibleUnintendedReferenceComparison
             var handler = Mock.Of<ICommandHandler>(h => h.CommandId == 'X');
             var connection = new Connection(socketMock, session, CreateCommandHandlers(handler));

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text;
 
-namespace MirrorSharp.Tests.Internal {
-    public struct HandlerTestArgument {
+namespace MirrorSharp.Testing.Internal {
+    internal struct HandlerTestArgument {
         private readonly byte[] _data;
 
         private HandlerTestArgument(byte[] data) {

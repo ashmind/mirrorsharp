@@ -8,6 +8,7 @@
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
     "Moq": "4.6.38-alpha",
     "MirrorSharp.Common": "*",
+    "MirrorSharp.Testing": "*",
     "System.Net.WebSockets": "4.0.0"
   },
 

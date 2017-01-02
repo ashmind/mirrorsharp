@@ -5,7 +5,8 @@ using BenchmarkDotNet.Attributes;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Internal.Handlers.Shared;
-using MirrorSharp.Tests.Internal;
+using MirrorSharp.Testing;
+using MirrorSharp.Testing.Internal;
 
 namespace MirrorSharp.Benchmarks {
     public class SignatureHelpBenchmarks {
@@ -18,8 +19,8 @@ namespace MirrorSharp.Benchmarks {
 
         [Setup]
         public void Setup() {
-            _sessionWithHelp = TestHelper.SessionFromTextWithCursor("class C { void M(int a) { M| } }");
-            _sessionWithNoHelp = TestHelper.SessionFromTextWithCursor("class C { void M(int a) { M()| } }");
+            _sessionWithHelp = MirrorSharpTest.StartNew().SetTextWithCursor("class C { void M(int a) { M| } }").Session;
+            _sessionWithNoHelp = MirrorSharpTest.StartNew().SetTextWithCursor("class C { void M(int a) { M()| } }").Session;
             _handler = new TypeCharHandler(new TypedCharEffects(new CompletionSupport(), new SignatureHelpSupport()));
         }
 

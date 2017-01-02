@@ -1,12 +1,12 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using MirrorSharp.Internal.Handlers;
-using MirrorSharp.Tests.Internal;
+using MirrorSharp.Testing;
+using MirrorSharp.Testing.Internal;
 using MirrorSharp.Tests.Internal.Results;
 using Xunit;
 
 namespace MirrorSharp.Tests {
-    using static TestHelper;
+    using static CommandIds;
 
     public class MoveCursorHandlerTests {
         [Theory]
@@ -14,35 +14,35 @@ namespace MirrorSharp.Tests {
         [InlineData("79", 79)]
         [InlineData("1234567890", 1234567890)]
         public async void ExecuteAsync_UpdatesSessionCursorPosition(string dataString, int expectedPosition) {
-            var session = Session();
-            await ExecuteHandlerAsync<MoveCursorHandler>(session, dataString);
-            Assert.Equal(expectedPosition, session.CursorPosition);
+            var test = MirrorSharpTest.StartNew();
+            await test.SendAsync(MoveCursor, dataString);
+            Assert.Equal(expectedPosition, test.Session.CursorPosition);
         }
 
         [Fact]
         public async Task ExecuteAsync_ProducesEmptySignatureHelp_IfCursorIsMovedOutsideOfSignatureSpan() {
-            var session = SessionFromTextWithCursor(@"
+            var test = MirrorSharpTest.StartNew().SetTextWithCursor(@"
                 class C {
                     void M() {}
                     void T() { M| }
                 }
             ");
-            var signatures = await ExecuteHandlerAsync<TypeCharHandler, SignaturesResult>(session, '(');
-            var result = await ExecuteHandlerAsync<MoveCursorHandler, SignaturesResult>(session, signatures.Span.Start - 1);
+            var signatures = await test.SendAsync<SignaturesResult>(TypeChar, '(');
+            var result = await test.SendAsync<SignaturesResult>(MoveCursor, signatures.Span.Start - 1);
             Assert.Equal(0, result.Signatures.Count);
         }
 
         [Fact]
         public async Task ExecuteAsync_ProducesSignatureHelpWithNewSelectedParameter_IfCursorIsMovedMovedBetweenParameters() {
-            var session = SessionFromTextWithCursor(@"
+            var test = MirrorSharpTest.StartNew().SetTextWithCursor(@"
                 class C {
                     void M(int a, int b, int c) {}
                     void T() { M(1| }
                 }
             ");
-            await TypeCharsAsync(session, ",2,");
+            await test.TypeCharsAsync(",2,");
 
-            var result = await ExecuteHandlerAsync<MoveCursorHandler, SignaturesResult>(session, session.CursorPosition - 1);
+            var result = await test.SendAsync<SignaturesResult>(MoveCursor, test.Session.CursorPosition - 1);
             var signature = result.Signatures.Single();
             Assert.Equal("void C.M(int a, *int b*, int c)", signature.ToString());
         }

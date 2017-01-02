@@ -1,21 +1,20 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using MirrorSharp.Internal;
-using MirrorSharp.Internal.Handlers;
-using MirrorSharp.Tests.Internal;
+using MirrorSharp.Testing;
+using MirrorSharp.Testing.Internal;
 using MirrorSharp.Tests.Internal.Results;
 using Xunit;
 
 namespace MirrorSharp.Tests {
-    using static TestHelper;
+    using static CommandIds;
 
     public class ApplyDiagnosticActionHandlerTests {
         [Fact]
         public async Task ExecuteAsync_ProducesExpectedChanges_ForMissingNamespace() {
-            var session = SessionFromText(@"class C { Action a; }");
-            var action = await ExecuteSlowUpdateAndGetDiagnosticActionAsync(session, "Action", "using");
+            var test = MirrorSharpTest.StartNew().SetText(@"class C { Action a; }");
+            var action = await ExecuteSlowUpdateAndGetDiagnosticActionAsync(test, "Action", "using");
 
-            var changes = await ExecuteHandlerAsync<ApplyDiagnosticActionHandler, ChangesResult>(session, action.Id);
+            var changes = await test.SendAsync<ChangesResult>(ApplyDiagnosticAction, action.Id);
 
             Assert.Equal(
                 new[] { new { Start = 0, Length = 0, Text = "using System;\r\n\r\n" } },
@@ -25,21 +24,21 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task ExecuteAsync_DoesNotModifyCurrentSession() {
-            var session = SessionFromText(@"class C { Action a; }");
-            var action = await ExecuteSlowUpdateAndGetDiagnosticActionAsync(session, "Action", "using");
+            var test = MirrorSharpTest.StartNew().SetText(@"class C { Action a; }");
+            var action = await ExecuteSlowUpdateAndGetDiagnosticActionAsync(test, "Action", "using");
 
-            var textBefore = session.SourceText;
-            await ExecuteHandlerAsync<ApplyDiagnosticActionHandler>(session, action.Id);
+            var textBefore = test.Session.SourceText;
+            await test.SendAsync(ApplyDiagnosticAction, action.Id);
 
-            Assert.Same(textBefore, session.SourceText);
-            Assert.Equal(textBefore.ToString(), (await session.Document.GetTextAsync()).ToString());
-            Assert.Same(session.Workspace.CurrentSolution, session.Project.Solution);
+            Assert.Same(textBefore, test.Session.SourceText);
+            Assert.Equal(textBefore.ToString(), (await test.Session.Document.GetTextAsync()).ToString());
+            Assert.Same(test.Session.Workspace.CurrentSolution, test.Session.Project.Solution);
         }
 
         private static async Task<SlowUpdateResult.ResultAction> ExecuteSlowUpdateAndGetDiagnosticActionAsync(
-            WorkSession session, string diagnosticMessageFilter, string actionTitleFilter
+            MirrorSharpTest test, string diagnosticMessageFilter, string actionTitleFilter
         ) {
-            var result = await ExecuteHandlerAsync<SlowUpdateHandler, SlowUpdateResult>(session);
+            var result = await test.SendAsync<SlowUpdateResult>(SlowUpdate);
             var diagnostic = result.Diagnostics.Single(d => d.Message.Contains(diagnosticMessageFilter));
             return diagnostic.Actions.Single(a => a.Title.Contains(actionTitleFilter));
         }

@@ -12,5 +12,6 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("MirrorSharp.AspNetCore")]
 [assembly: InternalsVisibleTo("MirrorSharp.Benchmarks")]
 [assembly: InternalsVisibleTo("MirrorSharp.Owin")]
+[assembly: InternalsVisibleTo("MirrorSharp.Testing")]
 [assembly: InternalsVisibleTo("MirrorSharp.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

@@ -52,6 +52,10 @@ namespace MirrorSharp.Advanced {
             };
         }
 
+        internal ICommandHandler GetHandler(char commandId) {
+            return _handlers[commandId - 'A'];
+        }
+
         [NotNull]
         protected async Task WebSocketLoopAsync([NotNull] WebSocket socket, CancellationToken cancellationToken) {
             WorkSession session = null;
