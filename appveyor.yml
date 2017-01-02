@@ -2,7 +2,7 @@ version: '{build}'
 configuration: Release
 
 environment:
-  "npm_config_//registry.npmjs.org/:_authToken":
+  NpmAuthToken:
     secure: Y7AyDXAcvBiXCfBEX8LMNg8WI8/mvse0ULxs1Ip3/yFxr8m4PqPG1H2D2ZWJFoaJ
 
 before_build:
@@ -30,4 +30,4 @@ deploy:
     artifact: /.*\.nupkg/
 
 after_deploy:
-- ps: Get-Item *.tgz | % { npm publish $($_.FullName) }
+- ps: .\Publish-ToNpm.ps1
