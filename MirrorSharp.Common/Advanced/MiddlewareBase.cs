@@ -16,9 +16,12 @@ namespace MirrorSharp.Advanced {
         [NotNull, ItemNotNull] private readonly IReadOnlyCollection<ILanguage> _languages;
         [ItemNotNull] private readonly ImmutableArray<ICommandHandler> _handlers;
 
-        protected MiddlewareBase([CanBeNull] MirrorSharpOptions options) {
+        protected MiddlewareBase([CanBeNull] MirrorSharpOptions options) : this(new CSharpLanguage(), new VisualBasicLanguage(), options) {
+        }
+
+        internal MiddlewareBase([NotNull] CSharpLanguage csharp, [NotNull] VisualBasicLanguage visualBasic, [CanBeNull] MirrorSharpOptions options) {
             _options = options;
-            _languages = new[] {new CSharpLanguage()};
+            _languages = new ILanguage[] { csharp, visualBasic };
             _handlers = CreateHandlersIndexedByCommandId();
         }
 

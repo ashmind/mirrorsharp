@@ -12,7 +12,8 @@ namespace MirrorSharp.Tests {
 
     public class SetOptionsHandlerTests {
         [Theory]
-        [InlineData(LanguageNames.CSharp)] // this is a noop at the moment, but VB is not implemented yet
+        [InlineData(LanguageNames.CSharp)]
+        [InlineData(LanguageNames.VisualBasic)]
         public async void ExecuteAsync_UpdatesSessionLanguage(string languageName) {
             var session = Session();
             await ExecuteHandlerAsync<SetOptionsHandler>(session, "language=" + languageName);

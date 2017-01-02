@@ -34,14 +34,14 @@ namespace MirrorSharp.Internal {
         private ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> _codeFixProviders;
         private ImmutableArray<ISignatureHelpProviderWrapper> _signatureHelpProviders;
 
-        internal WorkSession([NotNull] ILanguage language, [CanBeNull] IWorkSessionOptions options = null) {
+        public WorkSession([NotNull] ILanguage language, [CanBeNull] IWorkSessionOptions options = null) {
             _language = Argument.NotNull(nameof(language), language);
             _options = options;
 
             SelfDebug = (options?.SelfDebugEnabled ?? false) ? new SelfDebug() : null;
         }
 
-        internal void ChangeLanguage([NotNull] ILanguage language) {
+        public void ChangeLanguage([NotNull] ILanguage language) {
             Argument.NotNull(nameof(language), language);
             if (language == _language)
                 return;

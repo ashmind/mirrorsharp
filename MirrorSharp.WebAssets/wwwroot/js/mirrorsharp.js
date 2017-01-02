@@ -409,12 +409,19 @@
 
     function Editor(textarea, connection, selfDebug, options) {
         const lineSeparator = '\r\n';
+        const defaultLanguage = 'C#';
+        const languageModes = {
+            'C#': 'text/x-csharp',
+            'Visual Basic': 'text/x-vb'
+        };
+
+        var language;
         var serverOptions;
         var lintingSuspended = true;
         var hadChangesSinceLastLinting = false;
         var capturedUpdateLinting;
 
-        options = options || {};
+        options = assign({ language: defaultLanguage }, options);
         options.on = assign({
             slowUpdateResult: function() {},
             textChange:       function() {},
@@ -424,7 +431,7 @@
 
         const cmOptions = assign({ gutters: [], indentUnit: 4 }, options.forCodeMirror, {
             lineSeparator: lineSeparator,
-            mode: 'text/x-csharp',
+            mode: languageModes[options.language],
             lint: { async: true, getAnnotations: lintGetAnnotations },
             lintFix: { getFixes: getFixes },
             extraKeys: {}
@@ -435,8 +442,11 @@
             'Ctrl-.': 'lintFixShow',
             'Shift-Ctrl-Y': selfDebug ? function() { selfDebug.requestData(connection); } : null
         }, cmOptions.extraKeys);
-
         cmOptions.gutters.push('CodeMirror-lint-markers');
+
+        language = options.language;
+        if (language !== defaultLanguage)
+            serverOptions = { language: language };
 
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);
         // see https://github.com/codemirror/CodeMirror/blob/dbaf6a94f1ae50d387fa77893cf6b886988c2147/addon/lint/lint.js#L133
@@ -522,7 +532,7 @@
         connection.on('message', function (message) {
             switch (message.type) {
                 case 'changes':
-                    applyServerChanges(message.changes, message.reason);
+                    receiveServerChanges(message.changes, message.reason);
                     break;
 
                 case 'completions':
@@ -541,7 +551,7 @@
                     break;
 
                 case 'optionsEcho':
-                    serverOptions = message.options;
+                    receiveServerOptions(message.options);
                     break;
 
                 case 'self:debug':
@@ -566,14 +576,14 @@
                     updateLinting.apply(this, arguments);
                 };
             }
-            requestSlowUpdate(text);
+            requestSlowUpdate();
         }
 
         function getCursorIndex() {
             return cm.indexFromPos(cm.getCursor());
         }
 
-        function applyServerChanges(changes, reason) {
+        function receiveServerChanges(changes, reason) {
             changesAreFromServer = true;
             changeReason = reason || 'server';
             for (var change of changes) {
@@ -607,8 +617,8 @@
             connection.sendApplyDiagnosticAction(fix.id);
         }
 
-        function requestSlowUpdate() {
-            if (lintingSuspended || !hadChangesSinceLastLinting)
+        function requestSlowUpdate(force) {
+            if (lintingSuspended || !(hadChangesSinceLastLinting || force))
                 return null;
             hadChangesSinceLastLinting = false;
             return connection.sendSlowUpdate();
@@ -659,10 +669,19 @@
 
         function sendServerOptions(value) {
             return connection.sendSetOptions(value).then(function() {
-                return requestSlowUpdate();
+                return requestSlowUpdate(true);
             });
         }
 
+        function receiveServerOptions(value) {
+            serverOptions = value;
+            if (value.language !== language)
+                cm.setOption('mode', languageModes[language]);
+        }
+
+        this.getCodeMirror = function() { return cm; };
+        this.getLanguage = function() { return language; };
+        this.setLanguage = function() { return sendServerOptions({ language: value }); };
         this.sendServerOptions = sendServerOptions;
     }
 
@@ -672,8 +691,10 @@
             return new WebSocket(options.serviceUrl);
         }, selfDebug);
         const editor = new Editor(textarea, connection, selfDebug, options);
-        return {
-            sendServerOptions: editor.sendServerOptions.bind(editor)
-        };
+        const exports = {};
+        for (var key in editor) {
+            exports[key] = editor[key].bind(editor);
+        }
+        return exports;
     };
 }));

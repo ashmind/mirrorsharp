@@ -40,5 +40,19 @@ namespace MirrorSharp.Tests {
                 diagnostic.Actions.Select(a => a.Title).OrderBy(t => t).ToArray()
             );
         }
+
+        [Fact]
+        public async Task SlowUpdate_Succeeds_ForValidVisualBasicCode() {
+            var session = SessionFromText(@"
+                Class C
+                    Sub M()
+                    End Sub
+                End Class
+            ", language: VisualBasic);
+            var result = await ExecuteHandlerAsync<SlowUpdateHandler, SlowUpdateResult>(session);
+
+            Assert.NotNull(result);
+            Assert.Empty(result.Diagnostics);
+        }
     }
 }

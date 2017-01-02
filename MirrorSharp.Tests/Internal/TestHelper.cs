@@ -17,6 +17,9 @@ namespace MirrorSharp.Tests.Internal {
             nameof(ToString)
         };
 
+        public static readonly CSharpLanguage CSharp = new CSharpLanguage();
+        public static readonly VisualBasicLanguage VisualBasic = new VisualBasicLanguage();
+
         public static Task ExecuteHandlerAsync<TCommandHandler>(WorkSession session, HandlerTestArgument argument = default(HandlerTestArgument), MirrorSharpOptions options = null)
             where TCommandHandler: ICommandHandler
         {
@@ -34,8 +37,8 @@ namespace MirrorSharp.Tests.Internal {
             return sender.LastMessageJson != null ? JsonConvert.DeserializeObject<TResult>(sender.LastMessageJson) : null;
         }
 
-        public static WorkSession Session() => new WorkSession(new CSharpLanguage());
-        public static WorkSession SessionFromText(string text, IWorkSessionOptions options = null) => new WorkSession(new CSharpLanguage(), options) {
+        public static WorkSession Session() => new WorkSession(CSharp);
+        public static WorkSession SessionFromText(string text, IWorkSessionOptions options = null, ILanguage language = null) => new WorkSession(language ?? CSharp, options) {
             SourceText = SourceText.From(text)
         };
 
@@ -43,7 +46,7 @@ namespace MirrorSharp.Tests.Internal {
             var cursorPosition = textWithCursor.LastIndexOf('|');
             var text = textWithCursor.Remove(cursorPosition, 1);
 
-            var session = new WorkSession(new CSharpLanguage()) {
+            var session = new WorkSession(CSharp) {
                 CursorPosition = cursorPosition,
                 SourceText = SourceText.From(text)
             };
@@ -57,7 +60,7 @@ namespace MirrorSharp.Tests.Internal {
         }
 
         private class CommandFactory : MiddlewareBase {
-            public CommandFactory(MirrorSharpOptions options = null) : base(options) {
+            public CommandFactory(MirrorSharpOptions options = null) : base(CSharp, VisualBasic, options) {
             }
 
             public TCommandHandler Create<TCommandHandler>() {
