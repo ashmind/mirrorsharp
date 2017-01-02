@@ -7,4 +7,5 @@ try {
 }
 catch {
     Remove-Item ".npmrc"
+    throw
 }
