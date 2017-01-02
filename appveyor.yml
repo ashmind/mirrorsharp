@@ -12,10 +12,10 @@ build:
   verbosity: minimal
 
 test_script:
-- cmd: dotnet test MirrorSharp.Tests
+- dotnet test MirrorSharp.Tests
   
 after_test:
-- ps: .\pack-all.bat
+- .\pack-all.bat
 
 artifacts:
 - path: '*.nupkg'
@@ -30,4 +30,4 @@ deploy:
     artifact: /.*\.nupkg/
 
 after_deploy:
-- npm publish *.tgz
+- ps: Get-Item *.tgz | % { npm publish $($_.FullName) }
