@@ -22,12 +22,12 @@ artifacts:
 - path: '*.tgz'
 
 deploy:
-#  - provider: NuGet
-#    on:
-#      branch: master
-#    api_key:
-#      secure: rV20COJkB2Lt/O6E7NvcdMJlHtBS8C7uuUWhFXu6XTPmEVqAeMKCDyz/yuOZwVRo
-#    artifact: /.*\.nupkg/
+  - provider: NuGet
+    on:
+      branch: master
+    api_key:
+      secure: rV20COJkB2Lt/O6E7NvcdMJlHtBS8C7uuUWhFXu6XTPmEVqAeMKCDyz/yuOZwVRo
+    artifact: /.*\.nupkg/
 
 after_deploy:
 - npm publish *.tgz
