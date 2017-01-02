@@ -13,6 +13,9 @@ test_script:
 after_build:
 - ps: .\dotnet-pack-all.bat
 
+artifacts:
+- path: '*.nupkg'
+
 deploy:
   - provider: NuGet
     on:
