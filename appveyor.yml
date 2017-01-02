@@ -1,6 +1,10 @@
 version: '{build}'
 configuration: Release
 
+environment:
+  "npm_config_//registry.npmjs.org/:_authToken":
+    secure: Y7AyDXAcvBiXCfBEX8LMNg8WI8/mvse0ULxs1Ip3/yFxr8m4PqPG1H2D2ZWJFoaJ
+
 before_build:
 - dotnet restore
 
@@ -10,16 +14,20 @@ build:
 test_script:
 - cmd: dotnet test MirrorSharp.Tests
   
-after_build:
-- ps: .\dotnet-pack-all.bat
+after_test:
+- ps: .\pack-all.bat
 
 artifacts:
 - path: '*.nupkg'
+- path: '*.tgz'
 
-deploy:
-  - provider: NuGet
-    on:
-      branch: master
-    api_key:
-      secure: rV20COJkB2Lt/O6E7NvcdMJlHtBS8C7uuUWhFXu6XTPmEVqAeMKCDyz/yuOZwVRo
-    artifact: /.*\.nupkg/
+#deploy:
+#  - provider: NuGet
+#    on:
+#      branch: master
+#    api_key:
+#      secure: rV20COJkB2Lt/O6E7NvcdMJlHtBS8C7uuUWhFXu6XTPmEVqAeMKCDyz/yuOZwVRo
+#    artifact: /.*\.nupkg/
+
+after_deploy:
+- npm publish *.tgz
