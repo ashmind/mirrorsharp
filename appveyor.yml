@@ -9,3 +9,14 @@ build:
 
 test_script:
 - cmd: dotnet test MirrorSharp.Tests
+  
+after_build:
+- ps: .\dotnet-pack-all.bat
+
+deploy:
+  - provider: NuGet
+    on:
+      branch: master
+    api_key:
+      secure: rV20COJkB2Lt/O6E7NvcdMJlHtBS8C7uuUWhFXu6XTPmEVqAeMKCDyz/yuOZwVRo
+    artifact: /.*\.nupkg/
