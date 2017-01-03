@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using MirrorSharp.Advanced;
+using MirrorSharp.Internal;
 using MirrorSharp.Testing;
-using MirrorSharp.Testing.Internal;
-using MirrorSharp.Tests.Internal.Results;
+using MirrorSharp.Testing.Results;
 using Moq;
 using Xunit;
 
@@ -31,7 +31,7 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async void ExecuteAsync_PreservesSessionWorkspace_WhenUpdatingOptimizeToTheSameValue() {
-            var driver = MirrorSharpTestDriver.New().SetText("test");
+            var driver = MirrorSharpTestDriver.New().SetSourceText("test");
             driver.Session.ChangeCompilationOptions(nameof(CompilationOptions.OptimizationLevel), c => c.WithOptimizationLevel(OptimizationLevel.Release));
             var workspace = driver.Session.Workspace;
             await driver.SendAsync(SetOptions, "optimize=release");
@@ -40,14 +40,14 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async void ExecuteAsync_PreservesSessionSourceText_WhenUpdatingOptions() {
-            var driver = MirrorSharpTestDriver.New().SetText("test");
+            var driver = MirrorSharpTestDriver.New().SetSourceText("test");
             await driver.SendAsync(SetOptions, "optimize=debug");
             Assert.Equal("test", driver.Session.SourceText.ToString());
         }
 
         [Fact]
         public async void ExecuteAsync_PreservesSessionCursorPosition_WhenUpdatingOptions() {
-            var driver = MirrorSharpTestDriver.New().SetTextWithCursor("test|");
+            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor("test|");
             await driver.SendAsync(SetOptions, "optimize=debug");
             Assert.Equal(4, driver.Session.CursorPosition);
         }

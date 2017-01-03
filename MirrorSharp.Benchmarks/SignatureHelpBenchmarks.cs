@@ -19,8 +19,8 @@ namespace MirrorSharp.Benchmarks {
 
         [Setup]
         public void Setup() {
-            _sessionWithHelp = MirrorSharpTestDriver.New().SetTextWithCursor("class C { void M(int a) { M| } }").Session;
-            _sessionWithNoHelp = MirrorSharpTestDriver.New().SetTextWithCursor("class C { void M(int a) { M()| } }").Session;
+            _sessionWithHelp = MirrorSharpTestDriver.New().SetSourceTextWithCursor("class C { void M(int a) { M| } }").Session;
+            _sessionWithNoHelp = MirrorSharpTestDriver.New().SetSourceTextWithCursor("class C { void M(int a) { M()| } }").Session;
             _handler = new TypeCharHandler(new TypedCharEffects(new CompletionSupport(), new SignatureHelpSupport()));
         }
 

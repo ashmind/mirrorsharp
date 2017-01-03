@@ -41,7 +41,8 @@ Use one of the following:
 - `bower install mirrorsharp --save` (TODO: this is not available yet)
 
 #### CSS
-If you are using LESS, CSS references can be done automatically by including `mirrorsharp/mirrorsharp.less`. Otherwise, make sure to include the following:
+If you are using LESS, CSS references can be done automatically by including `mirrorsharp/mirrorsharp.less`.  
+Otherwise, make sure to include the following:
 
 1. codemirror/lib/codemirror.css
 2. codemirror/addon/lint/lint.css
@@ -64,10 +65,14 @@ Once referenced, you can do the following:
 ```javascript
 mirrorsharp(textarea, { serviceUrl: 'wss://your_app_root/mirrorsharp' })
 ```
-If you re not using HTTPS, you'll likely need `ws://` instead of `wss://`.
+If you're not using HTTPS, you'll likely need `ws://` instead of `wss://`.
 
 Note that `textarea` is an actual textarea element, and not a CSS selector or jQuery object.
 
 ## API
 
 TODO. In general the idea is that "it just works", however customization is a goal and some options are already available.
+
+## Testing
+
+TODO, but see MirrorSharp.Testing on NuGet.

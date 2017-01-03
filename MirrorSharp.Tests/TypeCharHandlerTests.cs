@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using MirrorSharp.Internal;
 using MirrorSharp.Testing;
-using MirrorSharp.Testing.Internal;
+using MirrorSharp.Testing.Internal.Results;
 using MirrorSharp.Tests.Internal;
-using MirrorSharp.Tests.Internal.Results;
 using Xunit;
 
 namespace MirrorSharp.Tests {
@@ -23,7 +23,7 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task ExecuteAsync_InsertsSingleChar() {
-            var driver = MirrorSharpTestDriver.New().SetTextWithCursor("class A| {}");
+            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor("class A| {}");
             await driver.SendAsync(TypeChar, '1');
 
             Assert.Equal("class A1 {}", driver.Session.SourceText.ToString());
@@ -31,7 +31,7 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task ExecuteAsync_MovesCursorBySingleChar() {
-            var driver = MirrorSharpTestDriver.New().SetTextWithCursor("class A| {}");
+            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor("class A| {}");
             var cursorPosition = driver.Session.CursorPosition;
             await driver.SendAsync(TypeChar, '1');
 
@@ -40,7 +40,7 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task ExecuteAsync_ProducesExpectedCompletion() {
-            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"
+            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"
                 class A { public int x; }
                 class B { void M(A a) { a| } }
             ");
@@ -54,7 +54,7 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task ExecuteAsync_ProducesExpectedCompletionWithSuggestionItem_InLambdaContext() {
-            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"class C { void M() { System.Action a = | } }");
+            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"class C { void M() { System.Action a = | } }");
             var result = await driver.SendAsync<CompletionsResult>(TypeChar, 's');
 
             Assert.Equal("<lambda expression>", result.Suggestion?.DisplayText);
@@ -62,7 +62,7 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task ExecuteAsync_ProducesExpectedCompletionWithMatchPriority_InEnumContext() {
-            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"
+            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"
                 using System;
                 class C { void M() { new DateTime().DayOfWeek =| } }
             ");
@@ -80,7 +80,7 @@ namespace MirrorSharp.Tests {
         [InlineData("void M(int a, string b) {}", new[] { "void C.M(int a, string b)" })]
         [InlineData("void M(int a) {} void M(string b) {}", new[] { "void C.M(int a)", "void C.M(string b)" })]
         public async Task ExecuteAsync_ProducesExpectedSignatureHelp(string methods, string[] expected) {
-            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"
+            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"
                 class C {
                     " + methods + @"
                     void T() { M| }
@@ -93,7 +93,7 @@ namespace MirrorSharp.Tests {
         [Theory]
         [InlineData("void M(int a, int b, int c) {}", "void C.M(int a, *int b*, int c)")]
         public async Task ExecuteAsync_ProducesSignatureHelpWithSelectedParameter(string methods, string expected) {
-            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"
+            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"
                 class C {
                     " + methods + @"
                     void T() { M(1| }
@@ -107,7 +107,7 @@ namespace MirrorSharp.Tests {
         [Theory]
         [InlineData("void M(int a) {} void M(int a, int b) {}", "void C.M(int a, int b)")]
         public async Task ExecuteAsync_ProducesSignatureHelpWithSelectedSignature(string methods, string expectedSelected) {
-            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"
+            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"
                 class C {
                     " + methods + @"
                     void T() { M(1| }
@@ -120,7 +120,7 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task ExecuteAsync_ProducesEmptySignatureHelp_OnClosingParenthesis() {
-            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"
+            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"
                 class C {
                     void M() {}
                     void T() { M| }

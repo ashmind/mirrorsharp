@@ -9,7 +9,7 @@ using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
     internal class ReplaceTextHandler : ICommandHandler {
-        public char CommandId => 'R';
+        public char CommandId => CommandIds.ReplaceText;
         [NotNull] private readonly ISignatureHelpSupport _signatureHelp;
         [NotNull] private readonly ICompletionSupport _completion;
         [NotNull] private readonly ITypedCharEffects _typedCharEffects;

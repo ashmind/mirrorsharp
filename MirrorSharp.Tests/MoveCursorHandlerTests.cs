@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using MirrorSharp.Internal;
 using MirrorSharp.Testing;
-using MirrorSharp.Testing.Internal;
-using MirrorSharp.Tests.Internal.Results;
+using MirrorSharp.Testing.Internal.Results;
 using Xunit;
 
 namespace MirrorSharp.Tests {
@@ -21,7 +21,7 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task ExecuteAsync_ProducesEmptySignatureHelp_IfCursorIsMovedOutsideOfSignatureSpan() {
-            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"
+            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"
                 class C {
                     void M() {}
                     void T() { M| }
@@ -34,13 +34,13 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task ExecuteAsync_ProducesSignatureHelpWithNewSelectedParameter_IfCursorIsMovedMovedBetweenParameters() {
-            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"
+            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"
                 class C {
                     void M(int a, int b, int c) {}
                     void T() { M(1| }
                 }
             ");
-            await driver.TypeCharsAsync(",2,");
+            await driver.SendTypeCharsAsync(",2,");
 
             var result = await driver.SendAsync<SignaturesResult>(MoveCursor, driver.Session.CursorPosition - 1);
             var signature = result.Signatures.Single();

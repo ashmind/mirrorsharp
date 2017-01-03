@@ -8,7 +8,7 @@ using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
     internal class TypeCharHandler : ICommandHandler {
-        public char CommandId => 'C';
+        public char CommandId => CommandIds.TypeChar;
         [NotNull] private readonly ITypedCharEffects _effects;
 
         public TypeCharHandler([NotNull] ITypedCharEffects effects) {

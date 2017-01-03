@@ -1,8 +1,9 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using MirrorSharp.Internal;
 using MirrorSharp.Testing;
-using MirrorSharp.Testing.Internal;
-using MirrorSharp.Tests.Internal.Results;
+using MirrorSharp.Testing.Internal.Results;
+using MirrorSharp.Testing.Results;
 using Xunit;
 
 namespace MirrorSharp.Tests {
@@ -11,7 +12,7 @@ namespace MirrorSharp.Tests {
     public class ApplyDiagnosticActionHandlerTests {
         [Fact]
         public async Task ExecuteAsync_ProducesExpectedChanges_ForMissingNamespace() {
-            var driver = MirrorSharpTestDriver.New().SetText(@"class C { Action a; }");
+            var driver = MirrorSharpTestDriver.New().SetSourceText(@"class C { Action a; }");
             var action = await ExecuteSlowUpdateAndGetDiagnosticActionAsync(driver, "Action", "using");
 
             var changes = await driver.SendAsync<ChangesResult>(ApplyDiagnosticAction, action.Id);
@@ -24,7 +25,7 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task ExecuteAsync_DoesNotModifyCurrentSession() {
-            var driver = MirrorSharpTestDriver.New().SetText(@"class C { Action a; }");
+            var driver = MirrorSharpTestDriver.New().SetSourceText(@"class C { Action a; }");
             var action = await ExecuteSlowUpdateAndGetDiagnosticActionAsync(driver, "Action", "using");
 
             var textBefore = driver.Session.SourceText;
@@ -35,12 +36,12 @@ namespace MirrorSharp.Tests {
             Assert.Same(driver.Session.Workspace.CurrentSolution, driver.Session.Project.Solution);
         }
 
-        private static async Task<SlowUpdateResult.ResultAction> ExecuteSlowUpdateAndGetDiagnosticActionAsync(
+        private static async Task<SlowUpdateDiagnosticAction> ExecuteSlowUpdateAndGetDiagnosticActionAsync(
             MirrorSharpTestDriver driver, string diagnosticMessageFilter, string actionTitleFilter
         ) {
-            var result = await driver.SendAsync<SlowUpdateResult>(SlowUpdate);
-            var diagnostic = result.Diagnostics.Single(d => d.Message.Contains(diagnosticMessageFilter));
-            return diagnostic.Actions.Single(a => a.Title.Contains(actionTitleFilter));
+            var result = await driver.SendSlowUpdateAsync();
+            var diagnostic = result.Diagnostics.Single(d => d.Message?.Contains(diagnosticMessageFilter) ?? false);
+            return diagnostic.Actions.Single(a => a.Title?.Contains(actionTitleFilter) ?? false);
         }
     }
 }

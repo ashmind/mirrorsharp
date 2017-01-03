@@ -7,7 +7,7 @@ using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
     internal class SignatureHelpStateHandler : ICommandHandler {
-        public char CommandId => 'P';
+        public char CommandId => CommandIds.SignatureHelpState;
         [NotNull] private readonly ISignatureHelpSupport _signatureHelp;
 
         public SignatureHelpStateHandler([NotNull] ISignatureHelpSupport signatureHelp) {

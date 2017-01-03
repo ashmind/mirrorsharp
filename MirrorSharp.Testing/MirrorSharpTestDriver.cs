@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -8,6 +9,7 @@ using MirrorSharp.Advanced;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Languages;
 using MirrorSharp.Testing.Internal;
+using MirrorSharp.Testing.Results;
 using Newtonsoft.Json;
 
 namespace MirrorSharp.Testing {
@@ -30,7 +32,12 @@ namespace MirrorSharp.Testing {
             return new MirrorSharpTestDriver(options, languageName);
         }
 
-        public MirrorSharpTestDriver SetTextWithCursor(string textWithCursor) {
+        public MirrorSharpTestDriver SetSourceText(string text) {
+            Session.SourceText = SourceText.From(text);
+            return this;
+        }
+
+        public MirrorSharpTestDriver SetSourceTextWithCursor(string textWithCursor) {
             var cursorPosition = textWithCursor.LastIndexOf('|');
             var text = textWithCursor.Remove(cursorPosition, 1);
 
@@ -39,15 +46,26 @@ namespace MirrorSharp.Testing {
             return this;
         }
 
-        public MirrorSharpTestDriver SetText(string text) {
-            Session.SourceText = SourceText.From(text);
-            return this;
-        }
-
-        public async Task TypeCharsAsync(string value) {
+        [PublicAPI]
+        public async Task SendTypeCharsAsync(string value) {
             foreach (var @char in value) {
                 await SendAsync(CommandIds.TypeChar, @char);
             }
+        }
+
+        [PublicAPI]
+        public Task<SlowUpdateResult<object>> SendSlowUpdateAsync() => SendSlowUpdateAsync<object>();
+
+        [PublicAPI]
+        public Task<SlowUpdateResult<TExtensionResult>> SendSlowUpdateAsync<TExtensionResult>()
+            where TExtensionResult : class
+        {
+            return SendAsync<SlowUpdateResult<TExtensionResult>>(CommandIds.SlowUpdate);
+        }
+
+        [PublicAPI]
+        public Task<OptionsEchoResult> SendSetOptionsAsync(IDictionary<string, string> options) {
+            return SendAsync<OptionsEchoResult>(CommandIds.SetOptions, string.Join(",", options.Select(o => $"{o.Key}={o.Value}")));
         }
 
         internal async Task<TResult> SendAsync<TResult>(char commandId, HandlerTestArgument argument = default(HandlerTestArgument))

@@ -20,7 +20,7 @@ namespace MirrorSharp.Internal.Handlers {
         private readonly IReadOnlyCollection<ILanguage> _languages;
         [CanBeNull] private readonly ISetOptionsFromClientExtension _extension;
 
-        public char CommandId => 'O';
+        public char CommandId => CommandIds.SetOptions;
 
         internal SetOptionsHandler([NotNull] IReadOnlyCollection<ILanguage> languages, [CanBeNull] ISetOptionsFromClientExtension extension) {
             _optionSetters = new Dictionary<string, Action<WorkSession, string>> {

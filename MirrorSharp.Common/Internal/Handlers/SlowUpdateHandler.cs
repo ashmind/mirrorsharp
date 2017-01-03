@@ -23,7 +23,7 @@ namespace MirrorSharp.Internal.Handlers {
             _extension = extension;
         }
 
-        public char CommandId => 'U';
+        public char CommandId => CommandIds.SlowUpdate;
 
         public async Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var compilation = await session.Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);

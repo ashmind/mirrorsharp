@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using MirrorSharp.Internal;
 using MirrorSharp.Testing;
-using MirrorSharp.Testing.Internal;
-using MirrorSharp.Tests.Internal.Results;
+using MirrorSharp.Testing.Internal.Results;
 using Xunit;
 
 namespace MirrorSharp.Tests {
@@ -11,7 +11,7 @@ namespace MirrorSharp.Tests {
     public class SignatureHelpStateHandlerTests {
         [Fact]
         public async Task ExecuteAsync_ProducesExpectedSignatureHelp_WhenForceIsRequested() {
-            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"
+            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"
                 class C {
                     void M(int a) {}
                     void T() { M(1|) }

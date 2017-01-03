@@ -5,7 +5,7 @@ using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
     internal class ApplyDiagnosticActionHandler : ICommandHandler {
-        public char CommandId => 'F';
+        public char CommandId => CommandIds.ApplyDiagnosticAction;
 
         public async Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var actionId = FastConvert.Utf8ByteArrayToInt32(data);
