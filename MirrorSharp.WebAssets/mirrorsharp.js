@@ -1,4 +1,4 @@
-/* globals console:false */
+/* globals console:false, CloseEvent:false */
 (function (root, factory) {
     'use strict';
     // ReSharper disable UndeclaredGlobalVariableUsing (R# bug, https://youtrack.jetbrains.com/issue/RSRP-462411)
@@ -112,29 +112,10 @@
 
         open();
 
+        var mustBeClosed = false;
         var reopenPeriod = 0;
         var reopenPeriodResetTimer;
         var reopening = false;
-        function tryToReopen() {
-            if (reopening)
-                return;
-
-            if (reopenPeriodResetTimer) {
-                clearTimeout(reopenPeriodResetTimer);
-                reopenPeriodResetTimer = null;
-            }
-
-            reopening = true;
-            setTimeout(function () {
-                open();
-                reopening = false;
-            }, reopenPeriod);
-            if (reopenPeriod < 60000)
-                reopenPeriod = Math.min(5 * (reopenPeriod + 200), 60000);
-        }
-
-        on('error', tryToReopen);
-        on('close', tryToReopen);
 
         function open() {
             socket = openSocket();
@@ -173,11 +154,27 @@
             }
         }
 
-        function on(key, handler) {
-            handlers[key].push(handler);
+        function tryToReopen() {
+            if (mustBeClosed || reopening)
+                return;
+
+            if (reopenPeriodResetTimer) {
+                clearTimeout(reopenPeriodResetTimer);
+                reopenPeriodResetTimer = null;
+            }
+
+            reopening = true;
+            setTimeout(function () {
+                open();
+                reopening = false;
+            }, reopenPeriod);
+            if (reopenPeriod < 60000)
+                reopenPeriod = Math.min(5 * (reopenPeriod + 200), 60000);
         }
 
         function sendWhenOpen(command) {
+            if (mustBeClosed)
+                throw "Cannot send command '" + command + "' after the close() call.";
             return openPromise.then(function () {
                 if (selfDebug)
                     selfDebug.log('send', command);
@@ -185,7 +182,20 @@
             });
         }
 
-        this.on = on;
+        this.on = function(key, handler) {
+            handlers[key].push(handler);
+        };
+        this.off = function(key, handler) {
+            const list = handlers[key];
+            const index = list.indexOf(handler);
+            if (index >= 0)
+                list.splice(index, 1);
+        };
+
+        const removeEvents = addEvents({
+            error: tryToReopen,
+            close: tryToReopen
+        });
         this.sendReplaceText = function (start, length, newText, cursorIndexAfter, reason) {
             return sendWhenOpen('R' + start + ':' + length + ':' + cursorIndexAfter + ':' + (reason || '') + ':' + newText);
         };
@@ -227,6 +237,12 @@
         this.sendRequestSelfDebugData = function() {
             return sendWhenOpen('Y');
         };
+
+        this.close = function() {
+            mustBeClosed = true;
+            removeEvents();
+            socket.close();
+        };
     }
 
     function Hinter(cm, connection) {
@@ -237,15 +253,38 @@
         var currentOptions;
         var lastCommitChar;
 
-        const commit = function (cm, data, item) {
+        const commit = function (_, data, item) {
             connection.sendCompletionState(item[indexInListKey]);
             state = 'committed';
         };
 
-        const cancel = function(cm) {
+        const cancel = function() {
             if (cm.state.completionActive)
                 cm.state.completionActive.close();
         };
+
+        const removeCMEvents = addEvents(cm, {
+            keypress: function(_, e) {
+                if (state === 'stopped')
+                    return;
+                const key = e.key || String.fromCharCode(e.charCode || e.keyCode);
+                if (currentOptions.commitChars.indexOf(key) > -1) {
+                    const widget = cm.state.completionActive.widget;
+                    if (!widget) {
+                        cancel();
+                        return;
+                    }
+                    widget.pick();
+                }
+            },
+            endCompletion: function() {
+                if (state === 'starting')
+                    return;
+                if (state === 'started')
+                    connection.sendCompletionState('cancel');
+                state = 'stopped';
+            }
+        });
 
         this.start = function(list, span, options) {
             state = 'starting';
@@ -300,27 +339,10 @@
             state = 'started';
         };
 
-        cm.on('keypress', function(_, e) {
-            if (state === 'stopped')
-                return;
-            const key = e.key || String.fromCharCode(e.charCode || e.keyCode);
-            if (currentOptions.commitChars.indexOf(key) > -1) {
-                const widget = cm.state.completionActive.widget;
-                if (!widget) {
-                    cancel();
-                    return;
-                }
-                widget.pick();
-            }
-        });
-
-        cm.on('endCompletion', function() {
-            if (state === 'starting')
-                return;
-            if (state === 'started')
-                connection.sendCompletionState('cancel');
-            state = 'stopped';
-        });
+        this.destroy = function() {
+            cancel();
+            removeCMEvents();
+        };
 
         function indexOfItemWithMaxPriority(list) {
             var maxPriority = 0;
@@ -433,15 +455,8 @@
             lineSeparator: lineSeparator,
             mode: languageModes[options.language],
             lint: { async: true, getAnnotations: lintGetAnnotations },
-            lintFix: { getFixes: getFixes },
-            extraKeys: {}
+            lintFix: { getFixes: getFixes }
         });
-        cmOptions.extraKeys = assign({
-            'Ctrl-Space': function() { connection.sendCompletionState('force'); },
-            'Shift-Ctrl-Space': function() { connection.sendSignatureHelpState('force'); },
-            'Ctrl-.': 'lintFixShow',
-            'Shift-Ctrl-Y': selfDebug ? function() { selfDebug.requestData(connection); } : null
-        }, cmOptions.extraKeys);
         cmOptions.gutters.push('CodeMirror-lint-markers');
 
         language = options.language;
@@ -449,6 +464,13 @@
             serverOptions = { language: language };
 
         const cm = CodeMirror.fromTextArea(textarea, cmOptions);
+        const keyMap = {
+            'Ctrl-Space': function() { connection.sendCompletionState('force'); },
+            'Shift-Ctrl-Space': function() { connection.sendSignatureHelpState('force'); },
+            'Ctrl-.': 'lintFixShow',
+            'Shift-Ctrl-Y': selfDebug ? function() { selfDebug.requestData(connection); } : null
+        };
+        cm.addKeyMap(keyMap);
         // see https://github.com/codemirror/CodeMirror/blob/dbaf6a94f1ae50d387fa77893cf6b886988c2147/addon/lint/lint.js#L133
         // ensures that next 'id' will be -1 whther a change happened or not
         cm.state.lint.waitingFor = -2;
@@ -464,23 +486,28 @@
 
         const hinter = new Hinter(cm, connection);
         const signatureTip = new SignatureTip(cm);
-        connection.on('open', function (e) {
-            hideConnectionLoss();
-            if (serverOptions)
-                connection.sendSetOptions(serverOptions);
+        const removeConnectionEvents = addEvents(connection, {
+           open: function (e) {
+                hideConnectionLoss();
+                if (serverOptions)
+                    connection.sendSetOptions(serverOptions);
 
-            const text = cm.getValue();
-            if (text === '' || text == null) {
+                const text = cm.getValue();
+                if (text === '' || text == null) {
+                    lintingSuspended = false;
+                    return;
+                }
+
+                connection.sendReplaceText(0, 0, text, getCursorIndex(cm));
+                options.on.connectionChange('open', e);
                 lintingSuspended = false;
-                return;
-            }
-
-            connection.sendReplaceText(0, 0, text, getCursorIndex(cm));
-            options.on.connectionChange('open', e);
-            lintingSuspended = false;
-            hadChangesSinceLastLinting = true;
-            if (capturedUpdateLinting)
-                requestSlowUpdate();
+                hadChangesSinceLastLinting = true;
+                if (capturedUpdateLinting)
+                    requestSlowUpdate();
+            },
+            message: onMessage,
+            error: onCloseOrError,
+            close: onCloseOrError
         });
 
         function onCloseOrError(e) {
@@ -489,47 +516,44 @@
             options.on.connectionChange(e instanceof CloseEvent ? 'close' : 'error', e);
         }
 
-        connection.on('error', onCloseOrError);
-        connection.on('close', onCloseOrError);
-
         const indexKey = '$mirrorsharp-index';
         var changePending = false;
         var changeReason = null;
         var changesAreFromServer = false;
-        cm.on('beforeChange', function (s, change) {
-            change.from[indexKey] = cm.indexFromPos(change.from);
-            change.to[indexKey] = cm.indexFromPos(change.to);
-            changePending = true;
-        });
-
-        cm.on('cursorActivity', function () {
-            if (changePending)
-                return;
-            connection.sendMoveCursor(getCursorIndex(cm));
-        });
-
-        cm.on('changes', function (s, changes) {
-            hadChangesSinceLastLinting = true;
-            changePending = false;
-            const cursorIndex = getCursorIndex(cm);
-            for (var i = 0; i < changes.length; i++) {
-                const change = changes[i];
-                const start = change.from[indexKey];
-                const length = change.to[indexKey] - start;
-                const text = change.text.join(lineSeparator);
-                if (cursorIndex === start + 1 && text.length === 1 && !changesAreFromServer) {
-                    if (length > 0)
-                        connection.sendReplaceText(start, length, '', cursorIndex - 1);
-                    connection.sendTypeChar(text);
+        const removeCMEvents = addEvents(cm, {
+            beforeChange: function(s, change) {
+                change.from[indexKey] = cm.indexFromPos(change.from);
+                change.to[indexKey] = cm.indexFromPos(change.to);
+                changePending = true;
+            },
+            cursorActivity: function () {
+                if (changePending)
+                    return;
+                connection.sendMoveCursor(getCursorIndex(cm));
+            },
+            changes: function(s, changes) {
+                hadChangesSinceLastLinting = true;
+                changePending = false;
+                const cursorIndex = getCursorIndex(cm);
+                for (var i = 0; i < changes.length; i++) {
+                    const change = changes[i];
+                    const start = change.from[indexKey];
+                    const length = change.to[indexKey] - start;
+                    const text = change.text.join(lineSeparator);
+                    if (cursorIndex === start + 1 && text.length === 1 && !changesAreFromServer) {
+                        if (length > 0)
+                            connection.sendReplaceText(start, length, '', cursorIndex - 1);
+                        connection.sendTypeChar(text);
+                    }
+                    else {
+                        connection.sendReplaceText(start, length, text, cursorIndex, changeReason);
+                    }
                 }
-                else {
-                    connection.sendReplaceText(start, length, text, cursorIndex, changeReason);
-                }
+                options.on.textChange(getText);
             }
-            options.on.textChange(getText);
         });
 
-        connection.on('message', function (message) {
+        function onMessage(message) {
             switch (message.type) {
                 case 'changes':
                     receiveServerChanges(message.changes, message.reason);
@@ -565,7 +589,7 @@
                 default:
                     throw new Error('Unknown message type "' + message.type);
             }
-        });
+        }
 
         function lintGetAnnotations(text, updateLinting) {
             if (!capturedUpdateLinting) {
@@ -679,22 +703,46 @@
                 cm.setOption('mode', languageModes[language]);
         }
 
+        function destroy(destroyOptions) {
+            removeConnectionEvents();
+            if (!destroyOptions.keepCodeMirror) {
+                cm.toTextArea();
+                return;
+            }
+            cm.removeKeyMap(keyMap);
+            removeCMEvents();
+        }
+
         this.getCodeMirror = function() { return cm; };
         this.getLanguage = function() { return language; };
-        this.setLanguage = function() { return sendServerOptions({ language: value }); };
+        this.setLanguage = function(value) { return sendServerOptions({ language: value }); };
         this.sendServerOptions = sendServerOptions;
+        this.destroy = destroy;
+    }
+
+    function addEvents(target, handlers) {
+        for (var key in handlers) {
+            target.on(key, handlers[key]);
+        }
+        return function() {
+            for (var key in handlers) {
+                target.off(key, handlers[key]);
+            }
+        };
     }
 
     return function(textarea, options) {
         const selfDebug = options.selfDebugEnabled ? new SelfDebug() : null;
-        const connection = new Connection(function() {
-            return new WebSocket(options.serviceUrl);
-        }, selfDebug);
+        const connection = new Connection(function() { return new WebSocket(options.serviceUrl); }, selfDebug);
         const editor = new Editor(textarea, connection, selfDebug, options);
         const exports = {};
         for (var key in editor) {
             exports[key] = editor[key].bind(editor);
         }
+        exports.destroy = function(destroyOptions) {
+            editor.destroy(destroyOptions);
+            connection.close();
+        };
         return exports;
     };
 }));
