@@ -463,7 +463,19 @@
         if (language !== defaultLanguage)
             serverOptions = { language: language };
 
-        const cm = CodeMirror.fromTextArea(textarea, cmOptions);
+        const cm = (function getCodeMirror() {
+            const next = textarea.nextSibling;
+            if (next && next.CodeMirror) {
+                const existing = next.CodeMirror;
+                for (var key in cmOptions) {
+                    existing.setOption(key, cmOptions[key]);
+                }
+                return existing;
+            }
+
+            return CodeMirror.fromTextArea(textarea, cmOptions);
+        })();
+
         const keyMap = {
             'Ctrl-Space': function() { connection.sendCompletionState('force'); },
             'Shift-Ctrl-Space': function() { connection.sendSignatureHelpState('force'); },
@@ -711,6 +723,8 @@
             }
             cm.removeKeyMap(keyMap);
             removeCMEvents();
+            cm.setOption('lint', null);
+            cm.setOption('lintFix', null);
         }
 
         this.getCodeMirror = function() { return cm; };
