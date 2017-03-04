@@ -12,7 +12,8 @@ build:
   verbosity: minimal
 
 test_script:
-- dotnet test MirrorSharp.Tests
+- dotnet test MirrorSharp.Tests.Roslyn1
+- dotnet test MirrorSharp.Tests.Roslyn2
   
 after_test:
 - .\pack-all.bat
