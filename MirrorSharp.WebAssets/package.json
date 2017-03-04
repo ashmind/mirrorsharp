@@ -1,13 +1,13 @@
 {
   "name": "mirrorsharp",
-  "version": "0.9.0-pre-20170118-3",
+  "version": "0.9.0-pre-20170305",
   "description": "A code editor `<textarea>` for .NET.",
   "authors": [
     "Andrey Shchekin (https://github.com/ashmind)"
   ],
   "license": "MIT",
   "files": ["mirrorsharp.*"],
-  "main": "mirrorsharp.js",  
+  "main": "mirrorsharp.js",
   "dependencies": {
     "codemirror": "^5.18.2",
     "codemirror-addon-lint-fix": "^1.0.1-pre-20170118"

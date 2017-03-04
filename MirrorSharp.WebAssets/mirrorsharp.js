@@ -192,7 +192,7 @@
                 list.splice(index, 1);
         };
 
-        const removeEvents = addEvents({
+        const removeEvents = addEvents(this, {
             error: tryToReopen,
             close: tryToReopen
         });
