@@ -36,5 +36,22 @@ namespace MirrorSharp.Internal {
                 writer.WriteProperty("selected", true);
             writer.WriteEndObject();
         }
+
+        public static void WriteTaggedTexts<TCollection>(this IFastJsonWriter writer, TCollection texts, bool selected = false)
+            where TCollection : IEnumerable<TaggedText>
+        {
+            foreach (var text in texts) {
+                writer.WriteTaggedText(text, selected);
+            }
+        }
+
+        public static void WriteTaggedText(this IFastJsonWriter writer, TaggedText text, bool selected) {
+            writer.WriteStartObject();
+            writer.WriteProperty("text", text.Text);
+            writer.WriteProperty("kind", text.Tag);
+            if (selected)
+                writer.WriteProperty("selected", true);
+            writer.WriteEndObject();
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 // Setting ComVisible to false makes the types in this assembly not visible
 // to COM components.  If you need to access a type in this assembly from
@@ -7,8 +6,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("0814c69a-e4a5-4fc9-bc57-415f8295b6b6")]
-
-[assembly: InternalsVisibleTo("MirrorSharp.Benchmarks")]
-[assembly: InternalsVisibleTo("MirrorSharp.Tests.Roslyn1")]
-[assembly: InternalsVisibleTo("MirrorSharp.Tests.Roslyn2")]
+[assembly: Guid("09f91a91-3db9-44ff-a65e-5db5a3f3a7a5")]

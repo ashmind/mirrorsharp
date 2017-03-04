@@ -76,8 +76,8 @@ namespace MirrorSharp.Internal.Handlers {
                 if (action is CodeActionWithOptions)
                     continue;
 
-                if (!RoslynInternalCalls.GetIsInvokable(action)) {
-                    WriteActions(writer, RoslynInternalCalls.GetCodeActions(action), session);
+                if (RoslynReflectionFast.IsInlinable(action)) {
+                    WriteActions(writer, RoslynReflectionFast.GetNestedCodeActions(action), session);
                     continue;
                 }
                 var id = session.CurrentCodeActions.Count;

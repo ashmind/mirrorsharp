@@ -7,22 +7,71 @@ using System.Reflection;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Host.Mef;
 using AshMind.Extensions;
+using Microsoft.CodeAnalysis.Completion;
+using Microsoft.CodeAnalysis.Text;
 using TypeInfo = System.Reflection.TypeInfo;
 
 namespace MirrorSharp.Internal.Reflection {
-    internal static class RoslynInternalCalls {
+    internal static class RoslynReflectionFast {
+        // Roslyn v2
+        private static readonly Func<CodeAction, bool> _getIsInlinable =
+            RoslynTypes.CodeAction
+                .GetProperty("IsInlinable", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+                ?.GetMethod.CreateDelegate<Func<CodeAction, bool>>();
+
+        private static readonly Func<CodeAction, ImmutableArray<CodeAction>> _getNestedCodeActions =
+            RoslynTypes.CodeAction
+                .GetProperty("NestedCodeActions", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+                ?.GetMethod.CreateDelegate<Func<CodeAction, ImmutableArray<CodeAction>>>();
+
+        private static readonly Func<CompletionChange, TextChange> _getTextChange =
+            RoslynTypes.CompletionChange
+                .GetProperty("TextChange", BindingFlags.Public | BindingFlags.Instance)
+                ?.GetMethod.CreateDelegate<Func<CompletionChange, TextChange>>();
+
+        private static readonly Func<CompletionList, TextSpan> _getSpan =
+            RoslynTypes.CompletionList
+                .GetProperty("Span", BindingFlags.Public | BindingFlags.Instance)
+                ?.GetMethod.CreateDelegate<Func<CompletionList, TextSpan>>();
+
+        // Roslyn v1
         private static readonly Func<CodeAction, bool> _getIsInvokable =
             RoslynTypes.CodeAction
                 .GetProperty("IsInvokable", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-                .GetMethod.CreateDelegate<Func<CodeAction, bool>>();
+                ?.GetMethod.CreateDelegate<Func<CodeAction, bool>>();
 
         private static readonly Func<CodeAction, ImmutableArray<CodeAction>> _getCodeActions =
             RoslynTypes.CodeAction
                 .GetMethod("GetCodeActions", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-                .CreateDelegate<Func<CodeAction, ImmutableArray<CodeAction>>>();
+                ?.CreateDelegate<Func<CodeAction, ImmutableArray<CodeAction>>>();
 
-        public static bool GetIsInvokable(CodeAction action) => _getIsInvokable(action);
-        public static ImmutableArray<CodeAction> GetCodeActions(CodeAction action) => _getCodeActions(action);
+        public static bool IsInlinable(CodeAction action) {
+            if (_getIsInlinable == null) // Roslyn v1
+                return !_getIsInvokable(action);
+
+            return _getIsInlinable(action);
+        }
+
+        public static ImmutableArray<CodeAction> GetNestedCodeActions(CodeAction action) {
+            if (_getNestedCodeActions == null) // Roslyn v1
+                return _getCodeActions(action);
+
+            return _getNestedCodeActions(action);
+        }
+
+        public static ImmutableArray<TextChange> GetTextChanges(CompletionChange change) {
+            if (_getTextChange != null) // Roslyn v2, does not populate TextChanges array
+                return ImmutableArray.Create(_getTextChange(change));
+
+            return change.TextChanges;
+        }
+
+        public static TextSpan GetSpan(CompletionList completion) {
+            if (_getSpan != null) // Roslyn v2, does not populate DefaultSpan array
+                return _getSpan(completion);
+
+            return completion.DefaultSpan;
+        }
 
         public static IEnumerable<Lazy<ISignatureHelpProviderWrapper, OrderableLanguageMetadataData>> GetSignatureHelpProvidersSlow(MefHostServices hostServices) {
             var mefHostServicesType = typeof(MefHostServices).GetTypeInfo();

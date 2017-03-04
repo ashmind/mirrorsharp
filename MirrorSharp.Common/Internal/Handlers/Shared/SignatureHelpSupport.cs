@@ -79,18 +79,18 @@ namespace MirrorSharp.Internal.Handlers.Shared {
                 if (itemIndex == selectedItemIndex)
                     writer.WriteProperty("selected", true);
                 writer.WritePropertyStartArray("parts");
-                writer.WriteSymbolDisplayParts(item.PrefixDisplayParts);
+                writer.WriteTaggedTexts(item.PrefixDisplayParts);
                 var parameterIndex = 0;
                 foreach (var parameter in item.Parameters) {
                     if (parameterIndex > 0)
-                        writer.WriteSymbolDisplayParts(item.SeparatorDisplayParts);
+                        writer.WriteTaggedTexts(item.SeparatorDisplayParts);
                     var selected = items.ArgumentIndex == parameterIndex;
-                    writer.WriteSymbolDisplayParts(parameter.PrefixDisplayParts, selected);
-                    writer.WriteSymbolDisplayParts(parameter.DisplayParts, selected);
-                    writer.WriteSymbolDisplayParts(parameter.SuffixDisplayParts, selected);
+                    writer.WriteTaggedTexts(parameter.PrefixDisplayParts, selected);
+                    writer.WriteTaggedTexts(parameter.DisplayParts, selected);
+                    writer.WriteTaggedTexts(parameter.SuffixDisplayParts, selected);
                     parameterIndex += 1;
                 }
-                writer.WriteSymbolDisplayParts(item.SuffixDisplayParts);
+                writer.WriteTaggedTexts(item.SuffixDisplayParts);
                 writer.WriteEndArray();
                 writer.WriteEndObject();
                 itemIndex += 1;

@@ -11,7 +11,11 @@ namespace MirrorSharp.Tests {
     using static CommandIds;
 
     public class SlowUpdateHandlerTests {
-        [Fact]
+        [Fact(
+            #if ROSLYN20
+            Skip = "Broken by Roslyn itself, see https://github.com/dotnet/roslyn/issues/16644."
+            #endif
+        )]
         public async Task SlowUpdate_ProducesDiagnosticWithCustomTagUnnecessary_ForUnusedNamespace() {
             var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"using System;|");
             var result = await driver.SendAsync<SlowUpdateResult<object>>(SlowUpdate);
@@ -41,7 +45,12 @@ namespace MirrorSharp.Tests {
             );
         }
 
-        [Fact]
+
+        [Fact(
+            #if ROSLYN20
+            Skip = "Broken by Roslyn itself, see https://github.com/dotnet/roslyn/issues/16644."
+            #endif
+        )]
         public async Task SlowUpdate_Succeeds_ForValidVisualBasicCode() {
             var driver = MirrorSharpTestDriver.New(languageName: LanguageNames.VisualBasic).SetSourceText(@"
                 Class C

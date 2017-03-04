@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>0a9078a1-bd26-4dc7-87bb-ded125f6218b</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>MirrorSharp.Tests</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ApplyDiagnosticActionHandlerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CompletionStateHandlerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ConnectionTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FastUtf8JsonWriterTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Internal\ObjectMembers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MoveCursorHandlerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ReplaceTextHandlerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SetOptionsHandlerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SignatureHelpStateHandlerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SlowUpdateHandlerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TypeCharHandlerTests.cs" />
+  </ItemGroup>
+</Project>

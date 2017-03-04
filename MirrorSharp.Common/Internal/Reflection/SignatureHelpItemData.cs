@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
@@ -11,12 +12,12 @@ namespace MirrorSharp.Internal.Reflection {
     internal struct SignatureHelpItemData {
         [UsedImplicitly] // see FromInternalTypeExpressionSlow
         public SignatureHelpItemData(
-            Func<CancellationToken, IEnumerable<SymbolDisplayPart>> documentationFactory,
-            ImmutableArray<SymbolDisplayPart> prefixParts,
-            ImmutableArray<SymbolDisplayPart> separatorParts,
-            ImmutableArray<SymbolDisplayPart> suffixParts,
-            IEnumerable<SignatureHelpParameterData> parameters,
-            int parameterCount
+           Func<CancellationToken, IEnumerable<TaggedText>> documentationFactory,
+           ImmutableArray<TaggedText> prefixParts,
+           ImmutableArray<TaggedText> separatorParts,
+           ImmutableArray<TaggedText> suffixParts,
+           IEnumerable<SignatureHelpParameterData> parameters,
+           int parameterCount
         ) {
             DocumentationFactory = documentationFactory;
             PrefixDisplayParts = prefixParts;
@@ -26,16 +27,41 @@ namespace MirrorSharp.Internal.Reflection {
             ParameterCount = parameterCount;
         }
 
-        public Func<CancellationToken, IEnumerable<SymbolDisplayPart>> DocumentationFactory { get; }
-        public ImmutableArray<SymbolDisplayPart> PrefixDisplayParts { get; }
-        public ImmutableArray<SymbolDisplayPart> SeparatorDisplayParts { get; }
-        public ImmutableArray<SymbolDisplayPart> SuffixDisplayParts { get; }
+        // Roslyn v1
+        [UsedImplicitly] // see FromInternalTypeExpressionSlow
+        public SignatureHelpItemData(
+            Func<CancellationToken, IEnumerable<SymbolDisplayPart>> documentationFactory,
+            ImmutableArray<SymbolDisplayPart> prefixParts,
+            ImmutableArray<SymbolDisplayPart> separatorParts,
+            ImmutableArray<SymbolDisplayPart> suffixParts,
+            IEnumerable<SignatureHelpParameterData> parameters,
+            int parameterCount
+        ) {
+            DocumentationFactory = documentationFactory != null
+                ? (Func<CancellationToken, IEnumerable<TaggedText>>)(t => documentationFactory(t).ToTaggedText())
+                : null;
+            PrefixDisplayParts = prefixParts.ToTaggedText();
+            SeparatorDisplayParts = separatorParts.ToTaggedText();
+            SuffixDisplayParts = suffixParts.ToTaggedText();
+            Parameters = parameters;
+            ParameterCount = parameterCount;
+        }
+
+        public Func<CancellationToken, IEnumerable<TaggedText>> DocumentationFactory { get; }
+        public ImmutableArray<TaggedText> PrefixDisplayParts { get; }
+        public ImmutableArray<TaggedText> SeparatorDisplayParts { get; }
+        public ImmutableArray<TaggedText> SuffixDisplayParts { get; }
         public IEnumerable<SignatureHelpParameterData> Parameters { get; }
         public int ParameterCount { get; }
 
         public static Expression FromInternalTypeExpressionSlow(Expression expression) {
+            var displayPartsType = expression.Property("PrefixDisplayParts").Type;
+            var constructor = typeof(SignatureHelpItemData).GetTypeInfo()
+                .GetConstructors()
+                .Single(c => c.GetParameters()[1].ParameterType == displayPartsType);
+
             return Expression.New(
-                typeof(SignatureHelpItemData).GetTypeInfo().GetConstructors()[0],
+                constructor,
                 expression.Property("DocumentationFactory"),
                 expression.Property("PrefixDisplayParts"),
                 expression.Property("SeparatorDisplayParts"),

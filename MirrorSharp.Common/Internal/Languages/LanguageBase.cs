@@ -53,7 +53,7 @@ namespace MirrorSharp.Internal.Languages {
 
         private ImmutableArray<ISignatureHelpProviderWrapper> CreateDefaultSignatureHelpProviders() {
             return ImmutableArray.CreateRange(
-                RoslynInternalCalls.GetSignatureHelpProvidersSlow(HostServices)
+                RoslynReflectionFast.GetSignatureHelpProvidersSlow(HostServices)
                     .Where(l => l.Metadata.Language == Name)
                     .Select(l => l.Value)
             );

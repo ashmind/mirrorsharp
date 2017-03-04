@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis;
 namespace MirrorSharp.Testing.Internal.Results {
     internal class SignaturesItemPart {
         [CanBeNull] public string Text { get; set; }
-        public SymbolDisplayPartKind Kind { get; set; }
+        public string Kind { get; set; }
         public bool Selected { get; set; }
     }
 }
