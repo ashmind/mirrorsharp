@@ -1,5 +1,4 @@
 ﻿using JetBrains.Annotations;
-using Microsoft.CodeAnalysis;
 
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable CollectionNeverUpdated.Global
