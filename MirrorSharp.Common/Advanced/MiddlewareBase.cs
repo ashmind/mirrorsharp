@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Buffers;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Net.WebSockets;
@@ -62,7 +63,7 @@ namespace MirrorSharp.Advanced {
             Connection connection = null;
             try {
                 session = new WorkSession(_languages.OfType<CSharpLanguage>().First(), _options);
-                connection = new Connection(socket, session, _handlers, _options);
+                connection = new Connection(socket, session, _handlers, ArrayPool<byte>.Shared, _options);
 
                 while (connection.IsConnected) {
                     try {
