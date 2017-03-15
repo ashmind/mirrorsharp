@@ -12,8 +12,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MirrorSharp.Common\MirrorSharp.Common.csproj" />
-    <ProjectReference Include="..\MirrorSharp.Testing\MirrorSharp.Testing.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\Testing\Testing.csproj" />
   </ItemGroup>
 
   <ItemGroup>

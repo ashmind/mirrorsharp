@@ -12,8 +12,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MirrorSharp.Common\MirrorSharp.Common.csproj" />
-    <ProjectReference Include="..\MirrorSharp.Testing\MirrorSharp.Testing.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\Testing\Testing.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +34,6 @@
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 
-  <Import Project="..\MirrorSharp.Tests.Shared\MirrorSharp.Tests.Shared.projitems" Label="Shared" />
+  <Import Project="..\Tests.Shared\MirrorSharp.Tests.Shared.projitems" Label="Shared" />
 
 </Project>

@@ -14,10 +14,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MirrorSharp.Common\MirrorSharp.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="10.1.5" />
     <PackageReference Include="Owin" Version="1.0.0" />
     <PackageReference Include="AshMind.Extensions" Version="2.0.0-pre-20160719" />
@@ -26,6 +22,10 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 
 </Project>
