@@ -9,6 +9,7 @@
     <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
     <PackageTargetFallback>$(PackageTargetFallback);dnxcore50;portable-net45+win8+wp8+wpa81;portable-net45+win8</PackageTargetFallback>
     <RuntimeFrameworkVersion>1.0.4</RuntimeFrameworkVersion>
+    <RootNamespace>MirrorSharp.Tests.Roslyn2</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

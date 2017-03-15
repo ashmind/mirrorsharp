@@ -4,6 +4,7 @@
     <TargetFramework>netstandard1.0</TargetFramework>
     <AssemblyName>MirrorSharp.WebAssets</AssemblyName>
     <PackageId>MirrorSharp.WebAssets</PackageId>
+    <RootNamespace>MirrorSharp.WebAssets</RootNamespace>
   </PropertyGroup>
 
 </Project>

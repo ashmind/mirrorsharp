@@ -11,6 +11,7 @@
     <PackageProjectUrl>https://github.com/ashmind/mirrorsharp</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/ashmind/mirrorsharp.git</RepositoryUrl>
+    <RootNamespace>MirrorSharp.Owin</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
