@@ -31,7 +31,7 @@ namespace MirrorSharp.Internal {
         public static void WriteSymbolDisplayPart(this IFastJsonWriter writer, SymbolDisplayPart part, bool selected) {
             writer.WriteStartObject();
             writer.WriteProperty("text", part.ToString());
-            writer.WriteProperty("kind", part.Kind.ToString("G").ToLowerInvariant());
+            writer.WriteProperty("kind", FastConvert.EnumToLowerInvariantString(part.Kind));
             if (selected)
                 writer.WriteProperty("selected", true);
             writer.WriteEndObject();

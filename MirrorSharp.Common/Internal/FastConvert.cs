@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -52,8 +53,21 @@ namespace MirrorSharp.Internal {
             return c.ToString();
         }
 
+        public static string EnumToLowerInvariantString<TEnum>(TEnum value)
+            where TEnum : struct, IFormattable
+        {
+            return EnumCache<TEnum>.LowerInvariantStrings[value];
+        }
+
         private static string SlowUtf8ByteArrayToString(ArraySegment<byte> bytes) {
             return Encoding.UTF8.GetString(bytes);
+        }
+
+        private static class EnumCache<TEnum>
+            where TEnum: struct, IFormattable
+        {
+            public static readonly IReadOnlyDictionary<TEnum, string> LowerInvariantStrings =
+                Enum.GetValues(typeof(TEnum)).Cast<TEnum>().ToDictionary(e => e, e => e.ToString("G", null).ToLowerInvariant());
         }
     }
 }

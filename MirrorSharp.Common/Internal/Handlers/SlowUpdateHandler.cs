@@ -44,7 +44,7 @@ namespace MirrorSharp.Internal.Handlers {
                 writer.WriteStartObject();
                 writer.WriteProperty("id", diagnostic.Id);
                 writer.WriteProperty("message", diagnostic.GetMessage());
-                writer.WriteProperty("severity", diagnostic.Severity.ToString("G").ToLowerInvariant());
+                writer.WriteProperty("severity", FastConvert.EnumToLowerInvariantString(diagnostic.Severity));
                 writer.WritePropertyStartArray("tags");
                 foreach (var tag in diagnostic.Descriptor.CustomTags) {
                     if (tag != WellKnownDiagnosticTags.Unnecessary)
