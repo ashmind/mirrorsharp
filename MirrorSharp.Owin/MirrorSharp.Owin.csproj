@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>MirrorSharp OWIN server. MirrorSharp is a code editor &lt;textarea&gt; built on Roslyn — see https://github.com/ashmind/mirrorsharp/blob/master/README.md for details.</Description>
+    <VersionPrefix>0.9.0</VersionPrefix>
+    <Authors>Andrey Shchekin</Authors>
+    <TargetFramework>net452</TargetFramework>
+    <AssemblyName>MirrorSharp.Owin</AssemblyName>
+    <PackageId>MirrorSharp.Owin</PackageId>
+    <PackageTags>Roslyn;CodeMirror</PackageTags>
+    <PackageProjectUrl>https://github.com/ashmind/mirrorsharp</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/ashmind/mirrorsharp.git</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MirrorSharp.Common\MirrorSharp.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="10.1.5" />
+    <PackageReference Include="Owin" Version="1.0.0" />
+    <PackageReference Include="AshMind.Extensions" Version="2.0.0-pre-20160719" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+</Project>

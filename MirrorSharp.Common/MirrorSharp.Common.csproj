@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>MirrorSharp shared server library. MirrorSharp is a code editor &lt;textarea&gt; built on Roslyn — see https://github.com/ashmind/mirrorsharp/blob/master/README.md for details.</Description>
+    <VersionPrefix>0.9.0</VersionPrefix>
+    <Authors>Andrey Shchekin</Authors>
+    <TargetFrameworks>netstandard1.5;net452</TargetFrameworks>
+    <AssemblyName>MirrorSharp.Common</AssemblyName>
+    <PackageId>MirrorSharp.Common</PackageId>
+    <PackageTags>Roslyn;CodeMirror</PackageTags>
+    <PackageProjectUrl>https://github.com/ashmind/mirrorsharp</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/ashmind/mirrorsharp.git</RepositoryUrl>
+    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.5' ">$(PackageTargetFallback);dnxcore50;portable-net45+win8+wp8+wpa81;portable-net45+win8</PackageTargetFallback>
+    <RootNamespace>MirrorSharp</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="10.1.5" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="1.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="1.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="1.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="1.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="1.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="1.3.2" />
+    <PackageReference Include="AshMind.Extensions" Version="2.0.0-pre-20160719" />
+    <PackageReference Include="System.Buffers" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
+    <PackageReference Include="System.Net.WebSockets" Version="4.0.0" />
+    <PackageReference Include="System.Threading.Tasks" Version="4.0.11" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
+    <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <PackageReference Include="System.Threading.Tasks" Version="4.0.11" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+</Project>

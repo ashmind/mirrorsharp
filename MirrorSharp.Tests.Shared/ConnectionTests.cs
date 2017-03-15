@@ -67,7 +67,7 @@ namespace MirrorSharp.Tests {
         }
 
         private ICommandHandler MockCommandHandler(char commandId, Action<ArraySegment<byte>> execute = null) {
-            var handler = Mock.Of<ICommandHandler>(h => h.CommandId == 'X');
+            var handler = Mock.Of<ICommandHandler>(h => h.CommandId == commandId);
             Mock.Get(handler)
                 .Setup(h => h.ExecuteAsync(It.IsAny<ArraySegment<byte>>(), It.IsAny<WorkSession>(), It.IsAny<ICommandResultSender>(), It.IsAny<CancellationToken>()))
                 .Returns((ArraySegment<byte> segment, WorkSession s, ICommandResultSender sender, CancellationToken token) => {

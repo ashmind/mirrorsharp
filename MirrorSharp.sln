@@ -1,32 +1,27 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F358FD73-4BC9-42AA-BC4B-38DDB81FE813}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MirrorSharp.Common", "MirrorSharp.Common\MirrorSharp.Common.csproj", "{C130C962-D17F-4741-B2B4-D74263BF380A}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MirrorSharp.Common", "MirrorSharp.Common\MirrorSharp.Common.xproj", "{C130C962-D17F-4741-B2B4-D74263BF380A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MirrorSharp.AspNetCore.Demo", "MirrorSharp.AspNetCore.Demo\MirrorSharp.AspNetCore.Demo.csproj", "{70BCCC0E-6EEF-40D0-932A-87F9C42BD67B}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MirrorSharp.AspNetCore.Demo", "MirrorSharp.AspNetCore.Demo\MirrorSharp.AspNetCore.Demo.xproj", "{70BCCC0E-6EEF-40D0-932A-87F9C42BD67B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MirrorSharp.Tests.Roslyn1", "MirrorSharp.Tests.Roslyn1\MirrorSharp.Tests.Roslyn1.csproj", "{09F91A91-3DB9-44FF-A65E-5DB5A3F3A7A5}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MirrorSharp.Tests.Roslyn1", "MirrorSharp.Tests.Roslyn1\MirrorSharp.Tests.Roslyn1.xproj", "{09F91A91-3DB9-44FF-A65E-5DB5A3F3A7A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MirrorSharp.AspNetCore", "MirrorSharp.AspNetCore\MirrorSharp.AspNetCore.csproj", "{EED8CD01-22F8-4E7B-95F0-2C778A6971FC}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MirrorSharp.AspNetCore", "MirrorSharp.AspNetCore\MirrorSharp.AspNetCore.xproj", "{EED8CD01-22F8-4E7B-95F0-2C778A6971FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MirrorSharp.Owin", "MirrorSharp.Owin\MirrorSharp.Owin.csproj", "{00CC1A50-B233-4045-9540-CB2316808C1B}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MirrorSharp.Owin", "MirrorSharp.Owin\MirrorSharp.Owin.xproj", "{00CC1A50-B233-4045-9540-CB2316808C1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MirrorSharp.Owin.Demo", "MirrorSharp.Owin.Demo\MirrorSharp.Owin.Demo.csproj", "{D2EB1CDD-12B5-4FDC-A56C-8A327200E759}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MirrorSharp.Owin.Demo", "MirrorSharp.Owin.Demo\MirrorSharp.Owin.Demo.xproj", "{D2EB1CDD-12B5-4FDC-A56C-8A327200E759}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MirrorSharp.WebAssets", "MirrorSharp.WebAssets\MirrorSharp.WebAssets.csproj", "{FF13139E-69D3-472E-B4FE-AC2623AD67B9}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MirrorSharp.WebAssets", "MirrorSharp.WebAssets\MirrorSharp.WebAssets.xproj", "{FF13139E-69D3-472E-B4FE-AC2623AD67B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MirrorSharp.Benchmarks", "MirrorSharp.Benchmarks\MirrorSharp.Benchmarks.csproj", "{35D73C72-267B-4598-ABC0-F1E1BACDE451}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MirrorSharp.Benchmarks", "MirrorSharp.Benchmarks\MirrorSharp.Benchmarks.xproj", "{35D73C72-267B-4598-ABC0-F1E1BACDE451}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MirrorSharp.Testing", "MirrorSharp.Testing\MirrorSharp.Testing.csproj", "{0814C69A-E4A5-4FC9-BC57-415F8295B6B6}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MirrorSharp.Testing", "MirrorSharp.Testing\MirrorSharp.Testing.xproj", "{0814C69A-E4A5-4FC9-BC57-415F8295B6B6}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MirrorSharp.Tests.Roslyn2", "MirrorSharp.Tests.Roslyn2\MirrorSharp.Tests.Roslyn2.xproj", "{E9DA1F26-C48A-4528-9374-A78028B02F2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MirrorSharp.Tests.Roslyn2", "MirrorSharp.Tests.Roslyn2\MirrorSharp.Tests.Roslyn2.csproj", "{E9DA1F26-C48A-4528-9374-A78028B02F2D}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MirrorSharp.Tests.Shared", "MirrorSharp.Tests.Shared\MirrorSharp.Tests.Shared.shproj", "{0A9078A1-BD26-4DC7-87BB-DED125F6218B}"
 EndProject
