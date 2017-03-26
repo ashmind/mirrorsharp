@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Immutable;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -9,7 +11,6 @@ using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Internal.Results;
 using MirrorSharp.Testing;
-using MirrorSharp.Tests.Internal;
 using Moq;
 using Xunit;
 using System.IO;
@@ -26,7 +27,7 @@ namespace MirrorSharp.Tests {
             var cancellationToken = new CancellationTokenSource().Token;
 
             await connection.ReceiveAndProcessAsync(cancellationToken);
-            Mock.Get(handler).Verify(s => s.ExecuteAsync(It.IsAny<ArraySegment<byte>>(), session, connection, cancellationToken));
+            Mock.Get(handler).Verify(s => s.ExecuteAsync(It.IsAny<AsyncData>(), session, connection, cancellationToken));
         }
         
         [Fact]
@@ -35,27 +36,25 @@ namespace MirrorSharp.Tests {
             var socketMock = MockWebSocketToReceive("X" + longArgument);
             var session = MirrorSharpTestDriver.New().Session;
 
-            ArraySegment<byte> segmentInHandler;
-            var handler = MockCommandHandler('X', segment => segmentInHandler = segment);
+            var segments = new List<ArraySegment<byte>>();
+            var handler = MockCommandHandler('X', async data => {
+                segments.Add(Copy(data.GetFirst()));
+                var next = await data.GetNextAsync();
+                while (next != null) {
+                    segments.Add(Copy(next.Value));
+                    next = await data.GetNextAsync();
+                }
+            });
             var connection = new Connection(socketMock, session, CreateCommandHandlers(handler), ArrayPool<byte>.Shared);
 
             await connection.ReceiveAndProcessAsync(CancellationToken.None);
-            Assert.Equal(longArgument, Encoding.UTF8.GetString(segmentInHandler));
+            Assert.Equal(longArgument, string.Join("", segments.Select(Encoding.UTF8.GetString)));
         }
 
-        [Fact]
-        public async Task ReceiveAndProcessAsync_ReturnsAllArraysIntoPools_WhenHandlingLongMessage() {
-            var socketMock = MockWebSocketToReceive("X" + GenerateLongString(10000));
-            var session = MirrorSharpTestDriver.New().Session;
-
-            var handler = MockCommandHandler('X');
-            var pool = new TrackingArrayPool<byte>(ArrayPool<byte>.Shared);
-            var connection = new Connection(socketMock, session, CreateCommandHandlers(handler), pool);
-
-            pool.StartTracking();
-            await connection.ReceiveAndProcessAsync(CancellationToken.None);
-
-            pool.AssertAllReturned();
+        private ArraySegment<T> Copy<T>(ArraySegment<T> segment) {
+            var newArray = new T[segment.Array.Length];
+            Buffer.BlockCopy(segment.Array, 0, newArray, 0, segment.Array.Length);
+            return new ArraySegment<T>(newArray, segment.Offset, segment.Count);
         }
 
         private string GenerateLongString(int length) {
@@ -66,14 +65,11 @@ namespace MirrorSharp.Tests {
             return new string(chars);
         }
 
-        private ICommandHandler MockCommandHandler(char commandId, Action<ArraySegment<byte>> execute = null) {
+        private ICommandHandler MockCommandHandler(char commandId, Func<AsyncData, Task> execute = null) {
             var handler = Mock.Of<ICommandHandler>(h => h.CommandId == commandId);
             Mock.Get(handler)
-                .Setup(h => h.ExecuteAsync(It.IsAny<ArraySegment<byte>>(), It.IsAny<WorkSession>(), It.IsAny<ICommandResultSender>(), It.IsAny<CancellationToken>()))
-                .Returns((ArraySegment<byte> segment, WorkSession s, ICommandResultSender sender, CancellationToken token) => {
-                    execute?.Invoke(segment);
-                    return Task.CompletedTask;
-                });
+                .Setup(h => h.ExecuteAsync(It.IsAny<AsyncData>(), It.IsAny<WorkSession>(), It.IsAny<ICommandResultSender>(), It.IsAny<CancellationToken>()))
+                .Returns((AsyncData data, WorkSession s, ICommandResultSender sender, CancellationToken token) => execute?.Invoke(data) ?? TaskEx.CompletedTask);
             return handler;
         }
 

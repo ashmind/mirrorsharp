@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using MirrorSharp.Internal.Handlers.Shared;
 using MirrorSharp.Internal.Results;
@@ -13,15 +12,16 @@ namespace MirrorSharp.Internal.Handlers {
             _completion = completion;
         }
 
-        public Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var first = data.Array[data.Offset];
-            if (first == (byte)'X')
+        public Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            var first = data.GetFirst();
+            var firstByte = first.Array[first.Offset];
+            if (firstByte == (byte)'X')
                 return _completion.CancelCompletionAsync(session, sender, cancellationToken);
 
-            if (first == (byte)'F')
+            if (firstByte == (byte)'F')
                 return _completion.ForceCompletionAsync(session, sender, cancellationToken);
 
-            var itemIndex = FastConvert.Utf8ByteArrayToInt32(data);
+            var itemIndex = FastConvert.Utf8ByteArrayToInt32(first);
             return _completion.SelectCompletionAsync(itemIndex, session, sender, cancellationToken);
         }
     }

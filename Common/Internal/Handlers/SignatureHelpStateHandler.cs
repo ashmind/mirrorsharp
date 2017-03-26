@@ -14,8 +14,8 @@ namespace MirrorSharp.Internal.Handlers {
             _signatureHelp = signatureHelp;
         }
 
-        public Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var @char = FastConvert.Utf8ByteArrayToChar(data);
+        public Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            var @char = FastConvert.Utf8ByteArrayToChar(data.GetFirst());
             if (@char != 'F')
                 throw new FormatException($"Unknown SignatureHelp command '{@char}'.");
 

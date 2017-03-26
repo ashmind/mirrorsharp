@@ -10,8 +10,8 @@ using MirrorSharp.Testing.Internal;
 
 namespace MirrorSharp.Benchmarks {
     public class SignatureHelpBenchmarks {
-        private static readonly ArraySegment<byte> LeftParenthesis = new ArraySegment<byte>(Encoding.UTF8.GetBytes("("));
-        private static readonly ArraySegment<byte> Semicolon = new ArraySegment<byte>(Encoding.UTF8.GetBytes(";"));
+        private static readonly AsyncData LeftParenthesis = new AsyncData(new ArraySegment<byte>(Encoding.UTF8.GetBytes("(")), false, () => null);
+        private static readonly AsyncData Semicolon = new AsyncData(new ArraySegment<byte>(Encoding.UTF8.GetBytes(";")), false, () => null);
 
         private TypeCharHandler _handler;
         private WorkSession _sessionWithHelp;

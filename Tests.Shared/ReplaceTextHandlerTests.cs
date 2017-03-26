@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing;
@@ -10,6 +11,26 @@ namespace MirrorSharp.Tests {
     using static CommandIds;
 
     public class ReplaceTextHandlerTests {
+        [Fact]
+        public async void ExecuteAsync_AddsCompleteText_IfTextIsSplitIntoSeveralBuffers() {
+            var driver = MirrorSharpTestDriver.New();
+            await driver.SendAsync(ReplaceText, new[] { "0:0:0::abc", "def", "ghi" });
+
+            Assert.Equal("abcdefghi", driver.Session.SourceText.ToString());
+        }
+
+        [Fact]
+        public async void ExecuteAsync_AddsCompleteText_IfTextIsSplitInTwoBuffersInTheMiddleOfUtf8Char() {
+            var driver = MirrorSharpTestDriver.New();
+            var bytes = Encoding.UTF8.GetBytes("0:0:0::☀");
+            await driver.SendAsync(ReplaceText, new[] {
+                bytes.Take(bytes.Length - 2).ToArray(),
+                new[] { bytes[bytes.Length - 2], bytes[bytes.Length - 1] }
+            });
+
+            Assert.Equal("☀", driver.Session.SourceText.ToString());
+        }
+
         [Theory]
         [InlineData("abc", "0:2:0::x", "xc", 0)]
         [InlineData("abc", "0:0:0::x", "xabc", 0)]

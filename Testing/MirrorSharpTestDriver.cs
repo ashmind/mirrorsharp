@@ -68,16 +68,16 @@ namespace MirrorSharp.Testing {
             return SendAsync<OptionsEchoResult>(CommandIds.SetOptions, string.Join(",", options.Select(o => $"{o.Key}={o.Value}")));
         }
 
-        internal async Task<TResult> SendAsync<TResult>(char commandId, HandlerTestArgument argument = default(HandlerTestArgument))
+        internal async Task<TResult> SendAsync<TResult>(char commandId, HandlerTestArgument argument = null)
             where TResult : class
         {
             var sender = new StubCommandResultSender();
-            await Middleware.GetHandler(commandId).ExecuteAsync(argument.ToArraySegment(), Session, sender, CancellationToken.None);
+            await Middleware.GetHandler(commandId).ExecuteAsync(argument?.ToAsyncData() ?? AsyncData.Empty, Session, sender, CancellationToken.None);
             return sender.LastMessageJson != null ? JsonConvert.DeserializeObject<TResult>(sender.LastMessageJson) : null;
         }
 
         internal Task SendAsync(char commandId, HandlerTestArgument argument = default(HandlerTestArgument)) {
-            return Middleware.GetHandler(commandId).ExecuteAsync(argument.ToArraySegment(), Session, new StubCommandResultSender(), CancellationToken.None);
+            return Middleware.GetHandler(commandId).ExecuteAsync(argument?.ToAsyncData() ?? AsyncData.Empty, Session, new StubCommandResultSender(), CancellationToken.None);
         }
 
         private class TestMiddleware : MiddlewareBase {

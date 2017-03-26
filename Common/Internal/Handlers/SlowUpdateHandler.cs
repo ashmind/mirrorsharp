@@ -25,7 +25,7 @@ namespace MirrorSharp.Internal.Handlers {
 
         public char CommandId => CommandIds.SlowUpdate;
 
-        public async Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+        public async Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var compilation = await session.Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
             var diagnostics = (IList<Diagnostic>)await compilation.WithAnalyzers(session.Analyzers).GetAllDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
             object extensionResult = null;

@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AshMind.Extensions;
@@ -18,22 +18,28 @@ namespace MirrorSharp.Internal.Handlers {
 
         private readonly IReadOnlyDictionary<string, Action<WorkSession, string>> _optionSetters;
         private readonly IReadOnlyCollection<ILanguage> _languages;
+        [NotNull] private readonly ArrayPool<char> _charArrayPool;
         [CanBeNull] private readonly ISetOptionsFromClientExtension _extension;
 
         public char CommandId => CommandIds.SetOptions;
 
-        internal SetOptionsHandler([NotNull] IReadOnlyCollection<ILanguage> languages, [CanBeNull] ISetOptionsFromClientExtension extension) {
+        internal SetOptionsHandler(
+            [NotNull] IReadOnlyCollection<ILanguage> languages,
+            [NotNull] ArrayPool<char> charArrayPool,
+            [CanBeNull] ISetOptionsFromClientExtension extension = null
+        ) {
             _optionSetters = new Dictionary<string, Action<WorkSession, string>> {
                 { "language", SetLanguage },
                 { "optimize", SetOptimize }
             };
             _languages = languages;
+            _charArrayPool = charArrayPool;
             _extension = extension;
         }
 
-        public Task ExecuteAsync(ArraySegment<byte> data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+        public async Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             // this doesn't happen too often, so microptimizations are not required
-            var optionsString = Encoding.UTF8.GetString(data);
+            var optionsString = await AsyncDataConvert.ToUtf8StringAsync(data, 0, _charArrayPool).ConfigureAwait(false);
             var parts = optionsString.Split(Comma);
             foreach (var part in parts) {
                 var nameAndValue = part.Split(EqualsSign);
@@ -54,7 +60,7 @@ namespace MirrorSharp.Internal.Handlers {
                 session.RawOptionsFromClient[name] = value;
             }
 
-            return SendOptionsEchoAsync(session, sender, cancellationToken);
+            await SendOptionsEchoAsync(session, sender, cancellationToken).ConfigureAwait(false);
         }
 
         private void SetLanguage(WorkSession session, string value) {
