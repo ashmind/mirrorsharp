@@ -8,12 +8,12 @@ environment:
 before_build:
 - dotnet restore
 
-build:
-  verbosity: minimal
+build_script:
+- dotnet build --configuration Release
 
 test_script:
-- dotnet test Tests.Roslyn1
-- dotnet test Tests.Roslyn2
+- dotnet test Tests.Roslyn1\Tests.Roslyn1.csproj
+- dotnet test Tests.Roslyn2\Tests.Roslyn2.csproj
   
 after_test:
 - .\pack-all.bat
