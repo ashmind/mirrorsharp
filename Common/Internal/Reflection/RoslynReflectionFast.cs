@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Host.Mef;
-using AshMind.Extensions;
 using TypeInfo = System.Reflection.TypeInfo;
 
 namespace MirrorSharp.Internal.Reflection {
@@ -67,6 +66,10 @@ namespace MirrorSharp.Internal.Reflection {
             if (member == null)
                 throw new MissingMemberException($"Member '{name}' was not found on {type}.");
             return member;
+        }
+
+        private static TDelegate CreateDelegate<TDelegate>(this MethodInfo method) {
+            return (TDelegate)(object)method.CreateDelegate(typeof(TDelegate));
         }
     }
 }

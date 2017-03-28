@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using MirrorSharp.Advanced;
 
 namespace MirrorSharp.Owin.Internal {
-    using AshMind.Extensions;
     using AppFunc = Func<IDictionary<string, object>, Task>;
     using WebSocketAccept = Action<IDictionary<string, object>, Func<IDictionary<string, object>, Task>>;
 
@@ -31,8 +30,7 @@ namespace MirrorSharp.Owin.Internal {
 
             ((WebSocketAccept) accept)(null, async e => {
                 var contextKey = typeof(WebSocketContext).FullName;
-                var context = (WebSocketContext)e.GetValueOrDefault(contextKey);
-                if (context == null) {
+                if (!e.TryGetValue(contextKey, out var contextAsObject) || contextAsObject == null) {
                     throw new NotSupportedException(
                          $"At the moment, MirrorSharp requires Owin host to provide '{contextKey}'.\r\n" +
                           "It's not in the specification, but it is provided by the IIS host at least. " +
@@ -42,6 +40,7 @@ namespace MirrorSharp.Owin.Internal {
                     );
                 }
 
+                var context = (WebSocketContext)contextAsObject;
                 var callCancelled = (CancellationToken)e["websocket.CallCancelled"];
                 // there is a weird issue where a socket never gets closed (deadlock?)
                 // if the loop is done in the standard ASP.NET thread

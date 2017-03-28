@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using AshMind.Extensions;
+using System.Text;
 using JetBrains.Annotations;
 
 // ReSharper disable HeapView.ClosureAllocation
 // ReSharper disable HeapView.DelegateAllocation
 // ReSharper disable HeapView.ObjectAllocation
+// ReSharper disable HeapView.ObjectAllocation.Possible
 
 namespace MirrorSharp.Testing.Internal.Results {
     internal class SignaturesItem {
@@ -13,9 +13,20 @@ namespace MirrorSharp.Testing.Internal.Results {
         [NotNull, UsedImplicitly] public IList<SignaturesItemPart> Parts { get; } = new List<SignaturesItemPart>();
 
         public override string ToString() => ToString(true);
+
         [NotNull]
         public string ToString(bool markSelected) {
-            return string.Join("", Parts.GroupAdjacentBy(p => markSelected && p.Selected ? "*" : "").Select(g => g.Key + string.Join("", g.Select(p => p.Text)) + g.Key));
+            var builder = new StringBuilder();
+            var inSelected = false;
+            foreach (var part in Parts) {
+                if (part.Selected != inSelected) {
+                    if (markSelected)
+                        builder.Append("*");
+                    inSelected = part.Selected;
+                }
+                builder.Append(part.Text);
+            }
+            return builder.ToString();
         }
     }
 }

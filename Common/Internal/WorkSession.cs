@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using AshMind.Extensions;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -52,7 +51,8 @@ namespace MirrorSharp.Internal {
         public void ChangeParseOptions([NotNull] string key, [NotNull] Func<ParseOptions, ParseOptions> change) {
             Argument.NotNull(nameof(key), key);
             Argument.NotNull(nameof(change), change);
-            if (_parseOptionsChanges.GetValueOrDefault(key) == change)
+
+            if (_parseOptionsChanges.TryGetValue(key, out var current) && current == change)
                 return;
             _parseOptionsChanges[key] = change;
             if (_workspace != null && change(Project.ParseOptions) == Project.ParseOptions)
@@ -63,7 +63,7 @@ namespace MirrorSharp.Internal {
         public void ChangeCompilationOptions([NotNull] string key, [NotNull] Func<CompilationOptions, CompilationOptions> change) {
             Argument.NotNull(nameof(key), key);
             Argument.NotNull(nameof(change), change);
-            if (_compilationOptionsChanges.GetValueOrDefault(key) == change)
+            if (_compilationOptionsChanges.TryGetValue(key, out var current) && current == change)
                 return;
             _compilationOptionsChanges[key] = change;
             if (_workspace != null && change(Project.CompilationOptions) == Project.CompilationOptions)

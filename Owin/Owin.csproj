@@ -17,7 +17,6 @@
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="10.1.5" />
     <PackageReference Include="Owin" Version="1.0.0" />
-    <PackageReference Include="AshMind.Extensions" Version="2.0.0-pre-20160719" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">

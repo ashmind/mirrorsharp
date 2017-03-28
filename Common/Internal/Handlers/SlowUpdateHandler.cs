@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AshMind.Extensions;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -28,13 +27,14 @@ namespace MirrorSharp.Internal.Handlers {
             var compilation = await session.Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
             // Temporary suppression, need to figure out the best approach here.
             // ReSharper disable once HeapView.BoxingAllocation
-            var diagnostics = (IList<Diagnostic>)await compilation.WithAnalyzers(session.Analyzers).GetAllDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
+            var diagnostics = (IReadOnlyList<Diagnostic>)await compilation.WithAnalyzers(session.Analyzers).GetAllDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
             object extensionResult = null;
             if (_extension != null) {
-                diagnostics = diagnostics.ToList();
-                extensionResult = await _extension.ProcessAsync(session, diagnostics, cancellationToken).ConfigureAwait(false);
+                var mutableDiagnostics = diagnostics.ToList();
+                extensionResult = await _extension.ProcessAsync(session, mutableDiagnostics, cancellationToken).ConfigureAwait(false);
+                diagnostics = mutableDiagnostics;
             }
-            await SendSlowUpdateAsync(diagnostics.AsReadOnlyList(), session, extensionResult, sender, cancellationToken).ConfigureAwait(false);
+            await SendSlowUpdateAsync(diagnostics, session, extensionResult, sender, cancellationToken).ConfigureAwait(false);
         }
 
         private async Task SendSlowUpdateAsync(IReadOnlyList<Diagnostic> diagnostics, WorkSession session, object extensionResult, ICommandResultSender sender, CancellationToken cancellationToken) {

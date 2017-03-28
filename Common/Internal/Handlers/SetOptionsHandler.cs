@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AshMind.Extensions;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using MirrorSharp.Advanced;
@@ -56,8 +55,7 @@ namespace MirrorSharp.Internal.Handlers {
                     continue;
                 }
 
-                var setOption = _optionSetters.GetValueOrDefault(name);
-                if (setOption == null)
+                if (!_optionSetters.TryGetValue(name, out var setOption))
                     throw new FormatException($"Option '{name}' was not recognized (to use {nameof(ISetOptionsFromClientExtension)}, make sure your option name starts with 'x-').");
                 setOption(session, value);
                 session.RawOptionsFromClient[name] = value;
