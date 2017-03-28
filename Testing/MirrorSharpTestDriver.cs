@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 
 // ReSharper disable HeapView.ClosureAllocation
 // ReSharper disable HeapView.DelegateAllocation
+// ReSharper disable HeapView.ObjectAllocation
 
 namespace MirrorSharp.Testing {
     public class MirrorSharpTestDriver {
@@ -75,12 +76,12 @@ namespace MirrorSharp.Testing {
             where TResult : class
         {
             var sender = new StubCommandResultSender();
-            await Middleware.GetHandler(commandId).ExecuteAsync(argument?.ToAsyncData() ?? AsyncData.Empty, Session, sender, CancellationToken.None);
+            await Middleware.GetHandler(commandId).ExecuteAsync(argument?.ToAsyncData(commandId) ?? AsyncData.Empty, Session, sender, CancellationToken.None);
             return sender.LastMessageJson != null ? JsonConvert.DeserializeObject<TResult>(sender.LastMessageJson) : null;
         }
 
         internal Task SendAsync(char commandId, HandlerTestArgument argument = default(HandlerTestArgument)) {
-            return Middleware.GetHandler(commandId).ExecuteAsync(argument?.ToAsyncData() ?? AsyncData.Empty, Session, new StubCommandResultSender(), CancellationToken.None);
+            return Middleware.GetHandler(commandId).ExecuteAsync(argument?.ToAsyncData(commandId) ?? AsyncData.Empty, Session, new StubCommandResultSender(), CancellationToken.None);
         }
 
         private class TestMiddleware : MiddlewareBase {

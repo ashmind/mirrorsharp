@@ -1,12 +1,14 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MirrorSharp.Internal {
     internal static class AsyncDataConvert {
-        public static async ValueTask<string> ToUtf8StringAsync(AsyncData data, int startOffset, ArrayPool<char> charArrayPool) {
+        public static async ValueTask<string> ToUtf8StringAsync(AsyncData data, int offsetInFirstSegment, ArrayPool<char> charArrayPool) {
             var first = data.GetFirst();
-            var firstCount = first.Count - startOffset;
+            var startOffset = first.Offset + offsetInFirstSegment;
+            var firstCount = first.Count - offsetInFirstSegment;
             if (!data.MightHaveNext)
                 return Encoding.UTF8.GetString(first.Array, startOffset, firstCount);
 

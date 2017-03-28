@@ -68,7 +68,7 @@ namespace MirrorSharp.Internal.Handlers {
             if (start == null || length == null || cursorPosition == null || reason == null)
                 throw new FormatException("Command arguments must be 'start:length:cursor:reason:text'.");
 
-            var text = await AsyncDataConvert.ToUtf8StringAsync(data, partStart, _charArrayPool).ConfigureAwait(false);
+            var text = await AsyncDataConvert.ToUtf8StringAsync(data, partStart - first.Offset, _charArrayPool).ConfigureAwait(false);
 
             session.SourceText = session.SourceText.WithChanges(new TextChange(new TextSpan(start.Value, length.Value), text));
             session.CursorPosition = cursorPosition.Value;

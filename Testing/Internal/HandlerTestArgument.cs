@@ -39,10 +39,17 @@ namespace MirrorSharp.Testing.Internal {
             return new HandlerTestArgument(data);
         }
 
-        public AsyncData ToAsyncData() {
+        public AsyncData ToAsyncData(char commandId) {
             var nextIndex = 1;
+
+            var firstData = _data.ElementAtOrDefault(0);
+            var firstDataWithCommand = new byte[1 + (firstData?.Length ?? 0)];
+            if (firstData != null)
+                Buffer.BlockCopy(firstData, 0, firstDataWithCommand, 1, firstData.Length);
+            firstDataWithCommand[0] = (byte)commandId;
+
             return new AsyncData(
-                new ArraySegment<byte>(_data.ElementAtOrDefault(0) ?? new byte[0]),
+                new ArraySegment<byte>(firstDataWithCommand, 1, firstDataWithCommand.Length - 1),
                 _data.Length > 1,
                 #pragma warning disable 1998
                 async () => {
