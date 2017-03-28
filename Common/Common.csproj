@@ -4,7 +4,7 @@
     <Description>MirrorSharp shared server library. MirrorSharp is a code editor &lt;textarea&gt; built on Roslyn — see https://github.com/ashmind/mirrorsharp/blob/master/README.md for details.</Description>
     <VersionPrefix>0.9.0</VersionPrefix>
     <Authors>Andrey Shchekin</Authors>
-    <TargetFrameworks>netstandard1.5;net452</TargetFrameworks>
+    <TargetFrameworks>netstandard1.5;net46</TargetFrameworks>
     <AssemblyName>MirrorSharp.Common</AssemblyName>
     <PackageId>MirrorSharp.Common</PackageId>
     <PackageTags>Roslyn;CodeMirror</PackageTags>
@@ -37,7 +37,7 @@
     <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
     <PackageReference Include="System.Threading.Tasks" Version="4.0.11" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System" />
