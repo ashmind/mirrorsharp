@@ -198,6 +198,7 @@ internal static class Argument {
     /// <returns><paramref name="value"/> if it is greater than or equal to zero.</returns>
     public static int PositiveOrZero([NotNull, InvokerParameterName] string name, int value) {
         if (value < 0) {
+            // ReSharper disable once HeapView.BoxingAllocation
             throw new ArgumentOutOfRangeException(name, value, "Value must be positive or zero.");
         }
 
@@ -213,6 +214,7 @@ internal static class Argument {
     /// <returns><paramref name="value"/> if it is greater than zero.</returns>
     public static int PositiveNonZero([NotNull, InvokerParameterName] string name, int value) {
         if (value <= 0) {
+            // ReSharper disable once HeapView.BoxingAllocation
             throw new ArgumentOutOfRangeException(name, value, "Value must be positive and not zero.");
         }
 

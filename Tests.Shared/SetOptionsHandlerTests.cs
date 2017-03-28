@@ -7,6 +7,8 @@ using MirrorSharp.Testing.Results;
 using Moq;
 using Xunit;
 
+// ReSharper disable HeapView.ClosureAllocation
+
 namespace MirrorSharp.Tests {
     using static CommandIds;
 

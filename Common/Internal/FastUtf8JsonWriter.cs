@@ -53,7 +53,7 @@ namespace MirrorSharp.Internal {
             WriteValue(value);
         }
 
-        public void WriteProperty(string name, CharListString value) {
+        public void WriteProperty(string name, CharArrayString value) {
             WritePropertyName(name);
             WriteValue(value);
         }
@@ -107,10 +107,10 @@ namespace MirrorSharp.Internal {
             WriteEndValue();
         }
 
-        public void WriteValue(CharListString value) {
+        public void WriteValue(CharArrayString value) {
             WriteStartValue();
             WriteRawByte(Utf8.Quote);
-            foreach (var @char in value) {
+            foreach (var @char in value.Chars) {
                 WriteUnquotedChar(@char);
             }
             WriteRawByte(Utf8.Quote);

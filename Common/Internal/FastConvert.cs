@@ -40,8 +40,10 @@ namespace MirrorSharp.Internal {
                 CharPool.Return(buffer);
             }
 
-            if (charCount != 1)
+            if (charCount != 1) {
+                // ReSharper disable once HeapView.BoxingAllocation
                 throw new FormatException($"Expected one char, but conversion produced {charCount}.");
+            }
 
             return buffer[0];
         }

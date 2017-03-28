@@ -16,8 +16,10 @@ namespace MirrorSharp.Internal.Handlers {
 
         public Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var @char = FastConvert.Utf8ByteArrayToChar(data.GetFirst());
-            if (@char != 'F')
+            if (@char != 'F') {
+                // ReSharper disable once HeapView.BoxingAllocation
                 throw new FormatException($"Unknown SignatureHelp command '{@char}'.");
+            }
 
             return _signatureHelp.ForceSignatureHelpAsync(session, sender, cancellationToken);
         }

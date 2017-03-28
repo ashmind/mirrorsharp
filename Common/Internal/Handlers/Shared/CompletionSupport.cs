@@ -94,7 +94,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             var completionSpan = completionList.Span;
             var writer = sender.StartJsonMessage("completions");
 
-            writer.WriteProperty("commitChars", new CharListString(completionList.Rules.DefaultCommitCharacters));
+            writer.WriteProperty("commitChars", new CharArrayString(completionList.Rules.DefaultCommitCharacters));
             writer.WritePropertyName("span");
             writer.WriteSpan(completionSpan);
 

@@ -16,7 +16,6 @@ using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
     internal class SlowUpdateHandler : ICommandHandler {
-        private static readonly IReadOnlyCollection<CodeAction> NoCodeActions = new CodeAction[0];
         [CanBeNull] private readonly ISlowUpdateExtension _extension;
 
         public SlowUpdateHandler([CanBeNull] ISlowUpdateExtension extension) {
@@ -27,6 +26,8 @@ namespace MirrorSharp.Internal.Handlers {
 
         public async Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var compilation = await session.Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
+            // Temporary suppression, need to figure out the best approach here.
+            // ReSharper disable once HeapView.BoxingAllocation
             var diagnostics = (IList<Diagnostic>)await compilation.WithAnalyzers(session.Analyzers).GetAllDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
             object extensionResult = null;
             if (_extension != null) {
@@ -55,7 +56,7 @@ namespace MirrorSharp.Internal.Handlers {
                 writer.WritePropertyName("span");
                 writer.WriteSpan(diagnostic.Location.SourceSpan);
                 var actions = await GetCodeActionsAsync(diagnostic, session, cancellationToken).ConfigureAwait(false);
-                if (actions.Count > 0) {
+                if (actions.Length > 0) {
                     writer.WritePropertyStartArray("actions");
                     WriteActions(writer, actions, session);
                     writer.WriteEndArray();
@@ -71,7 +72,7 @@ namespace MirrorSharp.Internal.Handlers {
             await sender.SendJsonMessageAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        private static void WriteActions(IFastJsonWriterInternal writer, IReadOnlyCollection<CodeAction> actions, WorkSession session) {
+        private static void WriteActions(IFastJsonWriterInternal writer, ImmutableArray<CodeAction> actions, WorkSession session) {
             foreach (var action in actions) {
                 if (action is CodeActionWithOptions)
                     continue;
@@ -89,22 +90,24 @@ namespace MirrorSharp.Internal.Handlers {
             }
         }
 
-        private async Task<IReadOnlyCollection<CodeAction>> GetCodeActionsAsync(Diagnostic diagnostic, WorkSession session, CancellationToken cancellationToken) {
-            List<CodeAction> actions = null;
+        private async ValueTask<ImmutableArray<CodeAction>> GetCodeActionsAsync(Diagnostic diagnostic, WorkSession session, CancellationToken cancellationToken) {
+            // I don't think this can be avoided.
+            // ReSharper disable once HeapView.ClosureAllocation
+            ImmutableArray<CodeAction>.Builder actionsBuilder = null;
             Action<CodeAction, ImmutableArray<Diagnostic>> registerCodeFix = (action, _) => {
-                if (actions == null)
-                    actions = new List<CodeAction>();
-                actions.Add(action);
+                if (actionsBuilder == null)
+                    actionsBuilder = ImmutableArray.CreateBuilder<CodeAction>();
+                actionsBuilder.Add(action);
             };
             var fixContext = new CodeFixContext(session.Document, diagnostic, registerCodeFix, cancellationToken);
             var providers = ImmutableDictionary.GetValueOrDefault(session.CodeFixProviders, diagnostic.Id);
             if (providers == null)
-                return NoCodeActions;
+                return ImmutableArray<CodeAction>.Empty;
 
             foreach (var provider in providers) {
                 await provider.RegisterCodeFixesAsync(fixContext).ConfigureAwait(false);
             }
-            return actions ?? NoCodeActions;
+            return actionsBuilder?.ToImmutable() ?? ImmutableArray<CodeAction>.Empty;
         }
     }
 }

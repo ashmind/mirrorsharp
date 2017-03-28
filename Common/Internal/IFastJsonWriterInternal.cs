@@ -2,7 +2,7 @@
 
 namespace MirrorSharp.Internal {
     internal interface IFastJsonWriterInternal : IFastJsonWriter {
-        void WriteProperty(string name, CharListString value);
-        void WriteValue(CharListString value);
+        void WriteProperty(string name, CharArrayString value);
+        void WriteValue(CharArrayString value);
     }
 }

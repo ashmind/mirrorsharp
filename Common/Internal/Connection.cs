@@ -49,6 +49,7 @@ namespace MirrorSharp.Internal {
             }
         }
 
+        // ReSharper disable once HeapView.ClosureAllocation
         private async Task ReceiveAndProcessInternalAsync(CancellationToken cancellationToken) {
             var first = await _socket.ReceiveAsync(new ArraySegment<byte>(_inputBuffer), cancellationToken).ConfigureAwait(false);
             if (first.MessageType == WebSocketMessageType.Close) {
@@ -73,7 +74,7 @@ namespace MirrorSharp.Internal {
                 new AsyncData(
                     new ArraySegment<byte>(_inputBuffer, 1, first.Count - 1),
                     !first.EndOfMessage,
-                    // can we avoid this allocation?
+                    // Can we avoid this allocation?
                     async () => {
                         if (last.EndOfMessage)
                             return null;
@@ -86,6 +87,7 @@ namespace MirrorSharp.Internal {
 
             if (!last.EndOfMessage) {
                 await ReceiveToEndAsync(cancellationToken).ConfigureAwait(false);
+                // ReSharper disable once HeapView.BoxingAllocation
                 throw new InvalidOperationException($"Received message has unread data after command '{(char)commandId}'.");
             }
 
@@ -99,12 +101,16 @@ namespace MirrorSharp.Internal {
 
         private ICommandHandler ResolveHandler(byte commandId) {
             var handlerIndex = commandId - (byte)'A';
-            if (handlerIndex < 0 || handlerIndex > _handlers.Length - 1)
+            if (handlerIndex < 0 || handlerIndex > _handlers.Length - 1) {
+                // ReSharper disable once HeapView.BoxingAllocation
                 throw new FormatException($"Invalid command: '{(char)commandId}'.");
+            }
 
             var handler = _handlers[handlerIndex];
-            if (handler == null)
+            if (handler == null) {
+                // ReSharper disable once HeapView.BoxingAllocation
                 throw new FormatException($"Unknown command: '{(char)commandId}'.");
+            }
             return handler;
         }
 

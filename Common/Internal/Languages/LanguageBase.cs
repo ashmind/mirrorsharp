@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -19,6 +19,7 @@ namespace MirrorSharp.Internal.Languages {
             [NotNull] ParseOptions defaultParseOptions,
             [NotNull] CompilationOptions defaultCompilationOptions
         ) {
+            // ReSharper disable HeapView.BoxingAllocation
             Name = name;
             HostServices = MefHostServices.Create(new[] {
                 Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.Workspaces")),
@@ -39,6 +40,7 @@ namespace MirrorSharp.Internal.Languages {
                 DefaultAnalyzerReferences.SelectMany(r => r.GetAnalyzers(Name))
             );
             DefaultSignatureHelpProviders = CreateDefaultSignatureHelpProviders();
+            // ReSharper restore HeapView.BoxingAllocation
         }
 
         public string Name { get; }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -21,32 +22,13 @@ namespace MirrorSharp.Internal.Reflection {
             RoslynTypes.CodeAction
                 .GetProperty("NestedCodeActions", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
                 ?.GetMethod.CreateDelegate<Func<CodeAction, ImmutableArray<CodeAction>>>();
+        
+        public static bool IsInlinable(CodeAction action) => _getIsInlinable(action);
+        public static ImmutableArray<CodeAction> GetNestedCodeActions(CodeAction action) => _getNestedCodeActions(action);
 
-        // Roslyn v1
-        private static readonly Func<CodeAction, bool> _getIsInvokable =
-            RoslynTypes.CodeAction
-                .GetProperty("IsInvokable", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-                ?.GetMethod.CreateDelegate<Func<CodeAction, bool>>();
-
-        private static readonly Func<CodeAction, ImmutableArray<CodeAction>> _getCodeActions =
-            RoslynTypes.CodeAction
-                .GetMethod("GetCodeActions", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-                ?.CreateDelegate<Func<CodeAction, ImmutableArray<CodeAction>>>();
-
-        public static bool IsInlinable(CodeAction action) {
-            if (_getIsInlinable == null) // Roslyn v1
-                return !_getIsInvokable(action);
-
-            return _getIsInlinable(action);
-        }
-
-        public static ImmutableArray<CodeAction> GetNestedCodeActions(CodeAction action) {
-            if (_getNestedCodeActions == null) // Roslyn v1
-                return _getCodeActions(action);
-
-            return _getNestedCodeActions(action);
-        }
-
+        [SuppressMessage("ReSharper", "HeapView.ClosureAllocation")]
+        [SuppressMessage("ReSharper", "HeapView.DelegateAllocation")]
+        [SuppressMessage("ReSharper", "HeapView.ObjectAllocation.Possible")]
         public static IEnumerable<Lazy<ISignatureHelpProviderWrapper, OrderableLanguageMetadataData>> GetSignatureHelpProvidersSlow(MefHostServices hostServices) {
             var mefHostServicesType = typeof(MefHostServices).GetTypeInfo();
             var getExports = EnsureFound(

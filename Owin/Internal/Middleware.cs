@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,8 @@ namespace MirrorSharp.Owin.Internal {
         }
 
         [UsedImplicitly]
+        [SuppressMessage("ReSharper", "HeapView.ClosureAllocation")]
+        [SuppressMessage("ReSharper", "HeapView.DelegateAllocation")]
         public Task Invoke(IDictionary<string, object> environment) {
             object accept;
             if (!environment.TryGetValue("websocket.Accept", out accept))

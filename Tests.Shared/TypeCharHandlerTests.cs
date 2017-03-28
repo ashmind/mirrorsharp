@@ -7,6 +7,8 @@ using MirrorSharp.Testing.Internal.Results;
 using MirrorSharp.Tests.Internal;
 using Xunit;
 
+// ReSharper disable HeapView.BoxingAllocation
+
 namespace MirrorSharp.Tests {
     using static CommandIds;
 

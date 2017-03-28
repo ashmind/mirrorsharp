@@ -12,6 +12,9 @@ using MirrorSharp.Testing.Internal;
 using MirrorSharp.Testing.Results;
 using Newtonsoft.Json;
 
+// ReSharper disable HeapView.ClosureAllocation
+// ReSharper disable HeapView.DelegateAllocation
+
 namespace MirrorSharp.Testing {
     public class MirrorSharpTestDriver {
         private static readonly CSharpLanguage CSharp = new CSharpLanguage();

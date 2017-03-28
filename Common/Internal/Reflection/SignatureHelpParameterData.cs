@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,18 +15,12 @@ namespace MirrorSharp.Internal.Reflection {
             SuffixDisplayParts = suffixDisplayParts;
         }
 
-        // Roslyn v1
-        [UsedImplicitly] // see FromInternalTypeExpressionSlow
-        public SignatureHelpParameterData(IList<SymbolDisplayPart> displayParts, IList<SymbolDisplayPart> prefixDisplayParts, IList<SymbolDisplayPart> suffixDisplayParts) {
-            DisplayParts = displayParts.ToTaggedText();
-            PrefixDisplayParts = prefixDisplayParts.ToTaggedText();
-            SuffixDisplayParts = suffixDisplayParts.ToTaggedText();
-        }
-
         public IList<TaggedText> DisplayParts { get; }
         public IList<TaggedText> PrefixDisplayParts { get; }
         public IList<TaggedText> SuffixDisplayParts { get; }
 
+        [SuppressMessage("ReSharper", "HeapView.ClosureAllocation")]
+        [SuppressMessage("ReSharper", "HeapView.DelegateAllocation")]
         public static Expression FromInternalTypeExpressionSlow(Expression expression) {
             var displayPartsType = expression.Property("DisplayParts").Type;
             var constructor = typeof(SignatureHelpParameterData).GetTypeInfo()

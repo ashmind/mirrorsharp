@@ -15,6 +15,8 @@ using Moq;
 using Xunit;
 using System.IO;
 
+// ReSharper disable HeapView.ClosureAllocation
+
 namespace MirrorSharp.Tests {
     public class ConnectionTests {
         [Fact]

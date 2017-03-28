@@ -11,6 +11,9 @@ using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Languages;
 using MirrorSharp.Internal.Results;
 
+// ReSharper disable HeapView.DelegateAllocation
+// ReSharper disable HeapView.ClosureAllocation
+
 namespace MirrorSharp.Internal.Handlers {
     internal class SetOptionsHandler : ICommandHandler {
         private static readonly char[] Comma = { ',' };

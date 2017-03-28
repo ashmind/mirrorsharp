@@ -3,6 +3,10 @@ using System.Linq;
 using System.Text;
 using MirrorSharp.Internal;
 
+// ReSharper disable HeapView.ClosureAllocation
+// ReSharper disable HeapView.DelegateAllocation
+// ReSharper disable HeapView.ObjectAllocation
+
 namespace MirrorSharp.Testing.Internal {
     internal class HandlerTestArgument {
         private readonly byte[][] _data;
