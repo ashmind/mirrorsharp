@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
-using MirrorSharp.Internal.Reflection;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers.Shared {
@@ -43,35 +41,26 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             var change = await session.Completion.Service.GetChangeAsync(session.Document, item, cancellationToken: cancellationToken).ConfigureAwait(false);
             session.Completion.CurrentList = null;
 
-            var textChanges = ReplaceIncompleteText(session, completion, RoslynReflectionFast.GetTextChanges(change));
+            var textChange = ReplaceIncompleteText(session, completion, change.TextChange);
             session.Completion.ChangeEchoPending = true;
 
             var writer = sender.StartJsonMessage("changes");
             writer.WriteProperty("reason", ChangeReasonCompletion);
             writer.WritePropertyStartArray("changes");
-            foreach (var textChange in textChanges) {
-                writer.WriteChange(textChange);
-            }
+            writer.WriteChange(textChange);
             writer.WriteEndArray();
             await sender.SendJsonMessageAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        private static ImmutableArray<TextChange> ReplaceIncompleteText(WorkSession session, CompletionList completion, ImmutableArray<TextChange> textChanges) {
-            var completionSpan = RoslynReflectionFast.GetSpan(completion);
+        private static TextChange ReplaceIncompleteText(WorkSession session, CompletionList completion, TextChange textChange) {
+            var completionSpan = completion.Span;
             if (session.CursorPosition <= completionSpan.Start)
-                return textChanges;
-
-            if (textChanges.Length == 1) {
-                // optimization
-                var span = textChanges[0].Span;
-                var newStart = Math.Min(span.Start, completionSpan.Start);
-                var newLength = Math.Max(span.End, session.CursorPosition) - newStart;
-                textChanges = ImmutableArray.Create(new TextChange(new TextSpan(newStart, newLength), textChanges[0].NewText));
-            }
-            else {
-                textChanges = textChanges.Insert(0, new TextChange(new TextSpan(completionSpan.Start, session.CursorPosition - completionSpan.Start), ""));
-            }
-            return textChanges;
+                return textChange;
+            
+            var span = textChange.Span;
+            var newStart = Math.Min(span.Start, completionSpan.Start);
+            var newLength = Math.Max(span.End, session.CursorPosition) - newStart;
+            return new TextChange(new TextSpan(newStart, newLength), textChange.NewText);
         }
 
         public Task CancelCompletionAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
@@ -102,7 +91,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         }
 
         private Task SendCompletionListAsync(CompletionList completionList, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var completionSpan = RoslynReflectionFast.GetSpan(completionList);
+            var completionSpan = completionList.Span;
             var writer = sender.StartJsonMessage("completions");
 
             writer.WriteProperty("commitChars", new CharListString(completionList.Rules.DefaultCommitCharacters));

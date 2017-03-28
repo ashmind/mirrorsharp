@@ -7,8 +7,6 @@ using System.Reflection;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Host.Mef;
 using AshMind.Extensions;
-using Microsoft.CodeAnalysis.Completion;
-using Microsoft.CodeAnalysis.Text;
 using TypeInfo = System.Reflection.TypeInfo;
 
 namespace MirrorSharp.Internal.Reflection {
@@ -23,16 +21,6 @@ namespace MirrorSharp.Internal.Reflection {
             RoslynTypes.CodeAction
                 .GetProperty("NestedCodeActions", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
                 ?.GetMethod.CreateDelegate<Func<CodeAction, ImmutableArray<CodeAction>>>();
-
-        private static readonly Func<CompletionChange, TextChange> _getTextChange =
-            RoslynTypes.CompletionChange
-                .GetProperty("TextChange", BindingFlags.Public | BindingFlags.Instance)
-                ?.GetMethod.CreateDelegate<Func<CompletionChange, TextChange>>();
-
-        private static readonly Func<CompletionList, TextSpan> _getSpan =
-            RoslynTypes.CompletionList
-                .GetProperty("Span", BindingFlags.Public | BindingFlags.Instance)
-                ?.GetMethod.CreateDelegate<Func<CompletionList, TextSpan>>();
 
         // Roslyn v1
         private static readonly Func<CodeAction, bool> _getIsInvokable =
@@ -57,20 +45,6 @@ namespace MirrorSharp.Internal.Reflection {
                 return _getCodeActions(action);
 
             return _getNestedCodeActions(action);
-        }
-
-        public static ImmutableArray<TextChange> GetTextChanges(CompletionChange change) {
-            if (_getTextChange != null) // Roslyn v2, does not populate TextChanges array
-                return ImmutableArray.Create(_getTextChange(change));
-
-            return change.TextChanges;
-        }
-
-        public static TextSpan GetSpan(CompletionList completion) {
-            if (_getSpan != null) // Roslyn v2, does not populate DefaultSpan array
-                return _getSpan(completion);
-
-            return completion.DefaultSpan;
         }
 
         public static IEnumerable<Lazy<ISignatureHelpProviderWrapper, OrderableLanguageMetadataData>> GetSignatureHelpProvidersSlow(MefHostServices hostServices) {
