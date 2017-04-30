@@ -25,6 +25,10 @@
     color: #000000;
 }
 
+.mirrorsharp-theme .cm-comment {
+    color: #008000;
+}
+
 .mirrorsharp-connection-issue {
     display: none;
     position: absolute;
