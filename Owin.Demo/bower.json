@@ -9,6 +9,6 @@
   "homepage": "",
   "private": true,
   "dependencies": {
-    "mirrorsharp": "../MirrorSharp.WebAssets"
+    "mirrorsharp": "../WebAssets"
   }
 }

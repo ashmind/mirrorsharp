@@ -463,18 +463,19 @@
         if (language !== defaultLanguage)
             serverOptions = { language: language };
 
-        const cm = (function getCodeMirror() {
+        const cmSource = (function getCodeMirror() {
             const next = textarea.nextSibling;
             if (next && next.CodeMirror) {
                 const existing = next.CodeMirror;
                 for (var key in cmOptions) {
                     existing.setOption(key, cmOptions[key]);
                 }
-                return existing;
+                return { cm: existing, existing: true };
             }
 
-            return CodeMirror.fromTextArea(textarea, cmOptions);
+            return { cm: CodeMirror.fromTextArea(textarea, cmOptions) };
         })();
+        const cm = cmSource.cm;
 
         const keyMap = {
             'Ctrl-Space': function() { connection.sendCompletionState('force'); },
@@ -486,7 +487,8 @@
         // see https://github.com/codemirror/CodeMirror/blob/dbaf6a94f1ae50d387fa77893cf6b886988c2147/addon/lint/lint.js#L133
         // ensures that next 'id' will be -1 whther a change happened or not
         cm.state.lint.waitingFor = -2;
-        cm.setValue(textarea.value.replace(/(\r\n|\r|\n)/g, '\r\n'));
+        if (!cmSource.existing)
+            cm.setValue(textarea.value.replace(/(\r\n|\r|\n)/g, '\r\n'));
 
         const getText = cm.getValue.bind(cm);
         if (selfDebug)
@@ -716,6 +718,7 @@
         }
 
         function destroy(destroyOptions) {
+            cm.save();
             removeConnectionEvents();
             if (!destroyOptions.keepCodeMirror) {
                 cm.toTextArea();
