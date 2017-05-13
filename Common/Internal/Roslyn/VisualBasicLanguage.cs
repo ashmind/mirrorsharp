@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.VisualBasic;
 
-namespace MirrorSharp.Internal.Languages {
-    internal class VisualBasicLanguage : LanguageBase {
+namespace MirrorSharp.Internal.Roslyn {
+    internal class VisualBasicLanguage : RoslynLanguageBase {
         public VisualBasicLanguage() : base(
             LanguageNames.VisualBasic,
             "Microsoft.CodeAnalysis.VisualBasic.Features",

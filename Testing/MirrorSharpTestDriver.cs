@@ -4,10 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal;
-using MirrorSharp.Internal.Languages;
 using MirrorSharp.Testing.Internal;
 using MirrorSharp.Testing.Results;
 using Newtonsoft.Json;
@@ -18,11 +16,14 @@ using Newtonsoft.Json;
 
 namespace MirrorSharp.Testing {
     public class MirrorSharpTestDriver {
-        private static readonly CSharpLanguage CSharp = new CSharpLanguage();
-        private static readonly VisualBasicLanguage VisualBasic = new VisualBasicLanguage();
+        private static readonly LanguageManager LanguageManager = new LanguageManager(new[] {
+            LanguageNames.CSharp,
+            LanguageNames.VisualBasic,
+            "F#"
+        });
 
         private MirrorSharpTestDriver([CanBeNull] MirrorSharpOptions options = null, [CanBeNull] string languageName = LanguageNames.CSharp) {
-            var language = new ILanguage[] { CSharp, VisualBasic }.First(l => l.Name == languageName);
+            var language = LanguageManager.GetLanguage(languageName);
 
             Middleware = new TestMiddleware(options);
             Session = new WorkSession(language, options);
@@ -36,16 +37,16 @@ namespace MirrorSharp.Testing {
             return new MirrorSharpTestDriver(options, languageName);
         }
 
-        public MirrorSharpTestDriver SetSourceText(string text) {
-            Session.SourceText = SourceText.From(text);
+        public MirrorSharpTestDriver SetText(string text) {
+            Session.ReplaceText(text);
             return this;
         }
 
-        public MirrorSharpTestDriver SetSourceTextWithCursor(string textWithCursor) {
+        public MirrorSharpTestDriver SetTextWithCursor(string textWithCursor) {
             var cursorPosition = textWithCursor.LastIndexOf('|');
             var text = textWithCursor.Remove(cursorPosition, 1);
 
-            Session.SourceText = SourceText.From(text);
+            Session.ReplaceText(text);
             Session.CursorPosition = cursorPosition;
             return this;
         }
@@ -85,7 +86,7 @@ namespace MirrorSharp.Testing {
         }
 
         private class TestMiddleware : MiddlewareBase {
-            public TestMiddleware([CanBeNull] MirrorSharpOptions options) : base(CSharp, VisualBasic, options) {
+            public TestMiddleware([CanBeNull] MirrorSharpOptions options) : base(LanguageManager, options) {
             }
         }
     }

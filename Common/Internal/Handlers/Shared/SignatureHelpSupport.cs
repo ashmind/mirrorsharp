@@ -7,12 +7,13 @@ using MirrorSharp.Internal.Results;
 namespace MirrorSharp.Internal.Handlers.Shared {
     internal class SignatureHelpSupport : ISignatureHelpSupport {
         public Task ApplyCursorPositionChangeAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var currentHelp = session.CurrentSignatureHelp;
+            var roslynSession = session.RoslynOrNull;
+            var currentHelp = roslynSession?.CurrentSignatureHelp;
             if (currentHelp == null)
                 return TaskEx.CompletedTask;
 
             if (!currentHelp.Value.Items.ApplicableSpan.Contains(session.CursorPosition)) {
-                session.CurrentSignatureHelp = null;
+                roslynSession.CurrentSignatureHelp = null;
                 return SendSignatureHelpAsync(null, sender, cancellationToken);
             }
 
@@ -22,11 +23,15 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         }
 
         public Task ApplyTypedCharAsync(char @char, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            var roslynSession = session.RoslynOrNull;
+            if (roslynSession == null)
+                return TaskEx.CompletedTask;
+
             var trigger = new SignatureHelpTriggerInfoData(SignatureHelpTriggerReason.TypeCharCommand, @char);
-            if (session.CurrentSignatureHelp != null) {
-                var provider = session.CurrentSignatureHelp.Value.Provider;
+            if (roslynSession.CurrentSignatureHelp != null) {
+                var provider = roslynSession.CurrentSignatureHelp.Value.Provider;
                 if (provider.IsRetriggerCharacter(@char)) {
-                    session.CurrentSignatureHelp = null;
+                    roslynSession.CurrentSignatureHelp = null;
                     return SendSignatureHelpAsync(null, sender, cancellationToken);
                 }
 
@@ -42,7 +47,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         }
 
         private async Task TryApplySignatureHelpAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken, SignatureHelpTriggerInfoData trigger) {
-            foreach (var provider in session.SignatureHelpProviders) {
+            foreach (var provider in session.Roslyn.SignatureHelpProviders) {
                 if (await TryApplySignatureHelpAsync(provider, trigger, session, sender, cancellationToken).ConfigureAwait(false))
                     return;
             }
@@ -53,11 +58,11 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             if (trigger.TriggerReason == SignatureHelpTriggerReason.TypeCharCommand && !provider.IsTriggerCharacter(trigger.TriggerCharacter.Value))
                 return false;
 
-            var help = await provider.GetItemsAsync(session.Document, session.CursorPosition, trigger, cancellationToken).ConfigureAwait(false);
+            var help = await provider.GetItemsAsync(session.Roslyn.Document, session.CursorPosition, trigger, cancellationToken).ConfigureAwait(false);
             if (!sendIfEmpty && help == null)
                 return false;
 
-            session.CurrentSignatureHelp = help != null ? new CurrentSignatureHelp(provider, help) : (CurrentSignatureHelp?)null;
+            session.Roslyn.CurrentSignatureHelp = help != null ? new CurrentSignatureHelp(provider, help) : (CurrentSignatureHelp?)null;
             await SendSignatureHelpAsync(help, sender, cancellationToken).ConfigureAwait(false);
             return true;
         }

@@ -8,11 +8,19 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Host.Mef;
+using Microsoft.CodeAnalysis.Text;
+using MirrorSharp.Internal.Abstraction;
 using MirrorSharp.Internal.Reflection;
 
-namespace MirrorSharp.Internal.Languages {
-    internal abstract class LanguageBase : ILanguage {
-        protected LanguageBase(
+namespace MirrorSharp.Internal.Roslyn {
+    internal abstract class RoslynLanguageBase : ILanguage {
+        private readonly MefHostServices _hostServices;
+        private readonly ImmutableArray<ISignatureHelpProviderWrapper> _defaultSignatureHelpProviders;
+        private readonly ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> _defaultCodeFixProvidersIndexedByDiagnosticIds;
+        private readonly ImmutableArray<DiagnosticAnalyzer> _defaultAnalyzers;
+        private readonly ImmutableList<AnalyzerReference> _defaultAnalyzerReferences;
+
+        protected RoslynLanguageBase(
             [NotNull] string name,
             [NotNull] string featuresAssemblyName,
             [NotNull] string workspacesAssemblyName,
@@ -21,7 +29,7 @@ namespace MirrorSharp.Internal.Languages {
         ) {
             // ReSharper disable HeapView.BoxingAllocation
             Name = name;
-            HostServices = MefHostServices.Create(new[] {
+            _hostServices = MefHostServices.Create(new[] {
                 Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.Workspaces")),
                 Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.Features")),
                 Assembly.Load(new AssemblyName(featuresAssemblyName)),
@@ -32,37 +40,52 @@ namespace MirrorSharp.Internal.Languages {
             DefaultAssemblyReferences = ImmutableList.Create<MetadataReference>(
                 MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location)
             );
-            DefaultAnalyzerReferences = ImmutableList.Create<AnalyzerReference>(
+            _defaultAnalyzerReferences = ImmutableList.Create<AnalyzerReference>(
                 CreateAnalyzerReference(featuresAssemblyName)
             );
-            DefaultCodeFixProvidersIndexedByDiagnosticIds = CreateDefaultCodeFixProviders();
-            DefaultAnalyzers = ImmutableArray.CreateRange(
-                DefaultAnalyzerReferences.SelectMany(r => r.GetAnalyzers(Name))
+            _defaultCodeFixProvidersIndexedByDiagnosticIds = CreateDefaultCodeFixProviders();
+            _defaultAnalyzers = ImmutableArray.CreateRange(
+                _defaultAnalyzerReferences.SelectMany(r => r.GetAnalyzers(Name))
             );
-            DefaultSignatureHelpProviders = CreateDefaultSignatureHelpProviders();
+            _defaultSignatureHelpProviders = CreateDefaultSignatureHelpProviders();
             // ReSharper restore HeapView.BoxingAllocation
         }
 
         public string Name { get; }
-        public MefHostServices HostServices { get; }
         public ParseOptions DefaultParseOptions { get; }
         public CompilationOptions DefaultCompilationOptions { get; }
         public ImmutableList<MetadataReference> DefaultAssemblyReferences { get; }
-        public ImmutableList<AnalyzerReference> DefaultAnalyzerReferences { get; }
-        public ImmutableArray<DiagnosticAnalyzer> DefaultAnalyzers { get; }
-        public ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> DefaultCodeFixProvidersIndexedByDiagnosticIds { get; }
-        public ImmutableArray<ISignatureHelpProviderWrapper> DefaultSignatureHelpProviders { get; }
+
+        public ILanguageSession CreateSession(string text, ParseOptions parseOptions, CompilationOptions compilationOptions, ImmutableList<MetadataReference> metadataReferences) {
+            var projectId = ProjectId.CreateNewId();
+            var projectInfo = ProjectInfo.Create(
+                projectId, VersionStamp.Create(), "_", "_", Name,
+                parseOptions: parseOptions,
+                compilationOptions: compilationOptions,
+                metadataReferences: metadataReferences,
+                analyzerReferences: _defaultAnalyzerReferences
+            );
+            
+            return new RoslynSession(
+                SourceText.From(text),
+                projectInfo,
+                _hostServices,
+                _defaultAnalyzers,
+                _defaultCodeFixProvidersIndexedByDiagnosticIds,
+                _defaultSignatureHelpProviders
+            );
+        }
 
         private ImmutableArray<ISignatureHelpProviderWrapper> CreateDefaultSignatureHelpProviders() {
             return ImmutableArray.CreateRange(
-                RoslynReflectionFast.GetSignatureHelpProvidersSlow(HostServices)
+                RoslynReflectionFast.GetSignatureHelpProvidersSlow(_hostServices)
                     .Where(l => l.Metadata.Language == Name)
                     .Select(l => l.Value)
             );
         }
 
         private ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CreateDefaultCodeFixProviders() {
-            var codeFixProviderTypes = DefaultAnalyzerReferences
+            var codeFixProviderTypes = _defaultAnalyzerReferences
                 .OfType<AnalyzerFileReference>()
                 .Select(a => a.GetAssembly())
                 .SelectMany(a => a.DefinedTypes)

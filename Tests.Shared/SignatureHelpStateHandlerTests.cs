@@ -11,7 +11,7 @@ namespace MirrorSharp.Tests {
     public class SignatureHelpStateHandlerTests {
         [Fact]
         public async Task ExecuteAsync_ProducesExpectedSignatureHelp_WhenForceIsRequested() {
-            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"
                 class C {
                     void M(int a) {}
                     void T() { M(1|) }

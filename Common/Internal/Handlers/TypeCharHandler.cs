@@ -16,9 +16,7 @@ namespace MirrorSharp.Internal.Handlers {
 
         public Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var @char = FastConvert.Utf8ByteArrayToChar(data.GetFirst());
-            session.SourceText = session.SourceText.WithChanges(
-                new TextChange(new TextSpan(session.CursorPosition, 0), FastConvert.CharToString(@char))
-            );
+            session.ReplaceText(FastConvert.CharToString(@char), session.CursorPosition, 0);
             session.CursorPosition += 1;
 
             return _effects.ApplyTypedCharAsync(@char, session, sender, cancellationToken);

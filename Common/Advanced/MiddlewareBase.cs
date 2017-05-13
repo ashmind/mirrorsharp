@@ -6,23 +6,24 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.CodeAnalysis;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Internal.Handlers.Shared;
-using MirrorSharp.Internal.Languages;
 
 namespace MirrorSharp.Advanced {
     public abstract class MiddlewareBase {
+        [NotNull] private readonly LanguageManager _languageManager;
         [CanBeNull] private readonly MirrorSharpOptions _options;
-        [NotNull, ItemNotNull] private readonly IReadOnlyCollection<ILanguage> _languages;
         [ItemNotNull] private readonly ImmutableArray<ICommandHandler> _handlers;
 
-        protected MiddlewareBase([CanBeNull] MirrorSharpOptions options) : this(new CSharpLanguage(), new VisualBasicLanguage(), options) {
+        protected MiddlewareBase([CanBeNull] MirrorSharpOptions options) 
+            : this(new LanguageManager(AsReadOnly(options?.LanguageNames) ?? MirrorSharpOptions.DefaultLanguageNames), options) {
         }
 
-        internal MiddlewareBase([NotNull] CSharpLanguage csharp, [NotNull] VisualBasicLanguage visualBasic, [CanBeNull] MirrorSharpOptions options) {
+        internal MiddlewareBase([NotNull] LanguageManager languageManager, [CanBeNull] MirrorSharpOptions options) {
             _options = options;
-            _languages = new ILanguage[] { csharp, visualBasic };
+            _languageManager = languageManager;
             _handlers = CreateHandlersIndexedByCommandId();
         }
 
@@ -46,7 +47,7 @@ namespace MirrorSharp.Advanced {
                 new MoveCursorHandler(signatureHelp),
                 new ReplaceTextHandler(signatureHelp, completion, typedCharEffects, ArrayPool<char>.Shared),
                 new RequestSelfDebugDataHandler(),
-                new SetOptionsHandler(_languages, ArrayPool<char>.Shared, _options?.SetOptionsFromClient),
+                new SetOptionsHandler(_languageManager, ArrayPool<char>.Shared, _options?.SetOptionsFromClient),
                 new SignatureHelpStateHandler(signatureHelp),
                 new SlowUpdateHandler(_options?.SlowUpdate),
                 new TypeCharHandler(typedCharEffects)
@@ -62,7 +63,7 @@ namespace MirrorSharp.Advanced {
             WorkSession session = null;
             Connection connection = null;
             try {
-                session = new WorkSession(_languages.OfType<CSharpLanguage>().First(), _options);
+                session = new WorkSession(_languageManager.GetLanguage(LanguageNames.CSharp), _options);
                 connection = new Connection(socket, session, _handlers, ArrayPool<byte>.Shared, _options);
 
                 while (connection.IsConnected) {
@@ -82,6 +83,11 @@ namespace MirrorSharp.Advanced {
                     session?.Dispose();
                 }
             }
+        }
+
+        [CanBeNull]
+        private static IReadOnlyCollection<string> AsReadOnly([CanBeNull] ISet<string> set) {
+            return set as IReadOnlyCollection<string> ?? set?.ToArray();
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace MirrorSharp.Internal.Languages {
-    internal class CSharpLanguage : LanguageBase {
+namespace MirrorSharp.Internal.Roslyn {
+    internal class CSharpLanguage : RoslynLanguageBase {
         public CSharpLanguage() : base(
             LanguageNames.CSharp,
             "Microsoft.CodeAnalysis.CSharp.Features",

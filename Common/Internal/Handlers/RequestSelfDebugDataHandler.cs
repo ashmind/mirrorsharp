@@ -16,7 +16,7 @@ namespace MirrorSharp.Internal.Handlers {
                 writer.WriteProperty("event", entry.EventType);
                 writer.WriteProperty("message", entry.Message);
                 writer.WriteProperty("cursor", entry.CursorPosition);
-                writer.WriteProperty("text", entry.SourceText.ToString());
+                writer.WriteProperty("text", entry.Text);
                 writer.WriteEndObject();
             }
             writer.WriteEndArray();

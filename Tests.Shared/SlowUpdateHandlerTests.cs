@@ -19,7 +19,7 @@ namespace MirrorSharp.Tests {
             #endif
         )]
         public async Task SlowUpdate_ProducesDiagnosticWithCustomTagUnnecessary_ForUnusedNamespace() {
-            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"using System;|");
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"using System;|");
             var result = await driver.SendAsync<SlowUpdateResult<object>>(SlowUpdate);
 
             Assert.Contains(
@@ -32,7 +32,7 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task SlowUpdate_ProducesAllExpectedActions_ForTypeFromUnreferencedNamespace() {
-            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"class C { Action a;| }");
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"class C { Action a;| }");
             var result = await driver.SendAsync<SlowUpdateResult<object>>(SlowUpdate);
             var diagnostic = result.Diagnostics.Single(d => d.Message?.Contains("Action") ?? false);
 
@@ -54,7 +54,7 @@ namespace MirrorSharp.Tests {
             #endif
         )]
         public async Task SlowUpdate_Succeeds_ForValidVisualBasicCode() {
-            var driver = MirrorSharpTestDriver.New(languageName: LanguageNames.VisualBasic).SetSourceText(@"
+            var driver = MirrorSharpTestDriver.New(languageName: LanguageNames.VisualBasic).SetText(@"
                 Class C
                     Sub M()
                     End Sub
