@@ -5,9 +5,6 @@ using Microsoft.CodeAnalysis;
 namespace MirrorSharp.Internal.Abstraction {
     internal interface ILanguage {
         [NotNull] string Name { get; }
-        [NotNull] ParseOptions DefaultParseOptions { get; }
-        [NotNull] CompilationOptions DefaultCompilationOptions { get; }
-
-        [NotNull] ILanguageSession CreateSession([NotNull] string text, ParseOptions parseOptions, CompilationOptions compilationOptions, [CanBeNull] IReadOnlyCollection<MetadataReference> assemblyReferences);
+        [NotNull] ILanguageSession CreateSession([NotNull] string text, OptimizationLevel? optimizationLevel, ParseOptions parseOptions, CompilationOptions compilationOptions, [CanBeNull] IReadOnlyCollection<MetadataReference> assemblyReferences);
     }
 }

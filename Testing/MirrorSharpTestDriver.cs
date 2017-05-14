@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -16,11 +19,19 @@ using Newtonsoft.Json;
 
 namespace MirrorSharp.Testing {
     public class MirrorSharpTestDriver {
-        private static readonly LanguageManager LanguageManager = new LanguageManager(new[] {
-            LanguageNames.CSharp,
-            LanguageNames.VisualBasic,
-            "F#"
-        });
+        private static readonly LanguageManager LanguageManager = CreateLanguageManager();
+
+        private static LanguageManager CreateLanguageManager() {
+            var languageNames = new List<string> {
+                LanguageNames.CSharp,
+                LanguageNames.VisualBasic
+            };
+            var basePath = Path.GetDirectoryName(new Uri(typeof(LanguageManager).GetTypeInfo().Assembly.CodeBase).LocalPath);
+            if (File.Exists(Path.Combine(basePath, "MirrorSharp.FSharp.dll")))
+                languageNames.Add("F#");
+
+            return new LanguageManager(languageNames);
+        }
 
         private MirrorSharpTestDriver([CanBeNull] MirrorSharpOptions options = null, [CanBeNull] string languageName = LanguageNames.CSharp) {
             var language = LanguageManager.GetLanguage(languageName);

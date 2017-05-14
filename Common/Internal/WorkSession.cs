@@ -9,9 +9,9 @@ using MirrorSharp.Internal.Roslyn;
 namespace MirrorSharp.Internal {
     internal class WorkSession : IWorkSession {
         [CanBeNull] private readonly IWorkSessionOptions _options;
-        [NotNull] private readonly IDictionary<string, Func<ParseOptions, ParseOptions>> _parseOptionsChanges = new Dictionary<string, Func<ParseOptions, ParseOptions>>();
         [NotNull] private readonly IDictionary<string, Func<CompilationOptions, CompilationOptions>> _compilationOptionsChanges = new Dictionary<string, Func<CompilationOptions, CompilationOptions>>();
         [NotNull] private ILanguage _language;
+        [CanBeNull] private OptimizationLevel? _optimizationLevel;
         private ILanguageSession _languageSession;
         private string _lastText = "";
 
@@ -30,26 +30,10 @@ namespace MirrorSharp.Internal {
             Reset();
         }
 
-        public void ChangeParseOptions([NotNull] string key, [NotNull] Func<ParseOptions, ParseOptions> change) {
-            Argument.NotNull(nameof(key), key);
-            Argument.NotNull(nameof(change), change);
-
-            if (_parseOptionsChanges.TryGetValue(key, out var current) && current == change)
+        public void ChangeOptimizationLevel([CanBeNull] OptimizationLevel? optimizationLevel) {
+            if (optimizationLevel == _optimizationLevel)
                 return;
-            _parseOptionsChanges[key] = change;
-            if (_languageSession is RoslynSession roslyn && change(roslyn.Project.ParseOptions) == roslyn.Project.ParseOptions)
-                return;
-            Reset();
-        }
-
-        public void ChangeCompilationOptions([NotNull] string key, [NotNull] Func<CompilationOptions, CompilationOptions> change) {
-            Argument.NotNull(nameof(key), key);
-            Argument.NotNull(nameof(change), change);
-            if (_compilationOptionsChanges.TryGetValue(key, out var current) && current == change)
-                return;
-            _compilationOptionsChanges[key] = change;
-            if (_languageSession is RoslynSession roslyn && change(roslyn.Project.CompilationOptions) == roslyn.Project.CompilationOptions)
-                return;
+            _optimizationLevel = optimizationLevel;
             Reset();
         }
 
@@ -62,19 +46,14 @@ namespace MirrorSharp.Internal {
         }
 
         private void Initialize() {
-            var parseOptions = _options?.GetDefaultParseOptionsByLanguageName?.Invoke(Language.Name) ?? Language.DefaultParseOptions;
-            foreach (var change in _parseOptionsChanges.Values) {
-                parseOptions = change(parseOptions);
-            }
-            var compilationOptions = _options?.GetDefaultCompilationOptionsByLanguageName?.Invoke(Language.Name) ?? Language.DefaultCompilationOptions;
-            foreach (var change in _compilationOptionsChanges.Values) {
-                compilationOptions = change(compilationOptions);
-            }
+            var parseOptions = _options?.GetDefaultParseOptionsByLanguageName?.Invoke(Language.Name);
+            var compilationOptions = _options?.GetDefaultCompilationOptionsByLanguageName?.Invoke(Language.Name);
             var assemblyReferences = _options?.GetDefaultMetadataReferencesByLanguageName?.Invoke(Language.Name);
-            _languageSession = Language.CreateSession(_lastText, parseOptions, compilationOptions, assemblyReferences);
+            _languageSession = Language.CreateSession(_lastText, OptimizationLevel, parseOptions, compilationOptions, assemblyReferences);
         }
 
         public IWorkSessionOptions Options => _options;
+        public OptimizationLevel? OptimizationLevel => _optimizationLevel;
         [NotNull] public ILanguage Language => _language;
         [NotNull]
         public ILanguageSession LanguageSession {

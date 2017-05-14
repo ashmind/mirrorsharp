@@ -15,6 +15,8 @@ using MirrorSharp.Internal.Reflection;
 namespace MirrorSharp.Internal.Roslyn {
     internal abstract class RoslynLanguageBase : ILanguage {
         private readonly MefHostServices _hostServices;
+        private readonly ParseOptions _defaultParseOptions;
+        private readonly CompilationOptions _defaultCompilationOptions;
         private readonly ImmutableArray<ISignatureHelpProviderWrapper> _defaultSignatureHelpProviders;
         private readonly ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> _defaultCodeFixProvidersIndexedByDiagnosticIds;
         private readonly ImmutableArray<DiagnosticAnalyzer> _defaultAnalyzers;
@@ -36,8 +38,8 @@ namespace MirrorSharp.Internal.Roslyn {
                 Assembly.Load(new AssemblyName(featuresAssemblyName)),
                 Assembly.Load(new AssemblyName(workspacesAssemblyName)),
             });
-            DefaultParseOptions = defaultParseOptions;
-            DefaultCompilationOptions = defaultCompilationOptions;
+            _defaultParseOptions = defaultParseOptions;
+            _defaultCompilationOptions = defaultCompilationOptions;
             _defaultAssemblyReferences = ImmutableList.Create<MetadataReference>(
                 MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location)
             );
@@ -53,14 +55,17 @@ namespace MirrorSharp.Internal.Roslyn {
         }
 
         public string Name { get; }
-        public ParseOptions DefaultParseOptions { get; }
-        public CompilationOptions DefaultCompilationOptions { get; }
 
-        public ILanguageSession CreateSession(string text, ParseOptions parseOptions, CompilationOptions compilationOptions, IReadOnlyCollection<MetadataReference> assemblyReferences) {
+        public ILanguageSession CreateSession(string text, OptimizationLevel? optimizationLevel, ParseOptions parseOptions, CompilationOptions compilationOptions, IReadOnlyCollection<MetadataReference> assemblyReferences) {
             var projectId = ProjectId.CreateNewId();
+
+            compilationOptions = compilationOptions ?? _defaultCompilationOptions;
+            if (optimizationLevel != null)
+                compilationOptions = compilationOptions.WithOptimizationLevel(optimizationLevel.Value);
+
             var projectInfo = ProjectInfo.Create(
                 projectId, VersionStamp.Create(), "_", "_", Name,
-                parseOptions: parseOptions,
+                parseOptions: parseOptions ?? _defaultParseOptions,
                 compilationOptions: compilationOptions,
                 metadataReferences: assemblyReferences ?? _defaultAssemblyReferences,
                 analyzerReferences: _defaultAnalyzerReferences

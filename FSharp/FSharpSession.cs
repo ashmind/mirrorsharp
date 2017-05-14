@@ -18,20 +18,14 @@ namespace MirrorSharp.FSharp {
         private readonly FSharpChecker _checker;
         private readonly FSharpProjectOptions _projectOptions;
 
-        public FSharpSession(string text, ImmutableArray<string> assemblyReferencePaths) {
+        public FSharpSession(string text, ImmutableArray<string> assemblyReferencePaths, OptimizationLevel? optimizationLevel) {
             _checker = FSharpChecker.Create(null, null, null, false);
             _text = text;
-
-            var otherOptions = new List<string> { "--noframework" };
-            foreach (var path in assemblyReferencePaths) {
-                // ReSharper disable once HeapView.ObjectAllocation (Not worth fixing for now)
-                otherOptions.Add("-r:" + path);
-            }
 
             _projectOptions = new FSharpProjectOptions(
                 "_",
                 projectFileNames: new[] { "_.fs" },
-                otherOptions: otherOptions.ToArray(),
+                otherOptions: ConvertToOptions(assemblyReferencePaths, optimizationLevel),
                 referencedProjects: Array.Empty<Tuple<string, FSharpProjectOptions>>(),
                 isIncompleteTypeCheckEnvironment: true,
                 useScriptResolutionRules: false,
@@ -40,6 +34,23 @@ namespace MirrorSharp.FSharp {
                 originalLoadReferences: FSharpList<Tuple<Range.range, string>>.Empty, 
                 extraProjectInfo: null
             );
+        }
+
+        private static string[] ConvertToOptions(ImmutableArray<string> assemblyReferencePaths, OptimizationLevel? optimizationLevel) {
+            var options = new List<string> {"--noframework"};
+            if (optimizationLevel == OptimizationLevel.Release) {
+                options.Add("--debug-");
+                options.Add("--optimize+");
+            }
+            else if (optimizationLevel == OptimizationLevel.Debug) {
+                options.Add("--debug+");
+                options.Add("--optimize-");
+            }
+            foreach (var path in assemblyReferencePaths) {
+                // ReSharper disable once HeapView.ObjectAllocation (Not worth fixing for now)
+                options.Add("-r:" + path);
+            }
+            return options.ToArray();
         }
 
         public async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(CancellationToken cancellationToken) {

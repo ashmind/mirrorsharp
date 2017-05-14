@@ -34,7 +34,7 @@ namespace MirrorSharp.Tests {
         [Fact]
         public async void ExecuteAsync_PreservesSessionWorkspace_WhenUpdatingOptimizeToTheSameValue() {
             var driver = MirrorSharpTestDriver.New().SetText("test");
-            driver.Session.ChangeCompilationOptions(nameof(CompilationOptions.OptimizationLevel), c => c.WithOptimizationLevel(OptimizationLevel.Release));
+            driver.Session.ChangeOptimizationLevel(OptimizationLevel.Release);
             var workspace = driver.Session.Roslyn.Workspace;
             await driver.SendAsync(SetOptions, "optimize=release");
             Assert.Same(workspace, driver.Session.Roslyn.Workspace);

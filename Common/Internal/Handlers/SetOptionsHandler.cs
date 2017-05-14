@@ -69,7 +69,7 @@ namespace MirrorSharp.Internal.Handlers {
 
         private void SetOptimize(WorkSession session, string value) {
             var level = (OptimizationLevel)Enum.Parse(typeof(OptimizationLevel), value, true);
-            session.ChangeCompilationOptions(nameof(CompilationOptions.OptimizationLevel), o => o.WithOptimizationLevel(level));
+            session.ChangeOptimizationLevel(level);
         }
 
         private async Task SendOptionsEchoAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
