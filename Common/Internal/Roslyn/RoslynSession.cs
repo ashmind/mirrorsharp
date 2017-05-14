@@ -26,11 +26,13 @@ namespace MirrorSharp.Internal.Roslyn {
         private Document _document;
         private SourceText _sourceText;
 
+        private CompletionService _completionService;
+
         public RoslynSession(SourceText sourceText, ProjectInfo projectInfo, MefHostServices hostServices, ImmutableArray<DiagnosticAnalyzer> analyzers, ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> codeFixProviders, ImmutableArray<ISignatureHelpProviderWrapper> signatureHelpProviders) {
             _workspace = new CustomWorkspace(hostServices);
             _sourceText = sourceText;
             _document = CreateProjectAndOpenNewDocument(_workspace, projectInfo, sourceText);
-            Completion = CreateCompletion(_document);
+            _completionService = GetCompletionService(_document);
 
             Analyzers = analyzers;
             SignatureHelpProviders = signatureHelpProviders;
@@ -47,11 +49,11 @@ namespace MirrorSharp.Internal.Roslyn {
             return solution.GetDocument(documentId);
         }
 
-        private Completion CreateCompletion(Document document) {
+        private CompletionService GetCompletionService(Document document) {
             var completionService = CompletionService.GetService(document);
             if (completionService == null)
                 throw new Exception("Failed to retrieve the completion service.");
-            return new Completion(completionService);
+            return completionService;
         }
 
         public string GetText() => SourceText.ToString();
@@ -64,6 +66,18 @@ namespace MirrorSharp.Internal.Roslyn {
         public async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(CancellationToken cancellationToken) {
             var compilation = await Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
             return await compilation.WithAnalyzers(Analyzers).GetAllDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
+        }
+        
+        public bool ShouldTriggerCompletion(int cursorPosition, CompletionTrigger trigger) {
+            return _completionService.ShouldTriggerCompletion(SourceText, cursorPosition, trigger);
+        }
+
+        public Task<CompletionList> GetCompletionsAsync(int cursorPosition, CompletionTrigger trigger, CancellationToken cancellationToken) {
+            return _completionService.GetCompletionsAsync(Document, cursorPosition, trigger, cancellationToken: cancellationToken);
+        }
+
+        public Task<CompletionChange> GetCompletionChangeAsync(TextSpan completionSpan, CompletionItem item, CancellationToken cancellationToken) {
+            return _completionService.GetChangeAsync(Document, item, cancellationToken: cancellationToken);
         }
 
         [NotNull] public IList<CodeAction> CurrentCodeActions { get; } = new List<CodeAction>();
@@ -95,8 +109,7 @@ namespace MirrorSharp.Internal.Roslyn {
                 _documentOutOfDate = true;
             }
         }
-
-        [NotNull] public Completion Completion { get; }
+        
         [CanBeNull] public CurrentSignatureHelp? CurrentSignatureHelp { get; set; }
 
         public ImmutableArray<DiagnosticAnalyzer> Analyzers { get; }

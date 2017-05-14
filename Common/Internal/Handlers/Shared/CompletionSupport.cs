@@ -10,31 +10,24 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         private const string ChangeReasonCompletion = "completion";
 
         public Task ApplyTypedCharAsync(char @char, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var completion = session.RoslynOrNull?.Completion;
-            if (completion == null)
+            var current = session.CurrentCompletion;
+            if (current.List != null)
                 return TaskEx.CompletedTask;
 
-            if (completion.CurrentList != null)
-                return TaskEx.CompletedTask;
-
-            if (completion.ChangeEchoPending) {
-                completion.PendingChar = @char;
+            if (current.ChangeEchoPending) {
+                current.PendingChar = @char;
                 return TaskEx.CompletedTask;
             }
             var trigger = CompletionTrigger.CreateInsertionTrigger(@char);
-            return CheckCompletionAsync(trigger, session, completion, sender, cancellationToken);
+            return CheckCompletionAsync(trigger, session, sender, cancellationToken);
         }
 
         public Task ApplyReplacedTextAsync(string reason, ITypedCharEffects typedCharEffects, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var completion = session.RoslynOrNull?.Completion;
-            if (completion == null)
-                return TaskEx.CompletedTask;
-
             if (reason != ChangeReasonCompletion)
                 return TaskEx.CompletedTask;
-
-            var pendingChar = completion.PendingChar;
-            completion.ResetPending();
+            
+            var pendingChar = session.CurrentCompletion.PendingChar;
+            session.CurrentCompletion.ResetPending();
             if (pendingChar == null)
                 return TaskEx.CompletedTask;
 
@@ -42,17 +35,17 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         }
 
         public async Task SelectCompletionAsync(int selectedIndex, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var completion = session.Roslyn.Completion;
+            var current = session.CurrentCompletion;
 
             // ReSharper disable once PossibleNullReferenceException
-            var completionList = completion.CurrentList;
+            var completionList = current.List;
             // ReSharper disable once PossibleNullReferenceException
             var item = completionList.Items[selectedIndex];
-            var change = await completion.Service.GetChangeAsync(session.Roslyn.Document, item, cancellationToken: cancellationToken).ConfigureAwait(false);
-            completion.CurrentList = null;
+            var change = await session.LanguageSession.GetCompletionChangeAsync(completionList.Span, item, cancellationToken: cancellationToken).ConfigureAwait(false);
+            current.List = null;
 
             var textChange = ReplaceIncompleteText(session, completionList, change.TextChange);
-            completion.ChangeEchoPending = true;
+            current.ChangeEchoPending = true;
 
             var writer = sender.StartJsonMessage("changes");
             writer.WriteProperty("reason", ChangeReasonCompletion);
@@ -74,30 +67,29 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         }
 
         public Task CancelCompletionAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var completion = session.Roslyn.Completion;
-            completion.ResetPending();
-            completion.CurrentList = null;
+            session.CurrentCompletion.ResetPending();
+            session.CurrentCompletion.List = null;
             return TaskEx.CompletedTask;
         }
 
         public Task ForceCompletionAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            return TriggerCompletionAsync(session, session.Roslyn.Completion, sender, cancellationToken, CompletionTrigger.Default);
+            return TriggerCompletionAsync(session, sender, cancellationToken, CompletionTrigger.Default);
         }
 
-        private Task CheckCompletionAsync(CompletionTrigger trigger, WorkSession session, Completion completion, ICommandResultSender sender, CancellationToken cancellationToken) {
-            if (!completion.Service.ShouldTriggerCompletion(session.Roslyn.SourceText, session.CursorPosition, trigger))
+        private Task CheckCompletionAsync(CompletionTrigger trigger, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            if (!session.LanguageSession.ShouldTriggerCompletion(session.CursorPosition, trigger))
                 return TaskEx.CompletedTask;
 
-            return TriggerCompletionAsync(session, completion, sender, cancellationToken, trigger);
+            return TriggerCompletionAsync(session, sender, cancellationToken, trigger);
         }
 
-        private async Task TriggerCompletionAsync(WorkSession session, Completion completion, ICommandResultSender sender, CancellationToken cancellationToken, CompletionTrigger trigger) {
-            var completionList = await completion.Service.GetCompletionsAsync(session.Roslyn.Document, session.CursorPosition, trigger, cancellationToken: cancellationToken).ConfigureAwait(false);
+        private async Task TriggerCompletionAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken, CompletionTrigger trigger) {
+            var completionList = await session.LanguageSession.GetCompletionsAsync(session.CursorPosition, trigger, cancellationToken: cancellationToken).ConfigureAwait(false);
             if (completionList == null)
                 return;
-
-            completion.ResetPending();
-            completion.CurrentList = completionList;
+            
+            session.CurrentCompletion.ResetPending();
+            session.CurrentCompletion.List = completionList;
             await SendCompletionListAsync(completionList, sender, cancellationToken).ConfigureAwait(false);
         }
 

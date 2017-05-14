@@ -24,7 +24,7 @@ namespace MirrorSharp.Tests {
                 new[] { new { Start = 31, Length = 0, Text = "ToString" } },
                 changes.Changes.Select(c => new { c.Start, c.Length, c.Text })
             );
-            Assert.Null(driver.Session.Roslyn.Completion.CurrentList);
+            Assert.Null(driver.Session.CurrentCompletion.List);
         }
 
         [Fact]
@@ -39,7 +39,7 @@ namespace MirrorSharp.Tests {
                 new[] { new { Start = 31, Length = 2, Text = "ToString" } },
                 changes.Changes.Select(c => new { c.Start, c.Length, c.Text })
             );
-            Assert.Null(driver.Session.Roslyn.Completion.CurrentList);
+            Assert.Null(driver.Session.CurrentCompletion.List);
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace MirrorSharp.Tests {
             var result = await driver.SendAsync<ChangesResult>(CompletionState, 'X');
 
             Assert.Null(result);
-            Assert.Null(driver.Session.Roslyn.Completion.CurrentList);
+            Assert.Null(driver.Session.CurrentCompletion.List);
         }
 
         [Fact]

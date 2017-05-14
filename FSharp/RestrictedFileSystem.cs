@@ -60,6 +60,8 @@ namespace MirrorSharp.FSharp {
         }
 
         public bool SafeExists(string fileName) {
+            if (fileName.EndsWith(".fs", StringComparison.OrdinalIgnoreCase))
+                return false;
             EnsureAllowed(fileName);
             return File.Exists(fileName);
         }

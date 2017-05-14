@@ -73,6 +73,8 @@ namespace MirrorSharp.Internal {
         public void ReplaceText(string newText, int start = 0, [CanBeNull] int? length = null) => LanguageSession.ReplaceText(newText, start, length);
         public int CursorPosition { get; set; }
 
+        [NotNull] public CurrentCompletion CurrentCompletion { get; } = new CurrentCompletion();
+
         [NotNull] public IDictionary<string, string> RawOptionsFromClient { get; } = new Dictionary<string, string>();
         [CanBeNull] public SelfDebug SelfDebug { get; }
         public IDictionary<string, object> ExtensionData { get; } = new Dictionary<string, object>();

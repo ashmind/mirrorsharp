@@ -21,13 +21,13 @@
         padding: 10px;
       }
       nav { display: flex; font-family: 'Open Sans', sans-serif; }
-      ul {
+      nav ul {
         list-style: none;
         display: flex;
         padding: 0;
         margin: 0;
       }
-      li {
+      nav li {
         margin-left: 10px;
       }
       a { text-decoration: none; }
@@ -62,15 +62,15 @@ class C {
     <script src="bower_components/mirrorsharp/mirrorsharp.js"></script>
     <script>
       'use strict';
-      const language = (window.location.search.match(/language=([^&]+)/)[1] || ['C#']).replace('Sharp', '#');
+      const language = ((window.location.search.match(/language=([^&]+)/) || [])[1] || 'CSharp').replace('Sharp', '#');
       const textarea = document.getElementsByTagName('textarea')[0];
       if (language === 'F#')
-        textarea.value = '1 |> ignore';
+        textarea.value = '[<EntryPoint>]\r\nlet main argv = \r\n    0';
 
       mirrorsharp(textarea, {
         serviceUrl: window.location.href.replace(/^http(s?:\/\/[^/]+).*$/i, 'ws$1/mirrorsharp'),
         selfDebugEnabled: true,
-        language: (window.location.search.match(/language=([^&]+)/)[1] || ['C#']).replace('Sharp', '#')
+        language: language
       });
     </script>
   </body>

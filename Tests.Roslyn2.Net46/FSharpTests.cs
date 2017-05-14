@@ -1,8 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using MirrorSharp.Internal;
 using MirrorSharp.Testing;
+using MirrorSharp.Testing.Internal.Results;
 using Xunit;
+
+// ReSharper disable HeapView.ObjectAllocation
+// ReSharper disable HeapView.BoxingAllocation
 
 namespace MirrorSharp.Tests {
     public class FSharpTests {
@@ -48,7 +53,7 @@ namespace MirrorSharp.Tests {
         [Theory]
         [InlineData(OptimizationLevel.Debug)]
         [InlineData(OptimizationLevel.Release)]
-        public async void SetOptions_DoesNotProduceAnyDiagnosticIssues_WithEitherOptimizationLevel(OptimizationLevel level) {
+        public async void SetOptions_DoesNotCauseAnyDiagnosticIssues_WithEitherOptimizationLevel(OptimizationLevel level) {
             var driver = MirrorSharpTestDriver.New();
             await driver.SendSetOptionsAsync(new Dictionary<string, string> {
                 { "language", "F#" },
@@ -58,6 +63,58 @@ namespace MirrorSharp.Tests {
             var result = await driver.SendSlowUpdateAsync();
 
             Assert.Empty(result.Diagnostics);
+        }
+
+        [Fact]
+        public async void TypeChar_ProducesExpectedCompletion() {
+            var driver = MirrorSharpTestDriver.New(new MirrorSharpOptions());
+            await driver.SendSetOptionAsync("language", "F#");
+            driver.SetTextWithCursor(@"
+                type Test() =
+                    member this.Method() = ()
+
+                let test = 
+                    let t = new Test()
+                    t|
+            ".Trim().Replace("                ", ""));
+
+            var result = await driver.SendTypeCharAsync('.');
+
+            Assert.NotNull(result);
+            Assert.Equal(
+                new[] {
+                    new { DisplayText = "Equals", Tag = "method" },
+                    new { DisplayText = "GetHashCode", Tag = "method" },
+                    new { DisplayText = "GetType", Tag = "method" },
+                    new { DisplayText = "Method", Tag = "method" },
+                    new { DisplayText = "ToString", Tag = "method" },
+                },
+                result.Completions.Select(c => new { c.DisplayText, Tag = c.Tags.SingleOrDefault() })
+            );
+        }
+
+        [Fact]
+        public async void CompletionState_ProducesExpectedCompletionChanges() {
+            var driver = MirrorSharpTestDriver.New(new MirrorSharpOptions());
+            await driver.SendSetOptionAsync("language", "F#");
+            driver.SetTextWithCursor(@"
+                type Test() =
+                    member this.Method() = ()
+
+                let test = 
+                    let t = new Test()
+                    t|
+            ".Trim().Replace("                ", ""));
+
+            await driver.SendTypeCharAsync('.');
+            var changes = await driver.SendAsync<ChangesResult>(CommandIds.CompletionState, "3");
+
+            Assert.Equal(
+                new[] {
+                    new { Start = driver.Session.CursorPosition, Length = 0, Text = "Method" }
+                },
+                changes.Changes.Select(c => new { c.Start, c.Length, c.Text })
+            );
         }
     }
 }

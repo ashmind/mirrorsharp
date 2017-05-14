@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing.Internal;
+using MirrorSharp.Testing.Internal.Results;
 using MirrorSharp.Testing.Results;
 using Newtonsoft.Json;
 
@@ -27,6 +28,7 @@ namespace MirrorSharp.Testing {
                 LanguageNames.VisualBasic
             };
             var basePath = Path.GetDirectoryName(new Uri(typeof(LanguageManager).GetTypeInfo().Assembly.CodeBase).LocalPath);
+            // ReSharper disable once AssignNullToNotNullAttribute
             if (File.Exists(Path.Combine(basePath, "MirrorSharp.FSharp.dll")))
                 languageNames.Add("F#");
 
@@ -91,7 +93,14 @@ namespace MirrorSharp.Testing {
 
         [PublicAPI]
         internal Task SendReplaceTextAsync(string newText, int start = 0, int length = 0, int newCursorPosition = 0, string reason = "") {
+            // ReSharper disable HeapView.BoxingAllocation
             return SendAsync(CommandIds.ReplaceText, $"{start}:{length}:{newCursorPosition}:{reason}:{newText}");
+            // ReSharper restore HeapView.BoxingAllocation
+        }
+
+        [PublicAPI, ItemCanBeNull]
+        internal Task<CompletionsResult> SendTypeCharAsync(char @char) {
+            return SendAsync<CompletionsResult>(CommandIds.TypeChar, @char);
         }
 
         internal async Task<TResult> SendAsync<TResult>(char commandId, HandlerTestArgument argument = null)
