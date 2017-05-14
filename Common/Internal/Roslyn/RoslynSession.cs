@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
@@ -58,6 +59,11 @@ namespace MirrorSharp.Internal.Roslyn {
             var finalLength = length ?? SourceText.Length - start;
             _oneTextChange[0] = new TextChange(new TextSpan(start, finalLength), newText);
             SourceText = SourceText.WithChanges(_oneTextChange);
+        }
+
+        public async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(CancellationToken cancellationToken) {
+            var compilation = await Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
+            return await compilation.WithAnalyzers(Analyzers).GetAllDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
         }
 
         [NotNull] public IList<CodeAction> CurrentCodeActions { get; } = new List<CodeAction>();

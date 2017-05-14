@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 
 namespace MirrorSharp.Advanced {
+    [PublicAPI]
     public interface IRoslynSession {
-        [NotNull] Project Project { get; }
+        [PublicAPI, NotNull] Project Project { get; }
     }
 }

@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal.Handlers.Shared;
 using MirrorSharp.Internal.Results;
 

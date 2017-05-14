@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net46</TargetFramework>
+    <AssemblyName>MirrorSharp.Tests.Roslyn2.Net46</AssemblyName>
+    <RootNamespace>MirrorSharp.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <Import Project="..\Tests.Shared\MirrorSharp.Tests.Shared.projitems" Label="Shared" />
+  
+  <ItemGroup>
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="xunit" Version="2.2.0-beta5-build3474" />
+    <PackageReference Include="Moq" Version="4.6.38-alpha" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="2.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="2.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="2.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="2.0.0" />
+    <PackageReference Include="System.Net.WebSockets" Version="4.0.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\FSharp\FSharp.csproj" />
+    <ProjectReference Include="..\Testing\Testing.csproj" />
+  </ItemGroup>
+
+  <!-- Should not be needed once https://github.com/Microsoft/visualfsharp/pull/2884 is available on NuGet -->
+  <Target Name="CopyOptdataAndSigdata" AfterTargets="Build">
+    <ItemGroup>
+      <FSharpCoreReference Include="@(Reference)" Condition="$([System.String]::Copy('%(Reference.Identity)').EndsWith('FSharp.Core.dll'))" />
+    </ItemGroup>
+    <PropertyGroup>
+      <FSharpCorePath>@(FSharpCoreReference->'%(Identity)')</FSharpCorePath>
+      <FSharpCoreDirectoryPath>$([System.IO.Path]::GetDirectoryName($(FSharpCorePath)))</FSharpCoreDirectoryPath>
+    </PropertyGroup>
+    <ItemGroup>
+      <OpdataAndSigdata Include="$(FSharpCoreDirectoryPath)\FSharp.Core.optdata" />
+      <OpdataAndSigdata Include="$(FSharpCoreDirectoryPath)\FSharp.Core.sigdata" />
+    </ItemGroup>
+    <Copy SourceFiles="@(OpdataAndSigdata)" DestinationFolder="$(OutDir)" />
+  </Target>
+</Project>

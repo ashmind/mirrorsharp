@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Reflection;
 using MirrorSharp.Internal.Results;
@@ -24,14 +23,9 @@ namespace MirrorSharp.Internal.Handlers {
         public char CommandId => CommandIds.SlowUpdate;
 
         public async Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var roslynSession = session.RoslynOrNull;
-            if (roslynSession == null)
-                return;
-
-            var compilation = await roslynSession.Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
             // Temporary suppression, need to figure out the best approach here.
             // ReSharper disable once HeapView.BoxingAllocation
-            var diagnostics = (IReadOnlyList<Diagnostic>)await compilation.WithAnalyzers(roslynSession.Analyzers).GetAllDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
+            var diagnostics = (IReadOnlyList<Diagnostic>)await session.LanguageSession.GetDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
             object extensionResult = null;
             if (_extension != null) {
                 var mutableDiagnostics = diagnostics.ToList();

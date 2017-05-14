@@ -6,9 +6,4 @@ using System.Runtime.InteropServices;
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("0814c69a-e4a5-4fc9-bc57-415f8295b6b6")]
-
-[assembly: InternalsVisibleTo("MirrorSharp.Benchmarks")]
-[assembly: InternalsVisibleTo("MirrorSharp.Tests.Roslyn2")]
 [assembly: InternalsVisibleTo("MirrorSharp.Tests.Roslyn2.Net46")]
