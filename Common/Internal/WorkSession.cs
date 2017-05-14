@@ -46,10 +46,7 @@ namespace MirrorSharp.Internal {
         }
 
         private void Initialize() {
-            var parseOptions = _options?.GetDefaultParseOptionsByLanguageName?.Invoke(Language.Name);
-            var compilationOptions = _options?.GetDefaultCompilationOptionsByLanguageName?.Invoke(Language.Name);
-            var assemblyReferences = _options?.GetDefaultMetadataReferencesByLanguageName?.Invoke(Language.Name);
-            _languageSession = Language.CreateSession(_lastText, OptimizationLevel, parseOptions, compilationOptions, assemblyReferences);
+            _languageSession = Language.CreateSession(_lastText, OptimizationLevel);
         }
 
         public IWorkSessionOptions Options => _options;

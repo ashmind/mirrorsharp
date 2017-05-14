@@ -8,11 +8,11 @@ using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Compiler;
-using MirrorSharp.Internal.Abstraction;
 using Microsoft.FSharp.Compiler.SourceCodeServices;
 using Microsoft.FSharp.Control;
+using MirrorSharp.Internal.Abstraction;
 
-namespace MirrorSharp.FSharp {
+namespace MirrorSharp.FSharp.Internal {
     internal class FSharpSession : ILanguageSession {
         private readonly FSharpChecker _checker;
         private readonly FSharpProjectOptions _projectOptions;

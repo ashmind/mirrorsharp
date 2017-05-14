@@ -1,8 +1,6 @@
-﻿using System;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -20,24 +18,11 @@ using Newtonsoft.Json;
 
 namespace MirrorSharp.Testing {
     public class MirrorSharpTestDriver {
-        private static readonly LanguageManager LanguageManager = CreateLanguageManager();
-
-        private static LanguageManager CreateLanguageManager() {
-            var languageNames = new List<string> {
-                LanguageNames.CSharp,
-                LanguageNames.VisualBasic
-            };
-            var basePath = Path.GetDirectoryName(new Uri(typeof(LanguageManager).GetTypeInfo().Assembly.CodeBase).LocalPath);
-            // ReSharper disable once AssignNullToNotNullAttribute
-            if (File.Exists(Path.Combine(basePath, "MirrorSharp.FSharp.dll")))
-                languageNames.Add("F#");
-
-            return new LanguageManager(languageNames);
-        }
-
+        private static readonly MirrorSharpOptions NullOptionsKey = new MirrorSharpOptions();
+        private static readonly ConcurrentDictionary<MirrorSharpOptions, LanguageManager> LanguageManagerCache = new ConcurrentDictionary<MirrorSharpOptions, LanguageManager>();
+        
         private MirrorSharpTestDriver([CanBeNull] MirrorSharpOptions options = null, [CanBeNull] string languageName = LanguageNames.CSharp) {
-            var language = LanguageManager.GetLanguage(languageName);
-
+            var language = GetLanguageManager(options).GetLanguage(languageName);
             Middleware = new TestMiddleware(options);
             Session = new WorkSession(language, options);
         }
@@ -115,8 +100,12 @@ namespace MirrorSharp.Testing {
             return Middleware.GetHandler(commandId).ExecuteAsync(argument?.ToAsyncData(commandId) ?? AsyncData.Empty, Session, new StubCommandResultSender(), CancellationToken.None);
         }
 
+        private static LanguageManager GetLanguageManager(MirrorSharpOptions options) {
+            return LanguageManagerCache.GetOrAdd(options ?? NullOptionsKey, _ => new LanguageManager(options));
+        }
+
         private class TestMiddleware : MiddlewareBase {
-            public TestMiddleware([CanBeNull] MirrorSharpOptions options) : base(LanguageManager, options) {
+            public TestMiddleware([CanBeNull] MirrorSharpOptions options) : base(GetLanguageManager(options), options) {
             }
         }
     }

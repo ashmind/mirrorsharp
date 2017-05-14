@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.CodeAnalysis;
+using MirrorSharp.FSharp;
+using MirrorSharp.FSharp.Internal;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing;
 using MirrorSharp.Testing.Internal.Results;
@@ -11,10 +12,11 @@ using Xunit;
 
 namespace MirrorSharp.Tests {
     public class FSharpTests {
+        private static readonly MirrorSharpOptions Options = new MirrorSharpOptions().EnableFSharp();
+
         [Fact]
         public async void SlowUpdate_ProducesNoDiagnostics_IfCodeIsValid() {
-            var driver = MirrorSharpTestDriver.New();
-            await driver.SendSetOptionAsync("language", "F#");
+            var driver = MirrorSharpTestDriver.New(Options, FSharpLanguage.Name);
             var code = @"
                 open System
 
@@ -31,8 +33,7 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async void SlowUpdate_ProducesExpectedDiagnostics_IfCodeHasErrors() {
-            var driver = MirrorSharpTestDriver.New();
-            await driver.SendSetOptionAsync("language", "F#");
+            var driver = MirrorSharpTestDriver.New(Options, FSharpLanguage.Name);
             await driver.SendReplaceTextAsync("xyz");
             var result = await driver.SendSlowUpdateAsync();
             
@@ -54,11 +55,8 @@ namespace MirrorSharp.Tests {
         [InlineData(OptimizationLevel.Debug)]
         [InlineData(OptimizationLevel.Release)]
         public async void SetOptions_DoesNotCauseAnyDiagnosticIssues_WithEitherOptimizationLevel(OptimizationLevel level) {
-            var driver = MirrorSharpTestDriver.New();
-            await driver.SendSetOptionsAsync(new Dictionary<string, string> {
-                { "language", "F#" },
-                { "optimize", level.ToString() }
-            });
+            var driver = MirrorSharpTestDriver.New(Options, FSharpLanguage.Name);
+            await driver.SendSetOptionAsync("optimize", level.ToString());
             await driver.SendReplaceTextAsync("1 |> ignore");
             var result = await driver.SendSlowUpdateAsync();
 
@@ -67,8 +65,7 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async void TypeChar_ProducesExpectedCompletion() {
-            var driver = MirrorSharpTestDriver.New(new MirrorSharpOptions());
-            await driver.SendSetOptionAsync("language", "F#");
+            var driver = MirrorSharpTestDriver.New(Options, FSharpLanguage.Name);
             driver.SetTextWithCursor(@"
                 type Test() =
                     member this.Method() = ()
@@ -95,8 +92,7 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async void CompletionState_ProducesExpectedCompletionChanges() {
-            var driver = MirrorSharpTestDriver.New(new MirrorSharpOptions());
-            await driver.SendSetOptionAsync("language", "F#");
+            var driver = MirrorSharpTestDriver.New(Options, FSharpLanguage.Name);
             driver.SetTextWithCursor(@"
                 type Test() =
                     member this.Method() = ()

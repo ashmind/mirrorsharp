@@ -3,12 +3,12 @@ using Microsoft.CodeAnalysis.VisualBasic;
 
 namespace MirrorSharp.Internal.Roslyn {
     internal class VisualBasicLanguage : RoslynLanguageBase {
-        public VisualBasicLanguage() : base(
+        public VisualBasicLanguage(VisualBasicParseOptions parseOptions, VisualBasicCompilationOptions compilationOptions) : base(
             LanguageNames.VisualBasic,
             "Microsoft.CodeAnalysis.VisualBasic.Features",
             "Microsoft.CodeAnalysis.VisualBasic.Workspaces",
-            new VisualBasicParseOptions(),
-            new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+            parseOptions ?? new VisualBasicParseOptions(),
+            compilationOptions ?? new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
         ) {
         }
     }

@@ -1,42 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using MirrorSharp.Internal.Abstraction;
 using MirrorSharp.Internal.Roslyn;
 
 namespace MirrorSharp.Internal {
     internal class LanguageManager {
-        private readonly IDictionary<string, ILanguage> _languages = new Dictionary<string, ILanguage>();
+        private readonly IDictionary<string, Lazy<ILanguage>> _languages = new Dictionary<string, Lazy<ILanguage>>();
 
-        public LanguageManager(IReadOnlyCollection<string> languageNames) {
-            foreach (var name in languageNames) {
-                if (_languages.ContainsKey(name))
-                    continue;
-
-                _languages.Add(name, CreateLanguage(name));
+        public LanguageManager([CanBeNull] ILanguageManagerOptions options) {
+            _languages.Add(
+                LanguageNames.CSharp,
+                new Lazy<ILanguage>(() => new CSharpLanguage(options?.CSharp.ParseOptions, options?.CSharp.CompilationOptions), LazyThreadSafetyMode.ExecutionAndPublication)
+            );
+            _languages.Add(
+                LanguageNames.VisualBasic,
+                new Lazy<ILanguage>(() => new VisualBasicLanguage(options?.VisualBasic.ParseOptions, options?.VisualBasic.CompilationOptions), LazyThreadSafetyMode.ExecutionAndPublication)
+            );
+            if (options == null)
+                return;
+            foreach (var other in options.OtherLanguages) {
+                _languages.Add(other.Key, new Lazy<ILanguage>(other.Value, LazyThreadSafetyMode.ExecutionAndPublication));
             }
-        }
-
-        private ILanguage CreateLanguage(string name) {
-            if (name == LanguageNames.CSharp)
-                return new CSharpLanguage();
-
-            if (name == LanguageNames.VisualBasic)
-                return new VisualBasicLanguage();
-
-            if (name == "F#") {
-                var type = Type.GetType("MirrorSharp.FSharp.FSharpLanguage, MirrorSharp.FSharp", true);
-                return (ILanguage)Activator.CreateInstance(type, nonPublic: true);
-            }
-
-            throw new NotSupportedException($"Language '{name}' is not currently supported.");
         }
 
         public ILanguage GetLanguage(string name) {
-            if (!_languages.TryGetValue(name, out ILanguage language))
-                throw new Exception($"Language '{name}' was not registered in {nameof(MirrorSharpOptions)}.{nameof(MirrorSharpOptions.LanguageNames)}.");
+            if (!_languages.TryGetValue(name, out Lazy<ILanguage> lazy))
+                throw new Exception($"Language '{name}' was not enabled in {nameof(MirrorSharpOptions)}.");
 
-            return language;
+            return lazy.Value;
         }
+
+
     }
 }

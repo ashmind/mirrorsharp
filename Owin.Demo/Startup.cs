@@ -12,10 +12,9 @@ namespace MirrorSharp.Owin.Demo {
             app.UseDefaultFiles()
                .UseStaticFiles()
                .UseMirrorSharp(new MirrorSharpOptions {
-                   LanguageNames = { LanguageNames.CSharp, FSharpLanguage.Name },
                    SelfDebugEnabled = true,
                    IncludeExceptionDetails = true
-               });
+               }.EnableFSharp());
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.FSharp.Compiler.AbstractIL.Internal;
 
-namespace MirrorSharp.FSharp {
+namespace MirrorSharp.FSharp.Internal {
     internal class RestrictedFileSystem : Library.Shim.IFileSystem {
         public Assembly AssemblyLoad(AssemblyName assemblyName) {
             return Assembly.Load(assemblyName);

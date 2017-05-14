@@ -18,7 +18,7 @@ namespace MirrorSharp.Advanced {
         [ItemNotNull] private readonly ImmutableArray<ICommandHandler> _handlers;
 
         protected MiddlewareBase([CanBeNull] MirrorSharpOptions options) 
-            : this(new LanguageManager(AsReadOnly(options?.LanguageNames) ?? MirrorSharpOptions.DefaultLanguageNames), options) {
+            : this(new LanguageManager(options), options) {
         }
 
         internal MiddlewareBase([NotNull] LanguageManager languageManager, [CanBeNull] MirrorSharpOptions options) {

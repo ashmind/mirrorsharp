@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.VisualBasic;
 
 namespace MirrorSharp.Internal {
     internal interface IWorkSessionOptions {
-        [CanBeNull] Func<string, ParseOptions> GetDefaultParseOptionsByLanguageName { get; }
-        [CanBeNull] Func<string, CompilationOptions> GetDefaultCompilationOptionsByLanguageName { get; }
-        [CanBeNull] Func<string, ImmutableList<MetadataReference>> GetDefaultMetadataReferencesByLanguageName { get; }
         bool SelfDebugEnabled { get; }
     }
 }

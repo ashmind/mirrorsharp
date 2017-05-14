@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.FSharp.Compiler.AbstractIL.Internal;
 using Microsoft.FSharp.Core;
 using MirrorSharp.Internal.Abstraction;
 
-namespace MirrorSharp.FSharp {
-    public class FSharpLanguage : ILanguage {
+namespace MirrorSharp.FSharp.Internal {
+    [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+    internal class FSharpLanguage : ILanguage {
         public const string Name = "F#";
         
         private readonly ImmutableArray<string> _defaultAssemblyReferencePaths;
@@ -17,7 +18,7 @@ namespace MirrorSharp.FSharp {
             Library.Shim.FileSystem = new RestrictedFileSystem();
         }
 
-        internal FSharpLanguage() {
+        public FSharpLanguage(MirrorSharpFSharpOptions options) {
             var fsharpAssembly = typeof(FSharpOption<>).GetTypeInfo().Assembly;
             _defaultAssemblyReferencePaths = ImmutableArray.Create(
                 // note: this currently does not work on .NET Core, which is why this project isn't netstandard
@@ -26,10 +27,7 @@ namespace MirrorSharp.FSharp {
             );
         }
 
-        ILanguageSession ILanguage.CreateSession(string text, OptimizationLevel? optimizationLevel, ParseOptions parseOptions, CompilationOptions compilationOptions, IReadOnlyCollection<MetadataReference> assemblyReferences) {
-            if (assemblyReferences != null)
-                throw new NotSupportedException();
-
+        public ILanguageSession CreateSession(string text, OptimizationLevel? optimizationLevel) {
             return new FSharpSession(text, _defaultAssemblyReferencePaths, optimizationLevel);
         }
 
