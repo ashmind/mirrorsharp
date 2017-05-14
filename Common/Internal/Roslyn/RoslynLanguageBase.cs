@@ -19,6 +19,7 @@ namespace MirrorSharp.Internal.Roslyn {
         private readonly ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> _defaultCodeFixProvidersIndexedByDiagnosticIds;
         private readonly ImmutableArray<DiagnosticAnalyzer> _defaultAnalyzers;
         private readonly ImmutableList<AnalyzerReference> _defaultAnalyzerReferences;
+        private readonly ImmutableList<MetadataReference> _defaultAssemblyReferences;
 
         protected RoslynLanguageBase(
             [NotNull] string name,
@@ -37,7 +38,7 @@ namespace MirrorSharp.Internal.Roslyn {
             });
             DefaultParseOptions = defaultParseOptions;
             DefaultCompilationOptions = defaultCompilationOptions;
-            DefaultAssemblyReferences = ImmutableList.Create<MetadataReference>(
+            _defaultAssemblyReferences = ImmutableList.Create<MetadataReference>(
                 MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location)
             );
             _defaultAnalyzerReferences = ImmutableList.Create<AnalyzerReference>(
@@ -54,15 +55,14 @@ namespace MirrorSharp.Internal.Roslyn {
         public string Name { get; }
         public ParseOptions DefaultParseOptions { get; }
         public CompilationOptions DefaultCompilationOptions { get; }
-        public ImmutableList<MetadataReference> DefaultAssemblyReferences { get; }
 
-        public ILanguageSession CreateSession(string text, ParseOptions parseOptions, CompilationOptions compilationOptions, ImmutableList<MetadataReference> metadataReferences) {
+        public ILanguageSession CreateSession(string text, ParseOptions parseOptions, CompilationOptions compilationOptions, IReadOnlyCollection<MetadataReference> assemblyReferences) {
             var projectId = ProjectId.CreateNewId();
             var projectInfo = ProjectInfo.Create(
                 projectId, VersionStamp.Create(), "_", "_", Name,
                 parseOptions: parseOptions,
                 compilationOptions: compilationOptions,
-                metadataReferences: metadataReferences,
+                metadataReferences: assemblyReferences ?? _defaultAssemblyReferences,
                 analyzerReferences: _defaultAnalyzerReferences
             );
             

@@ -70,9 +70,8 @@ namespace MirrorSharp.Internal {
             foreach (var change in _compilationOptionsChanges.Values) {
                 compilationOptions = change(compilationOptions);
             }
-            var metadataReferences = _options?.GetDefaultMetadataReferencesByLanguageName?.Invoke(Language.Name) ?? Language.DefaultAssemblyReferences;
-
-            _languageSession = Language.CreateSession(_lastText, parseOptions, compilationOptions, metadataReferences);
+            var assemblyReferences = _options?.GetDefaultMetadataReferencesByLanguageName?.Invoke(Language.Name);
+            _languageSession = Language.CreateSession(_lastText, parseOptions, compilationOptions, assemblyReferences);
         }
 
         public IWorkSessionOptions Options => _options;

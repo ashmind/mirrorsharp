@@ -26,20 +26,6 @@
     <ProjectReference Include="..\FSharp\FSharp.csproj" />
     <ProjectReference Include="..\Testing\Testing.csproj" />
   </ItemGroup>
-
-  <!-- Should not be needed once https://github.com/Microsoft/visualfsharp/pull/2884 is available on NuGet -->
-  <Target Name="CopyOptdataAndSigdata" AfterTargets="Build">
-    <ItemGroup>
-      <FSharpCoreReference Include="@(Reference)" Condition="$([System.String]::Copy('%(Reference.Identity)').EndsWith('FSharp.Core.dll'))" />
-    </ItemGroup>
-    <PropertyGroup>
-      <FSharpCorePath>@(FSharpCoreReference->'%(Identity)')</FSharpCorePath>
-      <FSharpCoreDirectoryPath>$([System.IO.Path]::GetDirectoryName($(FSharpCorePath)))</FSharpCoreDirectoryPath>
-    </PropertyGroup>
-    <ItemGroup>
-      <OpdataAndSigdata Include="$(FSharpCoreDirectoryPath)\FSharp.Core.optdata" />
-      <OpdataAndSigdata Include="$(FSharpCoreDirectoryPath)\FSharp.Core.sigdata" />
-    </ItemGroup>
-    <Copy SourceFiles="@(OpdataAndSigdata)" DestinationFolder="$(OutDir)" />
-  </Target>
+  
+  <Import Project="../FSharp/FSharpCore.targets" />
 </Project>

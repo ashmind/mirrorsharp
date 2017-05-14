@@ -69,8 +69,18 @@ namespace MirrorSharp.Testing {
         }
 
         [PublicAPI]
+        public Task<OptionsEchoResult> SendSetOptionAsync(string name, string value) {
+            return SendAsync<OptionsEchoResult>(CommandIds.SetOptions, $"{name}={value}");
+        }
+
+        [PublicAPI]
         public Task<OptionsEchoResult> SendSetOptionsAsync(IDictionary<string, string> options) {
             return SendAsync<OptionsEchoResult>(CommandIds.SetOptions, string.Join(",", options.Select(o => $"{o.Key}={o.Value}")));
+        }
+
+        [PublicAPI]
+        internal Task SendReplaceTextAsync(string newText, int start = 0, int length = 0, int newCursorPosition = 0, string reason = "") {
+            return SendAsync(CommandIds.ReplaceText, $"{start}:{length}:{newCursorPosition}:{reason}:{newText}");
         }
 
         internal async Task<TResult> SendAsync<TResult>(char commandId, HandlerTestArgument argument = null)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
@@ -8,28 +9,31 @@ using Microsoft.FSharp.Core;
 using MirrorSharp.Internal.Abstraction;
 
 namespace MirrorSharp.FSharp {
-    internal class FSharpLanguage : ILanguage {
+    public class FSharpLanguage : ILanguage {
         public const string Name = "F#";
 
-        public ParseOptions DefaultParseOptions => null;
-        public CompilationOptions DefaultCompilationOptions => null;
-        public ImmutableList<MetadataReference> DefaultAssemblyReferences { get; }
+        ParseOptions ILanguage.DefaultParseOptions => null;
+        CompilationOptions ILanguage.DefaultCompilationOptions => null;
+        private readonly ImmutableArray<string> _defaultAssemblyReferencePaths;
 
         static FSharpLanguage() {
             Library.Shim.FileSystem = new RestrictedFileSystem();
         }
 
-        public FSharpLanguage() {
+        internal FSharpLanguage() {
             var fsharpAssembly = typeof(FSharpOption<>).GetTypeInfo().Assembly;
-            DefaultAssemblyReferences = ImmutableList.Create<MetadataReference>(
+            _defaultAssemblyReferencePaths = ImmutableArray.Create<string>(
                 // note: this currently does not work on .NET Core, which is why this project isn't netstandard
-                MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
-                MetadataReference.CreateFromFile(new Uri(fsharpAssembly.EscapedCodeBase).LocalPath)
+                typeof(object).GetTypeInfo().Assembly.Location,
+                new Uri(fsharpAssembly.EscapedCodeBase).LocalPath
             );
         }
 
-        public ILanguageSession CreateSession(string text, ParseOptions parseOptions, CompilationOptions compilationOptions, ImmutableList<MetadataReference> metadataReferences) {
-            return new FSharpSession(text, metadataReferences);
+        ILanguageSession ILanguage.CreateSession(string text, ParseOptions parseOptions, CompilationOptions compilationOptions, IReadOnlyCollection<MetadataReference> assemblyReferences) {
+            if (assemblyReferences != null)
+                throw new NotSupportedException();
+
+            return new FSharpSession(text, _defaultAssemblyReferencePaths);
         }
 
         string ILanguage.Name => Name;

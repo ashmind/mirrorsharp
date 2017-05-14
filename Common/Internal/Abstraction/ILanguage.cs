@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 
@@ -7,8 +7,7 @@ namespace MirrorSharp.Internal.Abstraction {
         [NotNull] string Name { get; }
         [NotNull] ParseOptions DefaultParseOptions { get; }
         [NotNull] CompilationOptions DefaultCompilationOptions { get; }
-        [NotNull] [ItemNotNull] ImmutableList<MetadataReference> DefaultAssemblyReferences { get; }
 
-        [NotNull] ILanguageSession CreateSession([NotNull] string text, ParseOptions parseOptions, CompilationOptions compilationOptions, ImmutableList<MetadataReference> metadataReferences);
+        [NotNull] ILanguageSession CreateSession([NotNull] string text, ParseOptions parseOptions, CompilationOptions compilationOptions, [CanBeNull] IReadOnlyCollection<MetadataReference> assemblyReferences);
     }
 }

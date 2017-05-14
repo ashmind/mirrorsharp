@@ -26,7 +26,7 @@ namespace MirrorSharp.Internal {
 
             if (name == "F#") {
                 var type = Type.GetType("MirrorSharp.FSharp.FSharpLanguage, MirrorSharp.FSharp", true);
-                return (ILanguage)Activator.CreateInstance(type);
+                return (ILanguage)Activator.CreateInstance(type, nonPublic: true);
             }
 
             throw new NotSupportedException($"Language '{name}' is not currently supported.");

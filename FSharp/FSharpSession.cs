@@ -18,19 +18,14 @@ namespace MirrorSharp.FSharp {
         private readonly FSharpChecker _checker;
         private readonly FSharpProjectOptions _projectOptions;
 
-        public FSharpSession(string text, ImmutableList<MetadataReference> metadataReferences) {
+        public FSharpSession(string text, ImmutableArray<string> assemblyReferencePaths) {
             _checker = FSharpChecker.Create(null, null, null, false);
             _text = text;
 
             var otherOptions = new List<string> { "--noframework" };
-            foreach (var reference in metadataReferences) {
-                switch (reference) {
-                    case PortableExecutableReference pe:
-                        // ReSharper disable once HeapView.ObjectAllocation (Unavoidable? Not worth caching)
-                        otherOptions.Add("-r:" + pe.FilePath);
-                        break;
-                    default: throw new NotSupportedException($"Metadata reference type {reference.GetType()} is not supported.");
-                }
+            foreach (var path in assemblyReferencePaths) {
+                // ReSharper disable once HeapView.ObjectAllocation (Not worth fixing for now)
+                otherOptions.Add("-r:" + path);
             }
 
             _projectOptions = new FSharpProjectOptions(
@@ -52,22 +47,45 @@ namespace MirrorSharp.FSharp {
                 _checker.ParseAndCheckFileInProject("_.fs", 0, _text, _projectOptions, null), null, cancellationToken
             ).ConfigureAwait(false);
             var checkSuccess = check as FSharpCheckFileAnswer.Succeeded;
+            var diagnosticCount = parsed.Errors.Length + (checkSuccess?.Item.Errors.Length ?? 0);
+            if (diagnosticCount == 0)
+                return ImmutableArray<Diagnostic>.Empty;
 
-            var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>(parsed.Errors.Length + (checkSuccess?.Item.Errors.Length ?? 0));
-            ConvertAndAddTo(diagnostics, parsed.Errors);
+            var lineOffsets = MapLineOffsets(_text);
+            var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>(diagnosticCount);
+            ConvertAndAddTo(diagnostics, parsed.Errors, lineOffsets);
 
             if (checkSuccess != null)
-                ConvertAndAddTo(diagnostics, checkSuccess.Item.Errors);
+                ConvertAndAddTo(diagnostics, checkSuccess.Item.Errors, lineOffsets);
 
             return diagnostics.MoveToImmutable();
         }
 
-        private void ConvertAndAddTo(ImmutableArray<Diagnostic>.Builder diagnostics, FSharpErrorInfo[] errors) {
+        private IReadOnlyList<int> MapLineOffsets(string text) {
+            var offsets = new List<int>();
+
+            var previous = '\0';
+            for (var i = 0; i < text.Length; i++) {
+                var @char = text[i];
+                if (previous == '\n' || (previous == '\r' && @char != '\n'))
+                    offsets.Add(i);
+                previous = @char;
+            }
+
+            return offsets;
+        }
+
+        private void ConvertAndAddTo(ImmutableArray<Diagnostic>.Builder diagnostics, FSharpErrorInfo[] errors, IReadOnlyList<int> lineOffsets) {
             foreach (var error in errors) {
                 var severity = ConvertToDiagnosticSeverity(error.Severity);
+
+                var startOffset = GetOffset(error.StartLineAlternate, error.StartColumn, lineOffsets);
                 var location = Location.Create(
                     "",
-                    new TextSpan(0, 0),
+                    new TextSpan(
+                        startOffset,
+                        GetOffset(error.EndLineAlternate, error.EndColumn, lineOffsets) - startOffset
+                    ),
                     new LinePositionSpan(
                         new LinePosition(error.StartLineAlternate, error.StartColumn),
                         new LinePosition(error.EndLineAlternate, error.EndColumn)
@@ -79,10 +97,15 @@ namespace MirrorSharp.FSharp {
                     error.Message,
                     severity, severity,
                     isEnabledByDefault: false,
-                    warningLevel: 0,
+                    warningLevel: severity == DiagnosticSeverity.Warning ? 1 : 0,
                     location: location
                 ));
             }
+        }
+
+        private int GetOffset(int line, int column, IReadOnlyList<int> lineOffsets) {
+            var lineOffset = line > 1 ? lineOffsets[line - 2] : 0;
+            return lineOffset + column;
         }
 
         private DiagnosticSeverity ConvertToDiagnosticSeverity(FSharpErrorSeverity errorSeverity) {

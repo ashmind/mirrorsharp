@@ -10,6 +10,7 @@ namespace MirrorSharp.Testing.Results {
         [CanBeNull] public string Id { get; set; }
         [CanBeNull] public string Message { get; set; }
         [CanBeNull] public string Severity { get; set; }
+        [CanBeNull] public ResultSpan Span { get; set; }
         [NotNull] public IList<string> Tags { get; } = new List<string>();
         [NotNull] public IList<SlowUpdateDiagnosticAction> Actions { get; } = new List<SlowUpdateDiagnosticAction>();
 

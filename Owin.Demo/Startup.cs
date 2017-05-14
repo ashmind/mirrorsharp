@@ -1,4 +1,6 @@
-﻿using Microsoft.Owin;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.Owin;
+using MirrorSharp.FSharp;
 using MirrorSharp.Owin.Demo;
 using Owin;
 
@@ -10,6 +12,7 @@ namespace MirrorSharp.Owin.Demo {
             app.UseDefaultFiles()
                .UseStaticFiles()
                .UseMirrorSharp(new MirrorSharpOptions {
+                   LanguageNames = { LanguageNames.CSharp, FSharpLanguage.Name },
                    SelfDebugEnabled = true,
                    IncludeExceptionDetails = true
                });
