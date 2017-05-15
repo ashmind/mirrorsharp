@@ -1,7 +1,9 @@
-﻿using System.Threading;
+﻿using System.Collections.Immutable;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
+using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Compiler;
 using Microsoft.FSharp.Compiler.SourceCodeServices;
 
@@ -22,5 +24,7 @@ namespace MirrorSharp.FSharp.Advanced {
 
         [NotNull] FSharpChecker Checker { get; }
         [NotNull] FSharpProjectOptions ProjectOptions { get; }
+        ImmutableArray<string> AssemblyReferencePaths { get; }
+        [NotNull] FSharpList<string> AssemblyReferencePathsAsFSharpList { get; }
     }
 }

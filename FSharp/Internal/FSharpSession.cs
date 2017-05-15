@@ -29,6 +29,8 @@ namespace MirrorSharp.FSharp.Internal {
                 keepAllBackgroundResolutions: true,
                 msbuildEnabled: false
             );
+            AssemblyReferencePaths = assemblyReferencePaths;
+            AssemblyReferencePathsAsFSharpList = ToFSharpList(assemblyReferencePaths);
             ProjectOptions = new FSharpProjectOptions(
                 "_",
                 projectFileNames: new[] { "_.fs" },
@@ -42,9 +44,19 @@ namespace MirrorSharp.FSharp.Internal {
                 extraProjectInfo: null
             );
         }
-        
+
+        private FSharpList<string> ToFSharpList(ImmutableArray<string> assemblyReferencePaths) {
+            var list = FSharpList<string>.Empty;
+            for (var i = assemblyReferencePaths.Length - 1; i >= 0; i--) {
+                list = FSharpList<string>.Cons(assemblyReferencePaths[i], list);
+            }
+            return list;
+        }
+
         public FSharpChecker Checker { get; }
         public FSharpProjectOptions ProjectOptions { get; }
+        public ImmutableArray<string> AssemblyReferencePaths { get; }
+        public FSharpList<string> AssemblyReferencePathsAsFSharpList { get; }
 
         private static string[] ConvertToOptions(ImmutableArray<string> assemblyReferencePaths, OptimizationLevel? optimizationLevel) {
             var options = new List<string> {"--noframework"};
