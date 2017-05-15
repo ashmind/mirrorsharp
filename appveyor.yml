@@ -13,6 +13,7 @@ build_script:
 
 test_script:
 - dotnet test Tests.Roslyn2\Tests.Roslyn2.csproj
+- dotnet test Tests.Roslyn2.Net46\Tests.Roslyn2.Net46.csproj
   
 after_test:
 - .\pack-all.bat
