@@ -2,6 +2,9 @@
 using JetBrains.Annotations;
 using MirrorSharp.FSharp.Internal;
 
+// This is run only once, on startup, so:
+// ReSharper disable HeapView.ClosureAllocation
+
 namespace MirrorSharp.FSharp {
     public static class MirrorSharpOptionsExtensions {
         [NotNull]

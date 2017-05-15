@@ -10,8 +10,8 @@ using MirrorSharp.Internal.Abstraction;
 namespace MirrorSharp {
     [PublicAPI]
     public sealed class MirrorSharpOptions : IConnectionOptions, IWorkSessionOptions, ILanguageManagerOptions {
-        [NotNull] public MirrorSharpRoslynOptions<CSharpParseOptions, CSharpCompilationOptions> CSharp { get; } = new MirrorSharpRoslynOptions<CSharpParseOptions, CSharpCompilationOptions>();
-        [NotNull] public MirrorSharpRoslynOptions<VisualBasicParseOptions, VisualBasicCompilationOptions> VisualBasic { get; } = new MirrorSharpRoslynOptions<VisualBasicParseOptions, VisualBasicCompilationOptions>();
+        public MirrorSharpRoslynOptions<CSharpParseOptions, CSharpCompilationOptions> CSharp { get; } = new MirrorSharpRoslynOptions<CSharpParseOptions, CSharpCompilationOptions>();
+        public MirrorSharpRoslynOptions<VisualBasicParseOptions, VisualBasicCompilationOptions> VisualBasic { get; } = new MirrorSharpRoslynOptions<VisualBasicParseOptions, VisualBasicCompilationOptions>();
         [NotNull] internal IDictionary<string, Func<ILanguage>> OtherLanguages { get; } = new Dictionary<string, Func<ILanguage>>();
 
         [CanBeNull] public ISlowUpdateExtension SlowUpdate { get; set; }

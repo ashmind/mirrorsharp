@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using JetBrains.Annotations;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal;
 
 namespace MirrorSharp.FSharp.Advanced {
+    [PublicAPI]
     public static class WorkSessionExtensions {
         public static bool IsFSharp(this IWorkSession session) {
             return ((WorkSession)session).LanguageSession is IFSharpSession;

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Text;
+﻿using System.Collections.Immutable;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 
 namespace MirrorSharp {
+    [PublicAPI]
     public class MirrorSharpRoslynOptions<TParseOptions, TCompilationOptions>
         where TParseOptions : ParseOptions
         where TCompilationOptions : CompilationOptions

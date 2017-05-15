@@ -1,7 +1,6 @@
 ﻿using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -83,11 +82,6 @@ namespace MirrorSharp.Advanced {
                     session?.Dispose();
                 }
             }
-        }
-
-        [CanBeNull]
-        private static IReadOnlyCollection<string> AsReadOnly([CanBeNull] ISet<string> set) {
-            return set as IReadOnlyCollection<string> ?? set?.ToArray();
         }
     }
 }
