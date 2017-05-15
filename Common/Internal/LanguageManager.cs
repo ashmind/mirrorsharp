@@ -11,14 +11,22 @@ namespace MirrorSharp.Internal {
         private readonly IDictionary<string, Lazy<ILanguage>> _languages = new Dictionary<string, Lazy<ILanguage>>();
 
         public LanguageManager([CanBeNull] ILanguageManagerOptions options) {
-            _languages.Add(
-                LanguageNames.CSharp,
-                new Lazy<ILanguage>(() => new CSharpLanguage(options?.CSharp.ParseOptions, options?.CSharp.CompilationOptions), LazyThreadSafetyMode.ExecutionAndPublication)
-            );
-            _languages.Add(
-                LanguageNames.VisualBasic,
-                new Lazy<ILanguage>(() => new VisualBasicLanguage(options?.VisualBasic.ParseOptions, options?.VisualBasic.CompilationOptions), LazyThreadSafetyMode.ExecutionAndPublication)
-            );
+            _languages.Add(LanguageNames.CSharp, new Lazy<ILanguage>(
+                () => new CSharpLanguage(
+                    options?.CSharp.ParseOptions,
+                    options?.CSharp.CompilationOptions,
+                    options?.CSharp.MetadataReferences
+                ),
+                LazyThreadSafetyMode.ExecutionAndPublication
+            ));
+            _languages.Add(LanguageNames.VisualBasic, new Lazy<ILanguage>(
+                () => new VisualBasicLanguage(
+                    options?.VisualBasic.ParseOptions,
+                    options?.VisualBasic.CompilationOptions,
+                    options?.VisualBasic.MetadataReferences
+                ),
+                LazyThreadSafetyMode.ExecutionAndPublication
+            ));
             if (options == null)
                 return;
             foreach (var other in options.OtherLanguages) {

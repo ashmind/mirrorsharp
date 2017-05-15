@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
@@ -16,13 +17,18 @@ using MirrorSharp.Internal.Abstraction;
 namespace MirrorSharp.FSharp.Internal {
     internal class FSharpSession : ILanguageSession, IFSharpSession {
         private string _text;
-        private LineColumnMap _lastLineMap;
-        private FSharpParseAndCheckResults _lastParseAndCheck;
+        [CanBeNull] private LineColumnMap _lastLineMap;
+        [CanBeNull] private FSharpParseAndCheckResults _lastParseAndCheck;
 
         public FSharpSession(string text, ImmutableArray<string> assemblyReferencePaths, OptimizationLevel? optimizationLevel) {
             _text = text;
 
-            Checker = FSharpChecker.Create(null, null, null, false);
+            Checker = FSharpChecker.Create(
+                null,
+                keepAssemblyContents: true,
+                keepAllBackgroundResolutions: true,
+                msbuildEnabled: false
+            );
             ProjectOptions = new FSharpProjectOptions(
                 "_",
                 projectFileNames: new[] { "_.fs" },
@@ -36,7 +42,7 @@ namespace MirrorSharp.FSharp.Internal {
                 extraProjectInfo: null
             );
         }
-
+        
         public FSharpChecker Checker { get; }
         public FSharpProjectOptions ProjectOptions { get; }
 
@@ -72,7 +78,7 @@ namespace MirrorSharp.FSharp.Internal {
 
             return diagnostics.MoveToImmutable();
         }
-
+        
         public async ValueTask<FSharpParseAndCheckResults> ParseAndCheckAsync(CancellationToken cancellationToken) {
             if (_lastParseAndCheck != null)
                 return _lastParseAndCheck;
@@ -85,37 +91,47 @@ namespace MirrorSharp.FSharp.Internal {
             return _lastParseAndCheck;
         }
 
+        public FSharpParseFileResults GetLastParseResults() {
+            return _lastParseAndCheck?.ParseResults;
+        }
+
+        public FSharpCheckFileAnswer GetLastCheckAnswer() {
+            return _lastParseAndCheck?.CheckAnswer;
+        }
+
         private void ConvertAndAddTo(ImmutableArray<Diagnostic>.Builder diagnostics, FSharpErrorInfo[] errors) {
-            var lineMap = GetLineMap();
             foreach (var error in errors) {
-                var severity = ConvertToDiagnosticSeverity(error.Severity);
-
-                var startOffset = lineMap.GetOffset(error.StartLineAlternate, error.StartColumn);
-                var location = Location.Create(
-                    "",
-                    new TextSpan(
-                        startOffset,
-                        lineMap.GetOffset(error.EndLineAlternate, error.EndColumn) - startOffset
-                    ),
-                    new LinePositionSpan(
-                        new LinePosition(error.StartLineAlternate, error.StartColumn),
-                        new LinePosition(error.EndLineAlternate, error.EndColumn)
-                    )
-                );
-
-                diagnostics.Add(Diagnostic.Create(
-                    "FS", "Compiler",
-                    error.Message,
-                    severity, severity,
-                    isEnabledByDefault: false,
-                    warningLevel: severity == DiagnosticSeverity.Warning ? 1 : 0,
-                    location: location
-                ));
+                diagnostics.Add(ConvertToDiagnostic(error));
             }
         }
 
-        private DiagnosticSeverity ConvertToDiagnosticSeverity(FSharpErrorSeverity errorSeverity) {
-            return Equals(errorSeverity, FSharpErrorSeverity.Error) ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning;
+        public Diagnostic ConvertToDiagnostic(FSharpErrorInfo error) {
+            Argument.NotNull(nameof(error), error);
+
+            var lineMap = GetLineMap();
+            var severity = error.Severity.Tag == FSharpErrorSeverity.Tags.Error ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning;
+
+            var startOffset = lineMap.GetOffset(error.StartLineAlternate, error.StartColumn);
+            var location = Location.Create(
+                "",
+                new TextSpan(
+                    startOffset,
+                    lineMap.GetOffset(error.EndLineAlternate, error.EndColumn) - startOffset
+                ),
+                new LinePositionSpan(
+                    new LinePosition(error.StartLineAlternate, error.StartColumn),
+                    new LinePosition(error.EndLineAlternate, error.EndColumn)
+                )
+            );
+
+            return Diagnostic.Create(
+                "FS", "Compiler",
+                error.Message,
+                severity, severity,
+                isEnabledByDefault: false,
+                warningLevel: severity == DiagnosticSeverity.Warning ? 1 : 0,
+                location: location
+            );
         }
 
         public string GetText() {

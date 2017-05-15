@@ -28,7 +28,8 @@ namespace MirrorSharp.Internal.Roslyn {
             [NotNull] string featuresAssemblyName,
             [NotNull] string workspacesAssemblyName,
             [NotNull] ParseOptions defaultParseOptions,
-            [NotNull] CompilationOptions defaultCompilationOptions
+            [NotNull] CompilationOptions defaultCompilationOptions,
+            [NotNull] ImmutableList<MetadataReference> defaultMetadataReferences
         ) {
             // ReSharper disable HeapView.BoxingAllocation
             Name = name;
@@ -40,9 +41,7 @@ namespace MirrorSharp.Internal.Roslyn {
             });
             _defaultParseOptions = defaultParseOptions;
             _defaultCompilationOptions = defaultCompilationOptions;
-            _defaultAssemblyReferences = ImmutableList.Create<MetadataReference>(
-                MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location)
-            );
+            _defaultAssemblyReferences = defaultMetadataReferences;
             _defaultAnalyzerReferences = ImmutableList.Create<AnalyzerReference>(
                 CreateAnalyzerReference(featuresAssemblyName)
             );

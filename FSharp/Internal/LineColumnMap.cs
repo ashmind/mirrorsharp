@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 namespace MirrorSharp.FSharp.Internal {
-    public class LineColumnMap {
+    internal class LineColumnMap {
         private readonly IReadOnlyList<Line> _map;
 
         private LineColumnMap(IReadOnlyList<Line> map) {
@@ -21,6 +21,9 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public int GetOffset(int line, int column) {
+            if (line < 1)
+                return column;
+            
             return _map[line - 1].Start + column;
         }
 

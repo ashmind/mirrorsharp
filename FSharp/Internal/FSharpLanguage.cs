@@ -15,7 +15,7 @@ namespace MirrorSharp.FSharp.Internal {
         private readonly ImmutableArray<string> _defaultAssemblyReferencePaths;
 
         static FSharpLanguage() {
-            Library.Shim.FileSystem = new RestrictedFileSystem();
+            Library.Shim.FileSystem = CustomFileSystem.Instance;
         }
 
         public FSharpLanguage(MirrorSharpFSharpOptions options) {
