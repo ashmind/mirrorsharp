@@ -1,4 +1,6 @@
-﻿using Microsoft.Owin;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.Owin;
+using MirrorSharp.FSharp;
 using MirrorSharp.Owin.Demo;
 using Owin;
 
@@ -12,7 +14,7 @@ namespace MirrorSharp.Owin.Demo {
                .UseMirrorSharp(new MirrorSharpOptions {
                    SelfDebugEnabled = true,
                    IncludeExceptionDetails = true
-               });
+               }.EnableFSharp());
         }
     }
 }

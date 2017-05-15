@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Reflection;
 using MirrorSharp.Internal.Results;
@@ -24,10 +23,9 @@ namespace MirrorSharp.Internal.Handlers {
         public char CommandId => CommandIds.SlowUpdate;
 
         public async Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var compilation = await session.Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
             // Temporary suppression, need to figure out the best approach here.
             // ReSharper disable once HeapView.BoxingAllocation
-            var diagnostics = (IReadOnlyList<Diagnostic>)await compilation.WithAnalyzers(session.Analyzers).GetAllDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
+            var diagnostics = (IReadOnlyList<Diagnostic>)await session.LanguageSession.GetDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
             object extensionResult = null;
             if (_extension != null) {
                 var mutableDiagnostics = diagnostics.ToList();
@@ -38,7 +36,8 @@ namespace MirrorSharp.Internal.Handlers {
         }
 
         private async Task SendSlowUpdateAsync(IReadOnlyList<Diagnostic> diagnostics, WorkSession session, object extensionResult, ICommandResultSender sender, CancellationToken cancellationToken) {
-            session.CurrentCodeActions.Clear();
+            if (session.IsRoslyn)
+                session.Roslyn.CurrentCodeActions.Clear();
             var writer = sender.StartJsonMessage("slowUpdate");
             writer.WritePropertyStartArray("diagnostics");
             foreach (var diagnostic in diagnostics) {
@@ -55,6 +54,7 @@ namespace MirrorSharp.Internal.Handlers {
                 writer.WriteEndArray();
                 writer.WritePropertyName("span");
                 writer.WriteSpan(diagnostic.Location.SourceSpan);
+
                 var actions = await GetCodeActionsAsync(diagnostic, session, cancellationToken).ConfigureAwait(false);
                 if (actions.Length > 0) {
                     writer.WritePropertyStartArray("actions");
@@ -73,6 +73,7 @@ namespace MirrorSharp.Internal.Handlers {
         }
 
         private static void WriteActions(IFastJsonWriterInternal writer, ImmutableArray<CodeAction> actions, WorkSession session) {
+            var roslynSession = session.Roslyn;
             foreach (var action in actions) {
                 if (action is CodeActionWithOptions)
                     continue;
@@ -81,8 +82,8 @@ namespace MirrorSharp.Internal.Handlers {
                     WriteActions(writer, RoslynReflectionFast.GetNestedCodeActions(action), session);
                     continue;
                 }
-                var id = session.CurrentCodeActions.Count;
-                session.CurrentCodeActions.Add(action);
+                var id = roslynSession.CurrentCodeActions.Count;
+                roslynSession.CurrentCodeActions.Add(action);
                 writer.WriteStartObject();
                 writer.WriteProperty("id", id);
                 writer.WriteProperty("title", action.Title);
@@ -91,6 +92,9 @@ namespace MirrorSharp.Internal.Handlers {
         }
 
         private async ValueTask<ImmutableArray<CodeAction>> GetCodeActionsAsync(Diagnostic diagnostic, WorkSession session, CancellationToken cancellationToken) {
+            if (!session.IsRoslyn)
+                return ImmutableArray<CodeAction>.Empty;
+
             // I don't think this can be avoided.
             // ReSharper disable once HeapView.ClosureAllocation
             ImmutableArray<CodeAction>.Builder actionsBuilder = null;
@@ -99,8 +103,8 @@ namespace MirrorSharp.Internal.Handlers {
                     actionsBuilder = ImmutableArray.CreateBuilder<CodeAction>();
                 actionsBuilder.Add(action);
             };
-            var fixContext = new CodeFixContext(session.Document, diagnostic, registerCodeFix, cancellationToken);
-            var providers = ImmutableDictionary.GetValueOrDefault(session.CodeFixProviders, diagnostic.Id);
+            var fixContext = new CodeFixContext(session.Roslyn.Document, diagnostic, registerCodeFix, cancellationToken);
+            var providers = session.Roslyn.CodeFixProviders.GetValueOrDefault(diagnostic.Id);
             if (providers == null)
                 return ImmutableArray<CodeAction>.Empty;
 

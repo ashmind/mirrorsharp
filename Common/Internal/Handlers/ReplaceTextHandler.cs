@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal.Handlers.Shared;
 using MirrorSharp.Internal.Results;
 
@@ -70,7 +69,7 @@ namespace MirrorSharp.Internal.Handlers {
 
             var text = await AsyncDataConvert.ToUtf8StringAsync(data, partStart - first.Offset, _charArrayPool).ConfigureAwait(false);
 
-            session.SourceText = session.SourceText.WithChanges(new TextChange(new TextSpan(start.Value, length.Value), text));
+            session.ReplaceText(text, start.Value, length.Value);
             session.CursorPosition = cursorPosition.Value;
             await _signatureHelp.ApplyCursorPositionChangeAsync(session, sender, cancellationToken).ConfigureAwait(false);
             await _completion.ApplyReplacedTextAsync(reason, _typedCharEffects, session, sender, cancellationToken).ConfigureAwait(false);

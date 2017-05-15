@@ -14,7 +14,7 @@ namespace MirrorSharp.Tests {
     public class ApplyDiagnosticActionHandlerTests {
         [Fact]
         public async Task ExecuteAsync_ProducesExpectedChanges_ForMissingNamespace() {
-            var driver = MirrorSharpTestDriver.New().SetSourceText(@"class C { Action a; }");
+            var driver = MirrorSharpTestDriver.New().SetText(@"class C { Action a; }");
             var action = await ExecuteSlowUpdateAndGetDiagnosticActionAsync(driver, "Action", "using");
 
             var changes = await driver.SendAsync<ChangesResult>(ApplyDiagnosticAction, action.Id);
@@ -27,15 +27,15 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task ExecuteAsync_DoesNotModifyCurrentSession() {
-            var driver = MirrorSharpTestDriver.New().SetSourceText(@"class C { Action a; }");
+            var driver = MirrorSharpTestDriver.New().SetText(@"class C { Action a; }");
             var action = await ExecuteSlowUpdateAndGetDiagnosticActionAsync(driver, "Action", "using");
 
-            var textBefore = driver.Session.SourceText;
+            var textBefore = driver.Session.Roslyn.SourceText;
             await driver.SendAsync(ApplyDiagnosticAction, action.Id);
 
-            Assert.Same(textBefore, driver.Session.SourceText);
-            Assert.Equal(textBefore.ToString(), (await driver.Session.Document.GetTextAsync()).ToString());
-            Assert.Same(driver.Session.Workspace.CurrentSolution, driver.Session.Project.Solution);
+            Assert.Same(textBefore, driver.Session.Roslyn.SourceText);
+            Assert.Equal(textBefore.ToString(), (await driver.Session.Roslyn.Document.GetTextAsync()).ToString());
+            Assert.Same(driver.Session.Roslyn.Workspace.CurrentSolution, driver.Session.Roslyn.Project.Solution);
         }
 
         private static async Task<SlowUpdateDiagnosticAction> ExecuteSlowUpdateAndGetDiagnosticActionAsync(

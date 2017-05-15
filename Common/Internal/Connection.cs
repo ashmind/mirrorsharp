@@ -65,7 +65,8 @@ namespace MirrorSharp.Internal {
             // it is important to record this conditionally on SelfDebug being enabled, otherwise
             // we lose no-allocation performance by allocating here
             var messageForDebug = _session.SelfDebug != null ? Encoding.UTF8.GetString(_inputBuffer) : null;
-            _session.SelfDebug?.Log("before", messageForDebug, _session.CursorPosition, _session.SourceText);
+            _session.SelfDebug?.Log("before", messageForDebug, _session.CursorPosition, _session.GetText());
+                
 
             var commandId = _inputBuffer[0];
             var handler = ResolveHandler(commandId);
@@ -91,7 +92,7 @@ namespace MirrorSharp.Internal {
                 throw new InvalidOperationException($"Received message has unread data after command '{(char)commandId}'.");
             }
 
-            _session.SelfDebug?.Log("after", messageForDebug, _session.CursorPosition, _session.SourceText);
+            _session.SelfDebug?.Log("after", messageForDebug, _session.CursorPosition, _session.GetText());
         }
 
         private async Task ReceiveToEndAsync(CancellationToken cancellationToken) {

@@ -1,4 +1,4 @@
-/* globals console:false, CloseEvent:false */
+﻿/* globals console:false, CloseEvent:false */
 (function (root, factory) {
     'use strict';
     // ReSharper disable UndeclaredGlobalVariableUsing (R# bug, https://youtrack.jetbrains.com/issue/RSRP-462411)
@@ -434,7 +434,8 @@
         const defaultLanguage = 'C#';
         const languageModes = {
             'C#': 'text/x-csharp',
-            'Visual Basic': 'text/x-vb'
+            'Visual Basic': 'text/x-vb',
+            'F#': 'text/x-fsharp'
         };
 
         var language;

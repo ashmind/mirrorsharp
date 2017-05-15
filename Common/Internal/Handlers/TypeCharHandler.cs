@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal.Handlers.Shared;
 using MirrorSharp.Internal.Results;
 
@@ -16,9 +15,7 @@ namespace MirrorSharp.Internal.Handlers {
 
         public Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var @char = FastConvert.Utf8ByteArrayToChar(data.GetFirst());
-            session.SourceText = session.SourceText.WithChanges(
-                new TextChange(new TextSpan(session.CursorPosition, 0), FastConvert.CharToString(@char))
-            );
+            session.ReplaceText(FastConvert.CharToString(@char), session.CursorPosition, 0);
             session.CursorPosition += 1;
 
             return _effects.ApplyTypedCharAsync(@char, session, sender, cancellationToken);

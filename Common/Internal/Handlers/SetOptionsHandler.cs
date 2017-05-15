@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using MirrorSharp.Advanced;
-using MirrorSharp.Internal.Languages;
 using MirrorSharp.Internal.Results;
 
 // ReSharper disable HeapView.DelegateAllocation
@@ -19,14 +17,14 @@ namespace MirrorSharp.Internal.Handlers {
         private static readonly char[] EqualsSign = { '=' };
 
         private readonly IReadOnlyDictionary<string, Action<WorkSession, string>> _optionSetters;
-        private readonly IReadOnlyCollection<ILanguage> _languages;
+        [NotNull] private readonly LanguageManager _languageManager;
         [NotNull] private readonly ArrayPool<char> _charArrayPool;
         [CanBeNull] private readonly ISetOptionsFromClientExtension _extension;
 
         public char CommandId => CommandIds.SetOptions;
 
         internal SetOptionsHandler(
-            [NotNull] IReadOnlyCollection<ILanguage> languages,
+            [NotNull] LanguageManager languageManager,
             [NotNull] ArrayPool<char> charArrayPool,
             [CanBeNull] ISetOptionsFromClientExtension extension = null
         ) {
@@ -34,7 +32,7 @@ namespace MirrorSharp.Internal.Handlers {
                 { "language", SetLanguage },
                 { "optimize", SetOptimize }
             };
-            _languages = languages;
+            _languageManager = languageManager;
             _charArrayPool = charArrayPool;
             _extension = extension;
         }
@@ -65,20 +63,18 @@ namespace MirrorSharp.Internal.Handlers {
         }
 
         private void SetLanguage(WorkSession session, string value) {
-            var language = _languages.FirstOrDefault(l => l.Name == value);
-            if (language == null)
-                throw new NotSupportedException($"Language '{value}' is not supported.");
-
+            var language = _languageManager.GetLanguage(value);
             session.ChangeLanguage(language);
         }
 
         private void SetOptimize(WorkSession session, string value) {
             var level = (OptimizationLevel)Enum.Parse(typeof(OptimizationLevel), value, true);
-            session.ChangeCompilationOptions(nameof(CompilationOptions.OptimizationLevel), o => o.WithOptimizationLevel(level));
+            session.ChangeOptimizationLevel(level);
         }
 
         private async Task SendOptionsEchoAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            session.CurrentCodeActions.Clear();
+            if (session.IsRoslyn)
+                session.Roslyn.CurrentCodeActions.Clear();
             var writer = sender.StartJsonMessage("optionsEcho");
             writer.WritePropertyStartObject("options");
             foreach (var pair in session.RawOptionsFromClient) {

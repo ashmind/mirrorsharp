@@ -28,28 +28,28 @@ namespace MirrorSharp.Tests {
         public async void ExecuteAsync_UpdatesSessionCompilationOptimizationsLevel(string value, OptimizationLevel expectedLevel) {
             var driver = MirrorSharpTestDriver.New();
             await driver.SendAsync(SetOptions, "optimize=" + value);
-            Assert.Equal(expectedLevel, driver.Session.Project.CompilationOptions.OptimizationLevel);
+            Assert.Equal(expectedLevel, driver.Session.Roslyn.Project.CompilationOptions.OptimizationLevel);
         }
 
         [Fact]
         public async void ExecuteAsync_PreservesSessionWorkspace_WhenUpdatingOptimizeToTheSameValue() {
-            var driver = MirrorSharpTestDriver.New().SetSourceText("test");
-            driver.Session.ChangeCompilationOptions(nameof(CompilationOptions.OptimizationLevel), c => c.WithOptimizationLevel(OptimizationLevel.Release));
-            var workspace = driver.Session.Workspace;
+            var driver = MirrorSharpTestDriver.New().SetText("test");
+            driver.Session.ChangeOptimizationLevel(OptimizationLevel.Release);
+            var workspace = driver.Session.Roslyn.Workspace;
             await driver.SendAsync(SetOptions, "optimize=release");
-            Assert.Same(workspace, driver.Session.Workspace);
+            Assert.Same(workspace, driver.Session.Roslyn.Workspace);
         }
 
         [Fact]
         public async void ExecuteAsync_PreservesSessionSourceText_WhenUpdatingOptions() {
-            var driver = MirrorSharpTestDriver.New().SetSourceText("test");
+            var driver = MirrorSharpTestDriver.New().SetText("test");
             await driver.SendAsync(SetOptions, "optimize=debug");
-            Assert.Equal("test", driver.Session.SourceText.ToString());
+            Assert.Equal("test", driver.Session.GetText());
         }
 
         [Fact]
         public async void ExecuteAsync_PreservesSessionCursorPosition_WhenUpdatingOptions() {
-            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor("test|");
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor("test|");
             await driver.SendAsync(SetOptions, "optimize=debug");
             Assert.Equal(4, driver.Session.CursorPosition);
         }

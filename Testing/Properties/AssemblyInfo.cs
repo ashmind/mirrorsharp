@@ -11,3 +11,4 @@ using System.Runtime.InteropServices;
 
 [assembly: InternalsVisibleTo("MirrorSharp.Benchmarks")]
 [assembly: InternalsVisibleTo("MirrorSharp.Tests.Roslyn2")]
+[assembly: InternalsVisibleTo("MirrorSharp.Tests.Roslyn2.Net46")]

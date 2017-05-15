@@ -22,7 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FSharp\FSharp.csproj" />
     <ProjectReference Include="..\Owin\Owin.csproj" />
   </ItemGroup>
-
+  
+  <Import Project="../FSharp/FSharpCore.targets" />
 </Project>

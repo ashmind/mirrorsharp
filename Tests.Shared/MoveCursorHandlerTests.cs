@@ -21,7 +21,7 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task ExecuteAsync_ProducesEmptySignatureHelp_IfCursorIsMovedOutsideOfSignatureSpan() {
-            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"
                 class C {
                     void M() {}
                     void T() { M| }
@@ -34,7 +34,7 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task ExecuteAsync_ProducesSignatureHelpWithNewSelectedParameter_IfCursorIsMovedMovedBetweenParameters() {
-            var driver = MirrorSharpTestDriver.New().SetSourceTextWithCursor(@"
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"
                 class C {
                     void M(int a, int b, int c) {}
                     void T() { M(1| }
