@@ -7,13 +7,15 @@ using MirrorSharp.Internal.Results;
 namespace MirrorSharp.Internal.Handlers.Shared {
     internal class SignatureHelpSupport : ISignatureHelpSupport {
         public Task ApplyCursorPositionChangeAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var roslynSession = session.RoslynOrNull;
-            var currentHelp = roslynSession?.CurrentSignatureHelp;
+            if (!session.IsRoslyn)
+                return TaskEx.CompletedTask;
+            
+            var currentHelp = session.Roslyn.CurrentSignatureHelp;
             if (currentHelp == null)
                 return TaskEx.CompletedTask;
 
             if (!currentHelp.Value.Items.ApplicableSpan.Contains(session.CursorPosition)) {
-                roslynSession.CurrentSignatureHelp = null;
+                session.Roslyn.CurrentSignatureHelp = null;
                 return SendSignatureHelpAsync(null, sender, cancellationToken);
             }
 
@@ -23,15 +25,14 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         }
 
         public Task ApplyTypedCharAsync(char @char, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var roslynSession = session.RoslynOrNull;
-            if (roslynSession == null)
+            if (!session.IsRoslyn)
                 return TaskEx.CompletedTask;
 
             var trigger = new SignatureHelpTriggerInfoData(SignatureHelpTriggerReason.TypeCharCommand, @char);
-            if (roslynSession.CurrentSignatureHelp != null) {
-                var provider = roslynSession.CurrentSignatureHelp.Value.Provider;
+            if (session.Roslyn.CurrentSignatureHelp != null) {
+                var provider = session.Roslyn.CurrentSignatureHelp.Value.Provider;
                 if (provider.IsRetriggerCharacter(@char)) {
-                    roslynSession.CurrentSignatureHelp = null;
+                    session.Roslyn.CurrentSignatureHelp = null;
                     return SendSignatureHelpAsync(null, sender, cancellationToken);
                 }
 

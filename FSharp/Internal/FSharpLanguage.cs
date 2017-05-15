@@ -19,11 +19,10 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public FSharpLanguage(MirrorSharpFSharpOptions options) {
-            var fsharpAssembly = typeof(FSharpOption<>).GetTypeInfo().Assembly;
-            _defaultAssemblyReferencePaths = ImmutableArray.Create(
+            _defaultAssemblyReferencePaths = options.AssemblyReferencePaths ?? ImmutableArray.Create(
                 // note: this currently does not work on .NET Core, which is why this project isn't netstandard
                 typeof(object).GetTypeInfo().Assembly.Location,
-                new Uri(fsharpAssembly.EscapedCodeBase).LocalPath
+                new Uri(typeof(FSharpOption<>).GetTypeInfo().Assembly.EscapedCodeBase).LocalPath
             );
         }
 

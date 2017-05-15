@@ -10,22 +10,20 @@ using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Compiler;
 using Microsoft.FSharp.Compiler.SourceCodeServices;
 using Microsoft.FSharp.Control;
+using MirrorSharp.FSharp.Advanced;
 using MirrorSharp.Internal.Abstraction;
 
 namespace MirrorSharp.FSharp.Internal {
-    internal class FSharpSession : ILanguageSession {
-        private readonly FSharpChecker _checker;
-        private readonly FSharpProjectOptions _projectOptions;
-
+    internal class FSharpSession : ILanguageSession, IFSharpSession {
         private string _text;
-        private IReadOnlyList<Line> _lastLineMap;
-        private (FSharpParseFileResults, FSharpCheckFileAnswer)? _lastParseAndCheck;
+        private LineColumnMap _lastLineMap;
+        private FSharpParseAndCheckResults _lastParseAndCheck;
 
         public FSharpSession(string text, ImmutableArray<string> assemblyReferencePaths, OptimizationLevel? optimizationLevel) {
-            _checker = FSharpChecker.Create(null, null, null, false);
             _text = text;
 
-            _projectOptions = new FSharpProjectOptions(
+            Checker = FSharpChecker.Create(null, null, null, false);
+            ProjectOptions = new FSharpProjectOptions(
                 "_",
                 projectFileNames: new[] { "_.fs" },
                 otherOptions: ConvertToOptions(assemblyReferencePaths, optimizationLevel),
@@ -38,6 +36,9 @@ namespace MirrorSharp.FSharp.Internal {
                 extraProjectInfo: null
             );
         }
+
+        public FSharpChecker Checker { get; }
+        public FSharpProjectOptions ProjectOptions { get; }
 
         private static string[] ConvertToOptions(ImmutableArray<string> assemblyReferencePaths, OptimizationLevel? optimizationLevel) {
             var options = new List<string> {"--noframework"};
@@ -58,13 +59,13 @@ namespace MirrorSharp.FSharp.Internal {
 
         public async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(CancellationToken cancellationToken) {
             var result = await ParseAndCheckAsync(cancellationToken).ConfigureAwait(false);
-            var success = result.answer as FSharpCheckFileAnswer.Succeeded;
-            var diagnosticCount = result.parsed.Errors.Length + (success?.Item.Errors.Length ?? 0);
+            var success = result.CheckAnswer as FSharpCheckFileAnswer.Succeeded;
+            var diagnosticCount = result.ParseResults.Errors.Length + (success?.Item.Errors.Length ?? 0);
             if (diagnosticCount == 0)
                 return ImmutableArray<Diagnostic>.Empty;
             
             var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>(diagnosticCount);
-            ConvertAndAddTo(diagnostics, result.parsed.Errors);
+            ConvertAndAddTo(diagnostics, result.ParseResults.Errors);
 
             if (success != null)
                 ConvertAndAddTo(diagnostics, success.Item.Errors);
@@ -72,17 +73,16 @@ namespace MirrorSharp.FSharp.Internal {
             return diagnostics.MoveToImmutable();
         }
 
-        private async ValueTask<(FSharpParseFileResults parsed, FSharpCheckFileAnswer answer)> ParseAndCheckAsync(CancellationToken cancellationToken) {
+        public async ValueTask<FSharpParseAndCheckResults> ParseAndCheckAsync(CancellationToken cancellationToken) {
             if (_lastParseAndCheck != null)
-                return _lastParseAndCheck.Value;
+                return _lastParseAndCheck;
 
             var tuple = await FSharpAsync.StartAsTask(
-                _checker.ParseAndCheckFileInProject("_.fs", 0, _text, _projectOptions, null), null, cancellationToken
+                Checker.ParseAndCheckFileInProject("_.fs", 0, _text, ProjectOptions, null), null, cancellationToken
             ).ConfigureAwait(false);
 
-            var valueTuple = (tuple.Item1, tuple.Item2);
-            _lastParseAndCheck = valueTuple;
-            return valueTuple;
+            _lastParseAndCheck = new FSharpParseAndCheckResults(tuple.Item1, tuple.Item2);
+            return _lastParseAndCheck;
         }
 
         private void ConvertAndAddTo(ImmutableArray<Diagnostic>.Builder diagnostics, FSharpErrorInfo[] errors) {
@@ -90,12 +90,12 @@ namespace MirrorSharp.FSharp.Internal {
             foreach (var error in errors) {
                 var severity = ConvertToDiagnosticSeverity(error.Severity);
 
-                var startOffset = GetOffset(error.StartLineAlternate, error.StartColumn, lineMap);
+                var startOffset = lineMap.GetOffset(error.StartLineAlternate, error.StartColumn);
                 var location = Location.Create(
                     "",
                     new TextSpan(
                         startOffset,
-                        GetOffset(error.EndLineAlternate, error.EndColumn, lineMap) - startOffset
+                        lineMap.GetOffset(error.EndLineAlternate, error.EndColumn) - startOffset
                     ),
                     new LinePositionSpan(
                         new LinePosition(error.StartLineAlternate, error.StartColumn),
@@ -139,14 +139,13 @@ namespace MirrorSharp.FSharp.Internal {
 
         public async Task<CompletionList> GetCompletionsAsync(int cursorPosition, CompletionTrigger trigger, CancellationToken cancellationToken) {
             var result = await ParseAndCheckAsync(cancellationToken);
-            if (!(result.answer is FSharpCheckFileAnswer.Succeeded success))
+            if (!(result.CheckAnswer is FSharpCheckFileAnswer.Succeeded success))
                 return null;
 
-            var lineMap = GetLineMap();
-            var info = GetLineAndColumnInfo(cursorPosition, lineMap);
+            var info = GetLineMap().GetLineAndColumn(cursorPosition);
 
             var symbols = await FSharpAsync.StartAsTask(success.Item.GetDeclarationListSymbols(
-                result.parsed, info.line.Number, info.column,
+                result.ParseResults, info.line.Number, info.column,
                 _text.Substring(info.line.Start, info.line.Length),
                 FSharpList<string>.Empty,
                 "", null
@@ -176,99 +175,13 @@ namespace MirrorSharp.FSharp.Internal {
             return Task.FromResult(CompletionChange.Create(new TextChange(completionSpan, item.DisplayText)));
         }
 
-        private IReadOnlyList<Line> GetLineMap() {
-            if (_lastLineMap != null)
-                return _lastLineMap;
-
-            var map = new List<Line>();
-            var text = _text;
-            var start = 0;
-            var previous = '\0';
-            for (var i = 0; i < text.Length; i++) {
-                var @char = text[i];
-                if (@char == '\r' || (previous != '\r' && @char == '\n'))
-                    map.Add(new Line(map.Count + 1, start, i));
-                if (previous == '\n' || (previous == '\r' && @char != '\n'))
-                    start = i;
-                previous = @char;
-            }
-            map.Add(new Line(map.Count + 1, start, text.Length));
-
-            _lastLineMap = map;
-            return map;
-        }
-
-        private (Line line, int column) GetLineAndColumnInfo(int offset, IReadOnlyList<Line> lineMap) {
-            var line = lineMap[0];
-            for (var i = 1; i < lineMap.Count; i++) {
-                var nextLine = lineMap[i];
-                if (offset < nextLine.Start)
-                    break;
-                line = nextLine;
-            }
-            return (line, offset - line.Start);
-        }
-
-        private int GetOffset(int line, int column, IReadOnlyList<Line> lineMap) {
-            return lineMap[line - 1].Start + column;
+        private LineColumnMap GetLineMap() {
+            if (_lastLineMap == null)
+                _lastLineMap = LineColumnMap.BuildFor(_text);
+            return _lastLineMap;
         }
 
         public void Dispose() {
-        }
-
-        private struct Line {
-            public Line(int number, int start, int end) {
-                Number = number;
-                Start = start;
-                End = end;
-            }
-
-            public int Number { get; }
-            public int Start { get; }
-            public int End { get; }
-            public int Length => End - Start;
-        }
-
-        private static class SymbolTags {
-            private static ImmutableArray<string> Namespace { get; } = ImmutableArray.Create("Namespace");
-
-            private static ImmutableArray<string> Delegate { get; } = ImmutableArray.Create("Delegate");
-            private static ImmutableArray<string> Enum { get; } = ImmutableArray.Create("Enum");
-            private static ImmutableArray<string> Union { get; } = ImmutableArray.Create("Union");
-            private static ImmutableArray<string> Structure { get; } = ImmutableArray.Create("Structure");
-            private static ImmutableArray<string> Class { get; } = ImmutableArray.Create("Class");
-            private static ImmutableArray<string> Interface { get; } = ImmutableArray.Create("Interface");
-            private static ImmutableArray<string> Module { get; } = ImmutableArray.Create("Module");
-            
-            private static ImmutableArray<string> Property { get; } = ImmutableArray.Create("Property");
-            private static ImmutableArray<string> Method { get; } = ImmutableArray.Create("Method");
-            private static ImmutableArray<string> Field { get; } = ImmutableArray.Create("Field");
-
-            public static ImmutableArray<string> From(FSharpSymbol symbol) {
-                switch (symbol) {
-                    case FSharpField _: return Field;
-                    case FSharpEntity e: return FromEntity(e);
-                    case FSharpMemberOrFunctionOrValue m: {
-                        if (m.IsProperty) return Property;
-                        if (m.IsConstructor || m.FullType.IsFunctionType) return Method;
-                        return ImmutableArray<string>.Empty;
-                    }
-                    default: return ImmutableArray<string>.Empty;
-                }
-            }
-
-            private static ImmutableArray<string> FromEntity(FSharpEntity entity) {
-                if (entity.IsNamespace) return Namespace;
-                if (entity.IsClass) return Class;
-                if (entity.IsInterface) return Interface;
-                if (entity.IsDelegate) return Delegate;
-                if (entity.IsEnum) return Enum;
-                if (entity.IsFSharpUnion) return Union;
-                if (entity.IsValueType) return Structure;
-                if (entity.IsFSharpModule) return Module;
-                if (entity.IsFSharpAbbreviation) return FromEntity(entity.AbbreviatedType.TypeDefinition);
-                return ImmutableArray<string>.Empty;
-            }
         }
     }
 }

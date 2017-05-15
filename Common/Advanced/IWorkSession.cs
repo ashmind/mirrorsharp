@@ -4,8 +4,8 @@ using JetBrains.Annotations;
 namespace MirrorSharp.Advanced {
     [PublicAPI]
     public interface IWorkSession {
+        bool IsRoslyn { get; }
         [NotNull] IRoslynSession Roslyn { get; }
-        [CanBeNull] IRoslynSession RoslynOrNull { get; }
 
         [NotNull] IDictionary<string, object> ExtensionData { get; }
     }

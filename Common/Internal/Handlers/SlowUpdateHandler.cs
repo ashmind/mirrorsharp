@@ -36,7 +36,8 @@ namespace MirrorSharp.Internal.Handlers {
         }
 
         private async Task SendSlowUpdateAsync(IReadOnlyList<Diagnostic> diagnostics, WorkSession session, object extensionResult, ICommandResultSender sender, CancellationToken cancellationToken) {
-            session.RoslynOrNull?.CurrentCodeActions.Clear();
+            if (session.IsRoslyn)
+                session.Roslyn.CurrentCodeActions.Clear();
             var writer = sender.StartJsonMessage("slowUpdate");
             writer.WritePropertyStartArray("diagnostics");
             foreach (var diagnostic in diagnostics) {
@@ -91,8 +92,7 @@ namespace MirrorSharp.Internal.Handlers {
         }
 
         private async ValueTask<ImmutableArray<CodeAction>> GetCodeActionsAsync(Diagnostic diagnostic, WorkSession session, CancellationToken cancellationToken) {
-            var roslynSession = session.RoslynOrNull;
-            if (roslynSession == null)
+            if (!session.IsRoslyn)
                 return ImmutableArray<CodeAction>.Empty;
 
             // I don't think this can be avoided.
@@ -103,8 +103,8 @@ namespace MirrorSharp.Internal.Handlers {
                     actionsBuilder = ImmutableArray.CreateBuilder<CodeAction>();
                 actionsBuilder.Add(action);
             };
-            var fixContext = new CodeFixContext(roslynSession.Document, diagnostic, registerCodeFix, cancellationToken);
-            var providers = roslynSession.CodeFixProviders.GetValueOrDefault(diagnostic.Id);
+            var fixContext = new CodeFixContext(session.Roslyn.Document, diagnostic, registerCodeFix, cancellationToken);
+            var providers = session.Roslyn.CodeFixProviders.GetValueOrDefault(diagnostic.Id);
             if (providers == null)
                 return ImmutableArray<CodeAction>.Empty;
 

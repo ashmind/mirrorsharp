@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
+using JetBrains.Annotations;
 
 namespace MirrorSharp.FSharp {
+    [PublicAPI]
     public class MirrorSharpFSharpOptions {
+        [CanBeNull] public ImmutableArray<string>? AssemblyReferencePaths { get; set; }
     }
 }

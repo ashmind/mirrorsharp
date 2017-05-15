@@ -73,7 +73,8 @@ namespace MirrorSharp.Internal.Handlers {
         }
 
         private async Task SendOptionsEchoAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            session.RoslynOrNull?.CurrentCodeActions.Clear();
+            if (session.IsRoslyn)
+                session.Roslyn.CurrentCodeActions.Clear();
             var writer = sender.StartJsonMessage("optionsEcho");
             writer.WritePropertyStartObject("options");
             foreach (var pair in session.RawOptionsFromClient) {

@@ -60,11 +60,9 @@ namespace MirrorSharp.Internal {
             }
         }
 
+        public bool IsRoslyn => LanguageSession is RoslynSession;
         [NotNull]   public RoslynSession Roslyn => (RoslynSession)LanguageSession;
-        [CanBeNull] public RoslynSession RoslynOrNull => LanguageSession as RoslynSession;
-
         IRoslynSession IWorkSession.Roslyn => Roslyn;
-        IRoslynSession IWorkSession.RoslynOrNull => RoslynOrNull;
 
         [NotNull] public string GetText() => LanguageSession.GetText();
         public void ReplaceText(string newText, int start = 0, [CanBeNull] int? length = null) => LanguageSession.ReplaceText(newText, start, length);
