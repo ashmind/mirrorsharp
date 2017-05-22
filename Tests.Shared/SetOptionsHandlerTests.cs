@@ -4,7 +4,6 @@ using MirrorSharp.Advanced;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing;
 using MirrorSharp.Testing.Results;
-using MirrorSharp.VisualBasic;
 using Moq;
 using Xunit;
 

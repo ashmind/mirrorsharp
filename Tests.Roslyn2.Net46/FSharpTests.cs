@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using Microsoft.CodeAnalysis;
-using MirrorSharp.FSharp;
 using MirrorSharp.FSharp.Internal;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing;

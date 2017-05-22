@@ -15,21 +15,21 @@ using MirrorSharp.Internal.Reflection;
 namespace MirrorSharp.Internal.Roslyn {
     internal abstract class RoslynLanguageBase : ILanguage {
         private readonly MefHostServices _hostServices;
-        private readonly ParseOptions _defaultParseOptions;
-        private readonly CompilationOptions _defaultCompilationOptions;
+        private readonly ParseOptions _parseOptions;
+        private readonly CompilationOptions _compilationOptions;
+        private readonly ImmutableList<MetadataReference> _metadataReferences;
         private readonly ImmutableArray<ISignatureHelpProviderWrapper> _defaultSignatureHelpProviders;
         private readonly ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> _defaultCodeFixProvidersIndexedByDiagnosticIds;
         private readonly ImmutableArray<DiagnosticAnalyzer> _defaultAnalyzers;
         private readonly ImmutableList<AnalyzerReference> _defaultAnalyzerReferences;
-        private readonly ImmutableList<MetadataReference> _defaultAssemblyReferences;
 
         protected RoslynLanguageBase(
             [NotNull] string name,
             [NotNull] string featuresAssemblyName,
             [NotNull] string workspacesAssemblyName,
-            [NotNull] ParseOptions defaultParseOptions,
-            [NotNull] CompilationOptions defaultCompilationOptions,
-            [NotNull] ImmutableList<MetadataReference> defaultMetadataReferences
+            [NotNull] ParseOptions parseOptions,
+            [NotNull] CompilationOptions compilationOptions,
+            [NotNull] ImmutableList<MetadataReference> metadataReferences
         ) {
             // ReSharper disable HeapView.BoxingAllocation
             Name = name;
@@ -39,9 +39,9 @@ namespace MirrorSharp.Internal.Roslyn {
                 Assembly.Load(new AssemblyName(featuresAssemblyName)),
                 Assembly.Load(new AssemblyName(workspacesAssemblyName)),
             });
-            _defaultParseOptions = defaultParseOptions;
-            _defaultCompilationOptions = defaultCompilationOptions;
-            _defaultAssemblyReferences = defaultMetadataReferences;
+            _parseOptions = parseOptions;
+            _compilationOptions = compilationOptions;
+            _metadataReferences = metadataReferences;
             _defaultAnalyzerReferences = ImmutableList.Create<AnalyzerReference>(
                 CreateAnalyzerReference(featuresAssemblyName)
             );
@@ -58,15 +58,15 @@ namespace MirrorSharp.Internal.Roslyn {
         public ILanguageSession CreateSession(string text, OptimizationLevel? optimizationLevel) {
             var projectId = ProjectId.CreateNewId();
 
-            var compilationOptions = _defaultCompilationOptions;
+            var compilationOptions = _compilationOptions;
             if (optimizationLevel != null)
                 compilationOptions = compilationOptions.WithOptimizationLevel(optimizationLevel.Value);
 
             var projectInfo = ProjectInfo.Create(
                 projectId, VersionStamp.Create(), "_", "_", Name,
-                parseOptions: _defaultParseOptions,
+                parseOptions: _parseOptions,
                 compilationOptions: compilationOptions,
-                metadataReferences: _defaultAssemblyReferences,
+                metadataReferences: _metadataReferences,
                 analyzerReferences: _defaultAnalyzerReferences
             );
             

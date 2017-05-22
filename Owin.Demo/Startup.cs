@@ -1,5 +1,4 @@
 ﻿using Microsoft.Owin;
-using MirrorSharp.FSharp;
 using MirrorSharp.Owin.Demo;
 using Owin;
 

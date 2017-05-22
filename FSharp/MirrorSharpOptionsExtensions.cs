@@ -12,10 +12,11 @@ namespace MirrorSharp {
         [NotNull]
         public static MirrorSharpOptions EnableFSharp([NotNull] this MirrorSharpOptions options, [CanBeNull] Action<MirrorSharpFSharpOptions> setup = null) {
             Argument.NotNull(nameof(options), options);
-
-            var fsharp = new MirrorSharpFSharpOptions();
-            setup?.Invoke(fsharp);
-            options.Languages.Add(FSharpLanguage.Name, () => new FSharpLanguage(fsharp));
+            options.Languages.Add(FSharpLanguage.Name, () => {
+                var fsharp = new MirrorSharpFSharpOptions();
+                setup?.Invoke(fsharp);
+                return new FSharpLanguage(fsharp);
+            });
             return options;
         }
     }

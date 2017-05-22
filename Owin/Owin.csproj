@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>MirrorSharp OWIN server. MirrorSharp is a code editor &lt;textarea&gt; built on Roslyn — see https://github.com/ashmind/mirrorsharp/blob/master/README.md for details.</Description>
-    <VersionPrefix>0.9.0-pre-20170515</VersionPrefix>
+    <VersionPrefix>0.9.0-pre-20170522</VersionPrefix>
     <Authors>Andrey Shchekin</Authors>
     <TargetFramework>net46</TargetFramework>
     <AssemblyName>MirrorSharp.Owin</AssemblyName>
