@@ -5,10 +5,6 @@ VisualStudioVersion = 15.0.26403.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{C130C962-D17F-4741-B2B4-D74263BF380A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Demo", "AspNetCore.Demo\AspNetCore.Demo.csproj", "{70BCCC0E-6EEF-40D0-932A-87F9C42BD67B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore", "AspNetCore\AspNetCore.csproj", "{EED8CD01-22F8-4E7B-95F0-2C778A6971FC}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owin", "Owin\Owin.csproj", "{00CC1A50-B233-4045-9540-CB2316808C1B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAssets", "WebAssets\WebAssets.csproj", "{FF13139E-69D3-472E-B4FE-AC2623AD67B9}"
@@ -27,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Roslyn2.Net46", "Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Owin.Demo", "Owin.Demo\Owin.Demo.csproj", "{3C2A0FC7-4485-4654-B3B2-5717A2F2C97A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualBasic", "VisualBasic\VisualBasic.csproj", "{C8076D77-4C5A-450E-AF3F-9E37A8B512D8}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Tests.Shared\MirrorSharp.Tests.Shared.projitems*{0a9078a1-bd26-4dc7-87bb-ded125f6218b}*SharedItemsImports = 13
@@ -40,14 +38,6 @@ Global
 		{C130C962-D17F-4741-B2B4-D74263BF380A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C130C962-D17F-4741-B2B4-D74263BF380A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C130C962-D17F-4741-B2B4-D74263BF380A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{70BCCC0E-6EEF-40D0-932A-87F9C42BD67B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{70BCCC0E-6EEF-40D0-932A-87F9C42BD67B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{70BCCC0E-6EEF-40D0-932A-87F9C42BD67B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{70BCCC0E-6EEF-40D0-932A-87F9C42BD67B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EED8CD01-22F8-4E7B-95F0-2C778A6971FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EED8CD01-22F8-4E7B-95F0-2C778A6971FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EED8CD01-22F8-4E7B-95F0-2C778A6971FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EED8CD01-22F8-4E7B-95F0-2C778A6971FC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{00CC1A50-B233-4045-9540-CB2316808C1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{00CC1A50-B233-4045-9540-CB2316808C1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00CC1A50-B233-4045-9540-CB2316808C1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -78,6 +68,10 @@ Global
 		{3C2A0FC7-4485-4654-B3B2-5717A2F2C97A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C2A0FC7-4485-4654-B3B2-5717A2F2C97A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C2A0FC7-4485-4654-B3B2-5717A2F2C97A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8076D77-4C5A-450E-AF3F-9E37A8B512D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8076D77-4C5A-450E-AF3F-9E37A8B512D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8076D77-4C5A-450E-AF3F-9E37A8B512D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8076D77-4C5A-450E-AF3F-9E37A8B512D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

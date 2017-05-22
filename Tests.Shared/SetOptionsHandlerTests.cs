@@ -4,6 +4,7 @@ using MirrorSharp.Advanced;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing;
 using MirrorSharp.Testing.Results;
+using MirrorSharp.VisualBasic;
 using Moq;
 using Xunit;
 
@@ -17,7 +18,7 @@ namespace MirrorSharp.Tests {
         [InlineData(LanguageNames.CSharp)]
         [InlineData(LanguageNames.VisualBasic)]
         public async void ExecuteAsync_UpdatesSessionLanguage(string languageName) {
-            var driver = MirrorSharpTestDriver.New();
+            var driver = MirrorSharpTestDriver.New(new MirrorSharpOptions().EnableVisualBasic());
             await driver.SendAsync(SetOptions, "language=" + languageName);
             Assert.Equal(languageName, driver.Session.Language.Name);
         }

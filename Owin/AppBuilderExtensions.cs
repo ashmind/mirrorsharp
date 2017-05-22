@@ -6,7 +6,7 @@ namespace MirrorSharp.Owin {
     public static class AppBuilderExtensions {
         public static void UseMirrorSharp([NotNull] this IAppBuilder app, [CanBeNull] MirrorSharpOptions options = null) {
             Argument.NotNull(nameof(app), app);
-            app.Use(typeof(Middleware), options);
+            app.Use(typeof(Middleware), options ?? new MirrorSharpOptions());
         }
     }
 }

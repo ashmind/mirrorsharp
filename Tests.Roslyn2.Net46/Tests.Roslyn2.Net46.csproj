@@ -33,6 +33,7 @@
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\FSharp\FSharp.csproj" />
     <ProjectReference Include="..\Testing\Testing.csproj" />
+    <ProjectReference Include="..\VisualBasic\VisualBasic.csproj" />
   </ItemGroup>
   
   <Import Project="../FSharp/FSharpCore.targets" />

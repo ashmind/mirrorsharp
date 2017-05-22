@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using JetBrains.Annotations;
-using Microsoft.CodeAnalysis;
 using MirrorSharp.Internal.Abstraction;
-using MirrorSharp.Internal.Roslyn;
 
 namespace MirrorSharp.Internal {
     internal class LanguageManager {
@@ -14,27 +12,9 @@ namespace MirrorSharp.Internal {
         // ReSharper disable HeapView.ClosureAllocation
         // ReSharper disable HeapView.DelegateAllocation
         // ReSharper disable HeapView.ObjectAllocation.Possible
-        public LanguageManager([CanBeNull] ILanguageManagerOptions options) {
-            _languages.Add(LanguageNames.CSharp, new Lazy<ILanguage>(
-                () => new CSharpLanguage(
-                    options?.CSharp.ParseOptions,
-                    options?.CSharp.CompilationOptions,
-                    options?.CSharp.MetadataReferences
-                ),
-                LazyThreadSafetyMode.ExecutionAndPublication
-            ));
-            _languages.Add(LanguageNames.VisualBasic, new Lazy<ILanguage>(
-                () => new VisualBasicLanguage(
-                    options?.VisualBasic.ParseOptions,
-                    options?.VisualBasic.CompilationOptions,
-                    options?.VisualBasic.MetadataReferences
-                ),
-                LazyThreadSafetyMode.ExecutionAndPublication
-            ));
-            if (options == null)
-                return;
-            foreach (var other in options.OtherLanguages) {
-                _languages.Add(other.Key, new Lazy<ILanguage>(other.Value, LazyThreadSafetyMode.ExecutionAndPublication));
+        public LanguageManager([NotNull] ILanguageManagerOptions options) {
+            foreach (var language in options.Languages) {
+                _languages.Add(language.Key, new Lazy<ILanguage>(language.Value, LazyThreadSafetyMode.ExecutionAndPublication));
             }
         }
         // ReSharper restore HeapView.ObjectAllocation.Possible

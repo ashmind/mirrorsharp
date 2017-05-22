@@ -13,14 +13,14 @@ using MirrorSharp.Internal.Handlers.Shared;
 namespace MirrorSharp.Advanced {
     public abstract class MiddlewareBase {
         [NotNull] private readonly LanguageManager _languageManager;
-        [CanBeNull] private readonly MirrorSharpOptions _options;
+        [NotNull] private readonly MirrorSharpOptions _options;
         [ItemNotNull] private readonly ImmutableArray<ICommandHandler> _handlers;
 
-        protected MiddlewareBase([CanBeNull] MirrorSharpOptions options) 
-            : this(new LanguageManager(options), options) {
+        protected MiddlewareBase([NotNull] MirrorSharpOptions options) 
+            : this(new LanguageManager(Argument.NotNull(nameof(options), options)), options) {
         }
 
-        internal MiddlewareBase([NotNull] LanguageManager languageManager, [CanBeNull] MirrorSharpOptions options) {
+        internal MiddlewareBase([NotNull] LanguageManager languageManager, [NotNull] MirrorSharpOptions options) {
             _options = options;
             _languageManager = languageManager;
             _handlers = CreateHandlersIndexedByCommandId();
@@ -36,7 +36,7 @@ namespace MirrorSharp.Advanced {
         }
 
         [NotNull, ItemNotNull]
-        internal IReadOnlyCollection<ICommandHandler> CreateHandlers() {
+        private IReadOnlyCollection<ICommandHandler> CreateHandlers() {
             var completion = new CompletionSupport();
             var signatureHelp = new SignatureHelpSupport();
             var typedCharEffects = new TypedCharEffects(completion, signatureHelp);
@@ -46,9 +46,9 @@ namespace MirrorSharp.Advanced {
                 new MoveCursorHandler(signatureHelp),
                 new ReplaceTextHandler(signatureHelp, completion, typedCharEffects, ArrayPool<char>.Shared),
                 new RequestSelfDebugDataHandler(),
-                new SetOptionsHandler(_languageManager, ArrayPool<char>.Shared, _options?.SetOptionsFromClient),
+                new SetOptionsHandler(_languageManager, ArrayPool<char>.Shared, _options.SetOptionsFromClient),
                 new SignatureHelpStateHandler(signatureHelp),
-                new SlowUpdateHandler(_options?.SlowUpdate),
+                new SlowUpdateHandler(_options.SlowUpdate),
                 new TypeCharHandler(typedCharEffects)
             };
         }

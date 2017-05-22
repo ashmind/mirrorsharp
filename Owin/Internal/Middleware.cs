@@ -16,7 +16,7 @@ namespace MirrorSharp.Owin.Internal {
 
         private readonly AppFunc _next;
 
-        public Middleware([NotNull] AppFunc next, [CanBeNull] MirrorSharpOptions options) : base(options) {
+        public Middleware([NotNull] AppFunc next, [NotNull] MirrorSharpOptions options) : base(options) {
             _next = Argument.NotNull(nameof(next), next);
         }
 

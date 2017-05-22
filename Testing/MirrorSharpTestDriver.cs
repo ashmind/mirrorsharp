@@ -18,16 +18,19 @@ using Newtonsoft.Json;
 
 namespace MirrorSharp.Testing {
     public class MirrorSharpTestDriver {
-        private static readonly MirrorSharpOptions NullOptionsKey = new MirrorSharpOptions();
+        private static readonly MirrorSharpOptions DefaultOptions = new MirrorSharpOptions();
         private static readonly ConcurrentDictionary<MirrorSharpOptions, LanguageManager> LanguageManagerCache = new ConcurrentDictionary<MirrorSharpOptions, LanguageManager>();
-        
+
+        private readonly TestMiddleware _middleware;
+
         private MirrorSharpTestDriver([CanBeNull] MirrorSharpOptions options = null, [CanBeNull] string languageName = LanguageNames.CSharp) {
+            options = options ?? DefaultOptions;
+
             var language = GetLanguageManager(options).GetLanguage(languageName);
-            Middleware = new TestMiddleware(options);
+            _middleware = new TestMiddleware(options);
             Session = new WorkSession(language, options);
         }
-
-        internal MiddlewareBase Middleware { get; }
+        
         internal WorkSession Session { get; }
 
         [NotNull]
@@ -92,20 +95,20 @@ namespace MirrorSharp.Testing {
             where TResult : class
         {
             var sender = new StubCommandResultSender();
-            await Middleware.GetHandler(commandId).ExecuteAsync(argument?.ToAsyncData(commandId) ?? AsyncData.Empty, Session, sender, CancellationToken.None);
+            await _middleware.GetHandler(commandId).ExecuteAsync(argument?.ToAsyncData(commandId) ?? AsyncData.Empty, Session, sender, CancellationToken.None);
             return sender.LastMessageJson != null ? JsonConvert.DeserializeObject<TResult>(sender.LastMessageJson) : null;
         }
 
         internal Task SendAsync(char commandId, HandlerTestArgument argument = default(HandlerTestArgument)) {
-            return Middleware.GetHandler(commandId).ExecuteAsync(argument?.ToAsyncData(commandId) ?? AsyncData.Empty, Session, new StubCommandResultSender(), CancellationToken.None);
+            return _middleware.GetHandler(commandId).ExecuteAsync(argument?.ToAsyncData(commandId) ?? AsyncData.Empty, Session, new StubCommandResultSender(), CancellationToken.None);
         }
 
         private static LanguageManager GetLanguageManager(MirrorSharpOptions options) {
-            return LanguageManagerCache.GetOrAdd(options ?? NullOptionsKey, _ => new LanguageManager(options));
+            return LanguageManagerCache.GetOrAdd(options, _ => new LanguageManager(options));
         }
 
         private class TestMiddleware : MiddlewareBase {
-            public TestMiddleware([CanBeNull] MirrorSharpOptions options) : base(GetLanguageManager(options), options) {
+            public TestMiddleware([NotNull] MirrorSharpOptions options) : base(GetLanguageManager(options), options) {
             }
         }
     }

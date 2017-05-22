@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 
-namespace MirrorSharp {
+namespace MirrorSharp.Advanced {
     [PublicAPI]
     public class MirrorSharpRoslynOptions<TParseOptions, TCompilationOptions>
         where TParseOptions : ParseOptions
