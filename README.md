@@ -19,7 +19,7 @@ MirrorSharp is a code editor `<textarea>` built on Roslyn and [CodeMirror](https
 
 You'll need the following:
 
-- **MirrorSharp.Owin** (classic .NET) or **MirrorSharp.AspNetCore** (.NET Core) on the server
+- **MirrorSharp.Owin** on the server (.NET Core is planned, but not supported yet)
 - **mirrorsharp.js** — client library that provides the user interface
 
 ### Server
@@ -28,10 +28,6 @@ You'll need the following:
 
 NuGet: `Install-Package MirrorSharp.Owin -Pre`  
 Once installed, call `app.UseMirrorSharp()` in your OWIN startup.
-
-#### MirrorSharp.AspNetCore
-
-TODO: this library is not published yet.
 
 ### Client
 
