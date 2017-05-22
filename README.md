@@ -31,10 +31,7 @@ Once installed, call `app.UseMirrorSharp()` in your OWIN startup.
 
 ### Client
 
-Use one of the following:
-
-- `npm install mirrorsharp --save`
-- `bower install mirrorsharp --save` (TODO: this is not available yet)
+NPM: `npm install mirrorsharp --save`
 
 #### CSS
 If you are using LESS, CSS references can be done automatically by including `mirrorsharp/mirrorsharp.less`.  

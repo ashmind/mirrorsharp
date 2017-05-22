@@ -1,7 +1,0 @@
-{
-  "name": "mirrorsharp",
-  "dependencies": {
-    "codemirror": "^5.18.2",
-    "codemirror-addon-lint-fix": "^1.0.0"
-  }
-}
