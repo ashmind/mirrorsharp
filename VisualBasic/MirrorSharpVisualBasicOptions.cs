@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.VisualBasic;
 using MirrorSharp.Advanced;
 
 namespace MirrorSharp.VisualBasic {
+    /// <summary>MirrorSharp options for Visual Basic .NET</summary>
     public class MirrorSharpVisualBasicOptions : MirrorSharpRoslynOptions<VisualBasicParseOptions, VisualBasicCompilationOptions> {
         internal MirrorSharpVisualBasicOptions() : base(
             new VisualBasicParseOptions(),

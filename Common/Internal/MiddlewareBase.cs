@@ -6,12 +6,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
-using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Internal.Handlers.Shared;
 
-namespace MirrorSharp.Advanced {
-    public abstract class MiddlewareBase {
+namespace MirrorSharp.Internal {
+    internal abstract class MiddlewareBase {
         [NotNull] private readonly LanguageManager _languageManager;
         [NotNull] private readonly MirrorSharpOptions _options;
         [ItemNotNull] private readonly ImmutableArray<ICommandHandler> _handlers;

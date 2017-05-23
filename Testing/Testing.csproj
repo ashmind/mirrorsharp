@@ -1,17 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../NuGet.Common.props" />
 
   <PropertyGroup>
-    <Description>MirrorSharp testing helpers. MirrorSharp is a code editor &lt;textarea&gt; built on Roslyn — see https://github.com/ashmind/mirrorsharp/blob/master/README.md for details.</Description>
-    <VersionPrefix>0.9.0-pre-20170522</VersionPrefix>
-    <Authors>Andrey Shchekin</Authors>
-    <TargetFrameworks>netstandard1.5;net46</TargetFrameworks>
     <AssemblyName>MirrorSharp.Testing</AssemblyName>
-    <PackageId>MirrorSharp.Testing</PackageId>
-    <PackageProjectUrl>https://github.com/ashmind/mirrorsharp</PackageProjectUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/ashmind/mirrorsharp.git</RepositoryUrl>
-    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.5' ">$(PackageTargetFallback);dnxcore50;portable-net45+win8+wp8+wpa81;portable-net45+win8</PackageTargetFallback>
     <RootNamespace>MirrorSharp.Testing</RootNamespace>
+    <TargetFrameworks>netstandard1.5;net46</TargetFrameworks>
+    <VersionPrefix>0.9.0-pre-20170523</VersionPrefix>
+    <Description>MirrorSharp testing helpers. $(DescriptionSuffix)</Description>
+    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.5' ">$(PackageTargetFallback);dnxcore50;portable-net45+win8+wp8+wpa81;portable-net45+win8</PackageTargetFallback>
   </PropertyGroup>
 
   <ItemGroup>

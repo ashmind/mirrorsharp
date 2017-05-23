@@ -1,17 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../NuGet.Common.props" />
 
   <PropertyGroup>
-    <Description>MirrorSharp OWIN server. MirrorSharp is a code editor &lt;textarea&gt; built on Roslyn — see https://github.com/ashmind/mirrorsharp/blob/master/README.md for details.</Description>
-    <VersionPrefix>0.9.0-pre-20170522</VersionPrefix>
-    <Authors>Andrey Shchekin</Authors>
-    <TargetFramework>net46</TargetFramework>
     <AssemblyName>MirrorSharp.Owin</AssemblyName>
-    <PackageId>MirrorSharp.Owin</PackageId>
-    <PackageTags>Roslyn;CodeMirror</PackageTags>
-    <PackageProjectUrl>https://github.com/ashmind/mirrorsharp</PackageProjectUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/ashmind/mirrorsharp.git</RepositoryUrl>
     <RootNamespace>MirrorSharp.Owin</RootNamespace>
+    <TargetFramework>net46</TargetFramework>
+    <VersionPrefix>0.9.0-pre-20170523</VersionPrefix>
+    <Description>MirrorSharp OWIN server. $(DescriptionSuffix)</Description>
+    <PackageTags>Roslyn;CodeMirror</PackageTags>
+    <DocumentationFile>$(OutDir)\MirrorSharp.Owin.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

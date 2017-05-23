@@ -1,0 +1,14 @@
+﻿<Project>
+  <PropertyGroup>
+    <Authors>Andrey Shchekin</Authors>
+    <PackageProjectUrl>https://github.com/ashmind/mirrorsharp</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/ashmind/mirrorsharp.git</RepositoryUrl>
+    <DescriptionSuffix>MirrorSharp is a code editor &lt;textarea&gt; built on Roslyn — see https://github.com/ashmind/mirrorsharp/blob/master/README.md for details.</DescriptionSuffix>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <DefineConstants>$(DefineConstants); JETBRAINS_ANNOTATIONS</DefineConstants>
+  </PropertyGroup>
+</Project>

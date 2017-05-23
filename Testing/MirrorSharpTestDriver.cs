@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
-using MirrorSharp.Advanced;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing.Internal;
 using MirrorSharp.Testing.Internal.Results;

@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using MirrorSharp.Advanced;
 
 namespace MirrorSharp {
+    /// <summary>MirrorSharp options for C#</summary>
     public class MirrorSharpCSharpOptions : MirrorSharpRoslynOptions<CSharpParseOptions, CSharpCompilationOptions> {
         internal MirrorSharpCSharpOptions() : base(
             new CSharpParseOptions(),

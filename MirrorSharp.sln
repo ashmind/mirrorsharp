@@ -25,6 +25,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Owin.Demo", "Owin.Demo\Owin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualBasic", "VisualBasic\VisualBasic.csproj", "{C8076D77-4C5A-450E-AF3F-9E37A8B512D8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9EC6CF09-4D36-4723-9548-060215C88E50}"
+	ProjectSection(SolutionItems) = preProject
+		NuGet.Common.props = NuGet.Common.props
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Tests.Shared\MirrorSharp.Tests.Shared.projitems*{0a9078a1-bd26-4dc7-87bb-ded125f6218b}*SharedItemsImports = 13

@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.FSharp.Core;
 
 namespace MirrorSharp.FSharp {
+    /// <summary>MirrorSharp options for F#</summary>
     [PublicAPI]
     public class MirrorSharpFSharpOptions {
         internal MirrorSharpFSharpOptions() {
@@ -15,6 +16,7 @@ namespace MirrorSharp.FSharp {
             );
         }
 
+        /// <summary>Specifies the list of assembly reference paths to be used.</summary>
         public ImmutableArray<string> AssemblyReferencePaths { get; set; }
     }
 }

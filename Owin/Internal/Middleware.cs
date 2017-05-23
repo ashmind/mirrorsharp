@@ -5,15 +5,13 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MirrorSharp.Advanced;
+using MirrorSharp.Internal;
 
 namespace MirrorSharp.Owin.Internal {
     using AppFunc = Func<IDictionary<string, object>, Task>;
     using WebSocketAccept = Action<IDictionary<string, object>, Func<IDictionary<string, object>, Task>>;
 
     internal class Middleware : MiddlewareBase {
-        private static readonly Task Done = Task.FromResult((object) null);
-
         private readonly AppFunc _next;
 
         public Middleware([NotNull] AppFunc next, [NotNull] MirrorSharpOptions options) : base(options) {
@@ -49,7 +47,7 @@ namespace MirrorSharp.Owin.Internal {
                     callCancelled
                 );
             });
-            return Done;
+            return Task.CompletedTask;
         }
     }
 }

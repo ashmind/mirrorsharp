@@ -2,7 +2,7 @@
 using Microsoft.FSharp.Compiler.SourceCodeServices;
 
 namespace MirrorSharp.FSharp.Internal {
-    public static class SymbolTags {
+    internal static class SymbolTags {
         private static ImmutableArray<string> Namespace { get; } = ImmutableArray.Create("Namespace");
 
         private static ImmutableArray<string> Delegate { get; } = ImmutableArray.Create("Delegate");

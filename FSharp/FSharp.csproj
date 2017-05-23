@@ -1,21 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../NuGet.Common.props" />
 
   <PropertyGroup>
     <AssemblyName>MirrorSharp.FSharp</AssemblyName>
     <RootNamespace>MirrorSharp.FSharp</RootNamespace>
     <TargetFrameworks>net46</TargetFrameworks>
-    <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <VersionPrefix>0.9.0-pre-20170522</VersionPrefix>
-    <Authors>Andrey Shchekin</Authors>
-    <Company>Andrey Shchekin</Company>
-    <PackageProjectUrl>https://github.com/ashmind/mirrorsharp</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/ashmind/mirrorsharp.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
+    <VersionPrefix>0.9.0-pre-20170523</VersionPrefix>
+    <Description>MirrorSharp F# support library. $(DescriptionSuffix)</Description>
     <PackageTags>F#;CodeMirror</PackageTags>
-    <Description>MirrorSharp F# support library. MirrorSharp is a code editor &lt;textarea&gt; built on Roslyn — see https://github.com/ashmind/mirrorsharp/blob/master/README.md for details.</Description>
+    <DocumentationFile>$(OutDir)\MirrorSharp.FSharp.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
