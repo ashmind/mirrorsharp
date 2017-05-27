@@ -14,12 +14,16 @@ namespace MirrorSharp.Internal {
         private readonly ArrayPool<byte> _bufferPool;
         private byte[] _buffer;
 
-        private readonly State[] _stateStack = new State[32];
+        private readonly ArrayPool<State> _stateStackPool;
+        private readonly State[] _stateStack;
         private int _stateStackIndex = 0;
 
         public FastUtf8JsonWriter(ArrayPool<byte> bufferPool) {
             _bufferPool = bufferPool;
             _buffer = bufferPool.Rent(4096);
+
+            _stateStackPool = ArrayPool<State>.Shared;
+            _stateStack = _stateStackPool.Rent(64);
         }
 
         public ArraySegment<byte> WrittenSegment => new ArraySegment<byte>(_buffer, 0, _position);
@@ -297,11 +301,13 @@ namespace MirrorSharp.Internal {
 
         public void Dispose() {
             _bufferPool.Return(_buffer);
+            _stateStackPool.Return(_stateStack);
             GC.SuppressFinalize(this);
         }
 
         ~FastUtf8JsonWriter() {
             _bufferPool.Return(_buffer);
+            _stateStackPool.Return(_stateStack);
         }
     }
 }
