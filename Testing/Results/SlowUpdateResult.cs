@@ -10,9 +10,7 @@ using Newtonsoft.Json;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace MirrorSharp.Testing.Results {
-    public class SlowUpdateResult<TExtensionResult>
-        where TExtensionResult : class
-    {
+    public class SlowUpdateResult<TExtensionResult> {
         [NotNull] public IList<SlowUpdateDiagnostic> Diagnostics { get; } = new List<SlowUpdateDiagnostic>();
         [PublicAPI] [JsonProperty("x")] [CanBeNull] public TExtensionResult ExtensionResult { get; set; }
 

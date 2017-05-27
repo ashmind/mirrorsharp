@@ -18,6 +18,7 @@ namespace MirrorSharp.Advanced {
         /// <summary>Called after <see cref="ProcessAsync" />; writes its result to the client if required.</summary>
         /// <param name="writer"><see cref="IFastJsonWriter"/> used to write the result.</param>
         /// <param name="result">Result returned by <see cref="ProcessAsync" />.</param>
-        void WriteResult([NotNull] IFastJsonWriter writer, [CanBeNull] object result);
+        /// <param name="session">Current <see cref="IWorkSession" />.</param>
+        void WriteResult([NotNull] IFastJsonWriter writer, [CanBeNull] object result, [NotNull] IWorkSession session);
     }
 }

@@ -52,6 +52,7 @@ namespace MirrorSharp.Internal {
         public IWorkSessionOptions Options => _options;
         public OptimizationLevel? OptimizationLevel => _optimizationLevel;
         [NotNull] public ILanguage Language => _language;
+        string IWorkSession.LanguageName => Language.Name;
         [NotNull]
         public ILanguageSession LanguageSession {
             get {

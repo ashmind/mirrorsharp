@@ -65,9 +65,8 @@ namespace MirrorSharp.Internal.Handlers {
             }
             writer.WriteEndArray();
             if (_extension != null) {
-                writer.WritePropertyStartObject("x");
-                _extension.WriteResult(writer, extensionResult);
-                writer.WriteEndObject();
+                writer.WritePropertyName("x");
+                _extension.WriteResult(writer, extensionResult, session);
             }
             await sender.SendJsonMessageAsync(cancellationToken).ConfigureAwait(false);
         }

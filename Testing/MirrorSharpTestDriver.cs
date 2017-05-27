@@ -62,9 +62,7 @@ namespace MirrorSharp.Testing {
         public Task<SlowUpdateResult<object>> SendSlowUpdateAsync() => SendSlowUpdateAsync<object>();
 
         [PublicAPI]
-        public Task<SlowUpdateResult<TExtensionResult>> SendSlowUpdateAsync<TExtensionResult>()
-            where TExtensionResult : class
-        {
+        public Task<SlowUpdateResult<TExtensionResult>> SendSlowUpdateAsync<TExtensionResult>() {
             return SendAsync<SlowUpdateResult<TExtensionResult>>(CommandIds.SlowUpdate);
         }
 
