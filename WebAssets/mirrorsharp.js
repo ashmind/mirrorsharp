@@ -489,7 +489,7 @@
         // ensures that next 'id' will be -1 whther a change happened or not
         cm.state.lint.waitingFor = -2;
         if (!cmSource.existing)
-            cm.setValue(textarea.value.replace(/(\r\n|\r|\n)/g, '\r\n'));
+            setText(textarea.value);
 
         const getText = cm.getValue.bind(cm);
         if (selfDebug)
@@ -622,6 +622,10 @@
             return cm.indexFromPos(cm.getCursor());
         }
 
+        function setText(text) {
+            cm.setValue(text.replace(/(\r\n|\r|\n)/g, '\r\n'));
+        }
+
         function receiveServerChanges(changes, reason) {
             changesAreFromServer = true;
             changeReason = reason || 'server';
@@ -718,7 +722,8 @@
                 language = value.language;
                 cm.setOption('mode', languageModes[language]);
             }
-        }
+        }       
+        
 
         function destroy(destroyOptions) {
             cm.save();
@@ -734,6 +739,7 @@
         }
 
         this.getCodeMirror = function() { return cm; };
+        this.setText = setText;
         this.getLanguage = function() { return language; };
         this.setLanguage = function(value) { return sendServerOptions({ language: value }); };
         this.sendServerOptions = sendServerOptions;
