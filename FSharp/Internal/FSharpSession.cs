@@ -203,6 +203,12 @@ namespace MirrorSharp.FSharp.Internal {
             return Task.FromResult(CompletionChange.Create(new TextChange(completionSpan, item.DisplayText)));
         }
 
+        public int ConvertToOffset(int line, int column) {
+            Argument.PositiveOrZero(nameof(line), line);
+            Argument.PositiveOrZero(nameof(column), column);
+            return GetLineMap().GetOffset(line, column);
+        }
+
         private LineColumnMap GetLineMap() {
             if (_lastLineMap == null)
                 _lastLineMap = LineColumnMap.BuildFor(_text);

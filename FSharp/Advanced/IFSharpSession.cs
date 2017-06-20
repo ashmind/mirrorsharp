@@ -29,6 +29,12 @@ namespace MirrorSharp.FSharp.Advanced {
         /// <returns><see cref="Diagnostic" /> value that corresponds to <paramref name="error" />.</returns>
         [NotNull] Diagnostic ConvertToDiagnostic([NotNull] FSharpErrorInfo error);
 
+        /// <summary>Converts line and column into a text offset.</summary>
+        /// <param name="line">Line to convert (0-based).</param>
+        /// <param name="column">Column to convert (0-based).</param>
+        /// <returns>Text offset that corresponds to given line and column.</returns>
+        int ConvertToOffset(int line, int column);
+
         /// <summary>Gets the <see cref="FSharpChecker" /> associated with this session.</summary>
         [NotNull] FSharpChecker Checker { get; }
 

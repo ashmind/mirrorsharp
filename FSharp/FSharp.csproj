@@ -5,7 +5,7 @@
     <AssemblyName>MirrorSharp.FSharp</AssemblyName>
     <RootNamespace>MirrorSharp.FSharp</RootNamespace>
     <TargetFrameworks>net46</TargetFrameworks>
-    <VersionPrefix>0.9.0-pre-20170523</VersionPrefix>
+    <VersionPrefix>0.9.0-pre-20170620</VersionPrefix>
     <Description>MirrorSharp F# support library. $(DescriptionSuffix)</Description>
     <PackageTags>F#;CodeMirror</PackageTags>
     <DocumentationFile>$(OutDir)\MirrorSharp.FSharp.xml</DocumentationFile>
