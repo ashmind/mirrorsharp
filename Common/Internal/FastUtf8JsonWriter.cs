@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -17,6 +18,8 @@ namespace MirrorSharp.Internal {
         private readonly ArrayPool<State> _stateStackPool;
         private readonly State[] _stateStack;
         private int _stateStackIndex = 0;
+
+        private FastUtf8JsonStringWriter _stringWriter;
 
         public FastUtf8JsonWriter(ArrayPool<byte> bufferPool) {
             _bufferPool = bufferPool;
@@ -104,11 +107,15 @@ namespace MirrorSharp.Internal {
             }
 
             WriteRawByte(Utf8.Quote);
+            WriteUnquotedString(value);
+            WriteRawByte(Utf8.Quote);
+            WriteEndValue();
+        }
+
+        private void WriteUnquotedString(string value) {
             foreach (var @char in value) {
                 WriteUnquotedChar(@char);
             }
-            WriteRawByte(Utf8.Quote);
-            WriteEndValue();
         }
 
         public void WriteValue(CharArrayString value) {
@@ -182,7 +189,7 @@ namespace MirrorSharp.Internal {
             WriteRawBytes(value ? Utf8.True : Utf8.False);
             WriteEndValue();
         }
-
+                
         private void WriteStartValue() {
             if (_stateStack[_stateStackIndex] == State.ArrayAfterItem)
                 WriteRawByte(Utf8.Comma);
@@ -196,6 +203,19 @@ namespace MirrorSharp.Internal {
             else if (state == State.ObjectPropertyValue) {
                 ReplaceState(State.ObjectAfterProperty);
             }
+        }
+
+        public TextWriter OpenString() {
+            if (_stringWriter == null)
+                _stringWriter = new FastUtf8JsonStringWriter(this);
+            WriteStartValue();
+            WriteRawByte(Utf8.Quote);
+            return _stringWriter;
+        }
+
+        private void CloseString() {
+            WriteRawByte(Utf8.Quote);
+            WriteEndValue();
         }
 
         private void WriteRawByte(byte @byte) {
@@ -297,6 +317,24 @@ namespace MirrorSharp.Internal {
 
             public static readonly byte[] EscapedSlash = Encoding.UTF8.GetBytes("\\\\");
             public static readonly byte[] EscapedQuote = Encoding.UTF8.GetBytes("\\\"");
+        }
+
+        private class FastUtf8JsonStringWriter : TextWriter {
+            private readonly FastUtf8JsonWriter _owner;
+
+            public FastUtf8JsonStringWriter(FastUtf8JsonWriter owner) {
+                _owner = owner;
+            }
+
+            public override Encoding Encoding => Encoding.UTF8;
+
+            public override void Write(char value) => _owner.WriteUnquotedChar(value);
+            public override void Write(int value) => _owner.WriteValue(value);
+            public override void Write(string value) => _owner.WriteUnquotedString(value);
+
+            protected override void Dispose(bool disposing) {
+                _owner.CloseString();
+            }
         }
 
         public void Dispose() {

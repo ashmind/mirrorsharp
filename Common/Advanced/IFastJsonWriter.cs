@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using JetBrains.Annotations;
 
 namespace MirrorSharp.Advanced {
@@ -55,20 +56,25 @@ namespace MirrorSharp.Advanced {
         /// <param name="name">Name of the property to write.</param>
         void WritePropertyName([NotNull] string name);
 
-        /// <summary>Writes string value as a JSON string.</summary>
+        /// <summary>Writes <see cref="String" /> value as a JSON string.</summary>
         /// <param name="value">Value to write; can be null.</param>
-        void WriteValue([CanBeNull] string value);    
+        void WriteValue([CanBeNull] string value);
 
-        /// <summary>Writes char value as a JSON string.</summary>
+        /// <summary>Writes <see cref="Char" /> value as a JSON string.</summary>
         /// <param name="value">Value to write.</param>
         void WriteValue(char value);
 
-        /// <summary>Writes int value as a JSON number.</summary>
+        /// <summary>Writes <see cref="Int32" /> value as a JSON number.</summary>
         /// <param name="value">Value to write.</param>
         void WriteValue(int value);
 
-        /// <summary>Writes bool value as a JSON boolean.</summary>
+        /// <summary>Writes <see cref="Boolean" /> value as a JSON boolean.</summary>
         /// <param name="value">Value to write.</param>
         void WriteValue(bool value);
+
+        /// <summary>Writes a start <c>"</c> for a JSON string, and returns a <see cref="TextWriter" /> for writing its content.</summary>
+        /// <returns>A writer for writing into the JSON string.</returns>
+        /// <remarks>The returned writer should be disposed for the string to be closed properly.</remarks>
+        TextWriter OpenString();
     }
 }

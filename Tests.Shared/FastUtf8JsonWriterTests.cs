@@ -130,6 +130,51 @@ namespace MirrorSharp.Tests {
             Assert.Equal("{\"p1\":{},\"p2\":0}", result);
         }
 
+        [Fact]
+        public void OpenString_ReturnsWriterThatCorrectlyWritesValueIntoString_WhenValueIsInt32() {
+            var writer = CreateWriter();
+            using (var stringWriter = writer.OpenString()) {
+                stringWriter.Write(42);
+            }
+
+            var result = GetWrittenAsString(writer);
+            Assert.Equal("\"42\"", result);
+        }
+
+        [Fact]
+        public void OpenString_ReturnsWriterThatCorrectlyWritesValueIntoString_WhenValueIsChar() {
+            var writer = CreateWriter();
+            using (var stringWriter = writer.OpenString()) {
+                stringWriter.Write('"');
+            }
+
+            var result = GetWrittenAsString(writer);
+            Assert.Equal("\"\\\"\"", result);
+        }
+
+        [Fact]
+        public void OpenString_ReturnsWriterThatCorrectlyWritesValueIntoString_WhenValueIsString() {
+            var writer = CreateWriter();
+            using (var stringWriter = writer.OpenString()) {
+                stringWriter.Write("a\"b");
+            }
+
+            var result = GetWrittenAsString(writer);
+            Assert.Equal("\"a\\\"b\"", result);
+        }
+
+        [Fact]
+        public void OpenString_CanBeUsedMultipleTimes() {
+            var writer = CreateWriter();
+            writer.WriteStartArray();
+            using (var stringWriter = writer.OpenString()) stringWriter.Write("a");
+            using (var stringWriter = writer.OpenString()) stringWriter.Write("b");
+            writer.WriteEndArray();
+
+            var result = GetWrittenAsString(writer);
+            Assert.Equal("[\"a\",\"b\"]", result);
+        }
+
         private static string GetWrittenAsString(FastUtf8JsonWriter writer) {
             return Encoding.UTF8.GetString(writer.WrittenSegment);
         }
