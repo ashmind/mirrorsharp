@@ -59,7 +59,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             var completionSpan = completionList.Span;
             if (session.CursorPosition <= completionSpan.Start)
                 return textChange;
-            
+
             var span = textChange.Span;
             var newStart = Math.Min(span.Start, completionSpan.Start);
             var newLength = Math.Max(span.End, session.CursorPosition) - newStart;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -13,6 +14,7 @@ namespace MirrorSharp.Advanced {
         /// <param name="diagnostics">Current diagnostics. <see cref="ProcessAsync" /> can add extra diagnosics if needed.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> that MirrorSharp can use to cancel processing.</param>
         /// <returns>Any object; result will be passed to <see cref="WriteResult" />.</returns>
+        /// <remarks>If the return value implements <see cref="IDisposable" />, it will be automatically disposed after <see cref="WriteResult" /> call.</remarks>
         [NotNull, ItemCanBeNull] Task<object> ProcessAsync([NotNull] IWorkSession session, IList<Diagnostic> diagnostics, CancellationToken cancellationToken);
 
         /// <summary>Called after <see cref="ProcessAsync" />; writes its result to the client if required.</summary>

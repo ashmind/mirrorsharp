@@ -27,12 +27,17 @@ namespace MirrorSharp.Internal.Handlers {
             // ReSharper disable once HeapView.BoxingAllocation
             var diagnostics = (IReadOnlyList<Diagnostic>)await session.LanguageSession.GetDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
             object extensionResult = null;
-            if (_extension != null) {
-                var mutableDiagnostics = diagnostics.ToList();
-                extensionResult = await _extension.ProcessAsync(session, mutableDiagnostics, cancellationToken).ConfigureAwait(false);
-                diagnostics = mutableDiagnostics;
+            try {
+                if (_extension != null) {
+                    var mutableDiagnostics = diagnostics.ToList();
+                    extensionResult = await _extension.ProcessAsync(session, mutableDiagnostics, cancellationToken).ConfigureAwait(false);
+                    diagnostics = mutableDiagnostics;
+                }
+                await SendSlowUpdateAsync(diagnostics, session, extensionResult, sender, cancellationToken).ConfigureAwait(false);
             }
-            await SendSlowUpdateAsync(diagnostics, session, extensionResult, sender, cancellationToken).ConfigureAwait(false);
+            finally {
+                (extensionResult as IDisposable)?.Dispose();
+            }
         }
 
         private async Task SendSlowUpdateAsync(IReadOnlyList<Diagnostic> diagnostics, WorkSession session, object extensionResult, ICommandResultSender sender, CancellationToken cancellationToken) {

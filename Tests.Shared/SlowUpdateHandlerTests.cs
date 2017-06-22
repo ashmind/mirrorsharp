@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Moq;
+using Xunit;
+using MirrorSharp.Advanced;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing;
 using MirrorSharp.Testing.Results;
-using Xunit;
 
 // ReSharper disable HeapView.BoxingAllocation
 
@@ -64,6 +68,19 @@ namespace MirrorSharp.Tests {
 
             Assert.NotNull(result);
             Assert.Empty(result.Diagnostics);
+        }
+
+        [Fact]
+        public async Task SlowUpdate_DisposesExtensionResult_IfDisposable() {
+            var disposable = Mock.Of<IDisposable>();
+            var driver = MirrorSharpTestDriver.New(new MirrorSharpOptions {
+                SlowUpdate = Mock.Of<ISlowUpdateExtension>(
+                    x => x.ProcessAsync(It.IsAny<IWorkSession>(), It.IsAny<IList<Diagnostic>>(), It.IsAny<CancellationToken>()) == Task.FromResult<object>(disposable)
+                )
+            });
+            await driver.SendAsync(SlowUpdate);
+
+            Mock.Get(disposable).Verify(x => x.Dispose());
         }
     }
 }
