@@ -1,0 +1,16 @@
+{
+    "parserOptions": {
+        "ecmaVersion": 8
+    },
+    "env": {
+        "jest": true,
+        "node": true
+    },
+    "rules":{
+        "no-var": "error",
+        "object-shorthand": ["warn", "properties"],
+        "prefer-arrow-callback": ["warn", { "allowNamedFunctions": true }],
+        "prefer-rest-params": "warn",
+        "prefer-spread": "warn"
+    }
+}

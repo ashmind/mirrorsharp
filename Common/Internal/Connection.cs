@@ -64,9 +64,8 @@ namespace MirrorSharp.Internal {
 
             // it is important to record this conditionally on SelfDebug being enabled, otherwise
             // we lose no-allocation performance by allocating here
-            var messageForDebug = _session.SelfDebug != null ? Encoding.UTF8.GetString(_inputBuffer) : null;
+            var messageForDebug = _session.SelfDebug != null ? Encoding.UTF8.GetString(_inputBuffer, 0, first.Count) : null;
             _session.SelfDebug?.Log("before", messageForDebug, _session.CursorPosition, _session.GetText());
-                
 
             var commandId = _inputBuffer[0];
             var handler = ResolveHandler(commandId);

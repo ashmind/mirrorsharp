@@ -1,4 +1,4 @@
-﻿/* globals console:false, CloseEvent:false */
+﻿/* global module:false */
 (function (root, factory) {
     'use strict';
     // ReSharper disable UndeclaredGlobalVariableUsing (R# bug, https://youtrack.jetbrains.com/issue/RSRP-462411)
@@ -10,7 +10,8 @@
           'codemirror/mode/clike/clike',
           'codemirror/mode/vb/vb'
         ], factory);
-    } else if (typeof module === 'object' && module.exports) {
+    }
+    else if (typeof module === 'object' && module.exports) {
         module.exports = factory(
           require('codemirror'),
           require('codemirror-addon-lint-fix'),
@@ -18,11 +19,12 @@
           require('codemirror/mode/clike/clike'),
           require('codemirror/mode/vb/vb')
         );
-    } else {
+    }
+    else {
         root.mirrorsharp = factory(root.CodeMirror);
     }
     // ReSharper restore UndeclaredGlobalVariableUsing
-}(this, function (CodeMirror) {
+})(this, function (CodeMirror) {
     'use strict';
 
     const assign = Object.assign || function (target) {
@@ -67,14 +69,16 @@
         this.displayData = function(serverData) {
             const log = [];
             // ReSharper disable once DuplicatingLocalDeclaration
-            for (var i = 0; i < clientLog.length; i++) {
-                log.push({ entry: clientLog[i], on: 'client', index: i });
+            /* eslint-disable block-scoped-var */
+            for (var i = 0; i < clientLogSnapshot.length; i++) {
+                log.push({ entry: clientLogSnapshot[i], on: 'client', index: i });
             }
-            /* jshint -W004 */
             // ReSharper disable once DuplicatingLocalDeclaration
+            // eslint-disable-next-line no-redeclare
             for (var i = 0; i < serverData.log.length; i++) {
                 log.push({ entry: serverData.log[i], on: 'server', index: i });
             }
+            /* eslint-enable block-scoped-var */
             log.sort(function(a, b) {
                 if (a.on !== b.on) {
                     if (a.entry.time > b.entry.time) return +1;
@@ -86,7 +90,7 @@
                 return 0;
             });
 
-            console.table(log.map(function(l) {
+            console.table(log.map(function(l) { // eslint-disable-line no-console
                 var time = l.entry.time;
                 var displayTime = ('0' + time.getHours()).slice(-2) + ':' + ('0' + time.getMinutes()).slice(-2) + ':' + ('0' + time.getSeconds()).slice(-2) + '.' + time.getMilliseconds();
                 return {
@@ -100,7 +104,7 @@
         };
     }
 
-    function Connection(openSocket, selfDebug) {
+    function Connection(url, selfDebug) {
         var socket;
         var openPromise;
         const handlers = {
@@ -118,7 +122,7 @@
         var reopening = false;
 
         function open() {
-            socket = openSocket();
+            socket = new WebSocket(url);
             openPromise = new Promise(function (resolve) {
                 socket.addEventListener('open', function () {
                     reopenPeriodResetTimer = setTimeout(function () { reopenPeriod = 0; }, reopenPeriod);
@@ -129,9 +133,7 @@
             for (var key in handlers) {
                 const keyFixed = key;
                 const handlersByKey = handlers[key];
-                /* jshint -W083 */
                 socket.addEventListener(key, function (e) {
-                    /* jshint -W080 */
                     const handlerArguments = [e];
                     if (keyFixed === 'message') {
                         const data = JSON.parse(e.data);
@@ -150,7 +152,6 @@
                     if (selfDebug && keyFixed === 'message')
                         selfDebug.log('after', JSON.stringify(handlerArguments[0]));
                 });
-                /* jshint +W083 */
             }
         }
 
@@ -229,7 +230,7 @@
         this.sendSetOptions = function(options) {
             const optionPairs = [];
             for (var key in options) {
-                optionPairs.push(key + "=" + options[key]);
+                optionPairs.push(key + '=' + options[key]);
             }
             return sendWhenOpen('O' + optionPairs.join(','));
         };
@@ -251,7 +252,6 @@
         var state = 'stopped';
         var hasSuggestion;
         var currentOptions;
-        var lastCommitChar;
 
         const commit = function (_, data, item) {
             connection.sendCompletionState(item[indexInListKey]);
@@ -289,7 +289,6 @@
         this.start = function(list, span, options) {
             state = 'starting';
             currentOptions = options;
-            lastCommitChar = null;
             const hintStart = cm.posFromIndex(span.start);
             const hintList = list.map(function (c, index) {
                 const item = {
@@ -316,9 +315,11 @@
             cm.showHint({
                 hint: function() {
                     const prefix = cm.getRange(hintStart, cm.getCursor());
+                    // TODO: rename once this is covered by tests
+                    // eslint-disable-next-line no-shadow
                     var list = hintList;
                     if (prefix.length > 0) {
-                        var regexp = new RegExp('^' + prefix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
+                        var regexp = new RegExp('^' + prefix.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
                         list = hintList.filter(function(item, index) {
                             return (hasSuggestion && index === 0) || regexp.test(item.text);
                         });
@@ -550,6 +551,7 @@
                 hadChangesSinceLastLinting = true;
                 changePending = false;
                 const cursorIndex = getCursorIndex(cm);
+                changes = mergeChanges(changes);
                 for (var i = 0; i < changes.length; i++) {
                     const change = changes[i];
                     const start = change.from[indexKey];
@@ -567,6 +569,41 @@
                 options.on.textChange(getText);
             }
         });
+
+        function mergeChanges(changes) {
+            if (changes.length < 2)
+                return changes;
+            const results = [];
+            var before = null;
+            for (const change of changes) {
+                if (changesCanBeMerged(before, change)) {
+                    before = {
+                        from: before.from,
+                        to: before.to,
+                        text: [before.text[0] + change.text[0]],
+                        origin: change.origin
+                    };
+                }
+                else {
+                    if (before)
+                        results.push(before);
+                    before = change;
+                }
+            }
+            results.push(before);
+            return results;
+        }
+
+        function changesCanBeMerged(first, second) {
+            return first && second
+                && first.origin === 'undo'
+                && second.origin === 'undo'
+                && first.to.line === second.from.line
+                && first.text.length === 1
+                && second.text.length === 1
+                && second.from.ch === second.to.ch
+                && (first.to.ch + first.text[0].length) === second.from.ch;
+        }
 
         function onMessage(message) {
             switch (message.type) {
@@ -612,6 +649,7 @@
                     // see https://github.com/codemirror/CodeMirror/blob/dbaf6a94f1ae50d387fa77893cf6b886988c2147/addon/lint/lint.js#L133
                     // ensures that next 'id' will always match 'waitingFor'
                     cm.state.lint.waitingFor = -1;
+                    // eslint-disable-next-line no-invalid-this
                     updateLinting.apply(this, arguments);
                 };
             }
@@ -638,6 +676,7 @@
             changesAreFromServer = false;
         }
 
+        // eslint-disable-next-line no-shadow
         function getFixes(cm, line, annotations) {
             var fixes = [];
             for (var i = 0; i < annotations.length; i++) {
@@ -656,6 +695,7 @@
             return fixes;
         }
 
+        // eslint-disable-next-line no-shadow
         function requestApplyFixAction(cm, line, fix) {
             connection.sendApplyDiagnosticAction(fix.id);
         }
@@ -697,7 +737,7 @@
         function showConnectionLoss() {
             const wrapper = cm.getWrapperElement();
             if (!connectionLossElement) {
-                connectionLossElement = document.createElement("div");
+                connectionLossElement = document.createElement('div');
                 connectionLossElement.setAttribute('class', 'mirrorsharp-connection-issue');
                 connectionLossElement.innerText = 'Server connection lost, reconnecting…';
                 wrapper.appendChild(connectionLossElement);
@@ -722,8 +762,7 @@
                 language = value.language;
                 cm.setOption('mode', languageModes[language]);
             }
-        }       
-        
+        }
 
         function destroy(destroyOptions) {
             cm.save();
@@ -751,6 +790,7 @@
             target.on(key, handlers[key]);
         }
         return function() {
+            // eslint-disable-next-line no-shadow
             for (var key in handlers) {
                 target.off(key, handlers[key]);
             }
@@ -759,7 +799,7 @@
 
     return function(textarea, options) {
         const selfDebug = options.selfDebugEnabled ? new SelfDebug() : null;
-        const connection = new Connection(function() { return new WebSocket(options.serviceUrl); }, selfDebug);
+        const connection = new Connection(options.serviceUrl, selfDebug);
         const editor = new Editor(textarea, connection, selfDebug, options);
         const exports = {};
         for (var key in editor) {
@@ -771,4 +811,4 @@
         };
         return exports;
     };
-}));
+});
