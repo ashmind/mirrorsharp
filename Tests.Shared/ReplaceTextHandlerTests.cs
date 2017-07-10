@@ -16,9 +16,9 @@ namespace MirrorSharp.Tests {
         [Fact]
         public async void ExecuteAsync_AddsCompleteText_IfTextIsSplitIntoSeveralBuffers() {
             var driver = MirrorSharpTestDriver.New();
-            await driver.SendAsync(ReplaceText, new[] { "0:0:0::abc", "def", "ghi" });
+            await driver.SendAsync(ReplaceText, new[] { "0:0:0::x", "123456789", "123456789" });
 
-            Assert.Equal("abcdefghi", driver.Session.GetText());
+            Assert.Equal("x123456789123456789", driver.Session.GetText());
         }
 
         [Fact]

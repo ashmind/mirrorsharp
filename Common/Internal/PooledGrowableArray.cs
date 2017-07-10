@@ -22,7 +22,7 @@ namespace MirrorSharp.Internal {
             var oldArray = (T[])null;
             try {
                 newArray = _pool.Rent(actualNewLength);
-                Buffer.BlockCopy(_array, 0, newArray, 0, _array.Length);
+                System.Array.Copy(_array, 0, newArray, 0, _array.Length);
                 oldArray = _array;
                 _array = newArray;
             }
