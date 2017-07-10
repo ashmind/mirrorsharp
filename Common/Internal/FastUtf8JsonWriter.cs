@@ -309,7 +309,7 @@ namespace MirrorSharp.Internal {
                         case '\r': return "\\r";
                         case '\n': return "\\n";
                         case '\t': return "\\t";
-                        default: return "\\" + i.ToString("X4");
+                        default: return "\\u" + i.ToString("X4");
                     }
                 })
                 .Select(Encoding.UTF8.GetBytes)
