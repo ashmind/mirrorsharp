@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -71,7 +72,7 @@ namespace MirrorSharp.Internal.Roslyn {
             );
             
             return new RoslynSession(
-                SourceText.From(text),
+                SourceText.From(text, Encoding.UTF8),
                 projectInfo,
                 _hostServices,
                 _defaultAnalyzers,

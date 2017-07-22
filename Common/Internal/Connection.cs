@@ -5,6 +5,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Internal.Results;
 
@@ -141,7 +142,7 @@ namespace MirrorSharp.Internal {
             _session.Dispose();
         }
 
-        IFastJsonWriterInternal ICommandResultSender.StartJsonMessage(string messageTypeName) => StartJsonMessage(messageTypeName);
+        IFastJsonWriter ICommandResultSender.StartJsonMessage(string messageTypeName) => StartJsonMessage(messageTypeName);
         Task ICommandResultSender.SendJsonMessageAsync(CancellationToken cancellationToken) => SendJsonMessageAsync(cancellationToken);
     }
 }

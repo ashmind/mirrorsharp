@@ -76,7 +76,7 @@ namespace MirrorSharp.Internal.Handlers {
             await sender.SendJsonMessageAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        private static void WriteActions(IFastJsonWriterInternal writer, ImmutableArray<CodeAction> actions, WorkSession session) {
+        private static void WriteActions(IFastJsonWriter writer, ImmutableArray<CodeAction> actions, WorkSession session) {
             var roslynSession = session.Roslyn;
             foreach (var action in actions) {
                 if (action is CodeActionWithOptions)

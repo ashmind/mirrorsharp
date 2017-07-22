@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
+using MirrorSharp.Advanced;
 
 namespace MirrorSharp.Internal {
-    internal class FastUtf8JsonWriter : IFastJsonWriterInternal {
+    internal class FastUtf8JsonWriter : IFastJsonWriter {
         private static readonly int[] PowersOfTen = {
             1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1
         };
@@ -55,41 +57,6 @@ namespace MirrorSharp.Internal {
             WriteEndValue();
         }
 
-        public void WriteProperty(string name, string value) {
-            WritePropertyName(name);
-            WriteValue(value);
-        }
-
-        public void WriteProperty(string name, CharArrayString value) {
-            WritePropertyName(name);
-            WriteValue(value);
-        }
-
-        public void WriteProperty(string name, char value) {
-            WritePropertyName(name);
-            WriteValue(value);
-        }
-
-        public void WriteProperty(string name, int value) {
-            WritePropertyName(name);
-            WriteValue(value);
-        }
-
-        public void WriteProperty(string name, bool value) {
-            WritePropertyName(name);
-            WriteValue(value);
-        }
-
-        public void WritePropertyStartObject(string name) {
-            WritePropertyName(name);
-            WriteStartObject();
-        }
-
-        public void WritePropertyStartArray(string name) {
-            WritePropertyName(name);
-            WriteStartArray();
-        }
-
         public void WritePropertyName(string name) {
             if (GetState() == State.ObjectAfterProperty)
                 WriteRawByte(Utf8.Comma);
@@ -112,20 +79,46 @@ namespace MirrorSharp.Internal {
             WriteEndValue();
         }
 
-        private void WriteUnquotedString(string value) {
-            foreach (var @char in value) {
-                WriteUnquotedChar(@char);
+        public void WriteValue(StringBuilder value) {
+            WriteStartValue();
+            if (value == null) {
+                WriteRawBytes(Utf8.Null);
+                WriteEndValue();
+                return;
             }
+
+            WriteRawByte(Utf8.Quote);
+            for (var i = 0; i < value.Length; i++) {
+                WriteUnquotedChar(value[i]);
+            }
+            WriteRawByte(Utf8.Quote);
+            WriteEndValue();
         }
 
-        public void WriteValue(CharArrayString value) {
+        public void WriteValue(ArraySegment<char> value) {
             WriteStartValue();
             WriteRawByte(Utf8.Quote);
-            foreach (var @char in value.Chars) {
+            for (var i = 0; i < value.Count; i++) {
+                WriteUnquotedChar(value.Array[value.Offset + i]);
+            }
+            WriteRawByte(Utf8.Quote);
+            WriteEndValue();
+        }
+
+        public void WriteValue(ImmutableArray<char> value) {
+            WriteStartValue();
+            WriteRawByte(Utf8.Quote);
+            foreach (var @char in value) {
                 WriteUnquotedChar(@char);
             }
             WriteRawByte(Utf8.Quote);
             WriteEndValue();
+        }
+
+        private void WriteUnquotedString(string value) {
+            foreach (var @char in value) {
+                WriteUnquotedChar(@char);
+            }
         }
 
         public void WriteValue(char value) {

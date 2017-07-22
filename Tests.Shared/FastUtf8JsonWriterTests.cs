@@ -1,14 +1,15 @@
 ﻿using System.Buffers;
 using System.Text;
-using MirrorSharp.Internal;
 using Xunit;
+using MirrorSharp.Internal;
+using MirrorSharp.Advanced;
 
 namespace MirrorSharp.Tests {
     public class FastUtf8JsonWriterTests {
         [Fact]
         public void WriteValue_WritesNull() {
             var writer = CreateWriter();
-            writer.WriteValue(null);
+            writer.WriteValue((string)null);
 
             var result = GetWrittenAsString(writer);
             Assert.Equal("null", result);

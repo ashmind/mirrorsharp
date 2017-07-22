@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
@@ -8,7 +9,7 @@ namespace MirrorSharp.Internal.Handlers {
 
         public async Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var roslynSession = session.Roslyn;
-            
+
             var actionId = FastConvert.Utf8ByteArrayToInt32(data.GetFirst());
             var action = roslynSession.CurrentCodeActions[actionId];
 

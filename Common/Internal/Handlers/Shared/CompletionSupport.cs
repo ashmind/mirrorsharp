@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
+using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers.Shared {
@@ -97,7 +98,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             var completionSpan = completionList.Span;
             var writer = sender.StartJsonMessage("completions");
 
-            writer.WriteProperty("commitChars", new CharArrayString(completionList.Rules.DefaultCommitCharacters));
+            writer.WriteProperty("commitChars", completionList.Rules.DefaultCommitCharacters);
             writer.WritePropertyName("span");
             writer.WriteSpan(completionSpan);
 

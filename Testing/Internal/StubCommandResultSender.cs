@@ -2,6 +2,7 @@
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MirrorSharp.Advanced;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Results;
 
@@ -12,7 +13,7 @@ namespace MirrorSharp.Testing.Internal {
         public string LastMessageTypeName { get; private set; }
         public string LastMessageJson { get; private set; }
 
-        public IFastJsonWriterInternal StartJsonMessage(string messageTypeName) {
+        public IFastJsonWriter StartJsonMessage(string messageTypeName) {
             LastMessageTypeName = messageTypeName;
             _writer.Reset();
             _writer.WriteStartObject();
