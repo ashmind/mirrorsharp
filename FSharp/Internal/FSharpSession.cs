@@ -17,23 +17,25 @@ using MirrorSharp.Internal.Abstraction;
 namespace MirrorSharp.FSharp.Internal {
     internal class FSharpSession : ILanguageSession, IFSharpSession {
         private string _text;
+        private IVirtualFileInternal _virtualSourceFile;
         [CanBeNull] private LineColumnMap _lastLineMap;
         [CanBeNull] private FSharpParseAndCheckResults _lastParseAndCheck;
 
         public FSharpSession(string text, ImmutableArray<string> assemblyReferencePaths, OptimizationLevel? optimizationLevel) {
             _text = text;
+            _virtualSourceFile = new VirtualSourceFile(() => _text);
 
             Checker = FSharpChecker.Create(
                 null,
                 keepAssemblyContents: true,
                 keepAllBackgroundResolutions: true,
-                msbuildEnabled: false
+                msbuildEnabled: false               
             );
             AssemblyReferencePaths = assemblyReferencePaths;
             AssemblyReferencePathsAsFSharpList = ToFSharpList(assemblyReferencePaths);
             ProjectOptions = new FSharpProjectOptions(
                 "_",
-                projectFileNames: new[] { "_.fs" },
+                projectFileNames: new[] { _virtualSourceFile.Name },
                 otherOptions: ConvertToOptions(assemblyReferencePaths, optimizationLevel),
                 referencedProjects: Array.Empty<Tuple<string, FSharpProjectOptions>>(),
                 isIncompleteTypeCheckEnvironment: true,
@@ -43,6 +45,8 @@ namespace MirrorSharp.FSharp.Internal {
                 originalLoadReferences: FSharpList<Tuple<Range.range, string>>.Empty, 
                 extraProjectInfo: null
             );
+
+            CustomFileSystem.Instance.RegisterVirtualFile(_virtualSourceFile);
         }
 
         private FSharpList<string> ToFSharpList(ImmutableArray<string> assemblyReferencePaths) {
@@ -96,7 +100,7 @@ namespace MirrorSharp.FSharp.Internal {
                 return _lastParseAndCheck;
 
             var tuple = await FSharpAsync.StartAsTask(
-                Checker.ParseAndCheckFileInProject("_.fs", 0, _text, ProjectOptions, null), null, cancellationToken
+                Checker.ParseAndCheckFileInProject(_virtualSourceFile.Name, 0, _text, ProjectOptions, null), null, cancellationToken
             ).ConfigureAwait(false);
 
             _lastParseAndCheck = new FSharpParseAndCheckResults(tuple.Item1, tuple.Item2);
@@ -216,6 +220,7 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public void Dispose() {
+            CustomFileSystem.Instance.RemoveVirtualFile(_virtualSourceFile);
         }
     }
 }
