@@ -6,6 +6,6 @@ namespace MirrorSharp.Advanced {
     [PublicAPI]
     public interface IRoslynSession {
         /// <summary>Roslyn <see cref="Microsoft.CodeAnalysis.Project"/> associated with the current session.</summary>
-        [PublicAPI, NotNull] Project Project { get; }
+        [PublicAPI, NotNull] Project Project { get; set; }
     }
 }

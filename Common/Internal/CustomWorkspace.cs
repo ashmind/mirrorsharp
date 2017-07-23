@@ -9,7 +9,11 @@ namespace MirrorSharp.Internal {
         public override bool CanOpenDocuments => true;
 
         public override bool CanApplyChange(ApplyChangesKind feature) {
-            return feature == ApplyChangesKind.ChangeDocument;
+            return feature == ApplyChangesKind.ChangeDocument
+                || feature == ApplyChangesKind.ChangeParseOptions
+                || feature == ApplyChangesKind.ChangeCompilationOptions
+                || feature == ApplyChangesKind.AddMetadataReference
+                || feature == ApplyChangesKind.RemoveMetadataReference;
         }
 
         public new Solution SetCurrentSolution(Solution solution) {

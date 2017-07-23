@@ -90,7 +90,15 @@ namespace MirrorSharp.Internal.Roslyn {
             }
         }
 
-        public Project Project => Document.Project;
+        public Project Project {
+            get => Document.Project;
+            set {
+                Argument.NotNull(nameof(value), value);
+                if (_documentOutOfDate)
+                    throw new InvalidOperationException("Source document has changed since getting Project; Project cannot be set.");
+                ApplySolutionChange(value.Solution);
+            }
+        }
 
         [NotNull]
         public Document Document {
@@ -121,10 +129,14 @@ namespace MirrorSharp.Internal.Roslyn {
                 return;
 
             var document = _document.WithText(_sourceText);
+            ApplySolutionChange(document.Project.Solution);
+        }
+
+        private void ApplySolutionChange(Solution solution) {
             // ReSharper disable once PossibleNullReferenceException
-            if (!_workspace.TryApplyChanges(document.Project.Solution))
+            if (!_workspace.TryApplyChanges(solution))
                 throw new Exception("Failed to apply changes to workspace.");
-            _document = _workspace.CurrentSolution.GetDocument(document.Id);
+            _document = _workspace.CurrentSolution.GetDocument(_document.Id);
             _documentOutOfDate = false;
         }
 
