@@ -9,10 +9,8 @@ using MirrorSharp.Internal.Roslyn;
 namespace MirrorSharp.Internal {
     internal class WorkSession : IWorkSession {
         [CanBeNull] private readonly IWorkSessionOptions _options;
-        [NotNull] private readonly IDictionary<string, Func<CompilationOptions, CompilationOptions>> _compilationOptionsChanges = new Dictionary<string, Func<CompilationOptions, CompilationOptions>>();
         [NotNull] private ILanguage _language;
-        [CanBeNull] private OptimizationLevel? _optimizationLevel;
-        private ILanguageSession _languageSession;
+        [CanBeNull] private ILanguageSessionInternal _languageSession;
         private string _lastText = "";
 
         public WorkSession([NotNull] ILanguage language, [CanBeNull] IWorkSessionOptions options = null) {
@@ -27,17 +25,7 @@ namespace MirrorSharp.Internal {
             if (language == _language)
                 return;
             _language = language;
-            Reset();
-        }
 
-        public void ChangeOptimizationLevel([CanBeNull] OptimizationLevel? optimizationLevel) {
-            if (optimizationLevel == _optimizationLevel)
-                return;
-            _optimizationLevel = optimizationLevel;
-            Reset();
-        }
-
-        private void Reset() {
             if (_languageSession != null) {
                 _lastText = _languageSession.GetText();
                 _languageSession.Dispose();
@@ -46,15 +34,14 @@ namespace MirrorSharp.Internal {
         }
 
         private void Initialize() {
-            _languageSession = Language.CreateSession(_lastText, OptimizationLevel);
+            _languageSession = Language.CreateSession(_lastText);
         }
 
         public IWorkSessionOptions Options => _options;
-        public OptimizationLevel? OptimizationLevel => _optimizationLevel;
         [NotNull] public ILanguage Language => _language;
         string IWorkSession.LanguageName => Language.Name;
         [NotNull]
-        public ILanguageSession LanguageSession {
+        public ILanguageSessionInternal LanguageSession {
             get {
                 EnsureInitialized();
                 return _languageSession;

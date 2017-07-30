@@ -50,18 +50,6 @@ namespace MirrorSharp.Tests {
             );
         }
 
-        [Theory]
-        [InlineData(OptimizationLevel.Debug)]
-        [InlineData(OptimizationLevel.Release)]
-        public async void SetOptions_DoesNotCauseAnyDiagnosticIssues_WithEitherOptimizationLevel(OptimizationLevel level) {
-            var driver = MirrorSharpTestDriver.New(Options, FSharpLanguage.Name);
-            await driver.SendSetOptionAsync("optimize", level.ToString());
-            await driver.SendReplaceTextAsync("1 |> ignore");
-            var result = await driver.SendSlowUpdateAsync();
-
-            Assert.Empty(result.Diagnostics);
-        }
-
         [Fact]
         public async void TypeChar_ProducesExpectedCompletion() {
             var driver = MirrorSharpTestDriver.New(Options, FSharpLanguage.Name);

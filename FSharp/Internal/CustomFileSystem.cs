@@ -8,6 +8,8 @@ using MirrorSharp.FSharp.Advanced;
 
 namespace MirrorSharp.FSharp.Internal {
     internal class CustomFileSystem : Library.Shim.IFileSystem {
+        private const string VirtualTempPath = @"V:\virtualfs#temp\";
+
         private readonly ConcurrentDictionary<string, FSharpVirtualFile> _virtualFiles = new ConcurrentDictionary<string, FSharpVirtualFile>();
         private readonly ConcurrentDictionary<string, byte[]> _fileBytesCache = new ConcurrentDictionary<string, byte[]>();
         private readonly ConcurrentDictionary<string, bool> _fileExistsCache = new ConcurrentDictionary<string, bool>();
@@ -72,7 +74,7 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public string GetTempPathShim() {
-            throw new NotSupportedException();
+            return VirtualTempPath;
         }
 
         public bool IsInvalidPathShim(string filename) {
@@ -99,9 +101,9 @@ namespace MirrorSharp.FSharp.Internal {
             if (GetVirtualFile(fileName) != null)
                 return true;
 
-            if (fileName.EndsWith(".fs", StringComparison.OrdinalIgnoreCase))
+            if (!IsAllowed(fileName) || fileName.StartsWith(VirtualTempPath, StringComparison.OrdinalIgnoreCase))
                 return false;
-            EnsureAllowed(fileName);
+
             // For some reason, F# compiler requests this for same file many, many times.
             // Obviously, repeated IO is a bad idea.
             // Caching isn't great either, but will do for now.
@@ -110,17 +112,21 @@ namespace MirrorSharp.FSharp.Internal {
 
         [AssertionMethod]
         private static void EnsureAllowed(string fileName) {
-            if (!fileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)
-             && !fileName.EndsWith(".optdata", StringComparison.OrdinalIgnoreCase)
-             && !fileName.EndsWith(".sigdata", StringComparison.OrdinalIgnoreCase))
+            if (!IsAllowed(fileName))
                 throw new NotSupportedException();
+        }
+
+        private static bool IsAllowed(string fileName) {
+            return fileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)
+                || fileName.EndsWith(".optdata", StringComparison.OrdinalIgnoreCase)
+                || fileName.EndsWith(".sigdata", StringComparison.OrdinalIgnoreCase);
         }
 
         [NotNull]
         public FSharpVirtualFile RegisterVirtualFile([NotNull] MemoryStream stream) {
             Argument.NotNull(nameof(stream), stream);
 
-            var name = Guid.NewGuid().ToString("D");
+            var name = "virtualfs#" + Guid.NewGuid().ToString("D");
             var file = (FSharpVirtualFile)null;
             try {
                 file = new FSharpVirtualFile(name, stream, _virtualFiles);

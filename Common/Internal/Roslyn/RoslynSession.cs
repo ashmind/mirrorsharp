@@ -16,7 +16,7 @@ using MirrorSharp.Internal.Abstraction;
 using MirrorSharp.Internal.Reflection;
 
 namespace MirrorSharp.Internal.Roslyn {
-    internal class RoslynSession : ILanguageSession, IRoslynSession {
+    internal class RoslynSession : ILanguageSessionInternal, IRoslynSession {
         private static readonly TextChange[] NoTextChanges = new TextChange[0];
 
         private readonly TextChange[] _oneTextChange = new TextChange[1];
@@ -117,7 +117,7 @@ namespace MirrorSharp.Internal.Roslyn {
                 _documentOutOfDate = true;
             }
         }
-        
+
         [CanBeNull] public CurrentSignatureHelp? CurrentSignatureHelp { get; set; }
 
         public ImmutableArray<DiagnosticAnalyzer> Analyzers { get; }

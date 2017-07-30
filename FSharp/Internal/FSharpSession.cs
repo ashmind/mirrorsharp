@@ -15,12 +15,13 @@ using MirrorSharp.FSharp.Advanced;
 using MirrorSharp.Internal.Abstraction;
 
 namespace MirrorSharp.FSharp.Internal {
-    internal class FSharpSession : ILanguageSession, IFSharpSession {
+    internal class FSharpSession : ILanguageSessionInternal, IFSharpSession {
         private string _text;
         [CanBeNull] private LineColumnMap _lastLineMap;
         [CanBeNull] private FSharpParseAndCheckResults _lastParseAndCheck;
+        [NotNull] private FSharpProjectOptions _projectOptions;
 
-        public FSharpSession(string text, ImmutableArray<string> assemblyReferencePaths, OptimizationLevel? optimizationLevel) {
+        public FSharpSession(string text, ImmutableArray<string> assemblyReferencePaths) {
             _text = text;
 
             Checker = FSharpChecker.Create(
@@ -34,7 +35,7 @@ namespace MirrorSharp.FSharp.Internal {
             ProjectOptions = new FSharpProjectOptions(
                 "_",
                 projectFileNames: new[] { "_.fs" },
-                otherOptions: ConvertToOptions(assemblyReferencePaths, optimizationLevel),
+                otherOptions: ConvertToOtherOptions(assemblyReferencePaths),
                 referencedProjects: Array.Empty<Tuple<string, FSharpProjectOptions>>(),
                 isIncompleteTypeCheckEnvironment: true,
                 useScriptResolutionRules: false,
@@ -54,20 +55,22 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public FSharpChecker Checker { get; }
-        public FSharpProjectOptions ProjectOptions { get; }
+        public FSharpProjectOptions ProjectOptions {
+            get => _projectOptions;
+            set {
+                if (value == _projectOptions)
+                    return;
+
+                _projectOptions = Argument.NotNull(nameof(value), value);
+                _lastParseAndCheck = null;
+            }
+        }
+
         public ImmutableArray<string> AssemblyReferencePaths { get; }
         public FSharpList<string> AssemblyReferencePathsAsFSharpList { get; }
 
-        private static string[] ConvertToOptions(ImmutableArray<string> assemblyReferencePaths, OptimizationLevel? optimizationLevel) {
+        private string[] ConvertToOtherOptions(ImmutableArray<string> assemblyReferencePaths) {
             var options = new List<string> {"--noframework"};
-            if (optimizationLevel == OptimizationLevel.Release) {
-                options.Add("--debug-");
-                options.Add("--optimize+");
-            }
-            else if (optimizationLevel == OptimizationLevel.Debug) {
-                options.Add("--debug+");
-                options.Add("--optimize-");
-            }
             foreach (var path in assemblyReferencePaths) {
                 // ReSharper disable once HeapView.ObjectAllocation (Not worth fixing for now)
                 options.Add("-r:" + path);

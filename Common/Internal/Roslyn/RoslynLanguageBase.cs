@@ -56,17 +56,13 @@ namespace MirrorSharp.Internal.Roslyn {
 
         public string Name { get; }
 
-        public ILanguageSession CreateSession(string text, OptimizationLevel? optimizationLevel) {
+        public ILanguageSessionInternal CreateSession(string text) {
             var projectId = ProjectId.CreateNewId();
-
-            var compilationOptions = _compilationOptions;
-            if (optimizationLevel != null)
-                compilationOptions = compilationOptions.WithOptimizationLevel(optimizationLevel.Value);
 
             var projectInfo = ProjectInfo.Create(
                 projectId, VersionStamp.Create(), "_", "_", Name,
                 parseOptions: _parseOptions,
-                compilationOptions: compilationOptions,
+                compilationOptions: _compilationOptions,
                 metadataReferences: _metadataReferences,
                 analyzerReferences: _defaultAnalyzerReferences
             );

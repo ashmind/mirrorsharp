@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
 
 namespace MirrorSharp.Internal.Abstraction {
-    internal interface ILanguageSession : IDisposable {
+    internal interface ILanguageSessionInternal : IDisposable {
         [NotNull] string GetText();
         void ReplaceText([CanBeNull] string newText, int start = 0, [CanBeNull] int? length = null);
 

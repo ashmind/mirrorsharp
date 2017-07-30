@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -13,10 +14,10 @@ using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
     internal class SetOptionsHandler : ICommandHandler {
+        private const string LanguageOptionName = "language";
         private static readonly char[] Comma = { ',' };
         private static readonly char[] EqualsSign = { '=' };
 
-        private readonly IReadOnlyDictionary<string, Action<WorkSession, string>> _optionSetters;
         [NotNull] private readonly LanguageManager _languageManager;
         [NotNull] private readonly ArrayPool<char> _charArrayPool;
         [CanBeNull] private readonly ISetOptionsFromClientExtension _extension;
@@ -28,10 +29,6 @@ namespace MirrorSharp.Internal.Handlers {
             [NotNull] ArrayPool<char> charArrayPool,
             [CanBeNull] ISetOptionsFromClientExtension extension = null
         ) {
-            _optionSetters = new Dictionary<string, Action<WorkSession, string>> {
-                { "language", SetLanguage },
-                { "optimize", SetOptimize }
-            };
             _languageManager = languageManager;
             _charArrayPool = charArrayPool;
             _extension = extension;
@@ -40,11 +37,21 @@ namespace MirrorSharp.Internal.Handlers {
         public async Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             // this doesn't happen too often, so microptimizations are not required
             var optionsString = await AsyncDataConvert.ToUtf8StringAsync(data, 0, _charArrayPool).ConfigureAwait(false);
-            var parts = optionsString.Split(Comma);
-            foreach (var part in parts) {
-                var nameAndValue = part.Split(EqualsSign);
-                var name = nameAndValue[0];
-                var value = nameAndValue[1];
+            var options = optionsString
+                .Split(Comma)
+                .Select(p => p.Split(EqualsSign))
+                .ToDictionary(p => p[0], p => p[1]);
+
+            if (options.TryGetValue(LanguageOptionName, out var language)) {
+                // this has to be done first, as it might reset other options
+                SetLanguage(session, language);
+                session.RawOptionsFromClient[LanguageOptionName] = language;
+            }
+
+            foreach (var option in options) {
+                var (name, value) = (option.Key, option.Value);
+                if (name == LanguageOptionName)
+                    continue;
 
                 if (name.StartsWith("x-")) {
                     if (!(_extension?.TrySetOption(session, name, value) ?? false))
@@ -52,11 +59,8 @@ namespace MirrorSharp.Internal.Handlers {
                     session.RawOptionsFromClient[name] = value;
                     continue;
                 }
-
-                if (!_optionSetters.TryGetValue(name, out var setOption))
-                    throw new FormatException($"Option '{name}' was not recognized (to use {nameof(ISetOptionsFromClientExtension)}, make sure your option name starts with 'x-').");
-                setOption(session, value);
-                session.RawOptionsFromClient[name] = value;
+                
+                throw new FormatException($"Option '{name}' was not recognized (to use {nameof(ISetOptionsFromClientExtension)}, make sure your option name starts with 'x-').");
             }
 
             await SendOptionsEchoAsync(session, sender, cancellationToken).ConfigureAwait(false);
@@ -65,11 +69,6 @@ namespace MirrorSharp.Internal.Handlers {
         private void SetLanguage(WorkSession session, string value) {
             var language = _languageManager.GetLanguage(value);
             session.ChangeLanguage(language);
-        }
-
-        private void SetOptimize(WorkSession session, string value) {
-            var level = (OptimizationLevel)Enum.Parse(typeof(OptimizationLevel), value, true);
-            session.ChangeOptimizationLevel(level);
         }
 
         private async Task SendOptionsEchoAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {

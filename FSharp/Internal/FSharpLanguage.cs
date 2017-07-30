@@ -18,8 +18,8 @@ namespace MirrorSharp.FSharp.Internal {
             _options = options;
         }
 
-        public ILanguageSession CreateSession(string text, OptimizationLevel? optimizationLevel) {
-            return new FSharpSession(text, _options.AssemblyReferencePaths, optimizationLevel);
+        public ILanguageSessionInternal CreateSession(string text) {
+            return new FSharpSession(text, _options.AssemblyReferencePaths);
         }
 
         string ILanguage.Name => Name;

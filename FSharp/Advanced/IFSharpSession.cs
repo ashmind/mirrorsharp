@@ -38,8 +38,8 @@ namespace MirrorSharp.FSharp.Advanced {
         /// <summary>Gets the <see cref="FSharpChecker" /> associated with this session.</summary>
         [NotNull] FSharpChecker Checker { get; }
 
-        /// <summary>Gets the <see cref="ProjectOptions" /> associated with this session.</summary>
-        [NotNull] FSharpProjectOptions ProjectOptions { get; }
+        /// <summary>Gets or sets the <see cref="ProjectOptions" /> associated with this session.</summary>
+        [NotNull] FSharpProjectOptions ProjectOptions { get; set; }
 
         /// <summary>Gets the assembly reference paths associated with this session.</summary>
         ImmutableArray<string> AssemblyReferencePaths { get; }

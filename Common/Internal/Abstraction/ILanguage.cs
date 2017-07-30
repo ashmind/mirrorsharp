@@ -4,6 +4,6 @@ using Microsoft.CodeAnalysis;
 namespace MirrorSharp.Internal.Abstraction {
     internal interface ILanguage {
         [NotNull] string Name { get; }
-        [NotNull] ILanguageSession CreateSession([NotNull] string text, OptimizationLevel? optimizationLevel);
+        [NotNull] ILanguageSessionInternal CreateSession([NotNull] string text);
     }
 }
