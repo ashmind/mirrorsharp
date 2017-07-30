@@ -16,6 +16,7 @@ namespace MirrorSharp.Internal {
         private readonly char[] _oneCharBuffer = new char[1];
         private readonly ArrayPool<byte> _bufferPool;
         private byte[] _buffer;
+        private readonly Encoder _encoder;
 
         private readonly ArrayPool<State> _stateStackPool;
         private readonly State[] _stateStack;
@@ -29,6 +30,8 @@ namespace MirrorSharp.Internal {
 
             _stateStackPool = ArrayPool<State>.Shared;
             _stateStack = _stateStackPool.Rent(64);
+
+            _encoder = Encoding.UTF8.GetEncoder();
         }
 
         public ArraySegment<byte> WrittenSegment => new ArraySegment<byte>(_buffer, 0, _position);
@@ -151,7 +154,8 @@ namespace MirrorSharp.Internal {
             }
 
             _oneCharBuffer[0] = @char;
-            _position += Encoding.UTF8.GetBytes(_oneCharBuffer, 0, 1, _buffer, _position);
+            _encoder.Convert(_oneCharBuffer, 0, 1, _buffer, _position, _buffer.Length - _position, false, out var _, out var bytesUsed, out var _);
+            _position += bytesUsed;
         }
 
         public void WriteValue(int value) {
@@ -219,7 +223,15 @@ namespace MirrorSharp.Internal {
 
         private void WriteRawBytes(byte[] bytes) {
             EnsureCanWrite(bytes.Length);
-            Buffer.BlockCopy(bytes, 0, _buffer, _position, bytes.Length);
+            if (bytes.Length == 2)
+            {
+                _buffer[_position] = bytes[0];
+                _buffer[_position + 1] = bytes[1];
+            }
+            else
+            {
+                Buffer.BlockCopy(bytes, 0, _buffer, _position, bytes.Length);
+            }
             _position += bytes.Length;
         }
 
@@ -247,6 +259,7 @@ namespace MirrorSharp.Internal {
 
         public void Reset() {
             _position = 0;
+            _encoder.Reset();
         }
 
         private State GetState() {

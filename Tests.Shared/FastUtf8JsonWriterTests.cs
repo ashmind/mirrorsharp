@@ -21,6 +21,7 @@ namespace MirrorSharp.Tests {
         [InlineData("a\\b", @"""a\\b""")]
         [InlineData("a\0b", @"""a\u0000b""")]
         [InlineData("a❀b", @"""a❀b""")]
+        [InlineData("a🌄b", @"""a🌄b""")]
         public void WriteValue_WritesString(string input, string expected) {
             var writer = CreateWriter();
             writer.WriteValue(input);

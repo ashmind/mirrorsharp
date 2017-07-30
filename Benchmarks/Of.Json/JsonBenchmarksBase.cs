@@ -19,7 +19,7 @@ namespace MirrorSharp.Benchmarks.Of.Json {
             _newtonsoftJsonWriter = new JsonTextWriter(new StreamWriter(_memoryStream)) {
                 Formatting = Formatting.None
             };
-            _fastJsonWriter = new FastUtf8JsonWriter(ArrayPool<byte>.Shared);
+            _fastJsonWriter = new FastUtf8JsonWriter(ArrayPool<byte>.Create());
         }
 
         protected ArraySegment<byte> FlushNewtonsoftJsonWriterAndGetBuffer() {
