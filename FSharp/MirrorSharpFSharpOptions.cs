@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.FSharp.Compiler.SourceCodeServices;
 using Microsoft.FSharp.Core;
 
 namespace MirrorSharp.FSharp {
@@ -18,5 +19,14 @@ namespace MirrorSharp.FSharp {
 
         /// <summary>Specifies the list of assembly reference paths to be used.</summary>
         public ImmutableArray<string> AssemblyReferencePaths { get; set; }
+
+        /// <summary>Corresponds to option <c>--debug</c> in <see cref="FSharpProjectOptions.OtherOptions"/>.</summary>
+        public bool? Debug { get; set; }
+
+        /// <summary>Corresponds to option <c>--optimize</c> in <see cref="FSharpProjectOptions.OtherOptions"/>.</summary>
+        public bool? Optimize { get; set; }
+
+        /// <summary>Corresponds to option <c>--target</c> in <see cref="FSharpProjectOptions.OtherOptions"/>.</summary>
+        public string Target { get; set; }
     }
 }

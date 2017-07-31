@@ -19,7 +19,7 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public ILanguageSessionInternal CreateSession(string text) {
-            return new FSharpSession(text, _options.AssemblyReferencePaths);
+            return new FSharpSession(text, _options);
         }
 
         string ILanguage.Name => Name;

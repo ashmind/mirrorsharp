@@ -21,7 +21,7 @@ namespace MirrorSharp.FSharp.Internal {
         [CanBeNull] private FSharpParseAndCheckResults _lastParseAndCheck;
         [NotNull] private FSharpProjectOptions _projectOptions;
 
-        public FSharpSession(string text, ImmutableArray<string> assemblyReferencePaths) {
+        public FSharpSession(string text, MirrorSharpFSharpOptions options) {
             _text = text;
 
             Checker = FSharpChecker.Create(
@@ -30,12 +30,12 @@ namespace MirrorSharp.FSharp.Internal {
                 keepAllBackgroundResolutions: true,
                 msbuildEnabled: false
             );
-            AssemblyReferencePaths = assemblyReferencePaths;
-            AssemblyReferencePathsAsFSharpList = ToFSharpList(assemblyReferencePaths);
+            AssemblyReferencePaths = options.AssemblyReferencePaths;
+            AssemblyReferencePathsAsFSharpList = ToFSharpList(options.AssemblyReferencePaths);
             ProjectOptions = new FSharpProjectOptions(
                 "_",
                 projectFileNames: new[] { "_.fs" },
-                otherOptions: ConvertToOtherOptions(assemblyReferencePaths),
+                otherOptions: ConvertToOtherOptions(options),
                 referencedProjects: Array.Empty<Tuple<string, FSharpProjectOptions>>(),
                 isIncompleteTypeCheckEnvironment: true,
                 useScriptResolutionRules: false,
@@ -69,13 +69,19 @@ namespace MirrorSharp.FSharp.Internal {
         public ImmutableArray<string> AssemblyReferencePaths { get; }
         public FSharpList<string> AssemblyReferencePathsAsFSharpList { get; }
 
-        private string[] ConvertToOtherOptions(ImmutableArray<string> assemblyReferencePaths) {
-            var options = new List<string> {"--noframework"};
-            foreach (var path in assemblyReferencePaths) {
+        private string[] ConvertToOtherOptions(MirrorSharpFSharpOptions options) {
+            var results = new List<string> {"--noframework"};
+            if (options.Debug != null)
+                results.Add("--debug" + (options.Debug.Value ? "+" : "-"));
+            if (options.Optimize != null)
+                results.Add("--optimize" + (options.Optimize.Value ? "+" : "-"));
+            if (options.Target != null)
+                results.Add("--target:" + options.Target);
+            foreach (var path in options.AssemblyReferencePaths) {
                 // ReSharper disable once HeapView.ObjectAllocation (Not worth fixing for now)
-                options.Add("-r:" + path);
+                results.Add("-r:" + path);
             }
-            return options.ToArray();
+            return results.ToArray();
         }
 
         public async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(CancellationToken cancellationToken) {
