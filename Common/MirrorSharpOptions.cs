@@ -27,7 +27,10 @@ namespace MirrorSharp {
 
         /// <summary>Defines a <see cref="ISlowUpdateExtension" /> used to extend periodic processing.</summary>
         [CanBeNull] public ISlowUpdateExtension SlowUpdate { get; set; }
-        
+
+        /// <summary>Defines a <see cref="IExceptionLogger" /> called for any unhandled exception.</summary>
+        public IExceptionLogger ExceptionLogger { get; set; }
+
         /// <summary>Defines whether the exceptions should include full details (messages, stack traces).</summary>
         public bool IncludeExceptionDetails { get; set; }
 

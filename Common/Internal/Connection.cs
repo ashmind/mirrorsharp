@@ -39,12 +39,19 @@ namespace MirrorSharp.Internal {
                 await ReceiveAndProcessInternalAsync(cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex) {
+                var exception = ex;
                 try {
-                    var error = _options.IncludeExceptionDetails ? ex.ToString() : "A server error has occurred.";
+                    try {
+                        _options?.ExceptionLogger.LogException(exception, _session);
+                    }
+                    catch (Exception logException) {
+                        exception = new AggregateException(exception, logException);
+                    }
+                    var error = _options.IncludeExceptionDetails ? exception.ToString() : "A server error has occurred.";
                     await SendErrorAsync(error, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception sendException) {
-                    throw new AggregateException(ex, sendException);
+                    throw new AggregateException(ex, sendException).Flatten();
                 }
                 throw;
             }
