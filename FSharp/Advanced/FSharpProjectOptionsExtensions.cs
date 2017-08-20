@@ -62,6 +62,27 @@ namespace MirrorSharp.FSharp.Advanced {
 
         /// <summary>
         /// Returns a new instance of <see cref="FSharpProjectOptions" /> with 
+        /// <see cref="FSharpProjectOptions.OtherOptions"/> <c>--define</c>:<paramref name="symbol"/> option
+        /// added or removed depending on <paramref name="defined"/>; if it already matches the provided
+        /// value, returns <paramref name="options" />.
+        /// </summary>
+        /// <param name="options">The options to use as a base for the returned value.</param>
+        /// <param name="symbol">The symbol for the <c>--define</c> option.</param>
+        /// <param name="defined">If <c>true</c>, <c>--define</c> should be added; otherwise removed.</param>
+        /// <returns>
+        /// Either a new instance of <see cref="FSharpProjectOptions" /> with the option changed; or <paramref name="options" />
+        /// if it already matches the provided value.
+        /// </returns>
+        [NotNull]
+        public static FSharpProjectOptions WithOtherOptionDefine([NotNull] this FSharpProjectOptions options, [NotNull] string symbol, bool defined = true) {
+            Argument.NotNull(nameof(symbol), symbol);
+            return options.WithOtherOptions(
+                defined ? options.OtherOptions.With("--define:" + symbol) : options.OtherOptions.Without("--define:" + symbol)
+            );
+        }
+
+        /// <summary>
+        /// Returns a new instance of <see cref="FSharpProjectOptions" /> with 
         /// <see cref="FSharpProjectOptions.OtherOptions"/> set to the provided value; if 
         /// it is already the same as the provided value, returns <paramref name="options" />.
         /// </summary>
@@ -98,8 +119,26 @@ namespace MirrorSharp.FSharp.Advanced {
             return otherOptions.With(prefix, valueString);
         }
 
+        private static string[] With(this string[] otherOptions, string option) {
+            if (Array.IndexOf(otherOptions, option) > -1)
+                return otherOptions;
+
+            var newOptions = new string[otherOptions.Length + 1];
+            Array.Copy(otherOptions, newOptions, otherOptions.Length);
+            newOptions[newOptions.Length - 1] = option;
+            return newOptions;
+        }
+
+        private static string[] Without(this string[] otherOptions, string option) {
+            if (Array.IndexOf(otherOptions, option) < 0)
+                return otherOptions;
+
+            // generally options are not changed often, so it's OK to use LINQ
+            return Array.FindAll(otherOptions, o => o != option);
+        }
+
         private static string[] With(this string[] otherOptions, string prefix, string value) {
-            // generally options are not changed often, so it's OK to use LINQ here
+            // generally options are not changed often, so it's OK to use LINQ
             if (value == null) {
                 // need to remove the item if it exists
                 if (!Array.Exists(otherOptions, o => o.StartsWith(prefix)))

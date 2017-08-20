@@ -70,6 +70,27 @@ namespace MirrorSharp.Tests {
             Assert.Equal(expected, options.OtherOptions);
         }
 
+        [Theory]
+        [InlineData(new[] { "--define:TEST" }, true, new[] { "--define:TEST", "--define:DEBUG" })]
+        [InlineData(new string[0], true, new[] { "--define:DEBUG" })]
+        [InlineData(new[] { "--define:DEBUG" }, false, new string[0])]
+        [InlineData(new[] { "--define:TEST", "--define:DEBUG" }, false, new[] { "--define:TEST" })]
+        [InlineData(new[] { "--define:TEST" }, false, new[] { "--define:TEST" })]
+        public void WithOtherOptionDefine_ReturnsExpectedOptions_IfThereAreChanges(string[] otherOptions, bool defined, string[] expected) {
+            var options = NewOptions(otherOptions: otherOptions).WithOtherOptionDefine("DEBUG", defined);
+            Assert.Equal(expected, options.OtherOptions);
+        }
+
+        [Theory]
+        [InlineData(new[] { "--define:DEBUG" }, true)]
+        [InlineData(new[] { "--define:TEST", "--define:DEBUG" }, true)]
+        [InlineData(new string[0], false)]
+        public void WithOtherOptionDefine_ReturnsSameInstance_IfThereAreNoChanges(string[] otherOptions, bool defined) {
+            var options = NewOptions(otherOptions: otherOptions);
+            var updated = options.WithOtherOptionDefine("DEBUG", defined);
+            Assert.Same(options, updated);
+        }
+
         private FSharpProjectOptions NewOptions(string[] otherOptions = null) {
             return new FSharpProjectOptions(
                 null,
