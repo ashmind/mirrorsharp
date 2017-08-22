@@ -1,21 +1,31 @@
-const nextTickPromise = require('./next-tick-promise.js');
 const mirrorsharp = require('../mirrorsharp.js');
 const Keysim = require('keysim');
 
+jest.useFakeTimers();
+
 const keyboard = Keysim.Keyboard.US_ENGLISH;
+
+const spliceString = (string, start, length, newString = '') =>
+    string.substring(0, start) + newString + string.substring(start + length);
 
 class MockSocket {
     constructor() {
         this.sent = [];
+        this.handlers = {};
     }
 
     send(message) {
         this.sent.push(message);
     }
 
+    trigger(event, e) {
+        for (const handler of (this.handlers[event] || [])) {
+            handler(e);
+        }
+    }
+
     addEventListener(event, handler) {
-        if (event === 'open')
-            process.nextTick(() => handler());
+        (this.handlers[event] = this.handlers[event] || []).push(handler);
     }
 }
 
@@ -26,24 +36,47 @@ class MockTextRange {
 global.document.body.createTextRange = () => new MockTextRange();
 
 class TestTyper {
-    constructor(input) {
+    constructor(input, cursor) {
         this.input = input;
+        this.cursor = cursor || 0;
     }
 
     text(text) {
-        keyboard.dispatchEventsForInput(text, this.input);
+        const input = this.input;
+        input.focus();
+        input.value = spliceString(input.value, this.cursor, 0, text);
+        this.cursor += text.length;
+        keyboard.dispatchEventsForInput(text, input);
     }
 
     backspace(count) {
+        const input = this.input;
         for (let i = 0; i < count; i++) {
+            input.value = spliceString(input.value, this.cursor - 1, 1);
             keyboard.dispatchEventsForAction('backspace', this.input);
         }
+    }
+}
+
+class TestReceiver {
+    constructor(socket) {
+        this.socket = socket;
+    }
+
+    changes(changes = [], reason = '') {
+        this.socket.trigger('message', { data: JSON.stringify({type: 'changes', changes, reason}) });
     }
 }
 
 class TestDriver {
     getCodeMirror() {
         return this.cm;
+    }
+
+    async completeBackgroundWork() {
+        jest.runOnlyPendingTimers();
+        await new Promise(resolve => resolve());
+        jest.runOnlyPendingTimers();
     }
 }
 
@@ -59,18 +92,23 @@ TestDriver.new = async options => {
     driver.socket = socket;
     global.WebSocket = function() { return socket; };
 
-    driver.mirrorsharp = mirrorsharp(initialTextarea, {});
+    driver.mirrorsharp = mirrorsharp(initialTextarea, options.options || {});
 
     delete global.WebSocket;
 
-    await nextTickPromise();
     const cm = driver.mirrorsharp.getCodeMirror();
     driver.cm = cm;
     if (initial.cursor)
         cm.setCursor(cm.posFromIndex(initial.cursor));
 
+    driver.socket.trigger('open');
+    await driver.completeBackgroundWork();
     const input = cm.getWrapperElement().querySelector('textarea');
-    driver.type = new TestTyper(input);
+    driver.type = new TestTyper(input, initial.cursor);
+    driver.receive = new TestReceiver(socket);
+
+    jest.runOnlyPendingTimers();
+    driver.socket.sent = [];
     return driver;
 };
 

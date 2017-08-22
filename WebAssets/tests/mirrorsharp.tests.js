@@ -1,5 +1,4 @@
 const TestDriver = require('./test-driver.js');
-const nextTickPromise = require('./next-tick-promise.js');
 
 // TODO: remove in year 3000 when TC39 finally specs this
 // eslint-disable-next-line no-extend-native
@@ -12,11 +11,21 @@ describe('basic editing', () => {
 
         driver.type.backspace('{d:f2}'.length);
         cm.execCommand('undo');
+        await driver.completeBackgroundWork();
 
-        await nextTickPromise();
         const lastSent = driver.socket.sent.filter(c => !c.startsWith('U')).last();
-
         expect(lastSent).toBe('R6:0:12::{d:f2}');
     });
 });
 
+describe('produced events', () => {
+    test('slowUpdateWait is triggered on first change', async () => {
+        const slowUpdateWait = jest.fn();
+        const driver = await TestDriver.new({ options: { on: { slowUpdateWait } } });
+
+        driver.type.text('x');
+        await driver.completeBackgroundWork();
+
+        expect(slowUpdateWait.mock.calls).toEqual([[]]);
+    });
+});

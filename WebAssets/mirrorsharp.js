@@ -447,6 +447,7 @@
 
         options = assign({ language: defaultLanguage }, options);
         options.on = assign({
+            slowUpdateWait:   function() {},
             slowUpdateResult: function() {},
             textChange:       function() {},
             connectionChange: function() {},
@@ -704,6 +705,7 @@
             if (lintingSuspended || !(hadChangesSinceLastLinting || force))
                 return null;
             hadChangesSinceLastLinting = false;
+            options.on.slowUpdateWait();
             return connection.sendSlowUpdate();
         }
 
