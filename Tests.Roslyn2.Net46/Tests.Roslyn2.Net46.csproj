@@ -3,7 +3,6 @@
   <PropertyGroup>
     <AssemblyName>MirrorSharp.Tests.Roslyn2.Net46</AssemblyName>
     <RootNamespace>MirrorSharp.Tests</RootNamespace>
-    <LangVersion>7.1</LangVersion>
     <TargetFramework>net46</TargetFramework>
     <RuntimeIdentifier Condition="'$(TargetFramework)' == 'net46'">win</RuntimeIdentifier>
   </PropertyGroup>

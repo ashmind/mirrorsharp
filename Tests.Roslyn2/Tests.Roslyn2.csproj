@@ -4,7 +4,6 @@
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <DefineConstants>$(DefineConstants);ROSLYN20</DefineConstants>
     <AssemblyName>MirrorSharp.Tests.Roslyn2</AssemblyName>
-    <LangVersion>7.1</LangVersion>
     <PackageId>MirrorSharp.Tests.Roslyn2</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>

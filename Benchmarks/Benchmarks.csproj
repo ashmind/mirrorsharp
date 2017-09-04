@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net46</TargetFramework>
     <AssemblyName>MirrorSharp.Benchmarks</AssemblyName>
-    <LangVersion>7.1</LangVersion>
     <OutputType>Exe</OutputType>
     <PackageId>MirrorSharp.Benchmarks</PackageId>
     <RuntimeFrameworkVersion>1.0.4</RuntimeFrameworkVersion>

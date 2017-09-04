@@ -4,7 +4,6 @@
   <PropertyGroup>
     <AssemblyName>MirrorSharp.FSharp</AssemblyName>
     <RootNamespace>MirrorSharp.FSharp</RootNamespace>
-    <LangVersion>7.1</LangVersion>
     <TargetFrameworks>net46</TargetFrameworks>
     <VersionPrefix>0.9.0</VersionPrefix>
     <Description>MirrorSharp F# support library. $(DescriptionSuffix)</Description>

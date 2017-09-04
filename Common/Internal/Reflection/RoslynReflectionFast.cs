@@ -108,7 +108,7 @@ namespace MirrorSharp.Internal.Reflection {
                 .ToList();
             var constructorParameters = constructor.GetParameters();
             var arguments = delegateParameters
-                .Zip(constructorParameters, (delegateParameter, constructorParameter) => (delegateParameter, constructorParameter))
+                .Zip(constructorParameters, (delegateParameter, constructorParameter) => (delegateParameter: delegateParameter, constructorParameter: constructorParameter))
                 .Select(x => {
                     if (x.delegateParameter.Type == x.constructorParameter.ParameterType)
                         return (Expression)x.delegateParameter;

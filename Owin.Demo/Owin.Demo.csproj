@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net46</TargetFramework>
     <AssemblyName>MirrorSharp.Owin.Demo</AssemblyName>
-    <LangVersion>7.1</LangVersion>
     <PackageId>MirrorSharp.Owin.Demo</PackageId>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>

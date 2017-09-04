@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Completion;
@@ -74,7 +74,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         }
 
         public Task ForceCompletionAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            return TriggerCompletionAsync(session, sender, cancellationToken, CompletionTrigger.Default);
+            return TriggerCompletionAsync(session, sender, cancellationToken, CompletionTrigger.Invoke);
         }
 
         private Task CheckCompletionAsync(CompletionTrigger trigger, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
