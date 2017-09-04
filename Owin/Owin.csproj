@@ -4,6 +4,7 @@
   <PropertyGroup>
     <AssemblyName>MirrorSharp.Owin</AssemblyName>
     <RootNamespace>MirrorSharp.Owin</RootNamespace>
+    <LangVersion>7.1</LangVersion>
     <TargetFramework>net46</TargetFramework>
     <VersionPrefix>0.9.0</VersionPrefix>
     <Description>MirrorSharp OWIN server. $(DescriptionSuffix)</Description>

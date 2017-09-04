@@ -1,4 +1,4 @@
-﻿/* global module:false */
+/* global module:false */
 (function (root, factory) {
     'use strict';
     // ReSharper disable UndeclaredGlobalVariableUsing (R# bug, https://youtrack.jetbrains.com/issue/RSRP-462411)
@@ -714,7 +714,7 @@
             for (var diagnostic of update.diagnostics) {
                 var severity = diagnostic.severity;
                 if (diagnostic.severity === 'hidden') {
-                    if (diagnostic.tags.indexOf('unnecessary') === 0)
+                    if (diagnostic.tags.indexOf('unnecessary') < 0)
                         continue;
 
                     severity = 'unnecessary';

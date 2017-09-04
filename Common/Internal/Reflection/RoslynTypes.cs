@@ -1,10 +1,14 @@
 using System.Reflection;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Completion;
 
 namespace MirrorSharp.Internal.Reflection {
+    using TypeInfo = System.Reflection.TypeInfo;
+
     internal static class RoslynTypes {
         private static readonly Assembly MicrosoftCodeAnalysisFeatures = typeof(CompletionProvider).GetTypeInfo().Assembly;
+        private static readonly Assembly MicrosoftCodeAnalysisWorkspaces = typeof(Workspace).GetTypeInfo().Assembly;
 
         public static readonly TypeInfo CodeAction = typeof(CodeAction).GetTypeInfo();
         public static readonly TypeInfo CompletionChange = typeof(CompletionChange).GetTypeInfo();
@@ -17,5 +21,8 @@ namespace MirrorSharp.Internal.Reflection {
         public static readonly TypeInfo SignatureHelpItems = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpItems", true).GetTypeInfo();
         public static readonly TypeInfo SignatureHelpItem = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpItem", true).GetTypeInfo();
         public static readonly TypeInfo SignatureHelpParameter = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpParameter", true).GetTypeInfo();
+
+        public static readonly TypeInfo WorkspaceOptionSet = MicrosoftCodeAnalysisWorkspaces.GetType("Microsoft.CodeAnalysis.Options.WorkspaceOptionSet", true).GetTypeInfo();
+        public static readonly TypeInfo WorkspaceAnalyzerOptions = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.Diagnostics.WorkspaceAnalyzerOptions", true).GetTypeInfo();        
     }
 }

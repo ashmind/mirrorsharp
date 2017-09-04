@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <DefineConstants>$(DefineConstants);ROSLYN20</DefineConstants>
     <AssemblyName>MirrorSharp.Tests.Roslyn2</AssemblyName>
+    <LangVersion>7.1</LangVersion>
     <PackageId>MirrorSharp.Tests.Roslyn2</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
@@ -20,15 +21,15 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-preview-20170106-08" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0-beta5-build1225" />
-    <PackageReference Include="xunit" Version="2.2.0-beta5-build3474" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="Moq" Version="4.6.38-alpha" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="2.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="2.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="2.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="2.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="2.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="2.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="2.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="2.3.2" />
     <PackageReference Include="System.Net.WebSockets" Version="4.0.0" />
   </ItemGroup>
 

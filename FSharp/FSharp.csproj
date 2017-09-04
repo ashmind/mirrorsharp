@@ -4,13 +4,14 @@
   <PropertyGroup>
     <AssemblyName>MirrorSharp.FSharp</AssemblyName>
     <RootNamespace>MirrorSharp.FSharp</RootNamespace>
+    <LangVersion>7.1</LangVersion>
     <TargetFrameworks>net46</TargetFrameworks>
     <VersionPrefix>0.9.0</VersionPrefix>
     <Description>MirrorSharp F# support library. $(DescriptionSuffix)</Description>
     <PackageTags>F#;CodeMirror</PackageTags>
     <DocumentationFile>$(OutDir)\MirrorSharp.FSharp.xml</DocumentationFile>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>

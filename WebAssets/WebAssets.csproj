@@ -6,5 +6,4 @@
     <PackageId>MirrorSharp.WebAssets</PackageId>
     <RootNamespace>MirrorSharp.WebAssets</RootNamespace>
   </PropertyGroup>
-
 </Project>

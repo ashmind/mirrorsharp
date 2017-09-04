@@ -1,27 +1,48 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Host.Mef;
+using Microsoft.CodeAnalysis.Options;
 using TypeInfo = System.Reflection.TypeInfo;
 
 namespace MirrorSharp.Internal.Reflection {
     internal static class RoslynReflectionFast {
+        private static readonly BindingFlags DefaultInstanceBindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
+
         // Roslyn v2
         private static readonly Func<CodeAction, bool> _getIsInlinable =
             RoslynTypes.CodeAction
-                .GetProperty("IsInlinable", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+                .GetProperty("IsInlinable", DefaultInstanceBindingFlags)
                 ?.GetMethod.CreateDelegate<Func<CodeAction, bool>>();
 
         private static readonly Func<CodeAction, ImmutableArray<CodeAction>> _getNestedCodeActions =
             RoslynTypes.CodeAction
-                .GetProperty("NestedCodeActions", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+                .GetProperty("NestedCodeActions", DefaultInstanceBindingFlags)
                 ?.GetMethod.CreateDelegate<Func<CodeAction, ImmutableArray<CodeAction>>>();
-        
+
+        private static readonly Func<AnalyzerOptions, OptionSet, Solution, AnalyzerOptions> _newWorkspaceAnalyzerOptions
+            = BuildDelegateForConstructorSlow<Func<AnalyzerOptions, OptionSet, Solution, AnalyzerOptions>>(
+                  RoslynTypes.WorkspaceAnalyzerOptions
+                      .GetConstructors(DefaultInstanceBindingFlags)
+                      .FirstOrDefault()
+              );
+
+        private static readonly Func<object, OptionSet> _newWorkspaceOptionSet
+            = BuildDelegateForConstructorSlow<Func<object, OptionSet>>(
+                  RoslynTypes.WorkspaceOptionSet
+                      .GetConstructors(DefaultInstanceBindingFlags)
+                      .FirstOrDefault(c => c.GetParameters().Length == 1)
+              );
+
         public static bool IsInlinable(CodeAction action) => _getIsInlinable(action);
         public static ImmutableArray<CodeAction> GetNestedCodeActions(CodeAction action) => _getNestedCodeActions(action);
 
@@ -61,6 +82,13 @@ namespace MirrorSharp.Internal.Reflection {
             }
         }
 
+        [NotNull]
+        public static OptionSet NewWorkspaceOptionSet() => _newWorkspaceOptionSet(null);
+
+        [NotNull]
+        public static AnalyzerOptions NewWorkspaceAnalyzerOptions(AnalyzerOptions options, OptionSet optionSet, Solution solution) =>
+            _newWorkspaceAnalyzerOptions(options, optionSet, solution);
+
         private static TMemberInfo EnsureFound<TMemberInfo>(TypeInfo type, string name, Func<TypeInfo, string, TMemberInfo> getMember) {
             var member = getMember(type, name);
             if (member == null)
@@ -70,6 +98,28 @@ namespace MirrorSharp.Internal.Reflection {
 
         private static TDelegate CreateDelegate<TDelegate>(this MethodInfo method) {
             return (TDelegate)(object)method.CreateDelegate(typeof(TDelegate));
+        }
+
+        private static TFunc BuildDelegateForConstructorSlow<TFunc>(ConstructorInfo constructor) {            
+            var parameterTypes = typeof(TFunc).GetTypeInfo().GetGenericArguments();
+            var delegateParameters = parameterTypes
+                .Take(parameterTypes.Length - 1)
+                .Select(Expression.Parameter)
+                .ToList();
+            var constructorParameters = constructor.GetParameters();
+            var arguments = delegateParameters
+                .Zip(constructorParameters, (delegateParameter, constructorParameter) => (delegateParameter, constructorParameter))
+                .Select(x => {
+                    if (x.delegateParameter.Type == x.constructorParameter.ParameterType)
+                        return (Expression)x.delegateParameter;
+                    return x.delegateParameter.Convert(x.constructorParameter.ParameterType);
+                });
+
+            return (TFunc)(object)Expression.Lambda(
+                typeof(TFunc),
+                Expression.New(constructor, arguments),
+                delegateParameters
+            ).Compile();
         }
     }
 }

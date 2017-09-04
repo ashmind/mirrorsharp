@@ -1,9 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
     <AssemblyName>MirrorSharp.Tests.Roslyn2.Net46</AssemblyName>
     <RootNamespace>MirrorSharp.Tests</RootNamespace>
+    <LangVersion>7.1</LangVersion>
+    <TargetFramework>net46</TargetFramework>
+    <RuntimeIdentifier Condition="'$(TargetFramework)' == 'net46'">win</RuntimeIdentifier>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -18,14 +20,14 @@
   
   <ItemGroup>
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
-    <PackageReference Include="xunit" Version="2.2.0-beta5-build3474" />
+    <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="Moq" Version="4.6.38-alpha" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="2.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="2.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="2.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="2.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="2.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="2.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="2.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="2.3.2" />
     <PackageReference Include="System.Net.WebSockets" Version="4.0.0" />
   </ItemGroup>
   

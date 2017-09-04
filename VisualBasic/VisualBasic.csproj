@@ -4,8 +4,9 @@
   <PropertyGroup>
     <AssemblyName>MirrorSharp.VisualBasic</AssemblyName>
     <RootNamespace>MirrorSharp.VisualBasic</RootNamespace>
+    <LangVersion>7.1</LangVersion>
     <TargetFrameworks>netstandard1.5;net46</TargetFrameworks>
-    <VersionPrefix>0.9.0</VersionPrefix>
+    <VersionPrefix>0.9.1-roslyn-2.3.2-1</VersionPrefix>
     <Description>MirrorSharp Visual Basic .NET support library. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;Visual Basic;CodeMirror</PackageTags>
     <DocumentationFile>$(OutDir)\MirrorSharp.VisualBasic.xml</DocumentationFile>
@@ -14,8 +15,8 @@
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="10.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="2.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="2.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="2.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="2.3.2" />
   </ItemGroup>
 
   <ItemGroup>

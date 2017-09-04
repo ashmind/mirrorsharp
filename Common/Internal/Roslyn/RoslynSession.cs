@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Host.Mef;
+using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Abstraction;
@@ -17,6 +18,9 @@ using MirrorSharp.Internal.Reflection;
 
 namespace MirrorSharp.Internal.Roslyn {
     internal class RoslynSession : ILanguageSessionInternal, IRoslynSession {
+        private static AnalyzerOptions EmptyAnalyzerOptions = new AnalyzerOptions(ImmutableArray<AdditionalText>.Empty);
+        private static OptionSet EmptyOptionSet = RoslynReflectionFast.NewWorkspaceOptionSet();
+
         private static readonly TextChange[] NoTextChanges = new TextChange[0];
 
         private readonly TextChange[] _oneTextChange = new TextChange[1];
@@ -25,6 +29,9 @@ namespace MirrorSharp.Internal.Roslyn {
         private bool _documentOutOfDate;
         private Document _document;
         private SourceText _sourceText;
+
+        private Solution _lastWorkspaceAnalyzerOptionsSolution;
+        private AnalyzerOptions _workspaceAnalyzerOptions;
 
         private CompletionService _completionService;
 
@@ -65,7 +72,15 @@ namespace MirrorSharp.Internal.Roslyn {
 
         public async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(CancellationToken cancellationToken) {
             var compilation = await Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
-            return await compilation.WithAnalyzers(Analyzers).GetAllDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
+            var solution = Project.Solution;
+            if (_lastWorkspaceAnalyzerOptionsSolution != solution) {
+                _workspaceAnalyzerOptions = RoslynReflectionFast.NewWorkspaceAnalyzerOptions(EmptyAnalyzerOptions, EmptyOptionSet, solution);
+                _lastWorkspaceAnalyzerOptionsSolution = solution;
+            }
+
+            return await compilation.WithAnalyzers(Analyzers, _workspaceAnalyzerOptions, cancellationToken)
+                .GetAllDiagnosticsAsync(cancellationToken)
+                .ConfigureAwait(false);
         }
         
         public bool ShouldTriggerCompletion(int cursorPosition, CompletionTrigger trigger) {
