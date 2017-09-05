@@ -172,7 +172,7 @@ namespace MirrorSharp.FSharp.Internal {
 
         public bool ShouldTriggerCompletion(int cursorPosition, CompletionTrigger trigger) {
             return (trigger.Kind == CompletionTriggerKind.Insertion && trigger.Character == '.')
-                || trigger.Kind == CompletionTriggerKind.Other;
+                || trigger.Kind == CompletionTriggerKind.Invoke;
         }
 
         public async Task<CompletionList> GetCompletionsAsync(int cursorPosition, CompletionTrigger trigger, CancellationToken cancellationToken) {
