@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.FSharp.Compiler.SourceCodeServices;
 using MirrorSharp.FSharp.Advanced;
 using Xunit;
@@ -100,6 +100,7 @@ namespace MirrorSharp.Tests {
                 false,
                 false,
                 DateTime.MinValue,
+                null,
                 null,
                 null,
                 null

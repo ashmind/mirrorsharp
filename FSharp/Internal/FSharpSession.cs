@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
@@ -28,13 +28,13 @@ namespace MirrorSharp.FSharp.Internal {
                 null,
                 keepAssemblyContents: true,
                 keepAllBackgroundResolutions: true,
-                msbuildEnabled: false
+                legacyReferenceResolver: null
             );
             AssemblyReferencePaths = options.AssemblyReferencePaths;
             AssemblyReferencePathsAsFSharpList = ToFSharpList(options.AssemblyReferencePaths);
             ProjectOptions = new FSharpProjectOptions(
                 "_",
-                projectFileNames: new[] { "_.fs" },
+                sourceFiles: new[] { "_.fs" },
                 otherOptions: ConvertToOtherOptions(options),
                 referencedProjects: Array.Empty<Tuple<string, FSharpProjectOptions>>(),
                 isIncompleteTypeCheckEnvironment: true,
@@ -42,7 +42,8 @@ namespace MirrorSharp.FSharp.Internal {
                 loadTime: DateTime.Now,
                 unresolvedReferences: null,
                 originalLoadReferences: FSharpList<Tuple<Range.range, string>>.Empty, 
-                extraProjectInfo: null
+                extraProjectInfo: null,
+                stamp: null
             );
         }
 
@@ -105,7 +106,7 @@ namespace MirrorSharp.FSharp.Internal {
                 return _lastParseAndCheck;
 
             var tuple = await FSharpAsync.StartAsTask(
-                Checker.ParseAndCheckFileInProject("_.fs", 0, _text, ProjectOptions, null), null, cancellationToken
+                Checker.ParseAndCheckFileInProject("_.fs", 0, _text, ProjectOptions, null, null), null, cancellationToken
             ).ConfigureAwait(false);
 
             _lastParseAndCheck = new FSharpParseAndCheckResults(tuple.Item1, tuple.Item2);
@@ -185,7 +186,7 @@ namespace MirrorSharp.FSharp.Internal {
                 result.ParseResults, info.line.Number, info.column,
                 _text.Substring(info.line.Start, info.line.Length),
                 FSharpList<string>.Empty,
-                "", null
+                "", null, null
             ), null, cancellationToken);
             if (symbols.IsEmpty)
                 return null;

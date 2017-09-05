@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.FSharp.Compiler.SourceCodeServices;
@@ -102,7 +102,7 @@ namespace MirrorSharp.FSharp.Advanced {
 
             return new FSharpProjectOptions(
                 options.ProjectFileName,
-                options.ProjectFileNames,
+                options.SourceFiles,
                 otherOptions,
                 options.ReferencedProjects,
                 options.IsIncompleteTypeCheckEnvironment,
@@ -110,7 +110,8 @@ namespace MirrorSharp.FSharp.Advanced {
                 options.LoadTime,
                 options.UnresolvedReferences,
                 options.OriginalLoadReferences,
-                options.ExtraProjectInfo
+                options.ExtraProjectInfo,
+                options.Stamp
             );
         }
 

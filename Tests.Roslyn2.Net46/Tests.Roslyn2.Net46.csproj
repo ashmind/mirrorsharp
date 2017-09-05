@@ -20,7 +20,7 @@
   <ItemGroup>
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
     <PackageReference Include="xunit" Version="2.2.0" />
-    <PackageReference Include="Moq" Version="4.6.38-alpha" />
+    <PackageReference Include="Moq" Version="4.7.99" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.3.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.3.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="2.3.2" />
@@ -36,6 +36,4 @@
     <ProjectReference Include="..\Testing\Testing.csproj" />
     <ProjectReference Include="..\VisualBasic\VisualBasic.csproj" />
   </ItemGroup>
-  
-  <Import Project="../FSharp/FSharpCore.targets" />
 </Project>
