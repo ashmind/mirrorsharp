@@ -8,7 +8,8 @@
           'codemirror-addon-lint-fix',
           'codemirror/addon/hint/show-hint',
           'codemirror/mode/clike/clike',
-          'codemirror/mode/vb/vb'
+          'codemirror/mode/vb/vb',
+          'codemirror/mode/php/php'
         ], factory);
     }
     else if (typeof module === 'object' && module.exports) {
@@ -17,7 +18,8 @@
           require('codemirror-addon-lint-fix'),
           require('codemirror/addon/hint/show-hint'),
           require('codemirror/mode/clike/clike'),
-          require('codemirror/mode/vb/vb')
+          require('codemirror/mode/vb/vb'),
+          require('codemirror/mode/php/php')
         );
     }
     else {
@@ -436,7 +438,8 @@
         const languageModes = {
             'C#': 'text/x-csharp',
             'Visual Basic': 'text/x-vb',
-            'F#': 'text/x-fsharp'
+            'F#': 'text/x-fsharp',
+            'PHP': 'application/x-httpd-php'
         };
 
         var language;
