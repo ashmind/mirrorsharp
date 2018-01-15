@@ -20,6 +20,25 @@ namespace MirrorSharp.Php.Internal
         private const string AssemblyName = "app";
         private const string ScriptFileName = "index.php";
 
+        /// <summary>Helper base compilation object used to cache the parsed references.</summary>
+        private static PhpCompilation CoreCompilation { get; }
+
+        static PhpSession() {
+            CoreCompilation = PhpCompilation.Create(
+                assemblyName: AssemblyName,
+                syntaxTrees: null,
+                references: MirrorSharpPhpOptions.AssemblyReferencePaths.Select(path => PeachpieRoslyn.MetadataReference.CreateFromFile(path)),
+                options: new PhpCompilationOptions(
+                    outputKind: PeachpieRoslyn.OutputKind.ConsoleApplication,
+                    baseDirectory: Environment.CurrentDirectory,
+                    sdkDirectory: null
+                )
+            );
+
+            // Bind reference manager, cache all references
+            var hlp = CoreCompilation.Assembly;
+        }
+
         private string _text;
         private MirrorSharpPhpOptions _options;
 
@@ -28,16 +47,11 @@ namespace MirrorSharp.Php.Internal
             _options = options;
 
             var syntaxTree = PhpSyntaxTree.ParseCode(text, PhpParseOptions.Default, PhpParseOptions.Default, ScriptFileName);
-            Compilation = PhpCompilation.Create(
-                assemblyName: AssemblyName,
-                syntaxTrees: new[] { syntaxTree },
-                references: options.AssemblyReferencePaths.Select(path => PeachpieRoslyn.MetadataReference.CreateFromFile(path)),
-                options: new PhpCompilationOptions(
-                    outputKind: PeachpieRoslyn.OutputKind.ConsoleApplication, // TODO: Store in MirrorSharpPhpOptions
-                    baseDirectory: Environment.CurrentDirectory,
-                    sdkDirectory: null
-                )
-            );
+            Compilation = (PhpCompilation)CoreCompilation.AddSyntaxTrees(syntaxTree);
+
+            if (options.Debug == false) {
+                Compilation = Compilation.WithPhpOptions(Compilation.Options.WithOptimizationLevel(PeachpieRoslyn.OptimizationLevel.Release));
+            }
         }
 
         public PhpCompilation Compilation { get; set; }
