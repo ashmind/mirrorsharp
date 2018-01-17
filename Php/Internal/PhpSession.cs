@@ -26,7 +26,7 @@ namespace MirrorSharp.Php.Internal
         static PhpSession() {
             CoreCompilation = PhpCompilation.Create(
                 assemblyName: AssemblyName,
-                syntaxTrees: null,
+                syntaxTrees: ImmutableArray<PhpSyntaxTree>.Empty,
                 references: MirrorSharpPhpOptions.AssemblyReferencePaths.Select(path => PeachpieRoslyn.MetadataReference.CreateFromFile(path)),
                 options: new PhpCompilationOptions(
                     outputKind: PeachpieRoslyn.OutputKind.ConsoleApplication,
