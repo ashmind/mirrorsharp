@@ -5,8 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace MirrorSharp.Php.Advanced
-{
+namespace MirrorSharp.Php.Advanced {
     /// <summary>Provides the conversion from certain types in the fork of Roslyn used in Peachpie to the standard Roslyn.</summary>
     [PublicAPI]
     public static class RoslynTypesExtensions {

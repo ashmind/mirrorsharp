@@ -14,8 +14,7 @@ using MirrorSharp.Internal.Abstraction;
 using MirrorSharp.Php.Advanced;
 using Pchp.CodeAnalysis;
 
-namespace MirrorSharp.Php.Internal
-{
+namespace MirrorSharp.Php.Internal {
     internal class PhpSession : ILanguageSessionInternal, IPhpSession {
         private const string AssemblyName = "app";
         private const string ScriptFileName = "index.php";
@@ -75,7 +74,7 @@ namespace MirrorSharp.Php.Internal
                     .Select(diagnostic => diagnostic.ToStandardRoslyn())
                     .ToImmutableArray();
             } else {
-                return (await Compilation.BindAndAnalyseTask())
+                return (await Compilation.BindAndAnalyseTask().ConfigureAwait(false))
                     .Select(diagnostic => diagnostic.ToStandardRoslyn())
                     .ToImmutableArray();
             }

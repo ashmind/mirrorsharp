@@ -4,8 +4,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 
-namespace MirrorSharp.Php
-{
+namespace MirrorSharp.Php {
     /// <summary>MirrorSharp options for PHP</summary>
     [PublicAPI]
     public class MirrorSharpPhpOptions {
@@ -29,7 +28,7 @@ namespace MirrorSharp.Php
             var list = refKnownTypes.Select(type => type.GetTypeInfo().Assembly).Distinct().ToList();
             var set = new HashSet<Assembly>(list);
 
-            for (int i = 0; i < list.Count; i++) {
+            for (var i = 0; i < list.Count; i++) {
                 var assembly = list[i];
                 var refs = assembly.GetReferencedAssemblies();
                 foreach (var refname in refs) {

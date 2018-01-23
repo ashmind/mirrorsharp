@@ -1,7 +1,6 @@
 using MirrorSharp.Internal.Abstraction;
 
-namespace MirrorSharp.Php.Internal
-{
+namespace MirrorSharp.Php.Internal {
     internal class PhpLanguage : ILanguage {
         public const string Name = "PHP";
 
