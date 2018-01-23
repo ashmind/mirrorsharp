@@ -33,7 +33,16 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\FSharp\FSharp.csproj" />
+    <ProjectReference Include="..\Php\Php.csproj" />
     <ProjectReference Include="..\Testing\Testing.csproj" />
     <ProjectReference Include="..\VisualBasic\VisualBasic.csproj" />
   </ItemGroup>
+
+  <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
+    <ItemGroup>
+      <ReferencePath Condition="'%(FileName)' == 'Peachpie.Microsoft.CodeAnalysis'">
+        <Aliases>peachpie</Aliases>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
 </Project>
