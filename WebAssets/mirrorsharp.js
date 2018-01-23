@@ -18,8 +18,7 @@
           require('codemirror-addon-lint-fix'),
           require('codemirror/addon/hint/show-hint'),
           require('codemirror/mode/clike/clike'),
-          require('codemirror/mode/vb/vb'),
-          require('codemirror/mode/php/php')
+          require('codemirror/mode/vb/vb')
         );
     }
     else {
