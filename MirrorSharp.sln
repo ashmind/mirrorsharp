@@ -30,6 +30,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		NuGet.Common.props = NuGet.Common.props
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Php", "Php\Php.csproj", "{C40A0924-7A1C-4488-ADF1-3B57ACEFD892}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Tests.Shared\MirrorSharp.Tests.Shared.projitems*{0a9078a1-bd26-4dc7-87bb-ded125f6218b}*SharedItemsImports = 13
@@ -77,6 +79,10 @@ Global
 		{C8076D77-4C5A-450E-AF3F-9E37A8B512D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8076D77-4C5A-450E-AF3F-9E37A8B512D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8076D77-4C5A-450E-AF3F-9E37A8B512D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C40A0924-7A1C-4488-ADF1-3B57ACEFD892}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C40A0924-7A1C-4488-ADF1-3B57ACEFD892}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C40A0924-7A1C-4488-ADF1-3B57ACEFD892}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C40A0924-7A1C-4488-ADF1-3B57ACEFD892}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
