@@ -5,7 +5,7 @@
     <AssemblyName>MirrorSharp.Testing</AssemblyName>
     <RootNamespace>MirrorSharp.Testing</RootNamespace>
     <TargetFrameworks>netstandard1.5;net46</TargetFrameworks>
-    <VersionPrefix>0.9.2</VersionPrefix>
+    <VersionPrefix>0.9.3</VersionPrefix>
     <Description>MirrorSharp testing helpers. $(DescriptionSuffix)</Description>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.5' ">$(PackageTargetFallback);dnxcore50;portable-net45+win8+wp8+wpa81;portable-net45+win8</PackageTargetFallback>
   </PropertyGroup>

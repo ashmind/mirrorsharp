@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections.Immutable;
 using System.IO;
@@ -148,7 +148,7 @@ namespace MirrorSharp.Internal {
                 return;
             }
 
-            if (@char < 256) {
+            if (@char < 128) {
                 WriteRawByte((byte)@char);
                 return;
             }

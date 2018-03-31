@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Text;
 using Xunit;
 using MirrorSharp.Internal;
@@ -16,18 +16,19 @@ namespace MirrorSharp.Tests {
         }
 
         [Theory]
-        [InlineData("a\nb", @"""a\nb""")]
-        [InlineData("a\"b", @"""a\""b""")]
-        [InlineData("a\\b", @"""a\\b""")]
-        [InlineData("a\0b", @"""a\u0000b""")]
-        [InlineData("a❀b", @"""a❀b""")]
-        [InlineData("a🌄b", @"""a🌄b""")]
+        [InlineData("a\nb", "a\\nb")]
+        [InlineData("a\"b", @"a\""b")]
+        [InlineData("a\\b", "a\\\\b")]
+        [InlineData("a\0b", "a\\u0000b")]
+        [InlineData("aÀb", "aÀb")]
+        [InlineData("a❀b", "a❀b")]
+        [InlineData("a🌄b", "a🌄b")]
         public void WriteValue_WritesString(string input, string expected) {
             var writer = CreateWriter();
             writer.WriteValue(input);
 
             var result = GetWrittenAsString(writer);
-            Assert.Equal(expected, result);
+            Assert.Equal('"' + expected + '"', result);
         }
 
         [Fact]
@@ -41,18 +42,21 @@ namespace MirrorSharp.Tests {
         }
 
         [Theory]
-        [InlineData('a',  @"""a""")]
-        [InlineData('\n', @"""\n""")]
-        [InlineData('\\', @"""\\""")]
-        [InlineData('❀', @"""❀""")]
+        [InlineData('a',  "a")]
+        [InlineData('\n', "\\n")]
+        [InlineData('\\', "\\\\")]
+        [InlineData('❀', "❀")]
+        [InlineData('\u0080', "\u0080")]
+        [InlineData('\u00a0', "\u00a0")]
+        [InlineData('À', "À")]
         public void WriteValue_WritesChar(char input, string expected) {
             var writer = CreateWriter();
             writer.WriteValue(input);
 
             var result = GetWrittenAsString(writer);
-            Assert.Equal(expected, result);
+            Assert.Equal('"' + expected + '"', result);
         }
-
+        
         [Theory]
         [InlineData(-10)]
         [InlineData(-1)]
