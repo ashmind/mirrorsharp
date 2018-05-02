@@ -1,0 +1,22 @@
+{
+    "javascript.validate.enable": false,
+    "cSpell.ignorePaths": [
+        "**/node_modules/**",
+        "package-lock.json",
+        ".eslintrc.*"
+    ],
+    "cSpell.words": [
+        "Andrey",
+        "Cpath",
+        "Csvg",
+        "Shchekin",
+        "Typer",
+        "clike",
+        "codemirror",
+        "keysim",
+        "lintfix",
+        "mirrorsharp",
+        "outdent",
+        "xmlns"
+    ]
+}

@@ -35,26 +35,29 @@ class MockTextRange {
 }
 global.document.body.createTextRange = () => new MockTextRange();
 
-class TestTyper {
-    constructor(input, cursor) {
+class TestKeys {
+    constructor(input, getCursor) {
         this.input = input;
-        this.cursor = cursor || 0;
+        this.getCursor = getCursor;
     }
 
-    text(text) {
+    type(text) {
         const input = this.input;
         input.focus();
-        input.value = spliceString(input.value, this.cursor, 0, text);
-        this.cursor += text.length;
+        input.value = spliceString(input.value, this.getCursor(), 0, text);
         keyboard.dispatchEventsForInput(text, input);
     }
 
     backspace(count) {
         const input = this.input;
         for (let i = 0; i < count; i++) {
-            input.value = spliceString(input.value, this.cursor - 1, 1);
+            input.value = spliceString(input.value, this.getCursor() - 1, 1);
             keyboard.dispatchEventsForAction('backspace', this.input);
         }
+    }
+
+    press(keys) {
+        keyboard.dispatchEventsForAction(keys, this.input);
     }
 }
 
@@ -104,7 +107,7 @@ TestDriver.new = async options => {
     driver.socket.trigger('open');
     await driver.completeBackgroundWork();
     const input = cm.getWrapperElement().querySelector('textarea');
-    driver.type = new TestTyper(input, initial.cursor);
+    driver.keys = new TestKeys(input, () => cm.indexFromPos(cm.getCursor()));
     driver.receive = new TestReceiver(socket);
 
     jest.runOnlyPendingTimers();

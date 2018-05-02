@@ -483,6 +483,7 @@
         const cm = cmSource.cm;
 
         const keyMap = {
+            'Shift-Tab': 'indentLess',
             'Ctrl-Space': function() { connection.sendCompletionState('force'); },
             'Shift-Ctrl-Space': function() { connection.sendSignatureHelpState('force'); },
             'Ctrl-.': 'lintFixShow',
@@ -490,7 +491,7 @@
         };
         cm.addKeyMap(keyMap);
         // see https://github.com/codemirror/CodeMirror/blob/dbaf6a94f1ae50d387fa77893cf6b886988c2147/addon/lint/lint.js#L133
-        // ensures that next 'id' will be -1 whther a change happened or not
+        // ensures that next 'id' will be -1 whether a change happened or not
         cm.state.lint.waitingFor = -2;
         if (!cmSource.existing)
             setText(textarea.value);

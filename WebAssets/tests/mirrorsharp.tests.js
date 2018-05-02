@@ -9,7 +9,7 @@ describe('basic editing', () => {
         const driver = await TestDriver.new({ textWithCursor: '{d:f2}{d:f2}|' });
         const cm = driver.getCodeMirror();
 
-        driver.type.backspace('{d:f2}'.length);
+        driver.keys.backspace('{d:f2}'.length);
         cm.execCommand('undo');
         await driver.completeBackgroundWork();
 
@@ -18,14 +18,44 @@ describe('basic editing', () => {
     });
 });
 
+describe('hotkeys', () => {
+    test('Shift+Tab un-indents selected block', async () => {
+        const text = multiline(`
+        ┊    abc
+        ┊    def
+        ┊    fgh
+        `);
+        const driver = await TestDriver.new({ text });
+        const cm = driver.getCodeMirror();
+
+        driver.keys.press('ctrl+a');
+        driver.keys.press('shift+tab');
+
+        await driver.completeBackgroundWork();
+
+        expect(cm.getValue()).toEqual(multiline(`
+        ┊abc
+        ┊def
+        ┊fgh
+        `));
+    });
+});
+
 describe('produced events', () => {
     test('slowUpdateWait is triggered on first change', async () => {
         const slowUpdateWait = jest.fn();
         const driver = await TestDriver.new({ options: { on: { slowUpdateWait } } });
 
-        driver.type.text('x');
+        driver.keys.type('x');
         await driver.completeBackgroundWork();
 
         expect(slowUpdateWait.mock.calls).toEqual([[]]);
     });
 });
+
+function multiline(string) {
+    return string
+        .replace(/ *┊/g, '')
+        .replace(/\r?\n/g, '\r\n')
+        .trim();
+}
