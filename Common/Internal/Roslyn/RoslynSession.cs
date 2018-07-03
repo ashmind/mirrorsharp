@@ -19,7 +19,7 @@ using MirrorSharp.Internal.Reflection;
 namespace MirrorSharp.Internal.Roslyn {
     internal class RoslynSession : ILanguageSessionInternal, IRoslynSession {
         private static AnalyzerOptions EmptyAnalyzerOptions = new AnalyzerOptions(ImmutableArray<AdditionalText>.Empty);
-        private static OptionSet EmptyOptionSet = RoslynReflectionFast.NewWorkspaceOptionSet();
+        private static OptionSet EmptyOptionSet = RoslynReflection.NewWorkspaceOptionSet();
 
         private static readonly TextChange[] NoTextChanges = new TextChange[0];
 
@@ -35,7 +35,17 @@ namespace MirrorSharp.Internal.Roslyn {
 
         private CompletionService _completionService;
 
-        public RoslynSession(SourceText sourceText, ProjectInfo projectInfo, MefHostServices hostServices, ImmutableArray<DiagnosticAnalyzer> analyzers, ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> codeFixProviders, ImmutableArray<ISignatureHelpProviderWrapper> signatureHelpProviders) {
+        public RoslynSession(
+            SourceText sourceText,
+            ProjectInfo projectInfo,
+            MefHostServices hostServices,
+            ImmutableArray<DiagnosticAnalyzer> analyzers,
+            ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> codeFixProviders,
+            ImmutableArray<ISignatureHelpProviderWrapper> signatureHelpProviders
+            #if QUICKINFO
+            , ImmutableArray<IQuickInfoProviderWrapper> quickInfoProviders
+            #endif
+        ) {
             _workspace = new CustomWorkspace(hostServices);
             _sourceText = sourceText;
             _document = CreateProjectAndOpenNewDocument(_workspace, projectInfo, sourceText);
@@ -44,6 +54,9 @@ namespace MirrorSharp.Internal.Roslyn {
             Analyzers = analyzers;
             SignatureHelpProviders = signatureHelpProviders;
             CodeFixProviders = codeFixProviders;
+            #if QUICKINFO
+            QuickInfoProviders = quickInfoProviders;
+            #endif
         }
 
         private Document CreateProjectAndOpenNewDocument(Workspace workspace, ProjectInfo projectInfo, SourceText sourceText) {
@@ -74,7 +87,7 @@ namespace MirrorSharp.Internal.Roslyn {
             var compilation = await Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
             var solution = Project.Solution;
             if (_lastWorkspaceAnalyzerOptionsSolution != solution) {
-                _workspaceAnalyzerOptions = RoslynReflectionFast.NewWorkspaceAnalyzerOptions(EmptyAnalyzerOptions, EmptyOptionSet, solution);
+                _workspaceAnalyzerOptions = RoslynReflection.NewWorkspaceAnalyzerOptions(EmptyAnalyzerOptions, EmptyOptionSet, solution);
                 _lastWorkspaceAnalyzerOptionsSolution = solution;
             }
 
@@ -140,6 +153,9 @@ namespace MirrorSharp.Internal.Roslyn {
         public ImmutableArray<DiagnosticAnalyzer> Analyzers { get; }
         public ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CodeFixProviders { get; }
         public ImmutableArray<ISignatureHelpProviderWrapper> SignatureHelpProviders { get; }
+        #if QUICKINFO
+        public ImmutableArray<IQuickInfoProviderWrapper> QuickInfoProviders { get; }
+        #endif
 
         public void SetScriptMode(bool isScript = true, Type hostObjectType = null) {
             RoslynScriptHelper.Validate(isScript, hostObjectType);

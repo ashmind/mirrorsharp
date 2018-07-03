@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MirrorSharp.Advanced;
@@ -10,7 +10,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         public Task ApplyCursorPositionChangeAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             if (!session.IsRoslyn)
                 return TaskEx.CompletedTask;
-            
+
             var currentHelp = session.Roslyn.CurrentSignatureHelp;
             if (currentHelp == null)
                 return TaskEx.CompletedTask;

@@ -9,8 +9,9 @@
     <Description>MirrorSharp shared server library. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;CodeMirror</PackageTags>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.5' ">$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;portable-net45+win8</PackageTargetFallback>
+    <DocumentationFile>$(OutDir)\MirrorSharp.Common.xml</DocumentationFile>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="10.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.3.2" />
@@ -21,17 +22,17 @@
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.3.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
-    <PackageReference Include="System.Net.WebSockets" Version="4.0.0" />
-    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
-  </ItemGroup>
-
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
     <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <DocumentationFile>$(OutDir)\MirrorSharp.Common.xml</DocumentationFile>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
+    <PackageReference Include="System.Net.WebSockets" Version="4.0.0" />
+    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+  </ItemGroup>
+  
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net46' ">
+    <DefineConstants>$(DefineConstants);QUICKINFO</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard1.5|AnyCPU'">
@@ -43,6 +44,7 @@
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
+    <PackageReference Include="Microsoft.CodeAnalysis.EditorFeatures" Version="2.3.2" />
   </ItemGroup>
 
 </Project>

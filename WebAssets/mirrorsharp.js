@@ -220,6 +220,10 @@
             return sendWhenOpen('P' + stateCommandMap[command]);
         };
 
+        this.sendRequestInfoTip = function(cursorIndex) {
+            return sendWhenOpen('I' + cursorIndex);
+        };
+
         this.sendSlowUpdate = function() {
             return sendWhenOpen('U');
         };
@@ -431,6 +435,12 @@
         this.hide = hide;
     }
 
+    function InfoTipRenderer() {
+        this.render = function(info) {
+            return info.toString();
+        };
+    }
+
     function Editor(textarea, connection, selfDebug, options) {
         const lineSeparator = '\r\n';
         const defaultLanguage = 'C#';
@@ -460,7 +470,8 @@
             lineSeparator: lineSeparator,
             mode: languageModes[options.language],
             lint: { async: true, getAnnotations: lintGetAnnotations },
-            lintFix: { getFixes: getFixes }
+            lintFix: { getFixes: getFixes },
+            infotip: { getInfo: infotipGetInfo }
         });
         cmOptions.gutters.push('CodeMirror-lint-markers');
 
@@ -506,6 +517,7 @@
 
         const hinter = new Hinter(cm, connection);
         const signatureTip = new SignatureTip(cm);
+        const infoTipRenderer = new InfoTipRenderer(cm);
         const removeConnectionEvents = addEvents(connection, {
            open: function (e) {
                 hideConnectionLoss();
@@ -626,6 +638,14 @@
                     signatureTip.update(message.signatures, message.span);
                     break;
 
+                case 'infotip':
+                    cm.infotipUpdate({
+                        info: message.info,
+                        html: infoTipRenderer.render(message.info),
+                        range: spanToRange(message.span)
+                    });
+                    break;
+
                 case 'slowUpdate':
                     showSlowUpdate(message);
                     break;
@@ -704,6 +724,11 @@
             connection.sendApplyDiagnosticAction(fix.id);
         }
 
+        // eslint-disable-next-line no-shadow
+        function infotipGetInfo(cm, position) {
+            connection.sendRequestInfoTip(cm.indexFromPos(position));
+        }
+
         function requestSlowUpdate(force) {
             if (lintingSuspended || !(hadChangesSinceLastLinting || force))
                 return null;
@@ -723,11 +748,12 @@
                     severity = 'unnecessary';
                 }
 
+                var range = spanToRange(diagnostic.span);
                 annotations.push({
                     severity: severity,
                     message: diagnostic.message,
-                    from: cm.posFromIndex(diagnostic.span.start),
-                    to: cm.posFromIndex(diagnostic.span.start + diagnostic.span.length),
+                    from: range.from,
+                    to: range.to,
                     diagnostic: diagnostic
                 });
             }
@@ -767,6 +793,13 @@
                 language = value.language;
                 cm.setOption('mode', languageModes[language]);
             }
+        }
+
+        function spanToRange(span) {
+            return {
+                from: cm.posFromIndex(span.start),
+                to: cm.posFromIndex(span.start + span.length)
+            };
         }
 
         function destroy(destroyOptions) {

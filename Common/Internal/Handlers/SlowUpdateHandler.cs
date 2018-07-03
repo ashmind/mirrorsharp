@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -82,8 +82,8 @@ namespace MirrorSharp.Internal.Handlers {
                 if (action is CodeActionWithOptions)
                     continue;
 
-                if (RoslynReflectionFast.IsInlinable(action)) {
-                    WriteActions(writer, RoslynReflectionFast.GetNestedCodeActions(action), session);
+                if (RoslynReflection.IsInlinable(action)) {
+                    WriteActions(writer, RoslynReflection.GetNestedCodeActions(action), session);
                     continue;
                 }
                 var id = roslynSession.CurrentCodeActions.Count;

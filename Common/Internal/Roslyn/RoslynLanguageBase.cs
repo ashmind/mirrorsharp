@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Composition;
+using System.Composition.Hosting;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -18,6 +21,9 @@ namespace MirrorSharp.Internal.Roslyn {
         private readonly IRoslynLanguageOptions _options;
         private readonly MefHostServices _hostServices;
         private readonly ImmutableArray<ISignatureHelpProviderWrapper> _defaultSignatureHelpProviders;
+        #if QUICKINFO
+        private readonly ImmutableArray<IQuickInfoProviderWrapper> _defaultQuickInfoProviders;
+        #endif
         private readonly ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> _defaultCodeFixProvidersIndexedByDiagnosticIds;
         private readonly ImmutableArray<DiagnosticAnalyzer> _defaultAnalyzers;
         private readonly ImmutableList<AnalyzerReference> _defaultAnalyzerReferences;
@@ -26,26 +32,41 @@ namespace MirrorSharp.Internal.Roslyn {
             [NotNull] string name,
             [NotNull] string featuresAssemblyName,
             [NotNull] string workspacesAssemblyName,
+            [NotNull] string editorFeaturesAssemblyName,
             [NotNull] IRoslynLanguageOptions options
         ) {
-            // ReSharper disable HeapView.BoxingAllocation
             Name = name;
-            _hostServices = MefHostServices.Create(new[] {
-                Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.Workspaces")),
-                Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.Features")),
-                Assembly.Load(new AssemblyName(featuresAssemblyName)),
-                Assembly.Load(new AssemblyName(workspacesAssemblyName)),
-            });
+            _hostServices = CreateHostServices(featuresAssemblyName, workspacesAssemblyName, editorFeaturesAssemblyName);
+
             _options = options;
             _defaultAnalyzerReferences = ImmutableList.Create<AnalyzerReference>(
                 CreateAnalyzerReference(featuresAssemblyName)
             );
-            _defaultCodeFixProvidersIndexedByDiagnosticIds = CreateDefaultCodeFixProviders();
+            _defaultCodeFixProvidersIndexedByDiagnosticIds = CreateDefaultCodeFixProvidersSlow();
             _defaultAnalyzers = ImmutableArray.CreateRange(
                 _defaultAnalyzerReferences.SelectMany(r => r.GetAnalyzers(Name))
             );
-            _defaultSignatureHelpProviders = CreateDefaultSignatureHelpProviders();
-            // ReSharper restore HeapView.BoxingAllocation
+            _defaultSignatureHelpProviders = CreateDefaultSignatureHelpProvidersSlow();
+            #if QUICKINFO
+            _defaultQuickInfoProviders = CreateDefaultQuickInfoProvidersSlow();
+            #endif
+        }
+
+        private static MefHostServices CreateHostServices(string featuresAssemblyName, string workspacesAssemblyName, string editorFeaturesAssemblyName) {
+            var configuration = new ContainerConfiguration().WithAssemblies(new[] {
+                RoslynAssemblies.MicrosoftCodeAnalysisWorkspaces,
+                RoslynAssemblies.MicrosoftCodeAnalysisFeatures,
+                Assembly.Load(new AssemblyName(featuresAssemblyName)),
+                Assembly.Load(new AssemblyName(workspacesAssemblyName))
+            });
+            #if QUICKINFO
+            var editorFeaturesAssembly = Assembly.Load(new AssemblyName(editorFeaturesAssemblyName));
+            configuration = configuration.WithParts(
+                RoslynReflection.GetEditorFeaturesTypesWithExportsSafeSlow(editorFeaturesAssembly),
+                new SlowExportAttributeMappingModelProvider()
+            );
+            #endif
+            return MefHostServices.Create(configuration.CreateContainer());
         }
 
         public string Name { get; }
@@ -70,18 +91,31 @@ namespace MirrorSharp.Internal.Roslyn {
                 _defaultAnalyzers,
                 _defaultCodeFixProvidersIndexedByDiagnosticIds,
                 _defaultSignatureHelpProviders
+                #if QUICKINFO
+                ,_defaultQuickInfoProviders
+                #endif
             );
         }
 
-        private ImmutableArray<ISignatureHelpProviderWrapper> CreateDefaultSignatureHelpProviders() {
+        private ImmutableArray<ISignatureHelpProviderWrapper> CreateDefaultSignatureHelpProvidersSlow() {
             return ImmutableArray.CreateRange(
-                RoslynReflectionFast.GetSignatureHelpProvidersSlow(_hostServices)
+                RoslynReflection.GetSignatureHelpProvidersSlow(_hostServices)
                     .Where(l => l.Metadata.Language == Name)
                     .Select(l => l.Value)
             );
         }
 
-        private ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CreateDefaultCodeFixProviders() {
+        #if QUICKINFO
+        private ImmutableArray<IQuickInfoProviderWrapper> CreateDefaultQuickInfoProvidersSlow() {
+            return ImmutableArray.CreateRange(
+                RoslynReflection.GetQuickInfoProvidersSlow(_hostServices)
+                    .Where(l => l.Metadata.Language == Name)
+                    .Select(l => l.Value)
+            );
+        }
+        #endif
+
+        private ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CreateDefaultCodeFixProvidersSlow() {
             var codeFixProviderTypes = _defaultAnalyzerReferences
                 .OfType<AnalyzerFileReference>()
                 .Select(a => a.GetAssembly())

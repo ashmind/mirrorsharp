@@ -6,6 +6,7 @@ namespace MirrorSharp.Internal.Roslyn {
             LanguageNames.CSharp,
             "Microsoft.CodeAnalysis.CSharp.Features",
             "Microsoft.CodeAnalysis.CSharp.Workspaces",
+            "Microsoft.CodeAnalysis.CSharp.EditorFeatures",
             options
         ) {
         }
