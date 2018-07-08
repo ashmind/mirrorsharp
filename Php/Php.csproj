@@ -16,8 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Peachpie.CodeAnalysis" Version="0.9.0-*" />
-    <PackageReference Include="Peachpie.App" Version="0.9.0-*" />
+    <PackageReference Include="Peachpie.CodeAnalysis" Version="0.9.0-CI00916" />
+    <PackageReference Include="Peachpie.App" Version="0.9.0-CI00916" />
   </ItemGroup>
 
   <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
