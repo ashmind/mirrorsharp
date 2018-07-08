@@ -156,9 +156,9 @@
 
 .mirrorsharp-signature-tooltip {
     position: absolute;
+    z-index: 1000;
     margin-top: 2px;
     font-size: 80%;
-    opacity: 0.7;
     background: #eee;
     border: 1px solid silver;
     border-radius: 3px;
