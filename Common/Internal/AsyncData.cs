@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 
 namespace MirrorSharp.Internal {
@@ -25,5 +25,11 @@ namespace MirrorSharp.Internal {
         public bool MightHaveNext { get; }
 
         public Task<ArraySegment<byte>?> GetNextAsync() => _getNextAsync();
+
+        public AsyncData WithNewFirst(ArraySegment<byte> newFirst) {
+            if (_getNextCalled)
+                throw new InvalidOperationException();
+            return new AsyncData(newFirst, MightHaveNext, _getNextAsync);
+        }
     }
 }

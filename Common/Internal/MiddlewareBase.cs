@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net.WebSockets;
@@ -42,6 +42,7 @@ namespace MirrorSharp.Internal {
             return new ICommandHandler[] {
                 new ApplyDiagnosticActionHandler(),
                 new CompletionStateHandler(completion),
+                new ExtensionCommandHandler((IReadOnlyCollection<ICommandExtension>)_options.Extensions),
                 new MoveCursorHandler(signatureHelp),
                 new ReplaceTextHandler(signatureHelp, completion, typedCharEffects, ArrayPool<char>.Shared),
                 new RequestSelfDebugDataHandler(),

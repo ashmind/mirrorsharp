@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
@@ -27,6 +27,8 @@ namespace MirrorSharp {
 
         /// <summary>Defines a <see cref="ISlowUpdateExtension" /> used to extend periodic processing.</summary>
         [CanBeNull] public ISlowUpdateExtension SlowUpdate { get; set; }
+
+        [NotNull] internal IList<ICommandExtension> Extensions { get; } = new List<ICommandExtension>();
 
         /// <summary>Defines a <see cref="IExceptionLogger" /> called for any unhandled exception.</summary>
         public IExceptionLogger ExceptionLogger { get; set; }

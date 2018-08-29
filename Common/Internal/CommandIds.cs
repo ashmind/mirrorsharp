@@ -1,4 +1,4 @@
-﻿namespace MirrorSharp.Internal {
+namespace MirrorSharp.Internal {
     internal static class CommandIds {
         public const char ApplyDiagnosticAction = 'F';
         public const char CompletionState = 'S';
@@ -9,5 +9,6 @@
         public const char SignatureHelpState = 'P';
         public const char SlowUpdate = 'U';
         public const char TypeChar = 'C';
+        public const char ExtensionCommand = 'X';
     }
 }

@@ -1,15 +1,13 @@
 /* global module:false */
 (function (root, factory) {
     'use strict';
-    // ReSharper disable UndeclaredGlobalVariableUsing (R# bug, https://youtrack.jetbrains.com/issue/RSRP-462411)
     if (typeof define === 'function' && define.amd) {
         define([
           'codemirror',
           'codemirror-addon-lint-fix',
           'codemirror/addon/hint/show-hint',
           'codemirror/mode/clike/clike',
-          'codemirror/mode/vb/vb',
-          'codemirror/mode/php/php'
+          'codemirror/mode/vb/vb'
         ], factory);
     }
     else if (typeof module === 'object' && module.exports) {
@@ -24,7 +22,6 @@
     else {
         root.mirrorsharp = factory(root.CodeMirror);
     }
-    // ReSharper restore UndeclaredGlobalVariableUsing
 })(this, function (CodeMirror) {
     'use strict';
 
@@ -69,12 +66,10 @@
 
         this.displayData = function(serverData) {
             const log = [];
-            // ReSharper disable once DuplicatingLocalDeclaration
             /* eslint-disable block-scoped-var */
             for (var i = 0; i < clientLogSnapshot.length; i++) {
                 log.push({ entry: clientLogSnapshot[i], on: 'client', index: i });
             }
-            // ReSharper disable once DuplicatingLocalDeclaration
             // eslint-disable-next-line no-redeclare
             for (var i = 0; i < serverData.log.length; i++) {
                 log.push({ entry: serverData.log[i], on: 'server', index: i });
@@ -238,6 +233,10 @@
 
         this.sendRequestSelfDebugData = function() {
             return sendWhenOpen('Y');
+        };
+
+        this.sendExtensionCommand = function(name, data) {
+            return sendWhenOpen('X' + name + ':' + data);
         };
 
         this.close = function() {
@@ -447,7 +446,7 @@
         var hadChangesSinceLastLinting = false;
         var capturedUpdateLinting;
 
-        options = assign({ language: defaultLanguage }, options);
+        options = assign({ language: defaultLanguage, extensions: {} }, options);
         options.on = assign({
             slowUpdateWait:   function() {},
             slowUpdateResult: function() {},
@@ -455,6 +454,21 @@
             connectionChange: function() {},
             serverError:      function(message) { throw new Error(message); }
         }, options.on);
+
+        var extensions = (function registerExtensions() {
+            const registry = {};
+            for (const name in options.extensions) {
+                var receive;
+                registry[name] = {
+                    receive: function(message) { receive(message); }
+                };
+                options.extensions[name]({
+                    send: function(data) { return connection.sendExtensionCommand(name, data); },
+                    receive: function(r) { receive = r; }
+                });
+            }
+            return registry;
+        })();
 
         const cmOptions = assign({ gutters: [], indentUnit: 4 }, options.forCodeMirror, {
             lineSeparator: lineSeparator,
@@ -610,6 +624,15 @@
         }
 
         function onMessage(message) {
+            const extensionMatch = message.type.match(/^x:(.+)$/);
+            if (extensionMatch) {
+                const extension = extensions[extensionMatch[1]];
+                if (extension) {
+                    extension.receive(message.x);
+                    return;
+                }
+            }
+
             switch (message.type) {
                 case 'changes':
                     receiveServerChanges(message.changes, message.reason);

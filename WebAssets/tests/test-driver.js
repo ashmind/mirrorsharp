@@ -67,7 +67,11 @@ class TestReceiver {
     }
 
     changes(changes = [], reason = '') {
-        this.socket.trigger('message', { data: JSON.stringify({type: 'changes', changes, reason}) });
+        this.message({ type: 'changes', changes, reason });
+    }
+
+    message(message) {
+        this.socket.trigger('message', { data: JSON.stringify(message) });
     }
 }
 
@@ -83,7 +87,7 @@ class TestDriver {
     }
 }
 
-TestDriver.new = async options => {
+TestDriver.new = async (options = {}) => {
     const driver = new TestDriver();
     const initial = getInitialState(options);
 
@@ -115,7 +119,7 @@ TestDriver.new = async options => {
     return driver;
 };
 
-function getInitialState(options) {
+function getInitialState(options = {}) {
     let {text, cursor} = options;
     if (options.textWithCursor) {
         text = options.textWithCursor.replace('|', '');

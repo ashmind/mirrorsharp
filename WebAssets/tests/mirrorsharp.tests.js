@@ -53,6 +53,41 @@ describe('produced events', () => {
     });
 });
 
+describe('extensions', () => {
+    test('send sends X* request to the server', async () => {
+        let send;
+        const driver = await TestDriver.new({
+            options: {
+                extensions: {
+                    test: ({ send: s }) => { send = s; }
+                }
+            }
+        });
+
+        await send('ABC');
+        await driver.completeBackgroundWork();
+
+        const lastSent = driver.socket.sent.last();
+        expect(lastSent).toBe('Xtest:ABC');
+    });
+
+    test('receive receives x:* message', async () => {
+        const receiveCallback = jest.fn();
+        const driver = await TestDriver.new({
+            options: {
+                extensions: {
+                    test: ({ receive }) => { receive(receiveCallback); }
+                }
+            }
+        });
+
+        await driver.receive.message({ type: 'x:test', x: 'abc' });
+        await driver.completeBackgroundWork();
+
+        expect(receiveCallback.mock.calls).toEqual([['abc']]);
+    });
+});
+
 function multiline(string) {
     return string
         .replace(/ *┊/g, '')

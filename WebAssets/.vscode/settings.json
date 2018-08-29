@@ -18,5 +18,6 @@
         "mirrorsharp",
         "outdent",
         "xmlns"
-    ]
+    ],
+    "jest.pathToJest": "npm run test --"
 }
