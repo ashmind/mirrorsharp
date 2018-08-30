@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName>MirrorSharp.Tests.Roslyn2.Net46</AssemblyName>
@@ -33,7 +33,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\FSharp\FSharp.csproj" />
-    <ProjectReference Include="..\Php\Php.csproj" />
     <ProjectReference Include="..\Testing\Testing.csproj" />
     <ProjectReference Include="..\VisualBasic\VisualBasic.csproj" />
   </ItemGroup>
@@ -41,12 +40,4 @@
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
-
-  <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
-    <ItemGroup>
-      <ReferencePath Condition="'%(FileName)' == 'Peachpie.Microsoft.CodeAnalysis'">
-        <Aliases>peachpie</Aliases>
-      </ReferencePath>
-    </ItemGroup>
-  </Target>
 </Project>

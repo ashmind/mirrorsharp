@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../NuGet.Common.props" />
 
   <PropertyGroup>
     <AssemblyName>MirrorSharp.Php</AssemblyName>
     <RootNamespace>MirrorSharp.Php</RootNamespace>
-    <TargetFrameworks>net46</TargetFrameworks>
-    <VersionPrefix>0.9.5-pre</VersionPrefix>
+    <TargetFrameworks>netstandard2</TargetFrameworks>
+    <VersionPrefix>0.9.6-pre</VersionPrefix>
     <Description>MirrorSharp PHP support library, implemented using Peachpie. $(DescriptionSuffix)</Description>
     <PackageTags>PHP;Peachpie;CodeMirror</PackageTags>
     <DocumentationFile>$(OutDir)\MirrorSharp.Php.xml</DocumentationFile>
@@ -16,8 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Peachpie.CodeAnalysis" Version="0.9.0-CI00916" />
-    <PackageReference Include="Peachpie.App" Version="0.9.0-CI00916" />
+    <PackageReference Include="Peachpie.CodeAnalysis" Version="0.9.0-CI01101" />
+    <PackageReference Include="Peachpie.App" Version="0.9.0-CI01101" />
   </ItemGroup>
 
   <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">

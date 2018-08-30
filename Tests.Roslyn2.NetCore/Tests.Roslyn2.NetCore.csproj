@@ -1,19 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <DefineConstants>$(DefineConstants);ROSLYN20</DefineConstants>
-    <AssemblyName>MirrorSharp.Tests.Roslyn2</AssemblyName>
-    <PackageId>MirrorSharp.Tests.Roslyn2</PackageId>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
-    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50;portable-net45+win8+wp8+wpa81;portable-net45+win8</PackageTargetFallback>
-    <RuntimeFrameworkVersion>1.0.4</RuntimeFrameworkVersion>
-    <RootNamespace>MirrorSharp.Tests.Roslyn2</RootNamespace>
+    <AssemblyName>MirrorSharp.Tests.Roslyn2.NetCore</AssemblyName>
+    <PackageId>MirrorSharp.Tests.Roslyn2.NetCore</PackageId>
+    <RootNamespace>MirrorSharp.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\Php\Php.csproj" />
     <ProjectReference Include="..\Testing\Testing.csproj" />
     <ProjectReference Include="..\VisualBasic\VisualBasic.csproj" />
   </ItemGroup>
@@ -38,4 +35,11 @@
 
   <Import Project="..\Tests.Shared\MirrorSharp.Tests.Shared.projitems" Label="Shared" />
 
+  <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
+    <ItemGroup>
+      <ReferencePath Condition="'%(FileName)' == 'Peachpie.Microsoft.CodeAnalysis'">
+        <Aliases>peachpie</Aliases>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
 </Project>

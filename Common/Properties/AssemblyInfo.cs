@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -16,7 +16,6 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("MirrorSharp.Php")]
 [assembly: InternalsVisibleTo("MirrorSharp.Owin")]
 [assembly: InternalsVisibleTo("MirrorSharp.Testing")]
-[assembly: InternalsVisibleTo("MirrorSharp.Tests.Roslyn1")]
-[assembly: InternalsVisibleTo("MirrorSharp.Tests.Roslyn2")]
+[assembly: InternalsVisibleTo("MirrorSharp.Tests.Roslyn2.NetCore")]
 [assembly: InternalsVisibleTo("MirrorSharp.Tests.Roslyn2.Net46")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

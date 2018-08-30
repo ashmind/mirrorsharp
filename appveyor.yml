@@ -12,7 +12,7 @@ build_script:
 - dotnet build --configuration Release
 
 test_script:
-- dotnet test Tests.Roslyn2\Tests.Roslyn2.csproj
+- dotnet test Tests.Roslyn2.NetCore\Tests.Roslyn2.NetCore.csproj
 - dotnet test Tests.Roslyn2.Net46\Tests.Roslyn2.Net46.csproj
   
 after_test:

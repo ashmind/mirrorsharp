@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -10,5 +10,5 @@ using System.Runtime.InteropServices;
 [assembly: Guid("0814c69a-e4a5-4fc9-bc57-415f8295b6b6")]
 
 [assembly: InternalsVisibleTo("MirrorSharp.Benchmarks")]
-[assembly: InternalsVisibleTo("MirrorSharp.Tests.Roslyn2")]
+[assembly: InternalsVisibleTo("MirrorSharp.Tests.Roslyn2.NetCore")]
 [assembly: InternalsVisibleTo("MirrorSharp.Tests.Roslyn2.Net46")]
