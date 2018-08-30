@@ -3,7 +3,7 @@ configuration: Release
 
 environment:
   NpmAuthToken:
-    secure: Y7AyDXAcvBiXCfBEX8LMNg8WI8/mvse0ULxs1Ip3/yFxr8m4PqPG1H2D2ZWJFoaJ
+    secure: ZdHER7r/cd8BLWjrL4OUjksloJt2CaGHXdWvS9dsPCaKxHpO1FLyQJjzqfPVzBmE
 
 before_build:
 - dotnet restore
