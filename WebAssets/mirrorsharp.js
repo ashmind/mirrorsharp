@@ -763,7 +763,7 @@
 
         function receiveServerOptions(value) {
             serverOptions = value;
-            if (value.language !== language) {
+            if (value.language !== undefined && value.language !== language) {
                 language = value.language;
                 cm.setOption('mode', languageModes[language]);
             }
