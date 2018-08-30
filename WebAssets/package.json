@@ -1,6 +1,6 @@
 {
   "name": "mirrorsharp",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "A code editor `<textarea>` for .NET.",
   "authors": [
     "Andrey Shchekin (https://github.com/ashmind)"
