@@ -28,13 +28,13 @@ You'll need the following:
 ### Server
 
 #### MirrorSharp.Owin
-![NuGet](https://img.shields.io/nuget/v/MirrorSharp.Owin.svg?style=flat-square)
+[![NuGet](https://img.shields.io/nuget/v/MirrorSharp.Owin.svg?style=flat-square)](https://www.nuget.org/packages/MirrorSharp.Owin)
 
 NuGet: `Install-Package MirrorSharp.Owin -Pre`  
 Once installed, call `app.UseMirrorSharp()` in your OWIN startup.
 
 ### Client
-![npm](https://img.shields.io/npm/v/mirrorsharp.svg?style=flat-square)
+[![npm](https://img.shields.io/npm/v/mirrorsharp.svg?style=flat-square)](https://www.npmjs.com/package/mirrorsharp)
 
 NPM: `npm install mirrorsharp --save`
 
