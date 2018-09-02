@@ -17,9 +17,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Internal\TrackingArrayPool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MoveCursorHandlerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReplaceTextHandlerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\RoslynScriptModeTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SetOptionsHandlerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SignatureHelpStateHandlerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SlowUpdateHandlerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TypeCharHandlerTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Features\" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
@@ -41,6 +41,14 @@ namespace MirrorSharp {
         /// <returns>Current <see cref="MirrorSharpOptions" /> object, for convenience.</returns>
         public MirrorSharpOptions DisableCSharp() {
             Languages.Remove(LanguageNames.CSharp);
+            return this;
+        }
+
+        /// <summary>Configures C# support in the <see cref="MirrorSharpOptions" />.</summary>
+        /// <param name="setup">Setup delegate used to configure <see cref="MirrorSharpCSharpOptions" /></param>
+        /// <returns>Current <see cref="MirrorSharpOptions" /> object, for convenience.</returns>
+        public MirrorSharpOptions SetupCSharp([NotNull] Action<MirrorSharpCSharpOptions> setup) {
+            setup(CSharp);
             return this;
         }
 

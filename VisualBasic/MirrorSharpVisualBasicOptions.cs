@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.VisualBasic;
@@ -6,7 +6,7 @@ using MirrorSharp.Advanced;
 
 namespace MirrorSharp.VisualBasic {
     /// <summary>MirrorSharp options for Visual Basic .NET</summary>
-    public class MirrorSharpVisualBasicOptions : MirrorSharpRoslynOptions<VisualBasicParseOptions, VisualBasicCompilationOptions> {
+    public class MirrorSharpVisualBasicOptions : MirrorSharpRoslynOptions<MirrorSharpVisualBasicOptions, VisualBasicParseOptions, VisualBasicCompilationOptions> {
         internal MirrorSharpVisualBasicOptions() : base(
             new VisualBasicParseOptions(),
             new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary),

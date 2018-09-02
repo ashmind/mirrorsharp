@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using MirrorSharp.Internal.Roslyn;
 
 namespace MirrorSharp.VisualBasic.Internal {
@@ -7,9 +7,7 @@ namespace MirrorSharp.VisualBasic.Internal {
             LanguageNames.VisualBasic,
             "Microsoft.CodeAnalysis.VisualBasic.Features",
             "Microsoft.CodeAnalysis.VisualBasic.Workspaces",
-            options.ParseOptions,
-            options.CompilationOptions,
-            options.MetadataReferences
+            options
         ) {
         }
     }

@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 
 namespace MirrorSharp.Internal.Roslyn {
     internal class CSharpLanguage : RoslynLanguageBase {
@@ -6,9 +6,7 @@ namespace MirrorSharp.Internal.Roslyn {
             LanguageNames.CSharp,
             "Microsoft.CodeAnalysis.CSharp.Features",
             "Microsoft.CodeAnalysis.CSharp.Workspaces",
-            options.ParseOptions,
-            options.CompilationOptions,
-            options.MetadataReferences
+            options
         ) {
         }
     }

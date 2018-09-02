@@ -109,6 +109,8 @@ namespace MirrorSharp.Internal.Roslyn {
             get => Document.Project;
             set {
                 Argument.NotNull(nameof(value), value);
+                if (!value.ContainsDocument(_document.Id))
+                    throw new ArgumentException($"Project must include session source document (id: '{_document.Id}').", nameof(value));
                 if (_documentOutOfDate)
                     throw new InvalidOperationException("Source document has changed since getting Project; Project cannot be set.");
                 ApplySolutionChange(value.Solution);
@@ -139,6 +141,46 @@ namespace MirrorSharp.Internal.Roslyn {
         public ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CodeFixProviders { get; }
         public ImmutableArray<ISignatureHelpProviderWrapper> SignatureHelpProviders { get; }
 
+        public void SetScriptMode(bool isScript = true, Type hostObjectType = null) {
+            RoslynScriptHelper.Validate(isScript, hostObjectType);
+            var sourceKind = RoslynScriptHelper.GetSourceKind(isScript);
+
+            var project = Project;
+            var document = Document;
+
+            var newProjectInfo = ProjectInfo.Create(
+                project.Id,
+                project.Version,
+                project.Name,
+                project.AssemblyName,
+                project.Language,
+                parseOptions: project.ParseOptions.WithKind(sourceKind),
+                compilationOptions: project.CompilationOptions,
+                documents: new[] {
+                    DocumentInfo.Create(document.Id, document.Name, sourceCodeKind: sourceKind)
+                },
+                metadataReferences: project.MetadataReferences,
+                analyzerReferences: project.AnalyzerReferences,
+                isSubmission: isScript,
+                hostObjectType: hostObjectType
+            );
+            var newSolution = project.Solution
+                .RemoveProject(project.Id)
+                .AddProject(newProjectInfo);
+            var newProject = newSolution.GetProject(project.Id);
+
+            if (project.DocumentIds.Count > 1)
+                throw new NotSupportedException($"Calling {nameof(SetScriptMode)} after adding documents to the project is not currently supported.");
+
+            if (project.AdditionalDocumentIds.Count > 0)
+                throw new NotSupportedException($"Calling {nameof(SetScriptMode)} after adding additional documents to the project is not currently supported.");
+
+            var newDocument = newProject.GetDocument(document.Id).WithText(_sourceText);
+
+            _workspace.SetCurrentSolution(newDocument.Project.Solution);
+            UpdateDocumentAfterSolutionChange();
+        }
+
         private void EnsureDocumentUpToDate() {
             if (!_documentOutOfDate)
                 return;
@@ -151,6 +193,10 @@ namespace MirrorSharp.Internal.Roslyn {
             // ReSharper disable once PossibleNullReferenceException
             if (!_workspace.TryApplyChanges(solution))
                 throw new Exception("Failed to apply changes to workspace.");
+            UpdateDocumentAfterSolutionChange();
+        }
+
+        private void UpdateDocumentAfterSolutionChange() {
             _document = _workspace.CurrentSolution.GetDocument(_document.Id);
             _documentOutOfDate = false;
         }

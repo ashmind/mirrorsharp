@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
@@ -44,6 +44,7 @@
       Language:
       <ul>
         <li><a href="index.html?language=CSharp">C#</a></li>
+        <li><a href="index.html?language=CSharp&mode=script">C# (Script)</a></li>
         <li><a href="index.html?language=FSharp">F#</a></li>
       </ul>
     </nav>
@@ -62,16 +63,29 @@ class C {
     <script src="node_modules/mirrorsharp/mirrorsharp.js"></script>
     <script>
       'use strict';
-      const language = ((window.location.search.match(/language=([^&]+)/) || [])[1] || 'CSharp').replace('Sharp', '#');
-      const textarea = document.getElementsByTagName('textarea')[0];
-      if (language === 'F#')
-        textarea.value = '[<EntryPoint>]\r\nlet main argv = \r\n    0';
+      const params = window.location.search.replace(/^\?/, '').split('&').reduce(function (o, item) {
+          const parts = item.split('=');
+          o[parts[0]] = parts[1];
+          return o;
+      }, {});
+      const language = (params['language'] || 'CSharp').replace('Sharp', '#');
+      const mode = params['mode'] || 'regular';
 
-      mirrorsharp(textarea, {
-        serviceUrl: window.location.href.replace(/^http(s?:\/\/[^/]+).*$/i, 'ws$1/mirrorsharp'),
-        selfDebugEnabled: true,
-        language: language
+      const textarea = document.getElementsByTagName('textarea')[0];
+      if (language === 'F#') {
+          textarea.value = '[<EntryPoint>]\r\nlet main argv = \r\n    0';
+      }
+      else if (mode === 'script') {
+          textarea.value = '// C# Script uses Random as the host object.\r\nvar m = Next();';
+      }
+
+      const ms = mirrorsharp(textarea, {
+          serviceUrl: window.location.href.replace(/^http(s?:\/\/[^/]+).*$/i, 'ws$1/mirrorsharp'),
+          selfDebugEnabled: true,
+          language: language
       });
+      if (mode !== 'regular')
+          ms.sendServerOptions({ 'language': language, 'x-mode': mode });
     </script>
   </body>
 </html>

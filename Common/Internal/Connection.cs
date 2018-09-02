@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections.Immutable;
 using System.Net.WebSockets;
@@ -42,7 +42,7 @@ namespace MirrorSharp.Internal {
                 var exception = ex;
                 try {
                     try {
-                        _options?.ExceptionLogger.LogException(exception, _session);
+                        _options?.ExceptionLogger?.LogException(exception, _session);
                     }
                     catch (Exception logException) {
                         exception = new AggregateException(exception, logException);

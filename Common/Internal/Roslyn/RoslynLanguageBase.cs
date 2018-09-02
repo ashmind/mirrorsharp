@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -15,10 +15,8 @@ using MirrorSharp.Internal.Reflection;
 
 namespace MirrorSharp.Internal.Roslyn {
     internal abstract class RoslynLanguageBase : ILanguage {
+        private readonly IRoslynLanguageOptions _options;
         private readonly MefHostServices _hostServices;
-        private readonly ParseOptions _parseOptions;
-        private readonly CompilationOptions _compilationOptions;
-        private readonly ImmutableList<MetadataReference> _metadataReferences;
         private readonly ImmutableArray<ISignatureHelpProviderWrapper> _defaultSignatureHelpProviders;
         private readonly ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> _defaultCodeFixProvidersIndexedByDiagnosticIds;
         private readonly ImmutableArray<DiagnosticAnalyzer> _defaultAnalyzers;
@@ -28,9 +26,7 @@ namespace MirrorSharp.Internal.Roslyn {
             [NotNull] string name,
             [NotNull] string featuresAssemblyName,
             [NotNull] string workspacesAssemblyName,
-            [NotNull] ParseOptions parseOptions,
-            [NotNull] CompilationOptions compilationOptions,
-            [NotNull] ImmutableList<MetadataReference> metadataReferences
+            [NotNull] IRoslynLanguageOptions options
         ) {
             // ReSharper disable HeapView.BoxingAllocation
             Name = name;
@@ -40,9 +36,7 @@ namespace MirrorSharp.Internal.Roslyn {
                 Assembly.Load(new AssemblyName(featuresAssemblyName)),
                 Assembly.Load(new AssemblyName(workspacesAssemblyName)),
             });
-            _parseOptions = parseOptions;
-            _compilationOptions = compilationOptions;
-            _metadataReferences = metadataReferences;
+            _options = options;
             _defaultAnalyzerReferences = ImmutableList.Create<AnalyzerReference>(
                 CreateAnalyzerReference(featuresAssemblyName)
             );
@@ -61,12 +55,14 @@ namespace MirrorSharp.Internal.Roslyn {
 
             var projectInfo = ProjectInfo.Create(
                 projectId, VersionStamp.Create(), "_", "_", Name,
-                parseOptions: _parseOptions,
-                compilationOptions: _compilationOptions,
-                metadataReferences: _metadataReferences,
+                parseOptions: _options.ParseOptions,
+                isSubmission: _options.IsScript,
+                hostObjectType: _options.HostObjectType,
+                compilationOptions: _options.CompilationOptions,
+                metadataReferences: _options.MetadataReferences,
                 analyzerReferences: _defaultAnalyzerReferences
             );
-            
+
             return new RoslynSession(
                 SourceText.From(text, Encoding.UTF8),
                 projectInfo,
