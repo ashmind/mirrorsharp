@@ -1,5 +1,8 @@
 ## Overview
 
+[![AppVeyor branch](https://img.shields.io/appveyor/ci/ashmind/mirrorsharp/master.svg?style=flat-square)](https://ci.appveyor.com/project/ashmind/mirrorsharp) 
+[![AppVeyor tests](https://img.shields.io/appveyor/tests/ashmind/mirrorsharp.svg?style=flat-square)](https://ci.appveyor.com/project/ashmind/mirrorsharp/build/tests)
+
 MirrorSharp is a code editor `<textarea>` built on Roslyn and [CodeMirror](https://codemirror.net/).
 
 ### Features
@@ -25,11 +28,13 @@ You'll need the following:
 ### Server
 
 #### MirrorSharp.Owin
+![NuGet](https://img.shields.io/nuget/v/MirrorSharp.Owin.svg?style=flat-square)
 
 NuGet: `Install-Package MirrorSharp.Owin -Pre`  
 Once installed, call `app.UseMirrorSharp()` in your OWIN startup.
 
 ### Client
+![npm](https://img.shields.io/npm/v/mirrorsharp.svg?style=flat-square)
 
 NPM: `npm install mirrorsharp --save`
 
