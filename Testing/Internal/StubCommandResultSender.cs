@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +23,7 @@ namespace MirrorSharp.Testing.Internal {
         public Task SendJsonMessageAsync(CancellationToken cancellationToken) {
             _writer.WriteEndObject();
             LastMessageJson = Encoding.UTF8.GetString(_writer.WrittenSegment.Array, _writer.WrittenSegment.Offset, _writer.WrittenSegment.Count);
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

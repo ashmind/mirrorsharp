@@ -60,11 +60,17 @@ namespace MirrorSharp.Internal.Roslyn {
                 Assembly.Load(new AssemblyName(workspacesAssemblyName))
             });
             #if QUICKINFO
+            var sharedEditorFeaturesAssembly = Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.EditorFeatures"));
+            configuration = configuration.WithParts(
+                RoslynReflection.GetEditorFeaturesTypesWithExportsSafeSlow(sharedEditorFeaturesAssembly),
+                new SlowLegacyAttributeMappingModelProvider()
+            );
             var editorFeaturesAssembly = Assembly.Load(new AssemblyName(editorFeaturesAssemblyName));
             configuration = configuration.WithParts(
                 RoslynReflection.GetEditorFeaturesTypesWithExportsSafeSlow(editorFeaturesAssembly),
-                new SlowExportAttributeMappingModelProvider()
+                new SlowLegacyAttributeMappingModelProvider()
             );
+            configuration = configuration.WithAssembly(Assembly.GetExecutingAssembly());
             #endif
             return MefHostServices.Create(configuration.CreateContainer());
         }

@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net46</TargetFramework>
+    <RootNamespace>Microsoft.VisualStudio.Text</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(MSBuildThisFileDirectory)..\StubAssembly.targets" />
+</Project>

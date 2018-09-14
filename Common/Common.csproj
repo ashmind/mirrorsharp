@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../NuGet.Common.props" />
   
   <PropertyGroup>
@@ -10,6 +10,7 @@
     <PackageTags>Roslyn;CodeMirror</PackageTags>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.5' ">$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;portable-net45+win8</PackageTargetFallback>
     <DocumentationFile>$(OutDir)\MirrorSharp.Common.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,16 +36,22 @@
     <DefineConstants>$(DefineConstants);QUICKINFO</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard1.5|AnyCPU'">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-  </PropertyGroup>
-
   <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
     <PackageReference Include="Microsoft.CodeAnalysis.EditorFeatures" Version="2.3.2" />
+    <ProjectReference Include="..\Stubs\Microsoft.VisualStudio.Text.Data\Microsoft.VisualStudio.Text.Data.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Stubs\Microsoft.VisualStudio.Text.Logic\Microsoft.VisualStudio.Text.Logic.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Stubs\Microsoft.VisualStudio.Text.UI.Wpf\Microsoft.VisualStudio.Text.UI.Wpf.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Stubs\Microsoft.VisualStudio.Language.Intellisense\Microsoft.VisualStudio.Language.Intellisense.csproj">
+      <Private>false</Private>
+    </ProjectReference>
   </ItemGroup>
-
 </Project>

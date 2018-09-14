@@ -9,11 +9,11 @@ namespace MirrorSharp.Internal.Handlers.Shared {
     internal class SignatureHelpSupport : ISignatureHelpSupport {
         public Task ApplyCursorPositionChangeAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             if (!session.IsRoslyn)
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
 
             var currentHelp = session.Roslyn.CurrentSignatureHelp;
             if (currentHelp == null)
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
 
             if (!currentHelp.Value.Items.ApplicableSpan.Contains(session.CursorPosition)) {
                 session.Roslyn.CurrentSignatureHelp = null;
@@ -27,7 +27,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
 
         public Task ApplyTypedCharAsync(char @char, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             if (!session.IsRoslyn)
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
 
             var trigger = new SignatureHelpTriggerInfoData(SignatureHelpTriggerReason.TypeCharCommand, @char);
             if (session.Roslyn.CurrentSignatureHelp != null) {

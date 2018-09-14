@@ -56,7 +56,7 @@ namespace MirrorSharp.Internal.Reflection {
                 try {
                     exports = type.GetCustomAttributes<ExportAttribute>();
                 }
-                catch (FileNotFoundException) {
+                catch (Exception ex) when (ex is FileNotFoundException || ex is TypeLoadException) {
                     // skips exports of Visual Studio types
                     continue;
                 }

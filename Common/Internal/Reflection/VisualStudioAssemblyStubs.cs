@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Text;
 
 #if QUICKINFO
 namespace MirrorSharp.Internal.Reflection {
@@ -13,14 +10,10 @@ namespace MirrorSharp.Internal.Reflection {
 
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {
             var name = new AssemblyName(args.Name);
-            if (name.Name == "Microsoft.VisualStudio.Text.Data")
-                return BuildTextDataAssembly(name);
-            return null;
-        }
+            if (name.Name.StartsWith("Microsoft.VisualStudio."))
+                return Assembly.LoadFrom($@"d:\Development\VS 2017\MirrorSharp\Stubs\{name.Name}\bin\Debug\net46\{name.Name}.dll");
 
-        private static Assembly BuildTextDataAssembly(AssemblyName name) {
-            var builder = AppDomain.CurrentDomain.DefineDynamicAssembly(name, AssemblyBuilderAccess.Run);
-            return builder;
+            return null;
         }
     }
 }

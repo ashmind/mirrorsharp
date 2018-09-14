@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net46</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)FakePublicKey/Key.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
+    <Version>15.0.0</Version>
+  </PropertyGroup>
+  
+  <Target Name="FakePublicKey" AfterTargets="Build">
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)FakePublicKey\bin\Debug\FakePublicKey.exe&quot; &quot;$(TargetPath)&quot;" />
+  </Target>
+</Project>

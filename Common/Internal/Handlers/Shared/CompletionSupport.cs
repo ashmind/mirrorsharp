@@ -13,11 +13,11 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         public Task ApplyTypedCharAsync(char @char, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var current = session.CurrentCompletion;
             if (current.List != null)
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
 
             if (current.ChangeEchoPending) {
                 current.PendingChar = @char;
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
             }
             var trigger = CompletionTrigger.CreateInsertionTrigger(@char);
             return CheckCompletionAsync(trigger, session, sender, cancellationToken);
@@ -25,12 +25,12 @@ namespace MirrorSharp.Internal.Handlers.Shared {
 
         public Task ApplyReplacedTextAsync(string reason, ITypedCharEffects typedCharEffects, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             if (reason != ChangeReasonCompletion)
-                return TaskEx.CompletedTask;
-            
+                return Task.CompletedTask;
+
             var pendingChar = session.CurrentCompletion.PendingChar;
             session.CurrentCompletion.ResetPending();
             if (pendingChar == null)
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
 
             return typedCharEffects.ApplyTypedCharAsync(pendingChar.Value, session, sender, cancellationToken);
         }
@@ -70,7 +70,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         public Task CancelCompletionAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             session.CurrentCompletion.ResetPending();
             session.CurrentCompletion.List = null;
-            return TaskEx.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public Task ForceCompletionAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
@@ -79,7 +79,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
 
         private Task CheckCompletionAsync(CompletionTrigger trigger, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             if (!session.LanguageSession.ShouldTriggerCompletion(session.CursorPosition, trigger))
-                return TaskEx.CompletedTask;
+                return Task.CompletedTask;
 
             return TriggerCompletionAsync(session, sender, cancellationToken, trigger);
         }
