@@ -1,4 +1,5 @@
 {
+    "jest.pathToJest": "npm run test --",
     "javascript.validate.enable": false,
     "cSpell.ignorePaths": [
         "**/node_modules/**",
@@ -13,9 +14,13 @@
         "Typer",
         "clike",
         "codemirror",
+        "infotip",
+        "jetpack",
+        "jsparts",
         "keysim",
         "lintfix",
         "mirrorsharp",
+        "oldowan",
         "outdent",
         "xmlns"
     ]

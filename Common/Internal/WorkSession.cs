@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
@@ -49,7 +49,7 @@ namespace MirrorSharp.Internal {
         }
 
         public bool IsRoslyn => LanguageSession is RoslynSession;
-        [NotNull]   public RoslynSession Roslyn => (RoslynSession)LanguageSession;
+        [NotNull] public RoslynSession Roslyn => (RoslynSession)LanguageSession;
         IRoslynSession IWorkSession.Roslyn => Roslyn;
 
         [NotNull] public string GetText() => LanguageSession.GetText();

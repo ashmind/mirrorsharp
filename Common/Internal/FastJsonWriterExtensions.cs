@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Advanced;
@@ -48,7 +48,7 @@ namespace MirrorSharp.Internal {
         public static void WriteTaggedText(this IFastJsonWriter writer, TaggedText text, bool selected) {
             writer.WriteStartObject();
             writer.WriteProperty("text", text.Text);
-            writer.WriteProperty("kind", text.Tag);
+            writer.WriteProperty("kind", text.Tag.ToLowerInvariant());
             if (selected)
                 writer.WriteProperty("selected", true);
             writer.WriteEndObject();

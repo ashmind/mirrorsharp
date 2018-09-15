@@ -49,33 +49,6 @@ namespace MirrorSharp.Internal.Reflection {
         public static bool IsInlinable(CodeAction action) => _getIsInlinable(action);
         public static ImmutableArray<CodeAction> GetNestedCodeActions(CodeAction action) => _getNestedCodeActions(action);
 
-        #if QUICKINFO
-        public static IEnumerable<Type> GetEditorFeaturesTypesWithExportsSafeSlow(Assembly assembly) {
-            foreach (var type in GetEditorFeaturesTypesSlow(assembly)) {
-                IEnumerable<ExportAttribute> exports;
-                try {
-                    exports = type.GetCustomAttributes<ExportAttribute>();
-                }
-                catch (Exception ex) when (ex is FileNotFoundException || ex is TypeLoadException) {
-                    // skips exports of Visual Studio types
-                    continue;
-                }
-                if (!exports.Any())
-                    continue;
-                yield return type;
-            }
-        }
-
-        private static IEnumerable<Type> GetEditorFeaturesTypesSlow(Assembly assembly) {
-            try {
-                return assembly.GetTypes();
-            }
-            catch (ReflectionTypeLoadException ex) {
-                return ex.Types.Where(t => t != null);
-            }
-        }
-        #endif
-
         public static IEnumerable<Lazy<ISignatureHelpProviderWrapper, OrderableLanguageMetadataData>> GetSignatureHelpProvidersSlow(MefHostServices hostServices) {
             return GetExportsWithOrderableLanguageMetadataSlow<ISignatureHelpProviderWrapper>(
                 hostServices,
@@ -83,16 +56,6 @@ namespace MirrorSharp.Internal.Reflection {
                 p => new SignatureHelpProviderWrapper(p)
             );
         }
-
-        #if QUICKINFO
-        public static IEnumerable<Lazy<IQuickInfoProviderWrapper, OrderableLanguageMetadataData>> GetQuickInfoProvidersSlow(MefHostServices hostServices) {
-            return GetExportsWithOrderableLanguageMetadataSlow<IQuickInfoProviderWrapper>(
-                hostServices,
-                RoslynTypes.IQuickInfoProvider,
-                p => new QuickInfoProviderWrapper(p)
-            );
-        }
-        #endif
 
         private static IEnumerable<Lazy<TExtensionWrapper, OrderableLanguageMetadataData>> GetExportsWithOrderableLanguageMetadataSlow<TExtensionWrapper>(
             MefHostServices hostServices,

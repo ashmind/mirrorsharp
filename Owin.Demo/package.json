@@ -5,6 +5,6 @@
   "dependencies": {
     "codemirror": "^5.18.2",
     "codemirror-addon-lint-fix": "^1.0.1-pre-20170118",
-    "mirrorsharp": "file:../WebAssets"
+    "mirrorsharp": "file:../WebAssets/dist"
   }
 }

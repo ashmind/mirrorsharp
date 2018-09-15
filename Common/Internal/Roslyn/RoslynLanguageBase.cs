@@ -21,9 +21,6 @@ namespace MirrorSharp.Internal.Roslyn {
         private readonly IRoslynLanguageOptions _options;
         private readonly MefHostServices _hostServices;
         private readonly ImmutableArray<ISignatureHelpProviderWrapper> _defaultSignatureHelpProviders;
-        #if QUICKINFO
-        private readonly ImmutableArray<IQuickInfoProviderWrapper> _defaultQuickInfoProviders;
-        #endif
         private readonly ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> _defaultCodeFixProvidersIndexedByDiagnosticIds;
         private readonly ImmutableArray<DiagnosticAnalyzer> _defaultAnalyzers;
         private readonly ImmutableList<AnalyzerReference> _defaultAnalyzerReferences;
@@ -47,9 +44,6 @@ namespace MirrorSharp.Internal.Roslyn {
                 _defaultAnalyzerReferences.SelectMany(r => r.GetAnalyzers(Name))
             );
             _defaultSignatureHelpProviders = CreateDefaultSignatureHelpProvidersSlow();
-            #if QUICKINFO
-            _defaultQuickInfoProviders = CreateDefaultQuickInfoProvidersSlow();
-            #endif
         }
 
         private static MefHostServices CreateHostServices(string featuresAssemblyName, string workspacesAssemblyName, string editorFeaturesAssemblyName) {
@@ -59,19 +53,6 @@ namespace MirrorSharp.Internal.Roslyn {
                 Assembly.Load(new AssemblyName(featuresAssemblyName)),
                 Assembly.Load(new AssemblyName(workspacesAssemblyName))
             });
-            #if QUICKINFO
-            var sharedEditorFeaturesAssembly = Assembly.Load(new AssemblyName("Microsoft.CodeAnalysis.EditorFeatures"));
-            configuration = configuration.WithParts(
-                RoslynReflection.GetEditorFeaturesTypesWithExportsSafeSlow(sharedEditorFeaturesAssembly),
-                new SlowLegacyAttributeMappingModelProvider()
-            );
-            var editorFeaturesAssembly = Assembly.Load(new AssemblyName(editorFeaturesAssemblyName));
-            configuration = configuration.WithParts(
-                RoslynReflection.GetEditorFeaturesTypesWithExportsSafeSlow(editorFeaturesAssembly),
-                new SlowLegacyAttributeMappingModelProvider()
-            );
-            configuration = configuration.WithAssembly(Assembly.GetExecutingAssembly());
-            #endif
             return MefHostServices.Create(configuration.CreateContainer());
         }
 
@@ -97,9 +78,6 @@ namespace MirrorSharp.Internal.Roslyn {
                 _defaultAnalyzers,
                 _defaultCodeFixProvidersIndexedByDiagnosticIds,
                 _defaultSignatureHelpProviders
-                #if QUICKINFO
-                ,_defaultQuickInfoProviders
-                #endif
             );
         }
 
@@ -110,16 +88,6 @@ namespace MirrorSharp.Internal.Roslyn {
                     .Select(l => l.Value)
             );
         }
-
-        #if QUICKINFO
-        private ImmutableArray<IQuickInfoProviderWrapper> CreateDefaultQuickInfoProvidersSlow() {
-            return ImmutableArray.CreateRange(
-                RoslynReflection.GetQuickInfoProvidersSlow(_hostServices)
-                    .Where(l => l.Metadata.Language == Name)
-                    .Select(l => l.Value)
-            );
-        }
-        #endif
 
         private ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CreateDefaultCodeFixProvidersSlow() {
             var codeFixProviderTypes = _defaultAnalyzerReferences

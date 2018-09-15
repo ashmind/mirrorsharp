@@ -11,13 +11,12 @@ namespace MirrorSharp.Tests {
     public class RequestInfoTipHandlerTests {
         [Fact]
         public async Task ExecuteAsync_ProducesExpectedInfoTip_ForClass() {
-            VisualStudioAssemblyStubs.Register();
             var driver = MirrorSharpTestDriver.New().SetText(@"class C {}");
 
             var result = await driver.SendAsync<InfoTipResult>(RequestInfoTip, 7);
 
             Assert.NotNull(result);
-            Assert.Equal("<tip>", result.ToString());
+            Assert.Equal("<description> class C", result.ToString());
         }
     }
 }

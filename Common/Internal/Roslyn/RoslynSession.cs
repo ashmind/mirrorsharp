@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Options;
+using Microsoft.CodeAnalysis.QuickInfo;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Abstraction;
@@ -33,7 +34,7 @@ namespace MirrorSharp.Internal.Roslyn {
         private Solution _lastWorkspaceAnalyzerOptionsSolution;
         private AnalyzerOptions _workspaceAnalyzerOptions;
 
-        private CompletionService _completionService;
+        private readonly CompletionService _completionService;
 
         public RoslynSession(
             SourceText sourceText,
@@ -42,21 +43,16 @@ namespace MirrorSharp.Internal.Roslyn {
             ImmutableArray<DiagnosticAnalyzer> analyzers,
             ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> codeFixProviders,
             ImmutableArray<ISignatureHelpProviderWrapper> signatureHelpProviders
-            #if QUICKINFO
-            , ImmutableArray<IQuickInfoProviderWrapper> quickInfoProviders
-            #endif
         ) {
             _workspace = new CustomWorkspace(hostServices);
             _sourceText = sourceText;
             _document = CreateProjectAndOpenNewDocument(_workspace, projectInfo, sourceText);
-            _completionService = GetCompletionService(_document);
+            QuickInfoService = QuickInfoService.GetService(_document);
+            _completionService = CompletionService.GetService(_document);
 
             Analyzers = analyzers;
             SignatureHelpProviders = signatureHelpProviders;
             CodeFixProviders = codeFixProviders;
-            #if QUICKINFO
-            QuickInfoProviders = quickInfoProviders;
-            #endif
         }
 
         private Document CreateProjectAndOpenNewDocument(Workspace workspace, ProjectInfo projectInfo, SourceText sourceText) {
@@ -67,13 +63,6 @@ namespace MirrorSharp.Internal.Roslyn {
             solution = _workspace.SetCurrentSolution(solution);
             workspace.OpenDocument(documentId);
             return solution.GetDocument(documentId);
-        }
-
-        private CompletionService GetCompletionService(Document document) {
-            var completionService = CompletionService.GetService(document);
-            if (completionService == null)
-                throw new Exception("Failed to retrieve the completion service.");
-            return completionService;
         }
 
         public string GetText() => SourceText.ToString();
@@ -95,7 +84,7 @@ namespace MirrorSharp.Internal.Roslyn {
                 .GetAllDiagnosticsAsync(cancellationToken)
                 .ConfigureAwait(false);
         }
-        
+
         public bool ShouldTriggerCompletion(int cursorPosition, CompletionTrigger trigger) {
             return _completionService.ShouldTriggerCompletion(SourceText, cursorPosition, trigger);
         }
@@ -152,10 +141,8 @@ namespace MirrorSharp.Internal.Roslyn {
 
         public ImmutableArray<DiagnosticAnalyzer> Analyzers { get; }
         public ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CodeFixProviders { get; }
+        public QuickInfoService QuickInfoService { get; }
         public ImmutableArray<ISignatureHelpProviderWrapper> SignatureHelpProviders { get; }
-        #if QUICKINFO
-        public ImmutableArray<IQuickInfoProviderWrapper> QuickInfoProviders { get; }
-        #endif
 
         public void SetScriptMode(bool isScript = true, Type hostObjectType = null) {
             RoslynScriptHelper.Validate(isScript, hostObjectType);

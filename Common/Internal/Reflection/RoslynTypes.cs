@@ -2,9 +2,6 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Completion;
-#if QUICKINFO
-using Microsoft.CodeAnalysis.Editor.Peek;
-#endif
 
 namespace MirrorSharp.Internal.Reflection {
     using TypeInfo = System.Reflection.TypeInfo;
@@ -23,12 +20,6 @@ namespace MirrorSharp.Internal.Reflection {
         public static readonly TypeInfo SignatureHelpItems = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpItems", true).GetTypeInfo();
         public static readonly TypeInfo SignatureHelpItem = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpItem", true).GetTypeInfo();
         public static readonly TypeInfo SignatureHelpParameter = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpParameter", true).GetTypeInfo();
-
-        #if QUICKINFO
-        public static readonly TypeInfo ExportQuickInfoProviderAttribute = MicrosoftCodeAnalysisEditorFeatures.GetType("Microsoft.CodeAnalysis.Editor.ExportQuickInfoProviderAttribute", true).GetTypeInfo();
-        public static readonly TypeInfo IQuickInfoProvider = MicrosoftCodeAnalysisEditorFeatures.GetType("Microsoft.CodeAnalysis.Editor.IQuickInfoProvider", true).GetTypeInfo();
-        public static readonly TypeInfo QuickInfoItem = MicrosoftCodeAnalysisEditorFeatures.GetType("Microsoft.CodeAnalysis.Editor.QuickInfoItem", true).GetTypeInfo();
-        #endif
 
         public static readonly TypeInfo WorkspaceOptionSet = MicrosoftCodeAnalysisWorkspaces.GetType("Microsoft.CodeAnalysis.Options.WorkspaceOptionSet", true).GetTypeInfo();
         public static readonly TypeInfo WorkspaceAnalyzerOptions = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.Diagnostics.WorkspaceAnalyzerOptions", true).GetTypeInfo();        

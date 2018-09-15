@@ -14,8 +14,8 @@
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="10.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="2.3.2" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="2.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="2.9.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="2.9.0" />
   </ItemGroup>
 
   <ItemGroup>

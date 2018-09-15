@@ -20,13 +20,36 @@
       document.getElementsByTagName("body")[0].appendChild(element);
     };
 
+    var clearElement = function() {
+      while (element.firstChild) {
+        element.removeChild(element.firstChild);
+      }
+    }
+
+    var setContent = function(html) {
+      if (html instanceof Array) {
+        clearElement();
+        for (var i = 0; i< html.length; i++) {
+          element.appendChild(html[i]);
+        }
+      }
+      else if (html instanceof HTMLElement) {
+        clearElement();
+        element.appendChild(html[i]);
+      }
+      else {
+        element.innerHTML = html;
+      }
+    }
+
     return {
       show: function(html, info, left, top, altBottom) {
         if (!this.active)
           ensureElement();
 
-        element.innerHTML = html;
-        element.style.transform = `translate(${left}px, ${top}px)`;
+        setContent(html);
+        element.style.top = top + 'px';
+        element.style.left = left + 'px';
         if (!this.active) {
           element.removeAttribute("hidden");
           // Note: we have to show it *before* we check for a better position
@@ -36,8 +59,10 @@
         const rect = element.getBoundingClientRect();
         const betterLeft = (rect.right <= window.innerWidth) ? left : (left - (rect.right - window.innerWidth));
         const betterTop = (rect.bottom <= window.innerHeight) ? top : (altBottom - rect.height);
-        if (betterLeft !== left || betterTop !== top)
-          element.style.transform = `translate(${betterLeft}px, ${betterTop}px)`;
+        if (betterLeft !== left || betterTop !== top) {
+            element.style.top = betterTop + 'px';
+            element.style.left = betterLeft + 'px';
+        }
 
         this.active = true;
         this.info = info;
@@ -54,7 +79,8 @@
 
   function mousemove(e) {
     /* eslint-disable no-invalid-this */
-    delayedInteraction(this.CodeMirror, e.pageX, e.pageY);
+    updatePointer(this.CodeMirror, e.pageX, e.pageY);
+    delayedInteraction(this.CodeMirror);
   }
 
   function mouseout(e) {
@@ -67,32 +93,37 @@
 
   function touchstart(e) {
     /* eslint-disable no-invalid-this */
-    delayedInteraction(this.CodeMirror, e.touches[0].pageX, e.touches[0].pageY);
+    updatePointer(this.CodeMirror, e.touches[0].pageX, e.touches[0].pageY);
+    delayedInteraction(this.CodeMirror);
   }
 
   function click(e) {
     /* eslint-disable no-invalid-this */
-    interaction(this.CodeMirror, e.pageX, e.pageY);
+    updatePointer(this.CodeMirror, e.pageX, e.pageY);
+    interaction(this.CodeMirror);
+  }
+
+  function updatePointer(cm, x, y) {
+    const pointer = cm.state.infotip.pointer;
+    pointer.x = x;
+    pointer.y = y;
   }
 
   var activeTimeout;
-  function delayedInteraction(cm, x, y) {
+  function delayedInteraction(cm) {
     /* eslint-disable no-invalid-this */
     if (activeTimeout) {
       clearTimeout(activeTimeout);
     }
 
     activeTimeout = setTimeout(function() {
-      interaction(cm, x, y);
+      interaction(cm);
       activeTimeout = null;
     }, 100);
   }
 
-  function interaction(cm, x, y) {
-    var coords = cm.coordsChar({ left: x, top: y });
-    if (tooltip.active && isInRange(coords, tooltip.info.range))
-      return;
-
+  function interaction(cm) {
+    var coords = getPointerCoords(cm);
     var getInfo = cm.state.infotip.getInfo || cm.getHelper(coords, "infotip");
     if (!getInfo)
       return;
@@ -110,13 +141,20 @@
 
     // tooltip.token = token;
     var info = getInfo(cm, coords, cm.state.infotip.update);
-    showOrHide(cm, info);
+    if (info !== undefined)
+      showOrHide(cm, info);
+  }
+
+  function getPointerCoords(cm) {
+    var pointer = cm.state.infotip.pointer;
+    return cm.coordsChar({ left: pointer.x, top: pointer.y });
   }
 
   function update(cm, info) {
-    var coords = cm.coordsChar({ left: x, top: y });
+    var coords = getPointerCoords(cm);
     if (info && !isInRange(coords, info.range)) // mouse has moved before we got an async update
       return;
+
     showOrHide(cm, info);
   }
 
@@ -126,20 +164,37 @@
       return;
     }
 
-    const showAt = cm.cursorCoords(CodeMirror.Pos(coords.line, info.range.from.ch));
+    if (tooltip.active && rangesEqual(info.range, tooltip.info.range))
+      return;
+
+    const showAt = cm.cursorCoords(CodeMirror.Pos(info.range.from.line, info.range.from.ch));
     tooltip.show(info.html, info, showAt.left, showAt.bottom, showAt.top);
   }
 
-  function isInRange(position, range) {
-      if (position.line === range.from.line)
-        return position.ch >= range.from.ch;
-      if (position.line === range.to.line)
-        return position.ch <= range.to.ch;
-      return position.line > range.from.line
-          && position.line < range.end.line
+  function rangesEqual(range, other) {
+    return range.from.line === other.from.line
+        && range.from.ch === other.from.ch
+        && range.to.line === other.to.line
+        && range.to.ch === other.to.ch;
   }
 
-  CodeMirror.defineExtension('infotipUpdate', update);
+  function isInRange(position, range) {
+    if (position.line === range.from.line)
+      return position.ch >= range.from.ch;
+    if (position.line === range.to.line)
+      return position.ch <= range.to.ch;
+    return position.line > range.from.line
+        && position.line < range.to.line
+  }
+
+  CodeMirror.defineExtension('infotipUpdate', function(info) {
+    /* eslint-disable no-invalid-this */
+    update(this, info);
+  });
+
+  CodeMirror.defineExtension('infotipIsActive', function() {
+    return tooltip.active;
+  });
 
   CodeMirror.defineOption("infotip", null, function(cm, options, old) {
     var wrapper = cm.getWrapperElement();
@@ -157,7 +212,8 @@
 
     state = {
       getInfo: options.getInfo,
-      update: function(info) { update(cm, info); }
+      update: function(info) { update(cm, info); },
+      pointer: {}
     };
     cm.state.infotip = state;
     CodeMirror.on(wrapper, "click",      click);

@@ -32,25 +32,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Php", "Php\Php.csproj", "{C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Roslyn2.NetCore", "Tests.Roslyn2.NetCore\Tests.Roslyn2.NetCore.csproj", "{848ABF7B-3C8E-46FE-AEDD-F4DEA97F4B5F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Stubs", "Stubs", "{049340C2-5C22-4E3B-B05E-C5196BB52751}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakePublicKey", "Stubs\FakePublicKey\FakePublicKey.csproj", "{89FB6512-9110-4CD8-BF07-F3E680BDA491}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.VisualStudio.Text.Data", "Stubs\Microsoft.VisualStudio.Text.Data\Microsoft.VisualStudio.Text.Data.csproj", "{7AF02E8E-7F2C-4F23-B60F-72CCC789AA1C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{89FB6512-9110-4CD8-BF07-F3E680BDA491} = {89FB6512-9110-4CD8-BF07-F3E680BDA491}
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.VisualStudio.Text.Logic", "Stubs\Microsoft.VisualStudio.Text.Logic\Microsoft.VisualStudio.Text.Logic.csproj", "{4EAA56F6-CAC9-4584-BFAF-72FF63644D1F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.VisualStudio.Text.UI.Wpf", "Stubs\Microsoft.VisualStudio.Text.UI.Wpf\Microsoft.VisualStudio.Text.UI.Wpf.csproj", "{54D84C6F-967B-46E5-B679-4707FF0BFED3}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.VisualStudio.Language.Intellisense", "Stubs\Microsoft.VisualStudio.Language.Intellisense\Microsoft.VisualStudio.Language.Intellisense.csproj", "{7C6ECD43-C24B-400D-BA42-C15233A9680D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.VisualStudio.Text.UI", "Stubs\Microsoft.VisualStudio.Text.UI\Microsoft.VisualStudio.Text.UI.csproj", "{98F1F15B-054D-4666-A619-9A87581C1C1C}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.VisualStudio.CoreUtility", "Stubs\Microsoft.VisualStudio.CoreUtility\Microsoft.VisualStudio.CoreUtility.csproj", "{054DEB7E-092E-45C3-AB5A-75A364E23FD1}"
-EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Tests.Shared\MirrorSharp.Tests.Shared.projitems*{0a9078a1-bd26-4dc7-87bb-ded125f6218b}*SharedItemsImports = 13
@@ -102,46 +83,9 @@ Global
 		{848ABF7B-3C8E-46FE-AEDD-F4DEA97F4B5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{848ABF7B-3C8E-46FE-AEDD-F4DEA97F4B5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{848ABF7B-3C8E-46FE-AEDD-F4DEA97F4B5F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{89FB6512-9110-4CD8-BF07-F3E680BDA491}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{89FB6512-9110-4CD8-BF07-F3E680BDA491}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{89FB6512-9110-4CD8-BF07-F3E680BDA491}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{89FB6512-9110-4CD8-BF07-F3E680BDA491}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7AF02E8E-7F2C-4F23-B60F-72CCC789AA1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7AF02E8E-7F2C-4F23-B60F-72CCC789AA1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7AF02E8E-7F2C-4F23-B60F-72CCC789AA1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7AF02E8E-7F2C-4F23-B60F-72CCC789AA1C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4EAA56F6-CAC9-4584-BFAF-72FF63644D1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4EAA56F6-CAC9-4584-BFAF-72FF63644D1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4EAA56F6-CAC9-4584-BFAF-72FF63644D1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4EAA56F6-CAC9-4584-BFAF-72FF63644D1F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{54D84C6F-967B-46E5-B679-4707FF0BFED3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{54D84C6F-967B-46E5-B679-4707FF0BFED3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{54D84C6F-967B-46E5-B679-4707FF0BFED3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{54D84C6F-967B-46E5-B679-4707FF0BFED3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7C6ECD43-C24B-400D-BA42-C15233A9680D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7C6ECD43-C24B-400D-BA42-C15233A9680D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7C6ECD43-C24B-400D-BA42-C15233A9680D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7C6ECD43-C24B-400D-BA42-C15233A9680D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{98F1F15B-054D-4666-A619-9A87581C1C1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{98F1F15B-054D-4666-A619-9A87581C1C1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{98F1F15B-054D-4666-A619-9A87581C1C1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{98F1F15B-054D-4666-A619-9A87581C1C1C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{054DEB7E-092E-45C3-AB5A-75A364E23FD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{054DEB7E-092E-45C3-AB5A-75A364E23FD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{054DEB7E-092E-45C3-AB5A-75A364E23FD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{054DEB7E-092E-45C3-AB5A-75A364E23FD1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{89FB6512-9110-4CD8-BF07-F3E680BDA491} = {049340C2-5C22-4E3B-B05E-C5196BB52751}
-		{7AF02E8E-7F2C-4F23-B60F-72CCC789AA1C} = {049340C2-5C22-4E3B-B05E-C5196BB52751}
-		{4EAA56F6-CAC9-4584-BFAF-72FF63644D1F} = {049340C2-5C22-4E3B-B05E-C5196BB52751}
-		{54D84C6F-967B-46E5-B679-4707FF0BFED3} = {049340C2-5C22-4E3B-B05E-C5196BB52751}
-		{7C6ECD43-C24B-400D-BA42-C15233A9680D} = {049340C2-5C22-4E3B-B05E-C5196BB52751}
-		{98F1F15B-054D-4666-A619-9A87581C1C1C} = {049340C2-5C22-4E3B-B05E-C5196BB52751}
-		{054DEB7E-092E-45C3-AB5A-75A364E23FD1} = {049340C2-5C22-4E3B-B05E-C5196BB52751}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AA05E375-911A-4C8F-A6D6-C0B895E7BDE4}

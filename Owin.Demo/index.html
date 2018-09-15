@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="node_modules/codemirror/addon/hint/show-hint.css">
     <link rel="stylesheet" href="node_modules/codemirror-addon-lint-fix/dist/lint-fix.css">
     <link rel="stylesheet" href="node_modules/mirrorsharp/mirrorsharp.css">
+    <link rel="stylesheet" href="temp/addon-infotip.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
     <style>
       * { box-sizing: border-box; }
@@ -50,8 +51,21 @@
     </nav>
     <textarea>using System;
 class C {
-    void M() {
+    const int C2 = 5;
+    string f;
+    string P { get; set; }
+    event EventHandler e;
+    event EventHandler E { add {} remove {} }
+
+    C() {
     }
+
+    void M(int p) {
+        var l = p;
+    }
+}
+
+class G&lt;T&gt; {
 }</textarea>
 
     <script src="node_modules/codemirror/lib/codemirror.js"></script>
