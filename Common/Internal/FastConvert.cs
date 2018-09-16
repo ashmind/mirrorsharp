@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Buffers;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,9 @@ namespace MirrorSharp.Internal {
 
         private static readonly string[] CharStringMap =
             Enumerable.Range(0, 128).Select(c => ((char)c).ToString()).ToArray();
+
+        private static readonly ConcurrentDictionary<string, string> LowerInvariantStrings =
+            new ConcurrentDictionary<string, string>();
 
         public static int Utf8ByteArrayToInt32(ArraySegment<byte> bytes) {
             var result = 0;
@@ -53,6 +57,15 @@ namespace MirrorSharp.Internal {
                 return CharStringMap[c];
 
             return c.ToString();
+        }
+
+        public static string StringToLowerInvariantString(string value) {
+            if (LowerInvariantStrings.TryGetValue(value, out string result))
+                return result;
+
+            var lower = value.ToLowerInvariant();
+            LowerInvariantStrings.TryAdd(value, lower);
+            return lower;
         }
 
         public static string EnumToLowerInvariantString<TEnum>(TEnum value)

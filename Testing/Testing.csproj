@@ -5,14 +5,14 @@
     <AssemblyName>MirrorSharp.Testing</AssemblyName>
     <RootNamespace>MirrorSharp.Testing</RootNamespace>
     <TargetFrameworks>netstandard1.5;net46</TargetFrameworks>
-    <VersionPrefix>0.9.3</VersionPrefix>
+    <VersionPrefix>0.11.0-pre-01</VersionPrefix>
     <Description>MirrorSharp testing helpers. $(DescriptionSuffix)</Description>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.5' ">$(PackageTargetFallback);dnxcore50;portable-net45+win8+wp8+wpa81;portable-net45+win8</PackageTargetFallback>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="10.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.9.0" />
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="System.Buffers" Version="4.3.0" />
   </ItemGroup>

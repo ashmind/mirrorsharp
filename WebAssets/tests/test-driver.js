@@ -1,4 +1,4 @@
-const mirrorsharp = require('../mirrorsharp.js');
+const mirrorsharp = require('../dist/mirrorsharp.js');
 const Keysim = require('keysim');
 
 jest.useFakeTimers();

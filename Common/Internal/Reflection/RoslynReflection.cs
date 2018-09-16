@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -15,7 +15,7 @@ using Microsoft.CodeAnalysis.Options;
 using TypeInfo = System.Reflection.TypeInfo;
 
 namespace MirrorSharp.Internal.Reflection {
-    internal static class RoslynReflectionFast {
+    internal static class RoslynReflection {
         private static readonly BindingFlags DefaultInstanceBindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
 
         // Roslyn v2
@@ -46,10 +46,19 @@ namespace MirrorSharp.Internal.Reflection {
         public static bool IsInlinable(CodeAction action) => _getIsInlinable(action);
         public static ImmutableArray<CodeAction> GetNestedCodeActions(CodeAction action) => _getNestedCodeActions(action);
 
-        [SuppressMessage("ReSharper", "HeapView.ClosureAllocation")]
-        [SuppressMessage("ReSharper", "HeapView.DelegateAllocation")]
-        [SuppressMessage("ReSharper", "HeapView.ObjectAllocation.Possible")]
         public static IEnumerable<Lazy<ISignatureHelpProviderWrapper, OrderableLanguageMetadataData>> GetSignatureHelpProvidersSlow(MefHostServices hostServices) {
+            return GetExportsWithOrderableLanguageMetadataSlow<ISignatureHelpProviderWrapper>(
+                hostServices,
+                RoslynTypes.ISignatureHelpProvider,
+                p => new SignatureHelpProviderWrapper(p)
+            );
+        }
+
+        private static IEnumerable<Lazy<TExtensionWrapper, OrderableLanguageMetadataData>> GetExportsWithOrderableLanguageMetadataSlow<TExtensionWrapper>(
+            MefHostServices hostServices,
+            TypeInfo extensionType,
+            Func<object, TExtensionWrapper> createWrapper
+        ) {
             var mefHostServicesType = typeof(MefHostServices).GetTypeInfo();
             var getExports = EnsureFound(
                 mefHostServicesType, "Microsoft.CodeAnalysis.Host.Mef.IMefHostExportProvider.GetExports",
@@ -58,11 +67,10 @@ namespace MirrorSharp.Internal.Reflection {
             );
 
             var metadataType = mefHostServicesType.Assembly.GetType("Microsoft.CodeAnalysis.Host.Mef.OrderableLanguageMetadata", true).GetTypeInfo();
-            var getExportsOfProvider = getExports.MakeGenericMethod(RoslynTypes.ISignatureHelpProvider.AsType(), metadataType.AsType());
+            var getExportsOfProvider = getExports.MakeGenericMethod(extensionType.AsType(), metadataType.AsType());
             var exports = (IEnumerable)getExportsOfProvider.Invoke(hostServices, null);
 
             var metadataLanguagePropery = EnsureFound(metadataType, "Language", (t, n) => t.GetProperty(n));
-
             TypeInfo lazyType = null;
             PropertyInfo metadataProperty = null;
             PropertyInfo valueProperty = null;
@@ -74,9 +82,9 @@ namespace MirrorSharp.Internal.Reflection {
                 }
                 var metadata = metadataProperty.GetValue(export);
                 var language = (string)metadataLanguagePropery.GetValue(metadata);
-                yield return new Lazy<ISignatureHelpProviderWrapper, OrderableLanguageMetadataData>(
+                yield return new Lazy<TExtensionWrapper, OrderableLanguageMetadataData>(
                     // ReSharper disable once AccessToModifiedClosure
-                    () => new SignatureHelpProviderWrapper(valueProperty.GetValue(export)),
+                    () => createWrapper(valueProperty.GetValue(export)),
                     new OrderableLanguageMetadataData(language)
                 );
             }
@@ -89,7 +97,7 @@ namespace MirrorSharp.Internal.Reflection {
         public static AnalyzerOptions NewWorkspaceAnalyzerOptions(AnalyzerOptions options, OptionSet optionSet, Solution solution) =>
             _newWorkspaceAnalyzerOptions(options, optionSet, solution);
 
-        private static TMemberInfo EnsureFound<TMemberInfo>(TypeInfo type, string name, Func<TypeInfo, string, TMemberInfo> getMember) {
+        public static TMemberInfo EnsureFound<TMemberInfo>(TypeInfo type, string name, Func<TypeInfo, string, TMemberInfo> getMember) {
             var member = getMember(type, name);
             if (member == null)
                 throw new MissingMemberException($"Member '{name}' was not found on {type}.");
@@ -100,7 +108,7 @@ namespace MirrorSharp.Internal.Reflection {
             return (TDelegate)(object)method.CreateDelegate(typeof(TDelegate));
         }
 
-        private static TFunc BuildDelegateForConstructorSlow<TFunc>(ConstructorInfo constructor) {            
+        private static TFunc BuildDelegateForConstructorSlow<TFunc>(ConstructorInfo constructor) {
             var parameterTypes = typeof(TFunc).GetTypeInfo().GetGenericArguments();
             var delegateParameters = parameterTypes
                 .Take(parameterTypes.Length - 1)

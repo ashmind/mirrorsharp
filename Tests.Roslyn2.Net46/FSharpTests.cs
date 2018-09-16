@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using MirrorSharp.FSharp.Internal;
 using MirrorSharp.Internal;
@@ -67,13 +67,13 @@ namespace MirrorSharp.Tests {
             Assert.NotNull(result);
             Assert.Equal(
                 new[] {
-                    new { DisplayText = "Equals", Tag = "method" },
-                    new { DisplayText = "GetHashCode", Tag = "method" },
-                    new { DisplayText = "GetType", Tag = "method" },
-                    new { DisplayText = "Method", Tag = "method" },
-                    new { DisplayText = "ToString", Tag = "method" },
+                    new { DisplayText = "Equals", Kind = "method" },
+                    new { DisplayText = "GetHashCode", Kind = "method" },
+                    new { DisplayText = "GetType", Kind = "method" },
+                    new { DisplayText = "Method", Kind = "method" },
+                    new { DisplayText = "ToString", Kind = "method" },
                 },
-                result.Completions.Select(c => new { c.DisplayText, Tag = c.Tags.SingleOrDefault() })
+                result.Completions.Select(c => new { c.DisplayText, Kind = c.Kinds.SingleOrDefault() })
             );
         }
 

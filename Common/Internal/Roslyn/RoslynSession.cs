@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Options;
+using Microsoft.CodeAnalysis.QuickInfo;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Abstraction;
@@ -19,7 +20,7 @@ using MirrorSharp.Internal.Reflection;
 namespace MirrorSharp.Internal.Roslyn {
     internal class RoslynSession : ILanguageSessionInternal, IRoslynSession {
         private static AnalyzerOptions EmptyAnalyzerOptions = new AnalyzerOptions(ImmutableArray<AdditionalText>.Empty);
-        private static OptionSet EmptyOptionSet = RoslynReflectionFast.NewWorkspaceOptionSet();
+        private static OptionSet EmptyOptionSet = RoslynReflection.NewWorkspaceOptionSet();
 
         private static readonly TextChange[] NoTextChanges = new TextChange[0];
 
@@ -33,13 +34,21 @@ namespace MirrorSharp.Internal.Roslyn {
         private Solution _lastWorkspaceAnalyzerOptionsSolution;
         private AnalyzerOptions _workspaceAnalyzerOptions;
 
-        private CompletionService _completionService;
+        private readonly CompletionService _completionService;
 
-        public RoslynSession(SourceText sourceText, ProjectInfo projectInfo, MefHostServices hostServices, ImmutableArray<DiagnosticAnalyzer> analyzers, ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> codeFixProviders, ImmutableArray<ISignatureHelpProviderWrapper> signatureHelpProviders) {
+        public RoslynSession(
+            SourceText sourceText,
+            ProjectInfo projectInfo,
+            MefHostServices hostServices,
+            ImmutableArray<DiagnosticAnalyzer> analyzers,
+            ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> codeFixProviders,
+            ImmutableArray<ISignatureHelpProviderWrapper> signatureHelpProviders
+        ) {
             _workspace = new CustomWorkspace(hostServices);
             _sourceText = sourceText;
             _document = CreateProjectAndOpenNewDocument(_workspace, projectInfo, sourceText);
-            _completionService = GetCompletionService(_document);
+            QuickInfoService = QuickInfoService.GetService(_document);
+            _completionService = CompletionService.GetService(_document);
 
             Analyzers = analyzers;
             SignatureHelpProviders = signatureHelpProviders;
@@ -56,13 +65,6 @@ namespace MirrorSharp.Internal.Roslyn {
             return solution.GetDocument(documentId);
         }
 
-        private CompletionService GetCompletionService(Document document) {
-            var completionService = CompletionService.GetService(document);
-            if (completionService == null)
-                throw new Exception("Failed to retrieve the completion service.");
-            return completionService;
-        }
-
         public string GetText() => SourceText.ToString();
         public void ReplaceText(string newText, int start = 0, int? length = null) {
             var finalLength = length ?? SourceText.Length - start;
@@ -74,7 +76,7 @@ namespace MirrorSharp.Internal.Roslyn {
             var compilation = await Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
             var solution = Project.Solution;
             if (_lastWorkspaceAnalyzerOptionsSolution != solution) {
-                _workspaceAnalyzerOptions = RoslynReflectionFast.NewWorkspaceAnalyzerOptions(EmptyAnalyzerOptions, EmptyOptionSet, solution);
+                _workspaceAnalyzerOptions = RoslynReflection.NewWorkspaceAnalyzerOptions(EmptyAnalyzerOptions, EmptyOptionSet, solution);
                 _lastWorkspaceAnalyzerOptionsSolution = solution;
             }
 
@@ -82,7 +84,7 @@ namespace MirrorSharp.Internal.Roslyn {
                 .GetAllDiagnosticsAsync(cancellationToken)
                 .ConfigureAwait(false);
         }
-        
+
         public bool ShouldTriggerCompletion(int cursorPosition, CompletionTrigger trigger) {
             return _completionService.ShouldTriggerCompletion(SourceText, cursorPosition, trigger);
         }
@@ -139,6 +141,7 @@ namespace MirrorSharp.Internal.Roslyn {
 
         public ImmutableArray<DiagnosticAnalyzer> Analyzers { get; }
         public ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CodeFixProviders { get; }
+        public QuickInfoService QuickInfoService { get; }
         public ImmutableArray<ISignatureHelpProviderWrapper> SignatureHelpProviders { get; }
 
         public void SetScriptMode(bool isScript = true, Type hostObjectType = null) {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections.Immutable;
 using System.Collections.Generic;
@@ -71,7 +71,7 @@ namespace MirrorSharp.Tests {
             var handler = Mock.Of<ICommandHandler>(h => h.CommandId == commandId);
             Mock.Get(handler)
                 .Setup(h => h.ExecuteAsync(It.IsAny<AsyncData>(), It.IsAny<WorkSession>(), It.IsAny<ICommandResultSender>(), It.IsAny<CancellationToken>()))
-                .Returns((AsyncData data, WorkSession s, ICommandResultSender sender, CancellationToken token) => execute?.Invoke(data) ?? TaskEx.CompletedTask);
+                .Returns((AsyncData data, WorkSession s, ICommandResultSender sender, CancellationToken token) => execute?.Invoke(data) ?? Task.CompletedTask);
             return handler;
         }
 

@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net.WebSockets;
@@ -47,6 +47,7 @@ namespace MirrorSharp.Internal {
                 new RequestSelfDebugDataHandler(),
                 new SetOptionsHandler(_languageManager, ArrayPool<char>.Shared, _options.SetOptionsFromClient),
                 new SignatureHelpStateHandler(signatureHelp),
+                new RequestInfoTipHandler(),
                 new SlowUpdateHandler(_options.SlowUpdate),
                 new TypeCharHandler(typedCharEffects)
             };

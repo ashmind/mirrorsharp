@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -57,8 +57,7 @@ namespace MirrorSharp.Internal.Handlers {
                     writer.WriteValue(tag.ToLowerInvariant());
                 }
                 writer.WriteEndArray();
-                writer.WritePropertyName("span");
-                writer.WriteSpan(diagnostic.Location.SourceSpan);
+                writer.WriteSpanProperty("span", diagnostic.Location.SourceSpan);
 
                 var actions = await GetCodeActionsAsync(diagnostic, session, cancellationToken).ConfigureAwait(false);
                 if (actions.Length > 0) {
@@ -82,8 +81,8 @@ namespace MirrorSharp.Internal.Handlers {
                 if (action is CodeActionWithOptions)
                     continue;
 
-                if (RoslynReflectionFast.IsInlinable(action)) {
-                    WriteActions(writer, RoslynReflectionFast.GetNestedCodeActions(action), session);
+                if (RoslynReflection.IsInlinable(action)) {
+                    WriteActions(writer, RoslynReflection.GetNestedCodeActions(action), session);
                     continue;
                 }
                 var id = roslynSession.CurrentCodeActions.Count;
