@@ -1,6 +1,6 @@
 {
   "name": "mirrorsharp",
-  "version": "0.9.5",
+  "version": "0.11.0",
   "description": "A code editor `<textarea>` for .NET.",
   "authors": [
     "Andrey Shchekin (https://github.com/ashmind)"
@@ -24,7 +24,8 @@
   },
   "dependencies": {
     "codemirror": "^5.18.2",
-    "codemirror-addon-lint-fix": "^1.0.1-pre-20170118"
+    "codemirror-addon-infotip": "1.0.0-pre-20180916",
+    "codemirror-addon-lint-fix": "1.0.1-pre-20170118"
   },
   "devDependencies": {
     "eslint": "^4.1.0",

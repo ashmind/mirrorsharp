@@ -138,8 +138,7 @@
 .mirrorsharp-kind-class::before {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 21.33 21.33'%3E%3Cpath d='M7.448 0L0 7.448v1.104l5.332 5.333 3.22-3.22h.782v6.67h2.114l4 3.998h1.103l4.784-4.78v-1.105l-2.782-2.782 2.782-2.78V8.78l-4.002-3.998-1.885 1.884h-2.895l1.334-1.332L8.552 0z' fill='%23f6f6f6'/%3E%3Cpath d='M17.333 13.333L20 16l-4 4-2.667-2.667L14.667 16h-4V9.333H8L5.333 12l-4-4L8 1.333l4 4L9.333 8H16l1.333-1.333L20 9.333l-4 4-2.667-2.666 1.334-1.334H12v5.334l3.997.002z' fill='%23c27d1a'/%3E%3C/svg%3E");
 }
-.mirrorsharp-kind-structure::before,
-.mirrorsharp-kind-struct::before {
+.mirrorsharp-kind-structure::before {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 341.33 341.33'%3E%3Cpath d='M21.333 52v234.667h128V158.645H192v128.022h128V52z' fill='%23f6f6f6'/%3E%3Cpath d='M213.333 265.333h85.334V180h-85.334zM42.667 265.333H128V180H42.667zM42.667 137.333h256v-64h-256z' fill='%2300539c'/%3E%3C/svg%3E");
 }
 .mirrorsharp-kind-enum::before {

@@ -1,4 +1,4 @@
-/* globals addEvents:false */
+/* globals addEvents:false, kindsToClassName:false */
 
 function Hinter(cm, connection) {
     const indexInListKey = '$mirrorsharp-indexInList';
@@ -48,7 +48,7 @@ function Hinter(cm, connection) {
             const item = {
                 text: c.filterText,
                 displayText: c.displayText,
-                className: 'mirrorsharp-hint ' + c.tags.map(function (t) { return 'mirrorsharp-kind-' + t.toLowerCase(); }).join(' '),
+                className: 'mirrorsharp-hint ' + kindsToClassName(c.kinds),
                 hint: commit
             };
             item[indexInListKey] = index;

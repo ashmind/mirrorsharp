@@ -88,7 +88,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             var completionList = await session.LanguageSession.GetCompletionsAsync(session.CursorPosition, trigger, cancellationToken: cancellationToken).ConfigureAwait(false);
             if (completionList == null)
                 return;
-            
+
             session.CurrentCompletion.ResetPending();
             session.CurrentCompletion.List = completionList;
             await SendCompletionListAsync(completionList, sender, cancellationToken).ConfigureAwait(false);
@@ -99,8 +99,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             var writer = sender.StartJsonMessage("completions");
 
             writer.WriteProperty("commitChars", completionList.Rules.DefaultCommitCharacters);
-            writer.WritePropertyName("span");
-            writer.WriteSpan(completionSpan);
+            writer.WriteSpanProperty("span", completionSpan);
 
             var suggestionItem = completionList.SuggestionModeItem;
             if (suggestionItem != null) {
@@ -114,15 +113,9 @@ namespace MirrorSharp.Internal.Handlers.Shared {
                 writer.WriteStartObject();
                 writer.WriteProperty("filterText", item.FilterText);
                 writer.WriteProperty("displayText", item.DisplayText);
-                writer.WritePropertyStartArray("tags");
-                foreach (var tag in item.Tags) {
-                    writer.WriteValue(tag.ToLowerInvariant());
-                }
-                writer.WriteEndArray();
-                if (item.Span != completionSpan) {
-                    writer.WritePropertyName("span");
-                    writer.WriteSpan(item.Span);
-                }
+                writer.WriteTagsProperty("kinds", item.Tags);
+                if (item.Span != completionSpan)
+                    writer.WriteSpanProperty("span", item.Span);
                 if (item.Rules.MatchPriority > 0)
                     writer.WriteProperty("priority", item.Rules.MatchPriority);
                 writer.WriteEndObject();

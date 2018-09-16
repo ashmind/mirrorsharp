@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace MirrorSharp.Testing.Internal.Results {
-    internal class InfoTipItemPart {
+    internal class InfoTipEntryPart {
         [NotNull] public string Kind { get; set; }
         [CanBeNull] public string Text { get; set; }
 

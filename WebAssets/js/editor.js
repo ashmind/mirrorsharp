@@ -1,4 +1,4 @@
-/* globals assign:false, CodeMirror:false, Hinter:false, SignatureTip:false, InfoTipRenderer:false, addEvents:false */
+/* globals assign:false, CodeMirror:false, Hinter:false, SignatureTip:false, InfoTipRender:false, addEvents:false */
 
 function Editor(textarea, connection, selfDebug, options) {
     const lineSeparator = '\r\n';
@@ -30,7 +30,7 @@ function Editor(textarea, connection, selfDebug, options) {
         mode: languageModes[options.language],
         lint: { async: true, getAnnotations: lintGetAnnotations },
         lintFix: { getFixes: getFixes },
-        infotip: { getInfo: infotipGetInfo }
+        infotip: { async: true, getInfo: infotipGetInfo, render: new InfoTipRender() }
     });
     cmOptions.gutters.push('CodeMirror-lint-markers');
 
@@ -76,7 +76,6 @@ function Editor(textarea, connection, selfDebug, options) {
 
     const hinter = new Hinter(cm, connection);
     const signatureTip = new SignatureTip(cm);
-    const infoTipRenderer = new InfoTipRenderer(cm);
     const removeConnectionEvents = addEvents(connection, {
         open: function (e) {
             hideConnectionLoss();
@@ -198,13 +197,12 @@ function Editor(textarea, connection, selfDebug, options) {
                 break;
 
             case 'infotip':
-                if (!message.info) {
+                if (!message.entries) {
                     cm.infotipUpdate(null);
                     return;
                 }
                 cm.infotipUpdate({
-                    info: message.info,
-                    html: infoTipRenderer.render(message.info),
+                    data: message,
                     range: spanToRange(message.span)
                 });
                 break;

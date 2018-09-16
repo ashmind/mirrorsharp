@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../NuGet.Common.props" />
   
   <PropertyGroup>
     <AssemblyName>MirrorSharp.Common</AssemblyName>
     <RootNamespace>MirrorSharp</RootNamespace>
     <TargetFrameworks>netstandard1.5;net46</TargetFrameworks>
-    <VersionPrefix>0.10.0</VersionPrefix>
+    <VersionPrefix>0.11.0</VersionPrefix>
     <Description>MirrorSharp shared server library. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;CodeMirror</PackageTags>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.5' ">$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;portable-net45+win8</PackageTargetFallback>

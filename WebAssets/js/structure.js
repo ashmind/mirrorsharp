@@ -5,6 +5,7 @@
         define([
           'codemirror',
           'codemirror-addon-lint-fix',
+          'codemirror-addon-infotip',
           'codemirror/addon/hint/show-hint',
           'codemirror/mode/clike/clike',
           'codemirror/mode/vb/vb',
@@ -15,6 +16,7 @@
         module.exports = factory(
           require('codemirror'),
           require('codemirror-addon-lint-fix'),
+          require('codemirror-addon-infotip'),
           require('codemirror/addon/hint/show-hint'),
           require('codemirror/mode/clike/clike'),
           require('codemirror/mode/vb/vb')
@@ -26,14 +28,15 @@
 })(this, function (CodeMirror) { // eslint-disable-line no-unused-vars
     'use strict';
 
-    // include: ./assign.js
+    // include: ./helpers/assign.js
     // include: ./self-debug.js
     // include: ./connection.js
     // include: ./hinter.js
     // include: ./signature-tip.js
-    // include: ./infotip-renderer.js
+    // include: ./infotip-render.js
     // include: ./editor.js
-    // include: ./add-events.js
+    // include: ./helpers/add-events.js
+    // include: ./helpers/kinds-to-class-name.js
     // include: ./mirrorsharp.js
 
     return mirrorsharp; // eslint-disable-line no-undef

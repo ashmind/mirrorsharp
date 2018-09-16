@@ -57,8 +57,7 @@ namespace MirrorSharp.Internal.Handlers {
                     writer.WriteValue(tag.ToLowerInvariant());
                 }
                 writer.WriteEndArray();
-                writer.WritePropertyName("span");
-                writer.WriteSpan(diagnostic.Location.SourceSpan);
+                writer.WriteSpanProperty("span", diagnostic.Location.SourceSpan);
 
                 var actions = await GetCodeActionsAsync(diagnostic, session, cancellationToken).ConfigureAwait(false);
                 if (actions.Length > 0) {

@@ -75,8 +75,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
                 return sender.SendJsonMessageAsync(cancellationToken);
 
             var selectedItemIndex = items.SelectedItemIndex;
-            writer.WritePropertyName("span");
-            writer.WriteSpan(items.ApplicableSpan);
+            writer.WriteSpanProperty("span", items.ApplicableSpan);
             writer.WritePropertyStartArray("signatures");
             var itemIndex = 0;
             foreach (var item in items.Items) {

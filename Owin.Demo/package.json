@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "codemirror": "^5.18.2",
+    "codemirror-addon-infotip": "1.0.0-pre-20180916",
     "codemirror-addon-lint-fix": "^1.0.1-pre-20170118",
     "mirrorsharp": "file:../WebAssets/dist"
   }

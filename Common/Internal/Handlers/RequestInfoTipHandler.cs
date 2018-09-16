@@ -40,18 +40,18 @@ namespace MirrorSharp.Internal.Handlers {
             if (IsNullOrEmpty(info))
                 return sender.SendJsonMessageAsync(cancellationToken);
 
-            writer.WritePropertyStartArray("info");
+            writer.WriteTagsProperty("kinds", info.Tags);
+            writer.WritePropertyStartArray("entries");
             foreach (var section in info.Sections) {
                 writer.WriteStartObject();
-                writer.WriteProperty("kind", section.Kind.ToLowerInvariant());
+                writer.WriteProperty("kind", FastConvert.StringToLowerInvariantString(section.Kind));
                 writer.WritePropertyStartArray("parts");
                 writer.WriteTaggedTexts(section.TaggedParts);
                 writer.WriteEndArray();
                 writer.WriteEndObject();
             }
             writer.WriteEndArray();
-            writer.WritePropertyName("span");
-            writer.WriteSpan(info.Span);
+            writer.WriteSpanProperty("span", info.Span);
             return sender.SendJsonMessageAsync(cancellationToken);
         }
 
