@@ -1,0 +1,15 @@
+{
+    "root": true,
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 6
+    },
+    "env": {
+        "browser": true,
+        "amd": true,
+        "es6": true
+    },
+    "rules": {
+        "no-unused-vars": ["warn", { "vars": "local" }]
+    }
+}

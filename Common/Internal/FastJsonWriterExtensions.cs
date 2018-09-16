@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Advanced;
@@ -10,6 +11,11 @@ namespace MirrorSharp.Internal {
             writer.WriteProperty("start", span.Start);
             writer.WriteProperty("length", span.Length);
             writer.WriteEndObject();
+        }
+
+        public static void WriteSpanProperty(this IFastJsonWriter writer, string name, TextSpan span) {
+            writer.WritePropertyName(name);
+            writer.WriteSpan(span);
         }
 
         public static void WriteChange(this IFastJsonWriter writer, TextChange change) {
@@ -37,6 +43,14 @@ namespace MirrorSharp.Internal {
             writer.WriteEndObject();
         }
 
+        public static void WriteTagsProperty(this IFastJsonWriter writer, string name, ImmutableArray<string> tags) {
+            writer.WritePropertyStartArray(name);
+            foreach (var tag in tags) {
+                writer.WriteValue(FastConvert.StringToLowerInvariantString(tag));
+            }
+            writer.WriteEndArray();
+        }
+
         public static void WriteTaggedTexts<TCollection>(this IFastJsonWriter writer, TCollection texts, bool selected = false)
             where TCollection : IEnumerable<TaggedText>
         {
@@ -48,7 +62,7 @@ namespace MirrorSharp.Internal {
         public static void WriteTaggedText(this IFastJsonWriter writer, TaggedText text, bool selected) {
             writer.WriteStartObject();
             writer.WriteProperty("text", text.Text);
-            writer.WriteProperty("kind", text.Tag);
+            writer.WriteProperty("kind", FastConvert.StringToLowerInvariantString(text.Tag));
             if (selected)
                 writer.WriteProperty("selected", true);
             writer.WriteEndObject();

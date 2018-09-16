@@ -51,8 +51,8 @@ namespace MirrorSharp.Tests {
         [Fact]
         public async Task SlowUpdate_Succeeds_ForValidVisualBasicCode() {
             var driver = MirrorSharpTestDriver.New(new MirrorSharpOptions().EnableVisualBasic(), languageName: LanguageNames.VisualBasic).SetText(@"
-                Class C
-                    Sub M()
+                Public Class C
+                    Public Sub M()
                     End Sub
                 End Class
             ");
