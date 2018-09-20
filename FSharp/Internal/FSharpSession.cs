@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
+using Microsoft.CodeAnalysis.QuickInfo;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Compiler;
@@ -15,6 +17,8 @@ using MirrorSharp.FSharp.Advanced;
 using MirrorSharp.Internal.Abstraction;
 
 namespace MirrorSharp.FSharp.Internal {
+    using StructuredFormat = global::Internal.Utilities.StructuredFormat;
+
     internal class FSharpSession : ILanguageSessionInternal, IFSharpSession {
         private string _text;
         [CanBeNull] private LineColumnMap _lastLineMap;
@@ -170,6 +174,48 @@ namespace MirrorSharp.FSharp.Internal {
             _lastLineMap = null;
         }
 
+        public async Task<QuickInfoItem> GetInfoAsync(int cursorPosition, CancellationToken cancellationToken) {
+            var result = await ParseAndCheckAsync(cancellationToken);
+            if (!(result.CheckAnswer is FSharpCheckFileAnswer.Succeeded success))
+                return null;
+
+            var lineMap = GetLineMap();
+            var (line, column) = lineMap.GetLineAndColumn(cursorPosition);
+            var position = Range.mkPos(line.Number, column);
+
+            var elementAtCursor = AstTraversal.Traverse(position, result.ParseResults.ParseTree.Value, FSharpAstProjector.Default);
+            if (elementAtCursor.IsNone())
+                return null;
+
+            var (range, names, tag) = elementAtCursor.Value;
+            var tooltip = await FSharpAsync.StartAsTask(
+                success.Item.GetStructuredToolTipText(
+                    line.Number, range.EndColumn, _text.Substring(line.Start, line.Length),
+                    names, tag, null
+                ),
+                null, cancellationToken
+            ).ConfigureAwait(false);
+
+            var start = lineMap.GetOffset(range.StartLine, range.StartColumn);
+            var end = lineMap.GetOffset(range.EndLine, range.EndColumn);
+            return QuickInfoItem.Create(
+                new TextSpan(start, end),
+                sections: ConvertToQuickInfoSections(tooltip.Item)
+            );
+        }
+
+        private ImmutableArray<QuickInfoSection> ConvertToQuickInfoSections(FSharpList<FSharpToolTipElement<StructuredFormat.Layout>> elements) {
+            var sections = ImmutableArray.CreateBuilder<QuickInfoSection>(elements.Length);
+            foreach (var element in elements) {
+                switch (element) {
+                    case FSharpToolTipElement<StructuredFormat.Layout>.Group g:
+                        break;
+
+                }
+            }
+            return sections.MoveToImmutable();
+        }
+
         public bool ShouldTriggerCompletion(int cursorPosition, CompletionTrigger trigger) {
             return (trigger.Kind == CompletionTriggerKind.Insertion && trigger.Character == '.')
                 || trigger.Kind == CompletionTriggerKind.Invoke;
@@ -180,11 +226,11 @@ namespace MirrorSharp.FSharp.Internal {
             if (!(result.CheckAnswer is FSharpCheckFileAnswer.Succeeded success))
                 return null;
 
-            var info = GetLineMap().GetLineAndColumn(cursorPosition);
+            var (line, column) = GetLineMap().GetLineAndColumn(cursorPosition);
 
             var symbols = await FSharpAsync.StartAsTask(success.Item.GetDeclarationListSymbols(
-                result.ParseResults, info.line.Number, info.column,
-                _text.Substring(info.line.Start, info.line.Length),
+                result.ParseResults, line.Number, column,
+                _text.Substring(line.Start, line.Length),
                 FSharpList<string>.Empty,
                 "", null, null
             ), null, cancellationToken);

@@ -1,5 +1,4 @@
-﻿using JetBrains.Annotations;
-using Microsoft.CodeAnalysis;
+using JetBrains.Annotations;
 using Microsoft.FSharp.Compiler.AbstractIL.Internal;
 using MirrorSharp.Internal.Abstraction;
 

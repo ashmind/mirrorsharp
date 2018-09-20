@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
+using Microsoft.CodeAnalysis.QuickInfo;
 using Microsoft.CodeAnalysis.Text;
 
 namespace MirrorSharp.Internal.Abstraction {
@@ -13,6 +14,8 @@ namespace MirrorSharp.Internal.Abstraction {
         void ReplaceText([CanBeNull] string newText, int start = 0, [CanBeNull] int? length = null);
 
         [NotNull] Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(CancellationToken cancellationToken);
+
+        [NotNull, ItemCanBeNull] Task<QuickInfoItem> GetInfoAsync(int cursorPosition, CancellationToken cancellationToken);
 
         bool ShouldTriggerCompletion(int cursorPosition, CompletionTrigger trigger);
         [NotNull, ItemCanBeNull] Task<CompletionList> GetCompletionsAsync(int cursorPosition, CompletionTrigger trigger, CancellationToken cancellationToken);

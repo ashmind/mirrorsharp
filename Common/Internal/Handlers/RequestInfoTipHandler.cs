@@ -9,25 +9,13 @@ namespace MirrorSharp.Internal.Handlers {
     internal class RequestInfoTipHandler : ICommandHandler {
         public char CommandId => CommandIds.RequestInfoTip;
 
-        public Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            if (!session.IsRoslyn)
-                return Task.CompletedTask;
-
+        public async Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var first = data.GetFirst();
             var active = (first.Array[first.Offset] == (byte)'A');
             var cursorPosition = FastConvert.Utf8ByteArrayToInt32(first.Skip(1));
 
-            return ExecuteForRoslynAsync(active, cursorPosition, session, sender, cancellationToken);
-        }
-
-        private async Task ExecuteForRoslynAsync(
-            bool active, int cursorPosition,
-            WorkSession session,
-            ICommandResultSender sender,
-            CancellationToken cancellationToken
-        ) {
-            var info = await session.Roslyn.QuickInfoService
-                .GetQuickInfoAsync(session.Roslyn.Document, cursorPosition, cancellationToken)
+            var info = await session.LanguageSession
+                .GetInfoAsync(cursorPosition, cancellationToken)
                 .ConfigureAwait(false);
 
             if (IsNullOrEmpty(info) && !active)

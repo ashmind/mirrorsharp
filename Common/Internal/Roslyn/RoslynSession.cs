@@ -34,6 +34,7 @@ namespace MirrorSharp.Internal.Roslyn {
         private Solution _lastWorkspaceAnalyzerOptionsSolution;
         private AnalyzerOptions _workspaceAnalyzerOptions;
 
+        private readonly QuickInfoService _quickInfoService;
         private readonly CompletionService _completionService;
 
         public RoslynSession(
@@ -47,7 +48,7 @@ namespace MirrorSharp.Internal.Roslyn {
             _workspace = new CustomWorkspace(hostServices);
             _sourceText = sourceText;
             _document = CreateProjectAndOpenNewDocument(_workspace, projectInfo, sourceText);
-            QuickInfoService = QuickInfoService.GetService(_document);
+            _quickInfoService = QuickInfoService.GetService(_document);
             _completionService = CompletionService.GetService(_document);
 
             Analyzers = analyzers;
@@ -83,6 +84,10 @@ namespace MirrorSharp.Internal.Roslyn {
             return await compilation.WithAnalyzers(Analyzers, _workspaceAnalyzerOptions, cancellationToken)
                 .GetAllDiagnosticsAsync(cancellationToken)
                 .ConfigureAwait(false);
+        }
+
+        public Task<QuickInfoItem> GetInfoAsync(int cursorPosition, CancellationToken cancellationToken) {
+            return _quickInfoService.GetQuickInfoAsync(Document, cursorPosition, cancellationToken);
         }
 
         public bool ShouldTriggerCompletion(int cursorPosition, CompletionTrigger trigger) {
@@ -141,7 +146,6 @@ namespace MirrorSharp.Internal.Roslyn {
 
         public ImmutableArray<DiagnosticAnalyzer> Analyzers { get; }
         public ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CodeFixProviders { get; }
-        public QuickInfoService QuickInfoService { get; }
         public ImmutableArray<ISignatureHelpProviderWrapper> SignatureHelpProviders { get; }
 
         public void SetScriptMode(bool isScript = true, Type hostObjectType = null) {

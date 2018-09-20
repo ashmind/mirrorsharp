@@ -99,5 +99,14 @@ namespace MirrorSharp.Tests {
                 changes.Changes.Select(c => new { c.Start, c.Length, c.Text })
             );
         }
+
+        [Fact]
+        public async void RequestInfoTip_ProducesExpectedInfo() {
+            var driver = MirrorSharpTestDriver
+                .New(Options, FSharpLanguage.Name)
+                .SetText(@"type Test() = member this.Method() = ()");
+
+            var result = await driver.SendAsync<InfoTipResult>(CommandIds.RequestInfoTip, "I6");
+        }
     }
 }
