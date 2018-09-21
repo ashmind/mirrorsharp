@@ -48,7 +48,8 @@ function Hinter(cm, connection) {
             const item = {
                 text: c.filterText,
                 displayText: c.displayText,
-                className: 'mirrorsharp-hint ' + kindsToClassName(c.kinds),
+                // [TEMP] c.tags is for backward compatibility with 0.10
+                className: 'mirrorsharp-hint ' + kindsToClassName(c.kinds || c.tags),
                 hint: commit
             };
             item[indexInListKey] = index;

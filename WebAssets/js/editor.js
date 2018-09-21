@@ -220,6 +220,12 @@ function Editor(textarea, connection, selfDebug, options) {
                 break;
 
             case 'error':
+                // [TEMP] Backward compatibility with 0.10
+                if (/Unknown command: 'I'/.test(message.message)) {
+                    cm.setOption('infotip', null);
+                    return;
+                }
+                // [TEMP] end
                 options.on.serverError(message.message);
                 break;
 
