@@ -95,7 +95,7 @@
 }
 
 .mirrorsharp-hint::before,
-.mirrorsharp-tip-description::before {
+.mirrorsharp-tip > :first-child::before {
     content: '';
     display: inline-block;
     margin-right: 0.2em;
@@ -105,8 +105,12 @@
     background-repeat: no-repeat;
 }
 
-.mirrorsharp-tip-description::before {
+.mirrorsharp-tip > :first-child::before {
     vertical-align: middle;
+}
+
+.mirrorsharp-tip > * + * {
+    margin-top: 10px;
 }
 
 .mirrorsharp-hint::before {

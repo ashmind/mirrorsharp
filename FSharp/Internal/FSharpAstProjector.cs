@@ -25,9 +25,29 @@ namespace MirrorSharp.FSharp.Internal {
             return (expr.Range, FSharpList<string>.Empty, expr.Tag);
         }
 
-        public override FSharpOption<Result> VisitComponentInfo(Ast.SynComponentInfo info) {
-            var names = ListModule.Map(IdentToName, info.longId);
-            return (info.Range, names, FSharpTokenTag.Identifier);
+        //public override FSharpOption<Result> VisitComponentInfo(Ast.SynComponentInfo info) {
+        //    var idStart = (Range.pos?)null;
+        //    var idEnd = (Range.pos?)null;
+        //    var names = FSharpList<string>.Empty;
+        //    foreach (var id in info.longId) {
+        //        idStart = (idStart == null || Range.posLt(id.idRange.Start, idStart.Value)) ? id.idRange.Start : idStart;
+        //        idEnd = (idEnd == null || Range.posGt(id.idRange.End, idEnd.Value)) ? id.idRange.End : idEnd;
+        //        names = FSharpList<string>.Cons(id.idText, names);
+        //    }
+
+        //    if (idStart == null || idEnd == null)
+        //        return FSharpOption<Result>.None;
+
+        //    var range = Range.mkRange("", idStart.Value, idEnd.Value);
+        //    return (range, names, FSharpTokenTag.Identifier);
+        //}
+
+        public override FSharpOption<Result> VisitBinding(FSharpFunc<Ast.SynBinding, FSharpOption<Result>> defaultTraverse, Ast.SynBinding binding) {
+            return base.VisitBinding(defaultTraverse, binding);
+        }
+
+        public override FSharpOption<Result> VisitSimplePats(FSharpList<Ast.SynSimplePat> _arg6) {
+            return base.VisitSimplePats(_arg6);
         }
     }
 }

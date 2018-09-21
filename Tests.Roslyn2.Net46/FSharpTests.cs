@@ -100,13 +100,17 @@ namespace MirrorSharp.Tests {
             );
         }
 
-        [Fact]
-        public async void RequestInfoTip_ProducesExpectedInfo() {
+        [Theory]
+        //[InlineData(@"type Test() = member this.Method() = ()", 6)]
+        [InlineData(@"type Test() = member this.Method() = ()", 28)]
+        public async void RequestInfoTip_ProducesExpectedInfo(string code, int position) {
             var driver = MirrorSharpTestDriver
                 .New(Options, FSharpLanguage.Name)
-                .SetText(@"type Test() = member this.Method() = ()");
+                .SetText(code);
 
-            var result = await driver.SendAsync<InfoTipResult>(CommandIds.RequestInfoTip, "I6");
+            var result = await driver.SendAsync<InfoTipResult>(CommandIds.RequestInfoTip, $"I{position}");
+
+            Assert.Equal("abc", result?.ToString());
         }
     }
 }

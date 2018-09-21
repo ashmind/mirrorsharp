@@ -17,8 +17,6 @@ using MirrorSharp.FSharp.Advanced;
 using MirrorSharp.Internal.Abstraction;
 
 namespace MirrorSharp.FSharp.Internal {
-    using StructuredFormat = global::Internal.Utilities.StructuredFormat;
-
     internal class FSharpSession : ILanguageSessionInternal, IFSharpSession {
         private string _text;
         [CanBeNull] private LineColumnMap _lastLineMap;
@@ -183,11 +181,14 @@ namespace MirrorSharp.FSharp.Internal {
             var (line, column) = lineMap.GetLineAndColumn(cursorPosition);
             var position = Range.mkPos(line.Number, column);
 
-            var elementAtCursor = AstTraversal.Traverse(position, result.ParseResults.ParseTree.Value, FSharpAstProjector.Default);
-            if (elementAtCursor.IsNone())
+            var candidate = AstTraversal.Traverse(position, result.ParseResults.ParseTree.Value, FSharpAstProjector.Default);
+            if (candidate.IsNone())
                 return null;
 
-            var (range, names, tag) = elementAtCursor.Value;
+            var (range, names, tag) = candidate.Value;
+            if (!Range.rangeContainsPos(range, position))
+                return null;
+
             var tooltip = await FSharpAsync.StartAsTask(
                 success.Item.GetStructuredToolTipText(
                     line.Number, range.EndColumn, _text.Substring(line.Start, line.Length),
@@ -200,20 +201,8 @@ namespace MirrorSharp.FSharp.Internal {
             var end = lineMap.GetOffset(range.EndLine, range.EndColumn);
             return QuickInfoItem.Create(
                 new TextSpan(start, end),
-                sections: ConvertToQuickInfoSections(tooltip.Item)
+                sections: ToolTipConverter.ToQuickInfo(tooltip.Item)
             );
-        }
-
-        private ImmutableArray<QuickInfoSection> ConvertToQuickInfoSections(FSharpList<FSharpToolTipElement<StructuredFormat.Layout>> elements) {
-            var sections = ImmutableArray.CreateBuilder<QuickInfoSection>(elements.Length);
-            foreach (var element in elements) {
-                switch (element) {
-                    case FSharpToolTipElement<StructuredFormat.Layout>.Group g:
-                        break;
-
-                }
-            }
-            return sections.MoveToImmutable();
         }
 
         public bool ShouldTriggerCompletion(int cursorPosition, CompletionTrigger trigger) {

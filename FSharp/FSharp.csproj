@@ -10,6 +10,10 @@
     <PackageTags>F#;CodeMirror</PackageTags>
     <DocumentationFile>$(OutDir)\MirrorSharp.FSharp.xml</DocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Internal\FSharpSession.cs~RF22d79f18.TMP" />
+  </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
