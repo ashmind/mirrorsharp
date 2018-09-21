@@ -10,3 +10,4 @@ WebAssets/dist/*.css
 WebAssets/dist/*.less
 WebAssets/dist/*.js
 WebAssets/dist/*.json
+WebAssets/dist/*.md

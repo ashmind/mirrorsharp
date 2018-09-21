@@ -1,6 +1,6 @@
 {
   "name": "mirrorsharp",
-  "version": "0.11.0-pre-03",
+  "version": "0.11.0-pre-04",
   "description": "A code editor `<textarea>` for .NET.",
   "authors": [
     "Andrey Shchekin (https://github.com/ashmind)"
@@ -32,6 +32,7 @@
     "eslint": "^4.1.0",
     "fs-jetpack": "^2.1.0",
     "jest": "^20.0.4",
+    "jest-cli": "^20.0.4",
     "keysim": "^2.0.0",
     "oldowan": "^1.0.0-preview-2"
   }

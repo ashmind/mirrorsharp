@@ -16,7 +16,10 @@ task('js', async () => {
 }, { inputs: ['js/*.js'] });
 
 task('css', () => jetpack.copyAsync('css', 'dist', { overwrite: true }), { inputs: ['css/*.*'] });
-task('packageJson', () => jetpack.copyAsync('./package.json', 'dist/package.json', { overwrite: true }), { inputs: ['./package.json'] });
+task('files', () => {
+    jetpack.copyAsync('./README.md', 'dist/README.md', { overwrite: true });
+    jetpack.copyAsync('./package.json', 'dist/package.json', { overwrite: true });
+}, { inputs: ['./README.md', './package.json'] });
 task('demoFix', async () => {
     await jetpack.dirAsync('./dist');
     if (await jetpack.existsAsync('./dist/node_modules'))
@@ -28,7 +31,7 @@ task('demoFix', async () => {
 task('default', async () => Promise.all([
     tasks.js(),
     tasks.css(),
-    tasks.packageJson(),
+    tasks.files(),
     tasks.demoFix()
 ]));
 

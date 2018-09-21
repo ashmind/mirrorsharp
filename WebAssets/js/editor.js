@@ -30,7 +30,7 @@ function Editor(textarea, connection, selfDebug, options) {
         mode: languageModes[options.language],
         lint: { async: true, getAnnotations: lintGetAnnotations },
         lintFix: { getFixes: getFixes },
-        infotip: { async: true, getInfo: infotipGetInfo, render: new InfoTipRender() }
+        infotip: { async: true, delay: 500, getInfo: infotipGetInfo, render: new InfoTipRender() }
     });
     cmOptions.gutters.push('CodeMirror-lint-markers');
 
