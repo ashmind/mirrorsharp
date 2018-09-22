@@ -13,6 +13,7 @@ using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Compiler;
 using Microsoft.FSharp.Compiler.SourceCodeServices;
 using Microsoft.FSharp.Control;
+using Microsoft.FSharp.Core;
 using MirrorSharp.FSharp.Advanced;
 using MirrorSharp.Internal.Abstraction;
 
@@ -221,8 +222,9 @@ namespace MirrorSharp.FSharp.Internal {
             var symbols = await FSharpAsync.StartAsTask(success.Item.GetDeclarationListSymbols(
                 result.ParseResults, line.Number, column,
                 _text.Substring(line.Start, line.Length),
-                FSharpList<string>.Empty,
-                "", null, null
+                null,
+                FSharpFunc<Tuple<object, Range.range>, bool>.FromConverter(_ => true),
+                null
             ), null, cancellationToken);
             if (symbols.IsEmpty)
                 return null;

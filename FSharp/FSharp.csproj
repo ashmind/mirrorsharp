@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../NuGet.Common.props" />
 
   <PropertyGroup>
@@ -14,14 +14,13 @@
   <ItemGroup>
     <None Remove="Internal\FSharpSession.cs~RF22d79f18.TMP" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.Compiler.Service" Version="25.0.1" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="20.0.1" />
     <PackageReference Include="FSharp.Core" Version="4.2.3" />
   </ItemGroup>
-
 </Project>
