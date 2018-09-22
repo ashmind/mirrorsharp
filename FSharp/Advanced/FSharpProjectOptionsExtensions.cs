@@ -102,6 +102,7 @@ namespace MirrorSharp.FSharp.Advanced {
 
             return new FSharpProjectOptions(
                 options.ProjectFileName,
+                options.ProjectId,
                 options.SourceFiles,
                 otherOptions,
                 options.ReferencedProjects,

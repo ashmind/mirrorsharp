@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../NuGet.Common.props" />
 
   <PropertyGroup>
@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.Compiler.Service" Version="14.0.2" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="25.0.1" />
     <PackageReference Include="FSharp.Core" Version="4.2.3" />
   </ItemGroup>
 

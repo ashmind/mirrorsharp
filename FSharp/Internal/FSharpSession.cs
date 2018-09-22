@@ -32,6 +32,7 @@ namespace MirrorSharp.FSharp.Internal {
                 keepAllBackgroundResolutions: true,
                 legacyReferenceResolver: null
             );
+            Checker.ImplicitlyStartBackgroundWork = false;
             AssemblyReferencePaths = options.AssemblyReferencePaths;
             AssemblyReferencePathsAsFSharpList = ToFSharpList(options.AssemblyReferencePaths);
             ProjectOptions = new FSharpProjectOptions(
@@ -181,7 +182,7 @@ namespace MirrorSharp.FSharp.Internal {
             var (line, column) = lineMap.GetLineAndColumn(cursorPosition);
             var position = Range.mkPos(line.Number, column);
 
-            var candidate = AstTraversal.Traverse(position, result.ParseResults.ParseTree.Value, FSharpAstProjector.Default);
+            var candidate = AstTraversal.Traverse(position, result.ParseResults.ParseTree.Value, new FSharpAstFinder(position));
             if (candidate.IsNone())
                 return null;
 
