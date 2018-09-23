@@ -115,8 +115,8 @@ function Connection(url, selfDebug) {
         return sendWhenOpen('P' + stateCommandMap[command]);
     };
 
-    this.sendRequestInfoTip = function(active, cursorIndex) {
-        return sendWhenOpen('I' + (active ? 'A' : 'N') + cursorIndex);
+    this.sendRequestInfoTip = function(cursorIndex) {
+        return sendWhenOpen('I' + cursorIndex);
     };
 
     this.sendSlowUpdate = function() {

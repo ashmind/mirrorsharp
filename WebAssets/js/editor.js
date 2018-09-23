@@ -293,7 +293,7 @@ function Editor(textarea, connection, selfDebug, options) {
 
     // eslint-disable-next-line no-shadow
     function infotipGetInfo(cm, position) {
-        connection.sendRequestInfoTip(cm.infotipIsActive(), cm.indexFromPos(position));
+        connection.sendRequestInfoTip(cm.indexFromPos(position));
     }
 
     function requestSlowUpdate(force) {

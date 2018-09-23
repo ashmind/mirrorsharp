@@ -10,7 +10,18 @@ namespace MirrorSharp.Advanced {
         [PublicAPI, NotNull] Project Project { get; set; }
 
         /// <summary>
-        /// Sets or unsets Script mode for the Roslyn session.
+        /// Adds assembly references to the current session and attempts to discover corresponding XML documentation.
+        /// </summary>
+        /// <param name="paths">Paths to assemblies to be added.</param>
+        /// <remarks>
+        /// This method will attempt to automatically discover XML documentation files for the assemblies being added.
+        /// However it will always succeed, whether the XML documentation is available or not.
+        /// </remarks>
+        /// <seealso cref="ProjectInfo.MetadataReferences"/>
+        void AddMetadataReferencesFromFiles(params string[] paths);
+
+        /// <summary>
+        /// Sets or unsets script mode for the Roslyn session.
         /// </summary>
         /// <param name="isScript">Whether the session should use script mode.</param>
         /// <param name="hostObjectType">Host object type for the session; must be <c>null</c> if <paramref name="isScript" /> is <c>false</c>.</param>

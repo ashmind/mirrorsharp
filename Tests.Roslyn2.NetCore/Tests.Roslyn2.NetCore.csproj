@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <DefineConstants>$(DefineConstants);ROSLYN20</DefineConstants>
     <AssemblyName>MirrorSharp.Tests.Roslyn2.NetCore</AssemblyName>
     <PackageId>MirrorSharp.Tests.Roslyn2.NetCore</PackageId>

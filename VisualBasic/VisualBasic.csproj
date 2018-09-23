@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../NuGet.Common.props" />
 
   <PropertyGroup>
     <AssemblyName>MirrorSharp.VisualBasic</AssemblyName>
     <RootNamespace>MirrorSharp.VisualBasic</RootNamespace>
     <TargetFrameworks>netstandard1.5;net46</TargetFrameworks>
-    <VersionPrefix>0.11.0-pre-01</VersionPrefix>
+    <VersionPrefix>0.11.0-pre-05</VersionPrefix>
     <Description>MirrorSharp Visual Basic .NET support library. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;Visual Basic;CodeMirror</PackageTags>
     <DocumentationFile>$(OutDir)\MirrorSharp.VisualBasic.xml</DocumentationFile>

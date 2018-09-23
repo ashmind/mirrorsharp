@@ -13,15 +13,12 @@ namespace MirrorSharp.Internal.Handlers {
             if (!session.IsRoslyn)
                 return Task.CompletedTask;
 
-            var first = data.GetFirst();
-            var active = (first.Array[first.Offset] == (byte)'A');
-            var cursorPosition = FastConvert.Utf8ByteArrayToInt32(first.Skip(1));
-
-            return ExecuteForRoslynAsync(active, cursorPosition, session, sender, cancellationToken);
+            var cursorPosition = FastConvert.Utf8ByteArrayToInt32(data.GetFirst());
+            return ExecuteForRoslynAsync(cursorPosition, session, sender, cancellationToken);
         }
 
         private async Task ExecuteForRoslynAsync(
-            bool active, int cursorPosition,
+            int cursorPosition,
             WorkSession session,
             ICommandResultSender sender,
             CancellationToken cancellationToken
@@ -30,7 +27,7 @@ namespace MirrorSharp.Internal.Handlers {
                 .GetQuickInfoAsync(session.Roslyn.Document, cursorPosition, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (IsNullOrEmpty(info) && !active)
+            if (IsNullOrEmpty(info))
                 return;
             await SendInfoTipAsync(info, sender, cancellationToken).ConfigureAwait(false);
         }

@@ -50,7 +50,7 @@ namespace MirrorSharp.Tests {
             var connection = new Connection(socketMock, session, CreateCommandHandlers(handler), ArrayPool<byte>.Shared);
 
             await connection.ReceiveAndProcessAsync(CancellationToken.None);
-            Assert.Equal(longArgument, string.Join("", segments.Select(Encoding.UTF8.GetString)));
+            Assert.Equal(longArgument, string.Join("", segments.Select(s => Encoding.UTF8.GetString(s))));
         }
 
         private ArraySegment<T> Copy<T>(ArraySegment<T> segment) {

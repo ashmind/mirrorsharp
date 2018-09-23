@@ -184,6 +184,10 @@ namespace MirrorSharp.Internal.Roslyn {
             UpdateDocumentAfterSolutionChange();
         }
 
+        public void AddMetadataReferencesFromFiles(params string[] paths) {
+            Project = Project.WithMetadataReferences(MetadataReferenceFactory.CreateFromFiles(paths));
+        }
+
         private void EnsureDocumentUpToDate() {
             if (!_documentOutOfDate)
                 return;

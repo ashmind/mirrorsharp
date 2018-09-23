@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../NuGet.Common.props" />
 
   <PropertyGroup>
     <AssemblyName>MirrorSharp.Owin</AssemblyName>
     <RootNamespace>MirrorSharp.Owin</RootNamespace>
     <TargetFramework>net46</TargetFramework>
-    <VersionPrefix>0.11.0-pre-01</VersionPrefix>
+    <VersionPrefix>0.11.0-pre-05</VersionPrefix>
     <Description>MirrorSharp OWIN server. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;CodeMirror</PackageTags>
     <DocumentationFile>$(OutDir)\MirrorSharp.Owin.xml</DocumentationFile>

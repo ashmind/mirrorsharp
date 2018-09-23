@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
+using MirrorSharp.Internal;
 using MirrorSharp.Internal.Roslyn;
 
 namespace MirrorSharp.Advanced {
@@ -52,9 +55,10 @@ namespace MirrorSharp.Advanced {
             set => _metadataReferences = Argument.NotNull(nameof(value), value);
         }
 
-        /// <summary>Sets or unsets Script mode for this language.</summary>
+        /// <summary>Sets or unsets script mode for this language.</summary>
         /// <param name="isScript">Whether the language should use script mode.</param>
         /// <param name="hostObjectType">Host object type for the session; must be <c>null</c> if <paramref name="isScript" /> is <c>false</c>.</param>
+        /// <returns>Current instance (for convenience).</returns>
         /// <remarks>
         /// Members of <paramref name="hostObjectType" /> are directly available to the script. For example
         /// if you set <c>hostObjectType</c> is <see cref="Random" />, you can use <see cref="Random.Next()" />
@@ -69,6 +73,21 @@ namespace MirrorSharp.Advanced {
             _isScript = isScript;
             _hostObjectType = hostObjectType;
 
+            return (TSelf)this;
+        }
+
+        /// <summary>
+        /// Adds assembly references to <see cref="MetadataReferences"/> and attempts to discover corresponding XML documentation.
+        /// </summary>
+        /// <param name="paths">Paths to assemblies to be added.</param>
+        /// <returns>Current instance (for convenience).</returns>
+        /// <remarks>
+        /// This method will attempt to automatically discover XML documentation files for the assemblies being added.
+        /// However it will always succeed, whether the XML documentation is available or not.
+        /// </remarks>
+        /// <seealso cref="MetadataReferences"/>
+        public TSelf AddMetadataReferencesFromFiles(params string[] paths) {
+            _metadataReferences = _metadataReferences.AddRange(MetadataReferenceFactory.CreateFromFiles(paths));
             return (TSelf)this;
         }
 

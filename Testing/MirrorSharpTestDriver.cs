@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -43,11 +43,10 @@ namespace MirrorSharp.Testing {
         }
 
         public MirrorSharpTestDriver SetTextWithCursor(string textWithCursor) {
-            var cursorPosition = textWithCursor.LastIndexOf('|');
-            var text = textWithCursor.Remove(cursorPosition, 1);
+            var parsed = TextWithCursor.Parse(textWithCursor);
 
-            Session.ReplaceText(text);
-            Session.CursorPosition = cursorPosition;
+            Session.ReplaceText(parsed.Text);
+            Session.CursorPosition = parsed.CursorPosition;
             return this;
         }
 
