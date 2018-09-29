@@ -12,11 +12,10 @@ build_script:
 - dotnet build --configuration Release
 
 test_script:
-- dotnet test Tests.Roslyn2.NetCore\Tests.Roslyn2.NetCore.csproj
-- dotnet test Tests.Roslyn2.Net46\Tests.Roslyn2.Net46.csproj
+- mirrorsharp test
   
 after_test:
-- .\pack-all.bat
+- mirrorsharp pack
 
 artifacts:
 - path: '*.nupkg'

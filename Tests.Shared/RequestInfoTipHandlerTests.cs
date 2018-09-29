@@ -35,7 +35,7 @@ namespace MirrorSharp.Tests {
             var text = TextWithCursor.Parse(textWithCursor, '➭');
             var driver = MirrorSharpTestDriver.New().SetText(text.Text);
 
-            var result = await driver.SendAsync<InfoTipResult>(RequestInfoTip, $"{text.CursorPosition}");
+            var result = await driver.SendRequestInfoTipAsync(text.CursorPosition);
 
             Assert.Equal(expectedKinds, result.Kinds);
             Assert.Equal(expectedResultText, result?.ToString());
@@ -47,9 +47,9 @@ namespace MirrorSharp.Tests {
             var driver = MirrorSharpTestDriver.New(MirrorSharpOptionsWithXmlDocumentation)
                 .SetText(text.Text);
 
-            var result = await driver.SendAsync<InfoTipResult>(RequestInfoTip, $"{text.CursorPosition}");
+            var result = await driver.SendRequestInfoTipAsync(text.CursorPosition);
 
-            var documentation = Assert.Single(result.Entries.Where(e => e.Kind == QuickInfoSectionKinds.DocumentationComments.ToLowerInvariant()));
+            var documentation = Assert.Single(result.Sections.Where(e => e.Kind == QuickInfoSectionKinds.DocumentationComments.ToLowerInvariant()));
             Assert.Equal(
                 "Converts the numeric value of this instance to its equivalent string representation.",
                 documentation.ToString()
@@ -60,7 +60,7 @@ namespace MirrorSharp.Tests {
         public async Task ExecuteAsync_DoesNotSendMessage_WhenNoQuickInfo() {
             var driver = MirrorSharpTestDriver.New().SetText("class C {}");
 
-            var result = await driver.SendAsync<InfoTipResult>(RequestInfoTip, "10");
+            var result = await driver.SendRequestInfoTipAsync(10);
 
             Assert.Null(result);
         }

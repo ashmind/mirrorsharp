@@ -7,12 +7,12 @@ function InfoTipRender() {
         struct: 'cm-type'
     };
 
-    function renderEntry(mainElement, entry, index, info) {
+    function renderSection(mainElement, section, index, info) {
         const element = document.createElement('div');
-        element.className = 'mirrorsharp-tip-' + entry.kind;
+        element.className = 'mirrorsharp-tip-' + section.kind;
         if (index === 0)
             element.className += ' ' + kindsToClassName(info.kinds);
-        entry.parts.forEach(function(part) { renderPart(element, part); });
+        section.parts.forEach(function(part) { renderPart(element, part); });
         mainElement.appendChild(element);
     }
 
@@ -26,8 +26,8 @@ function InfoTipRender() {
     return function render(parent, data) {
         const wrapper = document.createElement('div');
         wrapper.className = 'mirrorsharp-theme mirrorsharp-tip';
-        data.entries.forEach(function(entry, index) {
-            renderEntry(wrapper, entry, index, data);
+        data.sections.forEach(function (section, index) {
+            renderSection(wrapper, section, index, data);
         });
         parent.appendChild(wrapper);
     };

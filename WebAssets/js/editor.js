@@ -197,7 +197,7 @@ function Editor(textarea, connection, selfDebug, options) {
                 break;
 
             case 'infotip':
-                if (!message.entries) {
+                if (!message.sections) {
                     cm.infotipUpdate(null);
                     return;
                 }

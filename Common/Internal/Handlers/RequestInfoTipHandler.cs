@@ -38,7 +38,7 @@ namespace MirrorSharp.Internal.Handlers {
                 return sender.SendJsonMessageAsync(cancellationToken);
 
             writer.WriteTagsProperty("kinds", info.Tags);
-            writer.WritePropertyStartArray("entries");
+            writer.WritePropertyStartArray("sections");
             foreach (var section in info.Sections) {
                 writer.WriteStartObject();
                 writer.WriteProperty("kind", FastConvert.StringToLowerInvariantString(section.Kind));

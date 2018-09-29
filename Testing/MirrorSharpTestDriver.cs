@@ -76,6 +76,11 @@ namespace MirrorSharp.Testing {
         }
 
         [PublicAPI]
+        public Task<InfoTipResult> SendRequestInfoTipAsync(int position) {
+            return SendAsync<InfoTipResult>(CommandIds.RequestInfoTip, position);
+        }
+
+        [PublicAPI]
         internal Task SendReplaceTextAsync(string newText, int start = 0, int length = 0, int newCursorPosition = 0, string reason = "") {
             // ReSharper disable HeapView.BoxingAllocation
             return SendAsync(CommandIds.ReplaceText, $"{start}:{length}:{newCursorPosition}:{reason}:{newText}");
