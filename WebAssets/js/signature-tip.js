@@ -68,3 +68,5 @@ function SignatureTip(cm) {
 
     this.hide = hide;
 }
+
+/* exported SignatureTip */

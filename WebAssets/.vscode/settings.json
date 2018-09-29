@@ -1,5 +1,6 @@
 {
     "jest.pathToJest": "npm run test --",
+    "jest.showCoverageOnLoad": true,
     "javascript.validate.enable": false,
     "cSpell.ignorePaths": [
         "**/node_modules/**",
@@ -14,6 +15,7 @@
         "Typer",
         "clike",
         "codemirror",
+        "httpd",
         "infotip",
         "jetpack",
         "jsparts",

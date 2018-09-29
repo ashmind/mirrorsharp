@@ -64,3 +64,5 @@ function SelfDebug() {
         }));
     };
 }
+
+/* exported SelfDebug */

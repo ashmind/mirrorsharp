@@ -69,6 +69,10 @@ class TestReceiver {
     changes(changes = [], reason = '') {
         this.socket.trigger('message', { data: JSON.stringify({type: 'changes', changes, reason}) });
     }
+
+    optionsEcho(options = {}) {
+        this.socket.trigger('message', { data: JSON.stringify({type: 'optionsEcho', options}) });
+    }
 }
 
 class TestDriver {
@@ -83,7 +87,7 @@ class TestDriver {
     }
 }
 
-TestDriver.new = async options => {
+TestDriver.new = async (options = {}) => {
     const driver = new TestDriver();
     const initial = getInitialState(options);
 

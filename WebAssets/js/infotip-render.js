@@ -32,3 +32,5 @@ function InfoTipRender() {
         parent.appendChild(wrapper);
     };
 }
+
+/* exported InfoTipRender */

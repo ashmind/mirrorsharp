@@ -8,8 +8,5 @@
         "browser": true,
         "amd": true,
         "es6": true
-    },
-    "rules": {
-        "no-unused-vars": ["warn", { "vars": "local" }]
     }
 }

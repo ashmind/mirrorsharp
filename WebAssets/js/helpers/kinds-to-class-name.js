@@ -3,3 +3,5 @@ function kindsToClassName(kinds) {
         return 'mirrorsharp-kind-' + kind;
     }).join(' ');
 }
+
+/* exported kindsToClassName */

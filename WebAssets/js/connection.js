@@ -145,3 +145,5 @@ function Connection(url, selfDebug) {
         socket.close();
     };
 }
+
+/* exported Connection */

@@ -389,3 +389,5 @@ function Editor(textarea, connection, selfDebug, options) {
     this.sendServerOptions = sendServerOptions;
     this.destroy = destroy;
 }
+
+/* exported Editor */

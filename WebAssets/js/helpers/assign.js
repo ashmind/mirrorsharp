@@ -7,3 +7,5 @@ var assign = Object.assign || function (target) {
     }
     return target;
 };
+
+/* exported assign */

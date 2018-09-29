@@ -113,3 +113,5 @@ function Hinter(cm, connection) {
         return result;
     }
 }
+
+/* exported Hinter */

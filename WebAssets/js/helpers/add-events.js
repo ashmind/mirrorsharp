@@ -9,3 +9,5 @@ function addEvents(target, handlers) {
         }
     };
 }
+
+/* exported addEvents */

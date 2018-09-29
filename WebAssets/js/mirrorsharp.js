@@ -14,3 +14,5 @@ function mirrorsharp(textarea, options) {
     };
     return exports;
 }
+
+/* exported mirrorsharp */

@@ -1,6 +1,6 @@
 {
   "name": "mirrorsharp",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "A code editor `<textarea>` for .NET.",
   "authors": [
     "Andrey Shchekin (https://github.com/ashmind)"
@@ -20,6 +20,11 @@
   },
   "jest": {
     "testMatch": [
+      "**/tests/**/*.tests.js"
+    ],
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/dist/**/*.js",
       "**/tests/**/*.tests.js"
     ]
   },

@@ -8,7 +8,7 @@ task('js', async () => {
     const final = structure.replace(/\s*\/\/ include:\s*(\S+)\s*/g, (m, $1) => {
         const includePath = path.resolve(path.join('./js', $1));
         return '\r\n\r\n    ' + jetpack.read(includePath)
-            .replace(/\/\* globals.+\*\//g, '')
+            .replace(/\/\* (?:globals|exported).+\*\//g, '')
             .trim()
             .replace(/\n/g, '\n    ');
     });
