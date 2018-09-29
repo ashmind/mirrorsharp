@@ -17,6 +17,9 @@ MirrorSharp is a code editor `<textarea>` built on Roslyn and [CodeMirror](https
 
 #### Diagnostics
 ![Diagnostics](📄readme/diagnostics.png)
+
+#### Quick info
+![Quick info](📄readme/infotips.png)
   
 ## Usage
 
