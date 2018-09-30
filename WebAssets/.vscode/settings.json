@@ -11,10 +11,13 @@
         "Andrey",
         "Cpath",
         "Csvg",
+        "Segoe",
         "Shchekin",
         "Typer",
         "clike",
         "codemirror",
+        "enummember",
+        "extensionmethod",
         "httpd",
         "infotip",
         "jetpack",
@@ -24,6 +27,7 @@
         "mirrorsharp",
         "oldowan",
         "outdent",
+        "typeparameter",
         "xmlns"
     ]
 }
