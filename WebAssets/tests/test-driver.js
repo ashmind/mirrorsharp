@@ -2,6 +2,11 @@ const mirrorsharp = require('../dist/mirrorsharp.js');
 const Keysim = require('keysim');
 
 jest.useFakeTimers();
+(() => {
+    // clean JSDOM between tests
+    const emptyHTML = document.body.innerHTML;
+    afterEach(() => document.body.innerHTML = emptyHTML);
+})();
 
 const keyboard = Keysim.Keyboard.US_ENGLISH;
 
@@ -72,6 +77,14 @@ class TestReceiver {
 
     optionsEcho(options = {}) {
         this.socket.trigger('message', { data: JSON.stringify({type: 'optionsEcho', options}) });
+    }
+
+    completions(completions = [], { span = {}, commitChars = null, suggestion = null } = {}) {
+        this.socket.trigger('message', { data: JSON.stringify({type: 'completions', completions, span, commitChars, suggestion}) });
+    }
+
+    completionInfo(index, parts) {
+        this.socket.trigger('message', { data: JSON.stringify({type: 'completionInfo', index, parts}) });
     }
 }
 

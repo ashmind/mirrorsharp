@@ -15,6 +15,7 @@ task('js', async () => {
     await jetpack.writeAsync('dist/mirrorsharp.js', final);
 }, { inputs: ['js/*.js'] });
 
+task('d.ts', () => jetpack.copyAsync('types/public.d.ts', 'dist/mirrorsharp.d.ts', { overwrite: true }), { inputs: ['types/public.d.ts'] });
 task('css', () => jetpack.copyAsync('css', 'dist', { overwrite: true }), { inputs: ['css/*.*'] });
 task('files', () => {
     jetpack.copyAsync('./README.md', 'dist/README.md', { overwrite: true });
@@ -30,6 +31,7 @@ task('demoFix', async () => {
 
 task('default', async () => Promise.all([
     tasks.js(),
+    tasks['d.ts'](),
     tasks.css(),
     tasks.files(),
     tasks.demoFix()

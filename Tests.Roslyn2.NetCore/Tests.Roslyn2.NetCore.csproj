@@ -6,6 +6,7 @@
     <AssemblyName>MirrorSharp.Tests.Roslyn2.NetCore</AssemblyName>
     <PackageId>MirrorSharp.Tests.Roslyn2.NetCore</PackageId>
     <RootNamespace>MirrorSharp.Tests</RootNamespace>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

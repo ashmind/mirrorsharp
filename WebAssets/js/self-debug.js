@@ -1,14 +1,29 @@
+/**
+ * @this {internal.SelfDebug}
+ */
 function SelfDebug() {
+    /** @type {() => string} */
     var getText;
+    /** @type {() => number} */
     var getCursorIndex;
+    /** @type {Array<internal.SelfDebugLogEntryData>} */
     const clientLog = [];
+    /** @type {Array<internal.SelfDebugLogEntryData>} */
     var clientLogSnapshot;
 
+    /**
+     * @param {() => string} getTextValue
+     * @param {() => number} getCursorIndexValue
+     */
     this.watchEditor = function(getTextValue, getCursorIndexValue) {
         getText = getTextValue;
         getCursorIndex = getCursorIndexValue;
     };
 
+    /**
+     * @param {string} event
+     * @param {string} message
+     */
     this.log = function(event, message) {
         clientLog.push({
             time: new Date(),
@@ -22,12 +37,19 @@ function SelfDebug() {
         }
     };
 
+    /**
+     * @param {internal.Connection} connection
+     */
     this.requestData = function(connection) {
         clientLogSnapshot = clientLog.slice(0);
         connection.sendRequestSelfDebugData();
     };
 
+    /**
+     * @param {internal.SelfDebugMessage} serverData
+     */
     this.displayData = function(serverData) {
+        /** @type {Array<{ entry: internal.SelfDebugLogEntryData, on: string, index: number }>} */
         const log = [];
         // ReSharper disable once DuplicatingLocalDeclaration
         /* eslint-disable block-scoped-var */

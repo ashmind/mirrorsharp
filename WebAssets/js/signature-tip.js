@@ -1,10 +1,16 @@
+/**
+ * @this {internal.SignatureTip}
+ * @param {CodeMirror.Editor} cm
+ */
 function SignatureTip(cm) {
     const displayKindToClassMap = {
         keyword: 'cm-keyword'
     };
 
     var active = false;
+    /** @type {HTMLDivElement} */
     var tooltip;
+    /** @type {HTMLOListElement} */
     var ol;
 
     const hide = function() {
@@ -15,10 +21,14 @@ function SignatureTip(cm) {
         active = false;
     };
 
+    /**
+     * @param {ReadonlyArray<internal.SignatureData>} signatures
+     * @param {internal.SpanData} span
+     */
     this.update = function(signatures, span) {
         if (!tooltip) {
             tooltip = document.createElement('div');
-            tooltip.className = 'mirrorsharp-theme mirrorsharp-signature-tooltip';
+            tooltip.className = 'mirrorsharp-theme mirrorsharp-any-tooltip mirrorsharp-signature-tooltip';
             ol = document.createElement('ol');
             tooltip.appendChild(ol);
         }

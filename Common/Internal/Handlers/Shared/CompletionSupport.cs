@@ -67,14 +67,28 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             return new TextChange(new TextSpan(newStart, newLength), textChange.NewText);
         }
 
-        public Task CancelCompletionAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            session.CurrentCompletion.ResetPending();
-            session.CurrentCompletion.List = null;
-            return Task.CompletedTask;
+        public async Task SendItemInfoAsync(int selectedIndex, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            var item = session.CurrentCompletion.List.Items[selectedIndex];
+            var description = await session.LanguageSession.GetCompletionDescriptionAsync(item, cancellationToken).ConfigureAwait(false);
+            if (description == null)
+                return;
+
+            var writer = sender.StartJsonMessage("completionInfo");
+            writer.WriteProperty("index", selectedIndex);
+            writer.WritePropertyStartArray("parts");
+            writer.WriteTaggedTexts(description.TaggedParts);
+            writer.WriteEndArray();
+            await sender.SendJsonMessageAsync(cancellationToken).ConfigureAwait(false);
         }
 
         public Task ForceCompletionAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             return TriggerCompletionAsync(session, sender, cancellationToken, CompletionTrigger.Invoke);
+        }
+
+        public Task CancelCompletionAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            session.CurrentCompletion.ResetPending();
+            session.CurrentCompletion.List = null;
+            return Task.CompletedTask;
         }
 
         private Task CheckCompletionAsync(CompletionTrigger trigger, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {

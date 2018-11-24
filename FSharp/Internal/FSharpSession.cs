@@ -209,6 +209,10 @@ namespace MirrorSharp.FSharp.Internal {
             return items.MoveToImmutable();
         }
 
+        public Task<CompletionDescription> GetCompletionDescriptionAsync(CompletionItem item, CancellationToken cancellationToken) {
+            return null; // TODO
+        }
+
         public Task<CompletionChange> GetCompletionChangeAsync(TextSpan completionSpan, CompletionItem item, CancellationToken cancellationToken) {
             return Task.FromResult(CompletionChange.Create(new TextChange(completionSpan, item.DisplayText)));
         }

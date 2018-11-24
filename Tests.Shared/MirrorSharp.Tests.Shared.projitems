@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)FastUtf8JsonWriterTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Internal\ObjectMembers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Internal\TrackingArrayPool.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MirrorSharpOptionsWithXmlDocumentation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MoveCursorHandlerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReplaceTextHandlerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\RoslynScriptModeTests.cs" />

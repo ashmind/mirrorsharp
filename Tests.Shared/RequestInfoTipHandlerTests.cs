@@ -1,23 +1,13 @@
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.QuickInfo;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing;
 using MirrorSharp.Testing.Internal;
-using MirrorSharp.Testing.Internal.Results;
 
 namespace MirrorSharp.Tests {
-    using static CommandIds;
-
     public partial class RequestInfoTipHandlerTests {
-        private static readonly MirrorSharpOptions MirrorSharpOptionsWithXmlDocumentation = new MirrorSharpOptions().SetupCSharp(c => {
-            c.MetadataReferences = ImmutableList<MetadataReference>.Empty;
-            c.AddMetadataReferencesFromFiles(MscorlibReferenceAssemblyPath);
-        });
-
         [Theory]
         [InlineData(
             "class ➭C {}",
@@ -44,7 +34,7 @@ namespace MirrorSharp.Tests {
         [Fact]
         public async Task ExecuteAsync_IncludesXmlDocCommentsInResult() {
             var text = TextWithCursor.Parse("class C { string M(int a) { return a.To➭String(); } }", '➭');
-            var driver = MirrorSharpTestDriver.New(MirrorSharpOptionsWithXmlDocumentation)
+            var driver = MirrorSharpTestDriver.New(MirrorSharpOptionsWithXmlDocumentation.Instance)
                 .SetText(text.Text);
 
             var result = await driver.SendRequestInfoTipAsync(text.CursorPosition);

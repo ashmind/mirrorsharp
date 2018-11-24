@@ -1,44 +1,47 @@
 {
-  "name": "mirrorsharp",
-  "version": "0.11.3",
-  "description": "A code editor `<textarea>` for .NET.",
-  "authors": [
-    "Andrey Shchekin (https://github.com/ashmind)"
-  ],
-  "license": "MIT",
-  "main": "mirrorsharp.js",
-  "homepage": "https://github.com/ashmind/mirrorsharp",
-  "bugs": "https://github.com/ashmind/mirrorsharp/issues",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ashmind/mirrorsharp.git"
-  },
-  "scripts": {
-    "build": "node ./build.js",
-    "watch": "node ./build.js --watch",
-    "test": "jest"
-  },
-  "jest": {
-    "testMatch": [
-      "**/tests/**/*.tests.js"
+    "name": "mirrorsharp",
+    "version": "0.12.0-test-1",
+    "description": "A code editor `<textarea>` for .NET.",
+    "authors": [
+        "Andrey Shchekin (https://github.com/ashmind)"
     ],
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "**/dist/**/*.js",
-      "**/tests/**/*.tests.js"
-    ]
-  },
-  "dependencies": {
-    "codemirror": "^5.18.2",
-    "codemirror-addon-infotip": "^1.0.0-pre-20180923",
-    "codemirror-addon-lint-fix": "^1.0.1-pre-20170118"
-  },
-  "devDependencies": {
-    "eslint": "^4.1.0",
-    "fs-jetpack": "^2.1.0",
-    "jest": "^20.0.4",
-    "jest-cli": "^20.0.4",
-    "keysim": "^2.0.0",
-    "oldowan": "^1.0.0-preview-2"
-  }
+    "license": "MIT",
+    "main": "mirrorsharp.js",
+    "types": "mirrorsharp.d.ts",
+    "homepage": "https://github.com/ashmind/mirrorsharp",
+    "bugs": "https://github.com/ashmind/mirrorsharp/issues",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ashmind/mirrorsharp.git"
+    },
+    "scripts": {
+        "build": "node ./build.js",
+        "watch": "node ./build.js --watch",
+        "test": "jest"
+    },
+    "jest": {
+        "testMatch": [
+            "**/tests/**/*.tests.js"
+        ],
+        "collectCoverage": true,
+        "collectCoverageFrom": [
+            "**/dist/**/*.js",
+            "**/tests/**/*.tests.js"
+        ]
+    },
+    "dependencies": {
+        "codemirror": "^5.18.2",
+        "@types/codemirror": "0.0.61",
+        "codemirror-addon-infotip": "^1.0.0-pre-20180923",
+        "codemirror-addon-lint-fix": "^1.0.1-pre-20170118"
+    },
+    "devDependencies": {
+        "eslint": "^4.1.0",
+        "eslint-plugin-es": "^1.4.0",
+        "fs-jetpack": "^2.1.0",
+        "jest": "^20.0.4",
+        "jest-cli": "^20.0.4",
+        "keysim": "^2.0.0",
+        "oldowan": "^1.0.0-preview-2"
+    }
 }

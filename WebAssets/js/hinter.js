@@ -1,12 +1,31 @@
-/* globals addEvents:false, kindsToClassName:false */
+/* globals CodeMirror:false, addEvents:false, kindsToClassName:false, renderParts:false */
 
-function Hinter(cm, connection) {
+/**
+ * @this {internal.Hinter}
+ * @param {CodeMirror.Editor} cm
+ * @param {internal.Connection} connection
+ * @param {internal.HinterCompatibility} compatibility
+ * */
+function Hinter(cm, connection, compatibility) {
+    compatibility = compatibility || {};
+
     const indexInListKey = '$mirrorsharp-indexInList';
     const priorityKey = '$mirrorsharp-priority';
-    var state = 'stopped';
-    var hasSuggestion;
-    var currentOptions;
+    const cachedInfoKey = '$mirrorsharp-cached-info';
 
+    /** @type {'starting'|'started'|'stopped'|'committed'} */
+    var state = 'stopped';
+    /** @type {boolean} */
+    var hasSuggestion;
+    /** @type {internal.CompletionOptionalData} */
+    var currentOptions;
+    /** @type {{ item: internal.HintEx, index: number, element: HTMLElement }} */
+    var selected;
+
+    /** @type {number} */
+    var infoLoadTimer;
+
+    /** @type {internal.HintEx['hint']} */
     const commit = function (_, data, item) {
         connection.sendCompletionState(item[indexInListKey]);
         state = 'committed';
@@ -18,6 +37,10 @@ function Hinter(cm, connection) {
     };
 
     const removeCMEvents = addEvents(cm, {
+        /**
+         * @param {any} _
+         * @param {KeyboardEvent} e
+         * */
         keypress: function(_, e) {
             if (state === 'stopped')
                 return;
@@ -31,20 +54,30 @@ function Hinter(cm, connection) {
                 widget.pick();
             }
         },
+
         endCompletion: function() {
             if (state === 'starting')
                 return;
             if (state === 'started')
                 connection.sendCompletionState('cancel');
             state = 'stopped';
+            hideInfoTip();
+            if (infoLoadTimer)
+                clearTimeout(infoLoadTimer);
         }
     });
 
+    /**
+     * @param {ReadonlyArray<internal.CompletionItemData>} list
+     * @param {internal.SpanData} span
+     * @param {internal.CompletionOptionalData} options
+     */
     this.start = function(list, span, options) {
         state = 'starting';
         currentOptions = options;
         const hintStart = cm.posFromIndex(span.start);
         const hintList = list.map(function (c, index) {
+            /** @type {internal.HintEx} */
             const item = {
                 text: c.filterText,
                 displayText: c.displayText,
@@ -68,38 +101,129 @@ function Hinter(cm, connection) {
             });
         }
         cm.showHint({
-            hint: function() {
-                const prefix = cm.getRange(hintStart, cm.getCursor());
-                // TODO: rename once this is covered by tests
-                // eslint-disable-next-line no-shadow
-                var list = hintList;
-                if (prefix.length > 0) {
-                    var regexp = new RegExp('^' + prefix.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
-                    list = hintList.filter(function(item, index) {
-                        return (hasSuggestion && index === 0) || regexp.test(item.text);
-                    });
-                    if (hasSuggestion && list.length === 1)
-                        list = [];
-                }
-                if (!hasSuggestion) {
-                    // does not seem like I can use selectedHint here, as it does not force the scroll
-                    var selectedIndex = indexOfItemWithMaxPriority(list);
-                    if (selectedIndex > 0)
-                        setTimeout(function() { cm.state.completionActive.widget.changeActive(selectedIndex); }, 0);
-                }
-
-                return { from: hintStart, list: list };
-            },
+            hint: function() { return getHints(hintList, hintStart); },
             completeSingle: false
         });
         state = 'started';
     };
+
+    this.showTip = showInfoTip;
 
     this.destroy = function() {
         cancel();
         removeCMEvents();
     };
 
+    /**
+     * @param {ReadonlyArray<internal.HintEx>} list
+     * @param {CodeMirror.Pos} start
+     */
+    function getHints(list, start) {
+        const prefix = cm.getRange(start, cm.getCursor());
+        // TODO: rename once this is covered by tests
+        // eslint-disable-next-line no-shadow
+        if (prefix.length > 0) {
+            var regexp = new RegExp('^' + prefix.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
+            list = list.filter(function(item, index) {
+                return (hasSuggestion && index === 0) || regexp.test(item.text);
+            });
+            if (hasSuggestion && list.length === 1)
+                list = [];
+        }
+        if (!hasSuggestion) {
+            // does not seem like I can use selectedHint here, as it does not force the scroll
+            var selectedIndex = indexOfItemWithMaxPriority(list);
+            if (selectedIndex > 0)
+                setTimeout(function() { cm.state.completionActive.widget.changeActive(selectedIndex); }, 0);
+        }
+
+        /** @type {internal.HintsResultEx} */
+        const result = { from: start, list: list };
+        CodeMirror.on(result, 'select', loadInfo);
+
+        return result;
+    }
+
+    /**
+     * @param {internal.HintEx} item
+     * @param {HTMLElement} element
+     */
+    function loadInfo(item, element) {
+        selected = { item: item, index: item[indexInListKey], element: element };
+        if (compatibility.disableItemInfo)
+            return;
+
+        if (infoLoadTimer)
+            clearTimeout(infoLoadTimer);
+
+        if (item[cachedInfoKey])
+            showInfoTip(selected.index, item[cachedInfoKey]);
+
+        infoLoadTimer = setTimeout(function() {
+            connection.sendCompletionState('info', selected.index);
+            clearTimeout(infoLoadTimer);
+        }, 300);
+    }
+
+    /** @type {HTMLDivElement} */
+    var infoTipElement;
+    /** @type {number} */
+    var currentInfoTipIndex;
+
+    /**
+     * @param {number} index
+     * @param {ReadonlyArray<internal.PartData>} parts
+     */
+    function showInfoTip(index, parts) {
+        // autocompletion disappeared while we were loading
+        if (state !== 'started')
+            return;
+
+        // selected index changed while we were loading
+        if (index !== selected.index)
+            return;
+
+        // we are already showing tooltip for this index
+        if (index === currentInfoTipIndex)
+            return;
+
+        selected.item[cachedInfoKey] = parts;
+
+        var element = infoTipElement;
+        if (!element) {
+            element = document.createElement('div');
+            element.className = 'mirrorsharp-hint-info-tooltip mirrorsharp-any-tooltip mirrorsharp-theme';
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            infoTipElement = element;
+        }
+        else {
+            while (element.firstChild) {
+                element.removeChild(element.firstChild);
+            }
+        }
+
+        const top = selected.element.getBoundingClientRect().top;
+        const left = selected.element.parentElement.getBoundingClientRect().right;
+
+        const style = element.style;
+        style.top = top + 'px';
+        style.left = left + 'px';
+        renderParts(infoTipElement, parts);
+        style.display = 'block';
+
+        currentInfoTipIndex = index;
+    }
+
+    function hideInfoTip() {
+        currentInfoTipIndex = null;
+        if (infoTipElement)
+            infoTipElement.style.display = 'none';
+    }
+
+    /**
+     * @param {ReadonlyArray<internal.HintEx>} list
+     */
     function indexOfItemWithMaxPriority(list) {
         var maxPriority = 0;
         var result = 0;

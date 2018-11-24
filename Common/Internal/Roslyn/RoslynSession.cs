@@ -93,6 +93,10 @@ namespace MirrorSharp.Internal.Roslyn {
             return _completionService.GetCompletionsAsync(Document, cursorPosition, trigger, cancellationToken: cancellationToken);
         }
 
+        public Task<CompletionDescription> GetCompletionDescriptionAsync(CompletionItem item, CancellationToken cancellationToken) {
+            return _completionService.GetDescriptionAsync(Document, item, cancellationToken: cancellationToken);
+        }
+
         public Task<CompletionChange> GetCompletionChangeAsync(TextSpan completionSpan, CompletionItem item, CancellationToken cancellationToken) {
             return _completionService.GetChangeAsync(Document, item, cancellationToken: cancellationToken);
         }

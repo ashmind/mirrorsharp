@@ -88,6 +88,10 @@ namespace MirrorSharp.Php.Internal {
             return Task.FromResult(CompletionList.Empty); // not supported yet
         }
 
+        public Task<CompletionDescription> GetCompletionDescriptionAsync(CompletionItem item, CancellationToken cancellationToken) {
+            throw new NotSupportedException(); // not supported yet
+        }
+
         public Task<CompletionChange> GetCompletionChangeAsync(TextSpan completionSpan, [NotNull] CompletionItem item, CancellationToken cancellationToken) {
             throw new NotSupportedException(); // not supported yet
         }

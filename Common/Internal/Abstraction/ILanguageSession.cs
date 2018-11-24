@@ -16,6 +16,7 @@ namespace MirrorSharp.Internal.Abstraction {
 
         bool ShouldTriggerCompletion(int cursorPosition, CompletionTrigger trigger);
         [NotNull, ItemCanBeNull] Task<CompletionList> GetCompletionsAsync(int cursorPosition, CompletionTrigger trigger, CancellationToken cancellationToken);
+        [NotNull, ItemCanBeNull] Task<CompletionDescription> GetCompletionDescriptionAsync(CompletionItem item, CancellationToken cancellationToken);
         [NotNull, ItemNotNull] Task<CompletionChange> GetCompletionChangeAsync(TextSpan completionSpan, [NotNull] CompletionItem item, CancellationToken cancellationToken);
     }
 }

@@ -1,7 +1,6 @@
 {
     "jest.pathToJest": "npm run test --",
     "jest.showCoverageOnLoad": true,
-    "javascript.validate.enable": false,
     "cSpell.ignorePaths": [
         "**/node_modules/**",
         "package-lock.json",
@@ -25,8 +24,11 @@
         "keysim",
         "lintfix",
         "mirrorsharp",
+        "nocheck",
         "oldowan",
         "outdent",
+        "sharplab",
+        "struct",
         "typeparameter",
         "xmlns"
     ]

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* global module:false, define:false */
 (function (root, factory) {
     'use strict';
@@ -33,10 +34,11 @@
     // include: ./connection.js
     // include: ./hinter.js
     // include: ./signature-tip.js
-    // include: ./infotip-render.js
+    // include: ./render-infotip.js
     // include: ./editor.js
     // include: ./helpers/add-events.js
     // include: ./helpers/kinds-to-class-name.js
+    // include: ./helpers/render-parts.js
     // include: ./mirrorsharp.js
 
     return mirrorsharp; // eslint-disable-line no-undef

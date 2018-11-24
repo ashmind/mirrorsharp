@@ -10,6 +10,7 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <RootNamespace>MirrorSharp.Benchmarks</RootNamespace>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   
   <ItemGroup>

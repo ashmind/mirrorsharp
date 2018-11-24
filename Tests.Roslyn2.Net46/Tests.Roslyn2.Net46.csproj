@@ -5,6 +5,7 @@
     <RootNamespace>MirrorSharp.Tests</RootNamespace>
     <TargetFramework>net46</TargetFramework>
     <RuntimeIdentifier Condition="'$(TargetFramework)' == 'net46'">win</RuntimeIdentifier>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

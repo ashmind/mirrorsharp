@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
@@ -63,6 +65,26 @@ namespace MirrorSharp.Tests {
             Assert.Equal(
                 ObjectMembers.AllNames.OrderBy(n => n),
                 result.Completions.Select(i => i.DisplayText).OrderBy(n => n)
+            );
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_SendsItemInfo_WhenCompletionIsActiveAndIIsProvided() {
+            var driver = MirrorSharpTestDriver.New(MirrorSharpOptionsWithXmlDocumentation.Instance)
+                .SetTextWithCursor("class C { void M(object o) { o.| } }");
+            var completions = await driver.SendAsync<CompletionsResult>(CompletionState, 'F');
+            var toStringIndex = completions.Completions
+                .Select((c, index) => (c.DisplayText, index))
+                .First(x => x.DisplayText == nameof(ToString))
+                .index;
+
+            var result = await driver.SendAsync<CompletionsItemInfoResult>(CompletionState, "I" + toStringIndex);
+
+            Assert.NotNull(result);
+            Assert.Equal(toStringIndex, result.Index);
+            Assert.Equal(
+                "string object.ToString()\r\nReturns a string that represents the current object.",
+                string.Join("", result.Parts)
             );
         }
 
