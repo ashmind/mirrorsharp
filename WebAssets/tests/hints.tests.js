@@ -70,15 +70,30 @@ test('completionDescription message shows info tip', async () => {
     ].join(''));
 });
 
+
+test('completionDescription message updates info tip if already existed', async () => {
+    const driver = await TestDriver.new({ textWithCursor: 'c.|' });
+
+    await driver.completeBackgroundWorkAfterEach(
+        () => driver.receive.completions([completion(), completion()]),
+        () => driver.receive.completionInfo(0, [{ kind: 'test', text: 'old' }]),
+        () => driver.keys.press('down'),
+        () => driver.receive.completionInfo(1, [{ kind: 'test', text: 'new' }]),
+    );
+
+    const tip = getTooltip();
+    expect(tip.style.display).toBe('block');
+    expect(tip.innerHTML).toBe('<span class="cm-test">new</span>');
+});
+
 test('picking hint hides info tip', async () => {
     const driver = await TestDriver.new({ textWithCursor: 'c.|' });
 
-    driver.receive.completions([completion()]);
-    await driver.completeBackgroundWork();
-    driver.receive.completionInfo(0, []);
-    await driver.completeBackgroundWork();
-    driver.keys.press('tab');
-    await driver.completeBackgroundWork();
+    await driver.completeBackgroundWorkAfterEach(
+        () => driver.receive.completions([completion()]),
+        () => driver.receive.completionInfo(0, []),
+        () => driver.keys.press('tab')
+    );
 
     const tip = getTooltip();
     expect(tip.style.display).toBe('none');

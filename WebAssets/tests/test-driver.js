@@ -98,6 +98,13 @@ class TestDriver {
         await new Promise(resolve => resolve());
         jest.runOnlyPendingTimers();
     }
+
+    async completeBackgroundWorkAfterEach(...actions) {
+        for (const action of actions) {
+            action();
+            await this.completeBackgroundWork();
+        }
+    }
 }
 
 TestDriver.new = async (options = {}) => {
