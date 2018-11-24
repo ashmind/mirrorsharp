@@ -120,8 +120,6 @@ function Hinter(cm, connection, compatibility) {
      */
     function getHints(list, start) {
         const prefix = cm.getRange(start, cm.getCursor());
-        // TODO: rename once this is covered by tests
-        // eslint-disable-next-line no-shadow
         if (prefix.length > 0) {
             var regexp = new RegExp('^' + prefix.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
             list = list.filter(function(item, index) {
@@ -205,10 +203,12 @@ function Hinter(cm, connection, compatibility) {
 
         const top = selected.element.getBoundingClientRect().top;
         const left = selected.element.parentElement.getBoundingClientRect().right;
+        const screenWidth = document.documentElement.getBoundingClientRect().width;
 
         const style = element.style;
         style.top = top + 'px';
         style.left = left + 'px';
+        style.maxWidth = (screenWidth - left) + 'px';
         renderParts(infoTipElement, parts);
         style.display = 'block';
 

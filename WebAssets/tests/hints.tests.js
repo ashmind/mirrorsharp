@@ -84,6 +84,25 @@ test('picking hint hides info tip', async () => {
     expect(tip.style.display).toBe('none');
 });
 
+test('info tip has expected position and size', async () => {
+    const driver = await TestDriver.new({ textWithCursor: 'c.|' });
+    const mockRect = (e, rect) => e.getBoundingClientRect = () => rect;
+
+    driver.receive.completions([completion()]);
+    await driver.completeBackgroundWork();
+    mockRect(document.querySelector('.CodeMirror-hints'), { right: 150 });
+    mockRect(document.querySelector('.CodeMirror-hints .CodeMirror-hint:first-child'), { top: 300 });
+    mockRect(document.documentElement, { width: 200 });
+
+    driver.receive.completionInfo(0, []);
+    await driver.completeBackgroundWork();
+
+    const tip = getTooltip();
+    expect(tip.style.top).toBe('300px');
+    expect(tip.style.left).toBe('150px');
+    expect(tip.style.maxWidth).toBe('50px');
+});
+
 function completion() {
     return { kinds: [] };
 }
