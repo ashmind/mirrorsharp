@@ -11,4 +11,5 @@ WebAssets/dist/*.less
 WebAssets/dist/*.js
 WebAssets/dist/*.json
 WebAssets/dist/*.md
+WebAssets/dist/*.d.ts
 /WebAssets/coverage
