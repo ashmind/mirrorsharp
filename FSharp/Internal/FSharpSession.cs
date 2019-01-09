@@ -28,12 +28,14 @@ namespace MirrorSharp.FSharp.Internal {
                 null,
                 keepAssemblyContents: true,
                 keepAllBackgroundResolutions: true,
-                legacyReferenceResolver: null
+                legacyReferenceResolver: null,
+                tryGetMetadataSnapshot: null
             );
             AssemblyReferencePaths = options.AssemblyReferencePaths;
             AssemblyReferencePathsAsFSharpList = ToFSharpList(options.AssemblyReferencePaths);
             ProjectOptions = new FSharpProjectOptions(
                 "_",
+                projectId: null,
                 sourceFiles: new[] { "_.fs" },
                 otherOptions: ConvertToOtherOptions(options),
                 referencedProjects: Array.Empty<Tuple<string, FSharpProjectOptions>>(),
@@ -183,10 +185,10 @@ namespace MirrorSharp.FSharp.Internal {
             var info = GetLineMap().GetLineAndColumn(cursorPosition);
 
             var symbols = await FSharpAsync.StartAsTask(success.Item.GetDeclarationListSymbols(
-                result.ParseResults, info.line.Number, info.column,
+                result.ParseResults, info.line.Number,
                 _text.Substring(info.line.Start, info.line.Length),
-                FSharpList<string>.Empty,
-                "", null, null
+                QuickParse.GetPartialLongNameEx(_text.Substring(info.line.Start, info.line.Length), info.column),
+                null, null, null
             ), null, cancellationToken);
             if (symbols.IsEmpty)
                 return null;

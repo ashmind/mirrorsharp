@@ -110,6 +110,16 @@ namespace MirrorSharp.FSharp.Internal {
             return _fileExistsCache.GetOrAdd(fileName, f => File.Exists(f));
         }
 
+        public bool IsStableFileHeuristic(string fileName) {
+            // FSharp.Core's default implementation.
+            var directory = Path.GetDirectoryName(fileName);
+            return directory.Contains("Reference Assemblies/") || 
+            directory.Contains("Reference Assemblies\\") || 
+            directory.Contains("packages/") || 
+            directory.Contains("packages\\") || 
+            directory.Contains("lib/mono/");
+        }
+
         [AssertionMethod]
         private static void EnsureAllowed(string fileName) {
             if (!IsAllowed(fileName))
