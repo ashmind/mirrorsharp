@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
@@ -44,7 +44,11 @@ namespace MirrorSharp.FSharp.Internal {
             if (virtualFile != null)
                 return new NonDisposingStreamWrapper(virtualFile.Stream);
 
-            throw new NotSupportedException();
+            EnsureAllowed(fileName);
+            // For some reason, F# compiler requests this for same file many, many times.
+            // Obviously, repeated IO is a bad idea.
+            // Caching isn't great either, but will do for now.
+            return new MemoryStream(_fileBytesCache.GetOrAdd(fileName, f => File.ReadAllBytes(f)));
         }
 
         public Stream FileStreamWriteExistingShim(string fileName) {
@@ -113,11 +117,11 @@ namespace MirrorSharp.FSharp.Internal {
         public bool IsStableFileHeuristic(string fileName) {
             // FSharp.Core's default implementation.
             var directory = Path.GetDirectoryName(fileName);
-            return directory.Contains("Reference Assemblies/") || 
-            directory.Contains("Reference Assemblies\\") || 
-            directory.Contains("packages/") || 
-            directory.Contains("packages\\") || 
-            directory.Contains("lib/mono/");
+            return directory.Contains("Reference Assemblies/")
+                || directory.Contains("Reference Assemblies\\")
+                || directory.Contains("packages/")
+                || directory.Contains("packages\\")
+                || directory.Contains("lib/mono/");
         }
 
         [AssertionMethod]
