@@ -17,7 +17,12 @@ function Invoke-External($command) {
 
 $output = (Resolve-Path .)
 
-@('Common', 'FSharp', 'Owin', 'Testing', 'VisualBasic', 'Php') | % {
+@(
+  'Common',
+  'VisualBasic', 'FSharp', 'Php',
+  'Owin', 'AspNetCore',
+  'Testing'
+) | % {
     Invoke-External "dotnet pack $_ --version-suffix=$versionSuffix --output '$output' --configuration Release"
 }
 
