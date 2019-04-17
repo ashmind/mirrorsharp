@@ -7,8 +7,8 @@
     <TargetFrameworks>netstandard2</TargetFrameworks>
     <VersionPrefix>0.12.0</VersionPrefix>
     <Description>MirrorSharp PHP support library, implemented using Peachpie. $(DescriptionSuffix)</Description>
-    <PackageTags>PHP;Peachpie;CodeMirror</PackageTags>
-    <DocumentationFile>$(OutDir)\MirrorSharp.Php.xml</DocumentationFile>
+    <PackageTags>PHP;Peachpie;CodeMirror</PackageTags>    
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   

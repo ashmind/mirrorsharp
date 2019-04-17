@@ -8,7 +8,7 @@
     <VersionPrefix>1.0.0</VersionPrefix>
     <Description>MirrorSharp Visual Basic .NET support library. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;Visual Basic;CodeMirror</PackageTags>
-    <DocumentationFile>$(OutDir)\MirrorSharp.VisualBasic.xml</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.5' ">$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;portable-net45+win8</PackageTargetFallback>
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>

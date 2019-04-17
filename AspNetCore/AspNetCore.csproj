@@ -8,7 +8,7 @@
     <VersionPrefix>0.1</VersionPrefix>
     <Description>MirrorSharp ASP.NET Core server. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;CodeMirror</PackageTags>
-    <DocumentationFile>$(OutDir)\MirrorSharp.AspNetCore.xml</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 

@@ -9,7 +9,7 @@
     <Description>MirrorSharp shared server library. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;CodeMirror</PackageTags>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.5' ">$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;portable-net45+win8</PackageTargetFallback>
-    <DocumentationFile>$(OutDir)\MirrorSharp.Common.xml</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>7.2</LangVersion>
   </PropertyGroup>

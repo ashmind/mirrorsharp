@@ -8,7 +8,7 @@
     <VersionPrefix>0.12.0</VersionPrefix>
     <Description>MirrorSharp F# support library. $(DescriptionSuffix)</Description>
     <PackageTags>F#;CodeMirror</PackageTags>
-    <DocumentationFile>$(OutDir)\MirrorSharp.FSharp.xml</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   
