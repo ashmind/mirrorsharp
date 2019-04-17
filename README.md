@@ -78,7 +78,7 @@ TODO. In general the idea is that "it just works", however customization is a go
 
 ## Demos
 
-You can check out the demos if you clone the repository locally.
+You can check out the demos if you clone the repository locally.  
 After cloning, run `.\mirrorsharp build` to build and prepare everything.
 
 ## Testing
