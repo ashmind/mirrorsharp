@@ -48,8 +48,9 @@ Otherwise, make sure to include the following:
 1. codemirror/lib/codemirror.css
 2. codemirror/addon/lint/lint.css
 3. codemirror/addon/hint/show-hint.css
-4. codemirror-addon-lint-fix/addon/lint-fix/lint-fix.css
-5. mirrorsharp/mirrorsharp.css
+4. codemirror-addon-infotip/dist/infotip.css
+5. codemirror-addon-lint-fix/dist/lint-fix.css
+6. mirrorsharp/mirrorsharp.css
 
 #### JS
 JS can be done automatically since mirrorsharp has proper requires. Otherwise:
@@ -58,8 +59,9 @@ JS can be done automatically since mirrorsharp has proper requires. Otherwise:
 2. codemirror/mode/clike/clike.js
 3. codemirror/addon/lint/lint.js
 4. codemirror/addon/hint/show-hint.js
-5. codemirror-addon-lint-fix/addon/lint-fix/lint-fix.js
-6. mirrorsharp/mirrorsharp.js
+5. codemirror-addon-infotip/dist/infotip.js
+6. codemirror-addon-lint-fix/dist/lint-fix.js
+7. mirrorsharp/mirrorsharp.js
 
 #### Usage
 Once referenced, you can do the following:
@@ -73,6 +75,11 @@ Note that `textarea` is an actual textarea element, and not a CSS selector or jQ
 ## API
 
 TODO. In general the idea is that "it just works", however customization is a goal and some options are already available.
+
+## Demos
+
+You can check out the demos if you clone the repository locally.
+After cloning, run `.\mirrorsharp build` to build and prepare everything.
 
 ## Testing
 
