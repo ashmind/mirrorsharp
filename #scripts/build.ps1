@@ -14,8 +14,8 @@ try {
     npm install
     Pop-Location
     
-    Write-Output '  AspNetCore.Demo'
-    Push-Location 'AspNetCore.Demo'
+    Write-Output '  AspNetCore.Demo/wwwroot'
+    Push-Location 'AspNetCore.Demo/wwwroot'
     npm install
 }
 finally {
