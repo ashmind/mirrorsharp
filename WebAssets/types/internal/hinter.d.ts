@@ -5,10 +5,6 @@ declare namespace internal {
         destroy(): void;
     }
 
-    export interface HinterCompatibility {
-        disableItemInfo?: boolean;
-    }
-
     export interface HintsResultEx extends CodeMirror.HintsResult {
         list: ReadonlyArray<HintEx>
     }

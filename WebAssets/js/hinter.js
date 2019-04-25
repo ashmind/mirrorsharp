@@ -4,11 +4,8 @@
  * @this {internal.Hinter}
  * @param {CodeMirror.Editor} cm
  * @param {internal.Connection} connection
- * @param {internal.HinterCompatibility} compatibility
  * */
-function Hinter(cm, connection, compatibility) {
-    compatibility = compatibility || {};
-
+function Hinter(cm, connection) {
     const indexInListKey = '$mirrorsharp-indexInList';
     const priorityKey = '$mirrorsharp-priority';
     const cachedInfoKey = '$mirrorsharp-cached-info';
@@ -148,9 +145,6 @@ function Hinter(cm, connection, compatibility) {
      */
     function loadInfo(item, element) {
         selected = { item: item, index: item[indexInListKey], element: element };
-        if (compatibility.disableItemInfo)
-            return;
-
         if (infoLoadTimer)
             clearTimeout(infoLoadTimer);
 

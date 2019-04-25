@@ -4,7 +4,6 @@
  * @this {internal.Connection}
  * @param {string} url
  * @param {internal.SelfDebug} selfDebug
- * @returns {void}
  * */
 function Connection(url, selfDebug) {
     /** @type {WebSocket} */
@@ -41,6 +40,7 @@ function Connection(url, selfDebug) {
 
         for (var key in handlers) {
             const keyFixed = key;
+            // @ts-ignore
             const handlersByKey = handlers[key];
             socket.addEventListener(key, function (e) {
                 const handlerArguments = [e];
@@ -101,6 +101,7 @@ function Connection(url, selfDebug) {
      * @param {Function} handler
      */
     this.on = function(key, handler) {
+        // @ts-ignore
         handlers[key].push(handler);
     };
     /**
@@ -108,6 +109,7 @@ function Connection(url, selfDebug) {
     * @param {Function} handler
     */
     this.off = function(key, handler) {
+        // @ts-ignore
         const list = handlers[key];
         const index = list.indexOf(handler);
         if (index >= 0)

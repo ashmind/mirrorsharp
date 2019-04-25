@@ -6,7 +6,6 @@
  * @param {internal.SelfDebug} selfDebug
  * @param {internal.EditorOptions} options
  * @this {public.Instance}
- * @returns {void}
  */
 function Editor(textarea, connection, selfDebug, options) {
     const lineSeparator = '\r\n';
@@ -41,7 +40,7 @@ function Editor(textarea, connection, selfDebug, options) {
     const cmOptions = assign({ gutters: [], indentUnit: 4 }, options.forCodeMirror, {
         lineSeparator: lineSeparator,
         mode: languageModes[options.language],
-        lint: { async: true, getAnnotations: lintGetAnnotations },
+        lint: { async: true, getAnnotations: lintGetAnnotations, hasGutters: true },
         lintFix: { getFixes: getFixes }
     });
     if (!options.sharplabPreQuickInfoCompatibilityMode)
@@ -95,7 +94,7 @@ function Editor(textarea, connection, selfDebug, options) {
     const cmWrapper = cm.getWrapperElement();
     cmWrapper.classList.add('mirrorsharp', 'mirrorsharp-theme');
 
-    const hinter = new Hinter(cm, connection, { disableItemInfo: options.sharplabPreQuickInfoCompatibilityMode });
+    const hinter = new Hinter(cm, connection);
     const signatureTip = new SignatureTip(cm);
     const removeConnectionEvents = addEvents(connection, {
         /** @param {Event} e */
@@ -395,7 +394,7 @@ function Editor(textarea, connection, selfDebug, options) {
                 diagnostic: diagnostic
             });
         }
-        capturedUpdateLinting(annotations);
+        capturedUpdateLinting(cm, annotations);
         options.on.slowUpdateResult({
             diagnostics: update.diagnostics,
             x: update.x

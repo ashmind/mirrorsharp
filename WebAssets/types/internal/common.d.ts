@@ -6,7 +6,6 @@ declare namespace internal {
 
     export interface Options extends public.Options {
         selfDebugEnabled?: boolean;
-        sharplabPreQuickInfoCompatibilityMode?: boolean;
     }
 
     export type SpanData = public.SpanData;

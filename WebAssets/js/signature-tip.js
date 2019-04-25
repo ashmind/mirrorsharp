@@ -3,6 +3,7 @@
  * @param {CodeMirror.Editor} cm
  */
 function SignatureTip(cm) {
+    /** @type {{ [key: string]: string }} */
     const displayKindToClassMap = {
         keyword: 'cm-keyword'
     };

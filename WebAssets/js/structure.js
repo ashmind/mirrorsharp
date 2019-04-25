@@ -9,8 +9,7 @@
           'codemirror-addon-infotip',
           'codemirror/addon/hint/show-hint',
           'codemirror/mode/clike/clike',
-          'codemirror/mode/vb/vb',
-          'codemirror/mode/php/php'
+          'codemirror/mode/vb/vb'
         ], factory);
     }
     else if (typeof module === 'object' && module.exports) {
