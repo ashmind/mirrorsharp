@@ -1,4 +1,6 @@
 using System;
+using Microsoft.FSharp.Collections;
+using Microsoft.FSharp.Compiler;
 using Microsoft.FSharp.Compiler.SourceCodeServices;
 using MirrorSharp.FSharp.Advanced;
 using Xunit;
@@ -93,15 +95,16 @@ namespace MirrorSharp.Tests {
 
         private FSharpProjectOptions NewOptions(string[] otherOptions = null) {
             return new FSharpProjectOptions(
+                "_",
                 null,
-                null,
+                new String[]{},
                 otherOptions,
                 null,
                 false,
                 false,
                 DateTime.MinValue,
                 null,
-                null,
+                FSharpList<Tuple<Range.range, String>>.Empty,
                 null,
                 null
             );
