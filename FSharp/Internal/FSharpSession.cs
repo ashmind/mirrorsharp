@@ -187,7 +187,7 @@ namespace MirrorSharp.FSharp.Internal {
             var symbols = await FSharpAsync.StartAsTask(success.Item.GetDeclarationListSymbols(
                 result.ParseResults, info.line.Number,
                 _text.Substring(info.line.Start, info.line.Length),
-                QuickParse.GetPartialLongNameEx(_text.Substring(info.line.Start, info.line.Length), info.column),
+                QuickParse.GetPartialLongNameEx(_text.Substring(info.line.Start, info.line.Length), info.column - 1),
                 null, null, null
             ), null, cancellationToken);
             if (symbols.IsEmpty)
