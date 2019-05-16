@@ -22,12 +22,11 @@ namespace MirrorSharp.Tests {
                 [<EntryPoint>]
                 let main argv = 
                     printfn ""Hello World""
-                    Console.ReadLine() |> ignore
                     0
             ".Trim().Replace("                ", "");
             await driver.SendReplaceTextAsync(code);
             var result = await driver.SendSlowUpdateAsync();
-            Assert.Empty(result.Diagnostics);
+            Assert.Equal("", string.Join("\r\n", result.Diagnostics));
         }
 
         [Fact]

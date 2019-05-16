@@ -1,6 +1,6 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
-using Microsoft.FSharp.Compiler.AbstractIL.Internal;
+using FSharp.Compiler.AbstractIL.Internal;
 using MirrorSharp.Internal.Abstraction;
 
 namespace MirrorSharp.FSharp.Internal {

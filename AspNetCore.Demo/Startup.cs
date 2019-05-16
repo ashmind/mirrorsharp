@@ -17,11 +17,14 @@ namespace MirrorSharp.AspNetCore.Demo {
                .UseStaticFiles();
 
             app.UseWebSockets();
-            app.UseMirrorSharp(new MirrorSharpOptions {
-                SelfDebugEnabled = true,
-                IncludeExceptionDetails = true,
-                SetOptionsFromClient = new SetOptionsFromClientExtension()
-            });
+            app.UseMirrorSharp(
+                new MirrorSharpOptions {
+                    SelfDebugEnabled = true,
+                    IncludeExceptionDetails = true,
+                    SetOptionsFromClient = new SetOptionsFromClientExtension()
+                }
+                .EnableFSharp()
+            );
         }
     }
 }

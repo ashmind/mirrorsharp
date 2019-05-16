@@ -8,8 +8,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.FSharp.Collections;
-using Microsoft.FSharp.Compiler;
-using Microsoft.FSharp.Compiler.SourceCodeServices;
+using FSharp.Compiler;
+using FSharp.Compiler.SourceCodeServices;
 using Microsoft.FSharp.Control;
 using MirrorSharp.FSharp.Advanced;
 using MirrorSharp.Internal.Abstraction;
@@ -149,7 +149,7 @@ namespace MirrorSharp.FSharp.Internal {
             );
 
             return Diagnostic.Create(
-                "FS", "Compiler",
+                "FS" + error.ErrorNumber, "Compiler",
                 error.Message,
                 severity, severity,
                 isEnabledByDefault: false,

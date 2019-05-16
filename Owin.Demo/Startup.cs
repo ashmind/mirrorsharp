@@ -15,16 +15,18 @@ namespace MirrorSharp.Owin.Demo {
             app.UseDefaultFiles()
                .UseStaticFiles();
 
-            app.UseMirrorSharp(new MirrorSharpOptions {
-                SelfDebugEnabled = true,
-                IncludeExceptionDetails = true,
-                SetOptionsFromClient = new SetOptionsFromClientExtension()
-            }
-            .SetupCSharp(c => {
-                c.MetadataReferences = c.MetadataReferences.Clear();
-                c.AddMetadataReferencesFromFiles(MscorlibReferencePath);
-            })
-            .EnableFSharp());
+            app.UseMirrorSharp(
+                new MirrorSharpOptions {
+                    SelfDebugEnabled = true,
+                    IncludeExceptionDetails = true,
+                    SetOptionsFromClient = new SetOptionsFromClientExtension()
+                }
+                .SetupCSharp(c => {
+                    c.MetadataReferences = c.MetadataReferences.Clear();
+                    c.AddMetadataReferencesFromFiles(MscorlibReferencePath);
+                })
+                .EnableFSharp()
+            );
         }
     }
 }

@@ -1,7 +1,7 @@
 using System;
 using Microsoft.FSharp.Collections;
-using Microsoft.FSharp.Compiler;
-using Microsoft.FSharp.Compiler.SourceCodeServices;
+using FSharp.Compiler;
+using FSharp.Compiler.SourceCodeServices;
 using MirrorSharp.FSharp.Advanced;
 using Xunit;
 

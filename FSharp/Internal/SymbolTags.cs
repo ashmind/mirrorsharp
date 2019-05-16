@@ -1,5 +1,5 @@
-﻿using System.Collections.Immutable;
-using Microsoft.FSharp.Compiler.SourceCodeServices;
+using System.Collections.Immutable;
+using FSharp.Compiler.SourceCodeServices;
 
 namespace MirrorSharp.FSharp.Internal {
     internal static class SymbolTags {

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\index.html~RFed59a95.TMP" />
     <Content Remove="wwwroot\package.json" />
   </ItemGroup>
 
@@ -22,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AspNetCore\AspNetCore.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\FSharp\FSharp.csproj" />
   </ItemGroup>
 
 </Project>

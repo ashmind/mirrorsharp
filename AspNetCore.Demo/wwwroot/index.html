@@ -46,6 +46,7 @@
       <ul>
         <li><a href="index.html?language=CSharp">C#</a></li>
         <li><a href="index.html?language=CSharp&mode=script">C# (Script)</a></li>
+        <li><a href="index.html?language=FSharp">F#</a></li>
       </ul>
     </nav>
     <textarea>using System;
@@ -69,6 +70,7 @@ class G&lt;T&gt; {
 
     <script src="node_modules/codemirror/lib/codemirror.js"></script>
     <script src="node_modules/codemirror/mode/clike/clike.js"></script>
+    <script src="node_modules/codemirror/mode/mllike/mllike.js"></script>
     <script src="node_modules/codemirror/addon/lint/lint.js"></script>
     <script src="node_modules/codemirror/addon/hint/show-hint.js"></script>
     <script src="node_modules/codemirror-addon-lint-fix/dist/lint-fix.js"></script>
@@ -85,7 +87,10 @@ class G&lt;T&gt; {
       const mode = params['mode'] || 'regular';
 
       const textarea = document.getElementsByTagName('textarea')[0];
-      if (mode === 'script') {
+      if (language === 'F#') {
+          textarea.value = '[<EntryPoint>]\r\nlet main argv = \r\n    0';
+      }
+      else if (mode === 'script') {
           textarea.value = '// C# Script uses Random as the host object.\r\nvar m = Next();';
       }
 

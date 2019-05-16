@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.FSharp.Compiler.AbstractIL.Internal;
+using FSharp.Compiler.AbstractIL.Internal;
 using MirrorSharp.FSharp.Advanced;
 
 namespace MirrorSharp.FSharp.Internal {
@@ -44,7 +44,7 @@ namespace MirrorSharp.FSharp.Internal {
             if (virtualFile != null)
                 return new NonDisposingStreamWrapper(virtualFile.Stream);
 
-            EnsureAllowed(fileName);
+            EnsureIsAssemblyFile(fileName);
             // For some reason, F# compiler requests this for same file many, many times.
             // Obviously, repeated IO is a bad idea.
             // Caching isn't great either, but will do for now.
@@ -63,14 +63,16 @@ namespace MirrorSharp.FSharp.Internal {
             if (GetVirtualFile(fileName) != null)
                 return fileName;
 
-            EnsureAllowed(fileName);
             if (!Path.IsPathRooted(fileName))
                 throw new NotSupportedException();
             return fileName;
         }
 
         public DateTime GetLastWriteTimeShim(string fileName) {
-            EnsureAllowed(fileName);
+            if (IsSourceFile(fileName))
+                return DateTime.Now;
+
+            EnsureIsAssemblyFile(fileName);
             // pretend all assemblies are ancient and unchanging
             // basically no support for assemblies dynamically changing during MirrorSharp session
             // which should be fine
@@ -94,7 +96,7 @@ namespace MirrorSharp.FSharp.Internal {
             if (virtualFile != null)
                 return virtualFile.Stream.ToArray();
 
-            EnsureAllowed(fileName);
+            EnsureIsAssemblyFile(fileName);
             // For some reason, F# compiler requests this for same file many, many times.
             // Obviously, repeated IO is a bad idea.
             // Caching isn't great either, but will do for now.
@@ -105,7 +107,7 @@ namespace MirrorSharp.FSharp.Internal {
             if (GetVirtualFile(fileName) != null)
                 return true;
 
-            if (!IsAllowed(fileName) || fileName.StartsWith(VirtualTempPath, StringComparison.OrdinalIgnoreCase))
+            if (!IsAssemblyFile(fileName) || fileName.StartsWith(VirtualTempPath, StringComparison.OrdinalIgnoreCase))
                 return false;
 
             // For some reason, F# compiler requests this for same file many, many times.
@@ -125,15 +127,19 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         [AssertionMethod]
-        private static void EnsureAllowed(string fileName) {
-            if (!IsAllowed(fileName))
+        private static void EnsureIsAssemblyFile(string fileName) {
+            if (!IsAssemblyFile(fileName))
                 throw new NotSupportedException();
         }
 
-        private static bool IsAllowed(string fileName) {
+        private static bool IsAssemblyFile(string fileName) {
             return fileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)
                 || fileName.EndsWith(".optdata", StringComparison.OrdinalIgnoreCase)
                 || fileName.EndsWith(".sigdata", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsSourceFile(string fileName) {
+            return fileName.EndsWith(".fs", StringComparison.OrdinalIgnoreCase);
         }
 
         [NotNull]

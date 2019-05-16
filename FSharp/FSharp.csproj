@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../NuGet.Common.props" />
 
   <PropertyGroup>
     <AssemblyName>MirrorSharp.FSharp</AssemblyName>
     <RootNamespace>MirrorSharp.FSharp</RootNamespace>
-    <TargetFrameworks>net46</TargetFrameworks>
-    <VersionPrefix>0.12.0</VersionPrefix>
+    <TargetFrameworks>netstandard2.0; net461</TargetFrameworks>
+    <VersionPrefix>0.13.0</VersionPrefix>
     <Description>MirrorSharp F# support library. $(DescriptionSuffix)</Description>
     <PackageTags>F#;CodeMirror</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.Compiler.Service" Version="25.0.1" />
-    <PackageReference Include="FSharp.Core" Version="4.5.4" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="28.0.0" />
+    <PackageReference Include="FSharp.Core" Version="4.6.2" />
   </ItemGroup>
 
 </Project>

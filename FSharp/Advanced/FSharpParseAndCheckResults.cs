@@ -1,5 +1,5 @@
-﻿using JetBrains.Annotations;
-using Microsoft.FSharp.Compiler.SourceCodeServices;
+using JetBrains.Annotations;
+using FSharp.Compiler.SourceCodeServices;
 
 namespace MirrorSharp.FSharp.Advanced {
     /// <summary>Represent combined Parse and Check results from the <see cref="FSharpChecker" />.</summary>
