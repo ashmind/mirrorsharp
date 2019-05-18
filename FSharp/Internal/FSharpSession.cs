@@ -16,6 +16,8 @@ using MirrorSharp.Internal.Abstraction;
 
 namespace MirrorSharp.FSharp.Internal {
     internal class FSharpSession : ILanguageSessionInternal, IFSharpSession {
+        private static readonly Task<CompletionDescription> NoCompletionDescriptiontTask = Task.FromResult<CompletionDescription>(null);
+
         private string _text;
         [CanBeNull] private LineColumnMap _lastLineMap;
         [CanBeNull] private FSharpParseAndCheckResults _lastParseAndCheck;
@@ -31,6 +33,7 @@ namespace MirrorSharp.FSharp.Internal {
                 legacyReferenceResolver: null,
                 tryGetMetadataSnapshot: null
             );
+            Checker.ImplicitlyStartBackgroundWork = false;
             AssemblyReferencePaths = options.AssemblyReferencePaths;
             AssemblyReferencePathsAsFSharpList = ToFSharpList(options.AssemblyReferencePaths);
             ProjectOptions = new FSharpProjectOptions(
@@ -149,7 +152,7 @@ namespace MirrorSharp.FSharp.Internal {
             );
 
             return Diagnostic.Create(
-                "FS" + error.ErrorNumber, "Compiler",
+                "FS" + error.ErrorNumber.ToString("0000"), "Compiler",
                 error.Message,
                 severity, severity,
                 isEnabledByDefault: false,
@@ -212,7 +215,7 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public Task<CompletionDescription> GetCompletionDescriptionAsync(CompletionItem item, CancellationToken cancellationToken) {
-            return null; // TODO
+            return NoCompletionDescriptiontTask;
         }
 
         public Task<CompletionChange> GetCompletionChangeAsync(TextSpan completionSpan, CompletionItem item, CancellationToken cancellationToken) {
