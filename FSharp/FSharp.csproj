@@ -11,13 +11,13 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.Compiler.Service" Version="28.0.0" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="30.0.0" />
     <PackageReference Include="FSharp.Core" Version="4.6.2" />
   </ItemGroup>
 
