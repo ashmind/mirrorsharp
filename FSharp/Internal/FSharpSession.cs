@@ -11,8 +11,10 @@ using Microsoft.FSharp.Collections;
 using FSharp.Compiler;
 using FSharp.Compiler.SourceCodeServices;
 using Microsoft.FSharp.Control;
+using Microsoft.FSharp.Core;
 using MirrorSharp.FSharp.Advanced;
 using MirrorSharp.Internal.Abstraction;
+using SourceText = FSharp.Compiler.Text.SourceText;
 
 namespace MirrorSharp.FSharp.Internal {
     internal class FSharpSession : ILanguageSessionInternal, IFSharpSession {
@@ -31,7 +33,8 @@ namespace MirrorSharp.FSharp.Internal {
                 keepAssemblyContents: true,
                 keepAllBackgroundResolutions: true,
                 legacyReferenceResolver: null,
-                tryGetMetadataSnapshot: null
+                tryGetMetadataSnapshot: null,
+                suggestNamesForErrors: FSharpOption<bool>.Some(true)
             );
             Checker.ImplicitlyStartBackgroundWork = false;
             AssemblyReferencePaths = options.AssemblyReferencePaths;
@@ -46,7 +49,7 @@ namespace MirrorSharp.FSharp.Internal {
                 useScriptResolutionRules: false,
                 loadTime: DateTime.Now,
                 unresolvedReferences: null,
-                originalLoadReferences: FSharpList<Tuple<Range.range, string>>.Empty, 
+                originalLoadReferences: FSharpList<Tuple<Range.range, string>>.Empty,
                 extraProjectInfo: null,
                 stamp: null
             );
@@ -96,7 +99,7 @@ namespace MirrorSharp.FSharp.Internal {
             var diagnosticCount = result.ParseResults.Errors.Length + (success?.Item.Errors.Length ?? 0);
             if (diagnosticCount == 0)
                 return ImmutableArray<Diagnostic>.Empty;
-            
+
             var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>(diagnosticCount);
             ConvertAndAddTo(diagnostics, result.ParseResults.Errors);
 
@@ -105,13 +108,13 @@ namespace MirrorSharp.FSharp.Internal {
 
             return diagnostics.MoveToImmutable();
         }
-        
+
         public async ValueTask<FSharpParseAndCheckResults> ParseAndCheckAsync(CancellationToken cancellationToken) {
             if (_lastParseAndCheck != null)
                 return _lastParseAndCheck;
-
+            var sourceText = SourceText.ofString(_text);
             var tuple = await FSharpAsync.StartAsTask(
-                Checker.ParseAndCheckFileInProject("_.fs", 0, _text, ProjectOptions, null, null), null, cancellationToken
+                Checker.ParseAndCheckFileInProject("_.fs", 0, sourceText, ProjectOptions, null, null), null, cancellationToken
             ).ConfigureAwait(false);
 
             _lastParseAndCheck = new FSharpParseAndCheckResults(tuple.Item1, tuple.Item2);
