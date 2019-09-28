@@ -1,5 +1,4 @@
-﻿using System;
-using JetBrains.Annotations;
+using System;
 
 namespace MirrorSharp.Advanced {
     /// <summary>Provides a way to log unhandled exceptions.</summary>
@@ -8,6 +7,6 @@ namespace MirrorSharp.Advanced {
         /// <param name="exception">Exception to log.</param>
         /// <param name="session">Current <see cref="IWorkSession" /></param>
         /// <remarks>Implementations should avoid throwing exceptions from this method.</remarks>
-        void LogException([NotNull] Exception exception, [NotNull] IWorkSession session);
+        void LogException(Exception exception, IWorkSession session);
     }
 }

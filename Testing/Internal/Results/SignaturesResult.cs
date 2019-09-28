@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using MirrorSharp.Testing.Results;
 
 // ReSharper disable ClassNeverInstantiated.Global
@@ -8,7 +7,7 @@ using MirrorSharp.Testing.Results;
 
 namespace MirrorSharp.Testing.Internal.Results {
     internal class SignaturesResult {
-        [NotNull] public ResultSpan Span { get; } = new ResultSpan();
-        [NotNull] public IList<SignaturesItem> Signatures { get; } = new List<SignaturesItem>();
+        public ResultSpan Span { get; } = new ResultSpan();
+        public IList<SignaturesItem> Signatures { get; } = new List<SignaturesItem>();
     }
 }

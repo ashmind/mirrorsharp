@@ -1,6 +1,5 @@
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Reflection;
 using MirrorSharp.Internal.Results;
@@ -57,7 +56,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
 
         private async Task<bool> TryApplySignatureHelpAsync(ISignatureHelpProviderWrapper provider, SignatureHelpTriggerInfoData trigger, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken, bool sendIfEmpty = false) {
             // ReSharper disable once PossibleInvalidOperationException
-            if (trigger.TriggerReason == SignatureHelpTriggerReason.TypeCharCommand && !provider.IsTriggerCharacter(trigger.TriggerCharacter.Value))
+            if (trigger.TriggerReason == SignatureHelpTriggerReason.TypeCharCommand && !provider.IsTriggerCharacter(trigger.TriggerCharacter!.Value))
                 return false;
 
             var help = await provider.GetItemsAsync(session.Roslyn.Document, session.CursorPosition, trigger, cancellationToken).ConfigureAwait(false);
@@ -69,7 +68,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             return true;
         }
 
-        private Task SendSignatureHelpAsync([CanBeNull] SignatureHelpItemsData items, ICommandResultSender sender, CancellationToken cancellationToken) {
+        private Task SendSignatureHelpAsync(SignatureHelpItemsData? items, ICommandResultSender sender, CancellationToken cancellationToken) {
             var writer = sender.StartJsonMessage("signatures");
             if (items == null)
                 return sender.SendJsonMessageAsync(cancellationToken);

@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -14,9 +13,9 @@ using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
     internal class SlowUpdateHandler : ICommandHandler {
-        [CanBeNull] private readonly ISlowUpdateExtension _extension;
+        private readonly ISlowUpdateExtension? _extension;
 
-        public SlowUpdateHandler([CanBeNull] ISlowUpdateExtension extension) {
+        public SlowUpdateHandler(ISlowUpdateExtension? extension) {
             _extension = extension;
         }
 
@@ -26,7 +25,7 @@ namespace MirrorSharp.Internal.Handlers {
             // Temporary suppression, need to figure out the best approach here.
             // ReSharper disable once HeapView.BoxingAllocation
             var diagnostics = (IReadOnlyList<Diagnostic>)await session.LanguageSession.GetDiagnosticsAsync(cancellationToken).ConfigureAwait(false);
-            object extensionResult = null;
+            object? extensionResult = null;
             try {
                 if (_extension != null) {
                     var mutableDiagnostics = diagnostics.ToList();
@@ -40,7 +39,7 @@ namespace MirrorSharp.Internal.Handlers {
             }
         }
 
-        private async Task SendSlowUpdateAsync(IReadOnlyList<Diagnostic> diagnostics, WorkSession session, object extensionResult, ICommandResultSender sender, CancellationToken cancellationToken) {
+        private async Task SendSlowUpdateAsync(IReadOnlyList<Diagnostic> diagnostics, WorkSession session, object? extensionResult, ICommandResultSender sender, CancellationToken cancellationToken) {
             if (session.IsRoslyn)
                 session.Roslyn.CurrentCodeActions.Clear();
             var writer = sender.StartJsonMessage("slowUpdate");
@@ -100,7 +99,7 @@ namespace MirrorSharp.Internal.Handlers {
 
             // I don't think this can be avoided.
             // ReSharper disable once HeapView.ClosureAllocation
-            ImmutableArray<CodeAction>.Builder actionsBuilder = null;
+            ImmutableArray<CodeAction>.Builder? actionsBuilder = null;
             Action<CodeAction, ImmutableArray<Diagnostic>> registerCodeFix = (action, _) => {
                 if (actionsBuilder == null)
                     actionsBuilder = ImmutableArray.CreateBuilder<CodeAction>();

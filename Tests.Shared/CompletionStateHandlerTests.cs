@@ -49,7 +49,7 @@ namespace MirrorSharp.Tests {
             var driver = MirrorSharpTestDriver.New().SetTextWithCursor("class C { void M(object o) { o| } }");
             await TypeAndGetCompletionsAsync('.', driver);
 
-            var result = await driver.SendAsync<ChangesResult>(CompletionState, 'X');
+            var result = await driver.SendAsync<ChangesResult?>(CompletionState, 'X');
 
             Assert.Null(result);
             Assert.Null(driver.Session.CurrentCompletion.List);

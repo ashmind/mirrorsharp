@@ -37,10 +37,10 @@ namespace MirrorSharp.Internal.Handlers.Shared {
 
         public async Task SelectCompletionAsync(int selectedIndex, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var current = session.CurrentCompletion;
-
-            // ReSharper disable once PossibleNullReferenceException
             var completionList = current.List;
-            // ReSharper disable once PossibleNullReferenceException
+            if (completionList == null)
+                throw new InvalidOperationException("Cannot select completion when completion list is not active.");
+
             var item = completionList.Items[selectedIndex];
             var change = await session.LanguageSession.GetCompletionChangeAsync(completionList.Span, item, cancellationToken: cancellationToken).ConfigureAwait(false);
             current.List = null;
@@ -68,7 +68,11 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         }
 
         public async Task SendItemInfoAsync(int selectedIndex, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var item = session.CurrentCompletion.List.Items[selectedIndex];
+            var list = session.CurrentCompletion.List;
+            if (list == null)
+                return;
+
+            var item = list.Items[selectedIndex];
             var description = await session.LanguageSession.GetCompletionDescriptionAsync(item, cancellationToken).ConfigureAwait(false);
             if (description == null)
                 return;

@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 
@@ -11,10 +11,13 @@ using Newtonsoft.Json;
 
 namespace MirrorSharp.Testing.Results {
     public class SlowUpdateResult<TExtensionResult> {
-        [NotNull] public IList<SlowUpdateDiagnostic> Diagnostics { get; } = new List<SlowUpdateDiagnostic>();
-        [PublicAPI] [JsonProperty("x")] [CanBeNull] public TExtensionResult ExtensionResult { get; set; }
+        public IList<SlowUpdateDiagnostic> Diagnostics { get; } = new List<SlowUpdateDiagnostic>();
 
-        [PublicAPI]
+        #pragma warning disable CS8618 // Non-nullable field is uninitialized.
+        // https://github.com/dotnet/roslyn/issues/37511
+        [MaybeNull] [JsonProperty("x")]  public TExtensionResult ExtensionResult { get; set; }
+        #pragma warning restore CS8618 // Non-nullable field is uninitialized.
+
         public string JoinErrors() {
             return string.Join(Environment.NewLine,
                 Diagnostics.Where(d => string.Equals(d.Severity, nameof(DiagnosticSeverity.Error), StringComparison.OrdinalIgnoreCase))

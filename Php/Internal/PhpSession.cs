@@ -6,13 +6,14 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal.Abstraction;
 using MirrorSharp.Php.Advanced;
 using Pchp.CodeAnalysis;
+
+using SourceText = peachpie::Microsoft.CodeAnalysis.Text.SourceText;
 
 namespace MirrorSharp.Php.Internal {
     internal class PhpSession : ILanguageSessionInternal, IPhpSession {
@@ -57,7 +58,7 @@ namespace MirrorSharp.Php.Internal {
 
         public string GetText() => _text;
 
-        public void ReplaceText(string newText, int start = 0, int? length = null) {
+        public void ReplaceText(string? newText, int start = 0, int? length = null) {
             if (length > 0)
                 _text = _text.Remove(start, length.Value);
             if (newText?.Length > 0)
@@ -84,15 +85,15 @@ namespace MirrorSharp.Php.Internal {
             return false; // not supported yet
         }
 
-        public Task<CompletionList> GetCompletionsAsync(int cursorPosition, CompletionTrigger trigger, CancellationToken cancellationToken) {
-            return Task.FromResult(CompletionList.Empty); // not supported yet
+        public Task<CompletionList?> GetCompletionsAsync(int cursorPosition, CompletionTrigger trigger, CancellationToken cancellationToken) {
+            return Task.FromResult<CompletionList?>(CompletionList.Empty); // not supported yet
         }
 
-        public Task<CompletionDescription> GetCompletionDescriptionAsync(CompletionItem item, CancellationToken cancellationToken) {
+        public Task<CompletionDescription?> GetCompletionDescriptionAsync(CompletionItem item, CancellationToken cancellationToken) {
             throw new NotSupportedException(); // not supported yet
         }
 
-        public Task<CompletionChange> GetCompletionChangeAsync(TextSpan completionSpan, [NotNull] CompletionItem item, CancellationToken cancellationToken) {
+        public Task<CompletionChange> GetCompletionChangeAsync(TextSpan completionSpan, CompletionItem item, CancellationToken cancellationToken) {
             throw new NotSupportedException(); // not supported yet
         }
 

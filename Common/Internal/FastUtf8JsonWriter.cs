@@ -22,7 +22,7 @@ namespace MirrorSharp.Internal {
         private readonly State[] _stateStack;
         private int _stateStackIndex = 0;
 
-        private FastUtf8JsonStringWriter _stringWriter;
+        private FastUtf8JsonStringWriter? _stringWriter;
 
         public FastUtf8JsonWriter(ArrayPool<byte> bufferPool) {
             _bufferPool = bufferPool;
@@ -68,7 +68,7 @@ namespace MirrorSharp.Internal {
             ReplaceState(State.ObjectPropertyValue);
         }
 
-        public void WriteValue(string value) {
+        public void WriteValue(string? value) {
             WriteStartValue();
             if (value == null) {
                 WriteRawBytes(Utf8.Null);
@@ -82,7 +82,7 @@ namespace MirrorSharp.Internal {
             WriteEndValue();
         }
 
-        public void WriteValue(StringBuilder value) {
+        public void WriteValue(StringBuilder? value) {
             WriteStartValue();
             if (value == null) {
                 WriteRawBytes(Utf8.Null);
@@ -239,7 +239,7 @@ namespace MirrorSharp.Internal {
             if (_position + requiredExtraBytes <= _buffer.Length)
                 return;
 
-            byte[] newBuffer = null;
+            byte[]? newBuffer = null;
             try {
                 newBuffer = _bufferPool.Rent(_position + requiredExtraBytes);
                 Buffer.BlockCopy(_buffer, 0, newBuffer, 0, _buffer.Length);

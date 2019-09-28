@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Immutable;
 using System.Text;
-using JetBrains.Annotations;
 
 namespace MirrorSharp.Advanced {
     /// <summary>
@@ -12,7 +11,7 @@ namespace MirrorSharp.Advanced {
         /// <param name="writer">Writer to write the property to.</param>
         /// <param name="name">Name of the property to write.</param>
         /// <param name="value">Value of the property to write; can be null.</param> 
-        public static void WriteProperty([NotNull] this IFastJsonWriter writer, [NotNull] string name, [CanBeNull] string value) {
+        public static void WriteProperty( this IFastJsonWriter writer, string name, string? value) {
             Argument.NotNull(nameof(writer), writer);
             writer.WritePropertyName(name);
             writer.WriteValue(value);
@@ -22,7 +21,7 @@ namespace MirrorSharp.Advanced {
         /// <param name="writer">Writer to write the property to.</param>
         /// <param name="name">Name of the property to write.</param>
         /// <param name="value">Value of the property to write; can be null.</param> 
-        public static void WriteProperty([NotNull] this IFastJsonWriter writer, [CanBeNull] string name, [CanBeNull] StringBuilder value) {
+        public static void WriteProperty(this IFastJsonWriter writer, string name, StringBuilder? value) {
             Argument.NotNull(nameof(writer), writer);
             writer.WritePropertyName(name);
             writer.WriteValue(value);
@@ -32,7 +31,7 @@ namespace MirrorSharp.Advanced {
         /// <param name="writer">Writer to write the property to.</param>
         /// <param name="name">Name of the property to write.</param>
         /// <param name="value">Value of the property to write.</param> 
-        public static void WriteProperty([NotNull] this IFastJsonWriter writer, [CanBeNull] string name, ArraySegment<char> value) {
+        public static void WriteProperty(this IFastJsonWriter writer, string name, ArraySegment<char> value) {
             Argument.NotNull(nameof(writer), writer);
             writer.WritePropertyName(name);
             writer.WriteValue(value);
@@ -42,7 +41,7 @@ namespace MirrorSharp.Advanced {
         /// <param name="writer">Writer to write the property to.</param>
         /// <param name="name">Name of the property to write.</param>
         /// <param name="value">Value of the property to write; can be null.</param> 
-        public static void WriteProperty([NotNull] this IFastJsonWriter writer, [CanBeNull] string name, ImmutableArray<char> value) {
+        public static void WriteProperty(this IFastJsonWriter writer, string name, ImmutableArray<char> value) {
             Argument.NotNull(nameof(writer), writer);
             writer.WritePropertyName(name);
             writer.WriteValue(value);
@@ -52,7 +51,7 @@ namespace MirrorSharp.Advanced {
         /// <param name="writer">Writer to write the property to.</param>
         /// <param name="name">Name of the property to write.</param>
         /// <param name="value">Value of the property to write.</param>
-        public static void WriteProperty([NotNull] this IFastJsonWriter writer, [NotNull] string name, char value) {
+        public static void WriteProperty(this IFastJsonWriter writer, string name, char value) {
             Argument.NotNull(nameof(writer), writer);
             writer.WritePropertyName(name);
             writer.WriteValue(value);
@@ -62,7 +61,7 @@ namespace MirrorSharp.Advanced {
         /// <param name="writer">Writer to write the property to.</param>
         /// <param name="name">Name of the property to write.</param>
         /// <param name="value">Value of the property to write.</param>
-        public static void WriteProperty([NotNull] this IFastJsonWriter writer, [NotNull] string name, int value) {
+        public static void WriteProperty(this IFastJsonWriter writer, string name, int value) {
             Argument.NotNull(nameof(writer), writer);
             writer.WritePropertyName(name);
             writer.WriteValue(value);
@@ -72,7 +71,7 @@ namespace MirrorSharp.Advanced {
         /// <param name="writer">Writer to write the property to.</param>
         /// <param name="name">Name of the property to write.</param>
         /// <param name="value">Value of the property to write.</param>
-        public static void WriteProperty([NotNull] this IFastJsonWriter writer, [NotNull] string name, bool value) {
+        public static void WriteProperty(this IFastJsonWriter writer, string name, bool value) {
             Argument.NotNull(nameof(writer), writer);
             writer.WritePropertyName(name);
             writer.WriteValue(value);
@@ -81,7 +80,7 @@ namespace MirrorSharp.Advanced {
         /// <summary>Writes a new JSON property and opens its object value (e.g. <c>"name": {</c>).</summary>
         /// <param name="writer">Writer to write the property to.</param>
         /// <param name="name">Name of the property to write.</param>
-        public static void WritePropertyStartObject([NotNull] this IFastJsonWriter writer, [NotNull] string name) {
+        public static void WritePropertyStartObject(this IFastJsonWriter writer, string name) {
             Argument.NotNull(nameof(writer), writer);
             writer.WritePropertyName(name);
             writer.WriteStartObject();
@@ -90,7 +89,7 @@ namespace MirrorSharp.Advanced {
         /// <summary>Writes a new JSON property and opens its array value (e.g. <c>"name": [</c>).</summary>
         /// <param name="writer">Writer to write the property to.</param>
         /// <param name="name">Name of the property to write.</param>
-        public static void WritePropertyStartArray([NotNull] this IFastJsonWriter writer, [NotNull] string name) {
+        public static void WritePropertyStartArray(this IFastJsonWriter writer, string name) {
             Argument.NotNull(nameof(writer), writer);
             writer.WritePropertyName(name);
             writer.WriteStartArray();

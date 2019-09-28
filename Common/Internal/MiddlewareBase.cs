@@ -4,28 +4,26 @@ using System.Collections.Immutable;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Internal.Handlers.Shared;
 
 namespace MirrorSharp.Internal {
     internal abstract class MiddlewareBase {
-        [NotNull] private readonly LanguageManager _languageManager;
-        [NotNull] private readonly MirrorSharpOptions _options;
-        [ItemNotNull] private readonly ImmutableArray<ICommandHandler> _handlers;
+        private readonly LanguageManager _languageManager;
+        private readonly MirrorSharpOptions _options;
+        private readonly ImmutableArray<ICommandHandler> _handlers;
 
-        protected MiddlewareBase([NotNull] MirrorSharpOptions options) 
+        protected MiddlewareBase(MirrorSharpOptions options) 
             : this(new LanguageManager(Argument.NotNull(nameof(options), options)), options) {
         }
 
-        internal MiddlewareBase([NotNull] LanguageManager languageManager, [NotNull] MirrorSharpOptions options) {
+        internal MiddlewareBase(LanguageManager languageManager, MirrorSharpOptions options) {
             _options = options;
             _languageManager = languageManager;
             _handlers = CreateHandlersIndexedByCommandId();
         }
 
-        [ItemNotNull]
         private ImmutableArray<ICommandHandler> CreateHandlersIndexedByCommandId() {
             var handlers = new ICommandHandler[26];
             foreach (var handler in CreateHandlers()) {
@@ -34,7 +32,6 @@ namespace MirrorSharp.Internal {
             return ImmutableArray.CreateRange(handlers);
         }
 
-        [NotNull, ItemNotNull]
         private IReadOnlyCollection<ICommandHandler> CreateHandlers() {
             var completion = new CompletionSupport();
             var signatureHelp = new SignatureHelpSupport();
@@ -57,10 +54,9 @@ namespace MirrorSharp.Internal {
             return _handlers[commandId - 'A'];
         }
 
-        [NotNull]
-        protected async Task WebSocketLoopAsync([NotNull] WebSocket socket, CancellationToken cancellationToken) {
-            WorkSession session = null;
-            Connection connection = null;
+        protected async Task WebSocketLoopAsync(WebSocket socket, CancellationToken cancellationToken) {
+            WorkSession? session = null;
+            Connection? connection = null;
             try {
                 session = new WorkSession(_languageManager.GetLanguage(LanguageNames.CSharp), _options);
                 connection = new Connection(socket, session, _handlers, ArrayPool<byte>.Shared, _options);

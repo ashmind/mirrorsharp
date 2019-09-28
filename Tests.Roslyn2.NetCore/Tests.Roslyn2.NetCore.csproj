@@ -6,7 +6,6 @@
     <AssemblyName>MirrorSharp.Tests.Roslyn2.NetCore</AssemblyName>
     <PackageId>MirrorSharp.Tests.Roslyn2.NetCore</PackageId>
     <RootNamespace>MirrorSharp.Tests</RootNamespace>
-    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,12 +22,12 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="Moq" Version="4.7.99" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.9.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.9.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="2.9.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="2.9.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="2.9.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="2.9.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.3.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.3.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.3.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="3.3.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="3.3.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="3.3.1" />
     <PackageReference Include="System.Net.WebSockets" Version="4.0.0" />
   </ItemGroup>
 

@@ -1,25 +1,24 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using MirrorSharp.Internal.Handlers.Shared;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
     internal class ReplaceTextHandler : ICommandHandler {
         public char CommandId => CommandIds.ReplaceText;
-        [NotNull] private readonly ISignatureHelpSupport _signatureHelp;
-        [NotNull] private readonly ICompletionSupport _completion;
-        [NotNull] private readonly ITypedCharEffects _typedCharEffects;
-        [NotNull] private readonly ArrayPool<char> _charArrayPool;
+        private readonly ISignatureHelpSupport _signatureHelp;
+        private readonly ICompletionSupport _completion;
+        private readonly ITypedCharEffects _typedCharEffects;
+        private readonly ArrayPool<char> _charArrayPool;
 
         public ReplaceTextHandler(
-            [NotNull] ISignatureHelpSupport signatureHelp,
-            [NotNull] ICompletionSupport completion,
-            [NotNull] ITypedCharEffects typedCharEffects,
-            [NotNull] ArrayPool<char> charArrayPool
+            ISignatureHelpSupport signatureHelp,
+            ICompletionSupport completion,
+            ITypedCharEffects typedCharEffects,
+            ArrayPool<char> charArrayPool
         ) {
             _signatureHelp = signatureHelp;
             _completion = completion;
@@ -35,7 +34,7 @@ namespace MirrorSharp.Internal.Handlers {
             int? start = null;
             int? length = null;
             int? cursorPosition = null;
-            string reason = null;
+            string? reason = null;
 
             for (var i = first.Offset; i <= endOffset; i++) {
                 if (first.Array[i] != (byte)':')

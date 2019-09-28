@@ -1,11 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.IO;
-using JetBrains.Annotations;
 
 namespace MirrorSharp.FSharp.Advanced {
     /// <summary>Represents a virtual (in-memory) file within <see cref="FSharpFileSystem" />.</summary>
-    [PublicAPI]
     public class FSharpVirtualFile : IDisposable {
         private readonly ConcurrentDictionary<string, FSharpVirtualFile> _ownerCollection;
 

@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using JetBrains.Annotations;
 using FSharp.Compiler.SourceCodeServices;
 using Microsoft.FSharp.Core;
 using System.IO;
 
 namespace MirrorSharp.FSharp {
     /// <summary>MirrorSharp options for F#</summary>
-    [PublicAPI]
     public class MirrorSharpFSharpOptions {
         internal MirrorSharpFSharpOptions() {
             var assemblyPaths = ImmutableArray.CreateBuilder<string>();
@@ -39,6 +37,6 @@ namespace MirrorSharp.FSharp {
         public bool? Optimize { get; set; }
 
         /// <summary>Corresponds to option <c>--target</c> in <see cref="FSharpProjectOptions.OtherOptions"/>.</summary>
-        public string Target { get; set; }
+        public string? Target { get; set; }
     }
 }

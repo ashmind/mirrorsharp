@@ -1,26 +1,21 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using MirrorSharp.Internal;
 
 namespace MirrorSharp.Owin.Internal {
     using AppFunc = Func<IDictionary<string, object>, Task>;
-    using WebSocketAccept = Action<IDictionary<string, object>, Func<IDictionary<string, object>, Task>>;
+    using WebSocketAccept = Action<IDictionary<string, object>?, Func<IDictionary<string, object>, Task>>;
 
     internal class Middleware : MiddlewareBase {
         private readonly AppFunc _next;
 
-        public Middleware([NotNull] AppFunc next, [NotNull] MirrorSharpOptions options) : base(options) {
+        public Middleware(AppFunc next, MirrorSharpOptions options) : base(options) {
             _next = Argument.NotNull(nameof(next), next);
         }
 
-        [UsedImplicitly]
-        [SuppressMessage("ReSharper", "HeapView.ClosureAllocation")]
-        [SuppressMessage("ReSharper", "HeapView.DelegateAllocation")]
         public Task Invoke(IDictionary<string, object> environment) {
             object accept;
             if (!environment.TryGetValue("websocket.Accept", out accept))

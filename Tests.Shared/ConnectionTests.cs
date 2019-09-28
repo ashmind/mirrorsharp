@@ -67,7 +67,7 @@ namespace MirrorSharp.Tests {
             return new string(chars);
         }
 
-        private ICommandHandler MockCommandHandler(char commandId, Func<AsyncData, Task> execute = null) {
+        private ICommandHandler MockCommandHandler(char commandId, Func<AsyncData, Task>? execute = null) {
             var handler = Mock.Of<ICommandHandler>(h => h.CommandId == commandId);
             Mock.Get(handler)
                 .Setup(h => h.ExecuteAsync(It.IsAny<AsyncData>(), It.IsAny<WorkSession>(), It.IsAny<ICommandResultSender>(), It.IsAny<CancellationToken>()))

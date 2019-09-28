@@ -1,11 +1,8 @@
-﻿using System;
+using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Microsoft.CodeAnalysis;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Results;
 
@@ -18,16 +15,16 @@ namespace MirrorSharp.Internal.Handlers {
         private static readonly char[] Comma = { ',' };
         private static readonly char[] EqualsSign = { '=' };
 
-        [NotNull] private readonly LanguageManager _languageManager;
-        [NotNull] private readonly ArrayPool<char> _charArrayPool;
-        [CanBeNull] private readonly ISetOptionsFromClientExtension _extension;
+        private readonly LanguageManager _languageManager;
+        private readonly ArrayPool<char> _charArrayPool;
+        private readonly ISetOptionsFromClientExtension? _extension;
 
         public char CommandId => CommandIds.SetOptions;
 
         internal SetOptionsHandler(
-            [NotNull] LanguageManager languageManager,
-            [NotNull] ArrayPool<char> charArrayPool,
-            [CanBeNull] ISetOptionsFromClientExtension extension = null
+            LanguageManager languageManager,
+            ArrayPool<char> charArrayPool,
+            ISetOptionsFromClientExtension? extension = null
         ) {
             _languageManager = languageManager;
             _charArrayPool = charArrayPool;

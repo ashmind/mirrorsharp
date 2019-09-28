@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Composition;
 using System.Composition.Hosting;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -26,11 +23,11 @@ namespace MirrorSharp.Internal.Roslyn {
         private readonly ImmutableList<AnalyzerReference> _defaultAnalyzerReferences;
 
         protected RoslynLanguageBase(
-            [NotNull] string name,
-            [NotNull] string featuresAssemblyName,
-            [NotNull] string workspacesAssemblyName,
-            [NotNull] string editorFeaturesAssemblyName,
-            [NotNull] IRoslynLanguageOptions options
+            string name,
+            string featuresAssemblyName,
+            string workspacesAssemblyName,
+            string editorFeaturesAssemblyName,
+            IRoslynLanguageOptions options
         ) {
             Name = name;
             _hostServices = CreateHostServices(featuresAssemblyName, workspacesAssemblyName, editorFeaturesAssemblyName);

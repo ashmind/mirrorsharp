@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 
 namespace MirrorSharp.Internal {
     internal struct AsyncData {
-        public static readonly AsyncData Empty = new AsyncData(new ArraySegment<byte>(new byte[0]), false, () => null);
+        private static readonly Task<ArraySegment<byte>?> NullSegmentTask = Task.FromResult<ArraySegment<byte>?>(null);
+        public static readonly AsyncData Empty = new AsyncData(new ArraySegment<byte>(new byte[0]), false, () => NullSegmentTask);
 
         private readonly ArraySegment<byte> _first;
         private readonly Func<Task<ArraySegment<byte>?>> _getNextAsync;

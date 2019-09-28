@@ -1,19 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../NuGet.Common.props" />
 
   <PropertyGroup>
     <AssemblyName>MirrorSharp.Owin</AssemblyName>
     <RootNamespace>MirrorSharp.Owin</RootNamespace>
-    <TargetFramework>net46</TargetFramework>
-    <VersionPrefix>1.0</VersionPrefix>
+    <TargetFramework>net461</TargetFramework>
+    <VersionPrefix>2.0</VersionPrefix>
     <Description>MirrorSharp OWIN server. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;CodeMirror</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="10.4.0" />
     <PackageReference Include="Owin" Version="1.0.0" />
   </ItemGroup>
 

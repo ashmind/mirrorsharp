@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
@@ -18,12 +17,12 @@ using SourceText = FSharp.Compiler.Text.SourceText;
 
 namespace MirrorSharp.FSharp.Internal {
     internal class FSharpSession : ILanguageSessionInternal, IFSharpSession {
-        private static readonly Task<CompletionDescription> NoCompletionDescriptiontTask = Task.FromResult<CompletionDescription>(null);
+        private static readonly Task<CompletionDescription?> NoCompletionDescriptiontTask = Task.FromResult<CompletionDescription?>(null);
 
         private string _text;
-        [CanBeNull] private LineColumnMap _lastLineMap;
-        [CanBeNull] private FSharpParseAndCheckResults _lastParseAndCheck;
-        [NotNull] private FSharpProjectOptions _projectOptions;
+        private LineColumnMap? _lastLineMap;
+        private FSharpParseAndCheckResults? _lastParseAndCheck;
+        private FSharpProjectOptions _projectOptions;
 
         public FSharpSession(string text, MirrorSharpFSharpOptions options) {
             _text = text;
@@ -39,7 +38,7 @@ namespace MirrorSharp.FSharp.Internal {
             Checker.ImplicitlyStartBackgroundWork = false;
             AssemblyReferencePaths = options.AssemblyReferencePaths;
             AssemblyReferencePathsAsFSharpList = ToFSharpList(options.AssemblyReferencePaths);
-            ProjectOptions = new FSharpProjectOptions(
+            _projectOptions = new FSharpProjectOptions(
                 "_",
                 projectId: null,
                 sourceFiles: new[] { "_.fs" },
@@ -121,11 +120,11 @@ namespace MirrorSharp.FSharp.Internal {
             return _lastParseAndCheck;
         }
 
-        public FSharpParseFileResults GetLastParseResults() {
+        public FSharpParseFileResults? GetLastParseResults() {
             return _lastParseAndCheck?.ParseResults;
         }
 
-        public FSharpCheckFileAnswer GetLastCheckAnswer() {
+        public FSharpCheckFileAnswer? GetLastCheckAnswer() {
             return _lastParseAndCheck?.CheckAnswer;
         }
 
@@ -168,7 +167,7 @@ namespace MirrorSharp.FSharp.Internal {
             return _text;
         }
 
-        public void ReplaceText(string newText, int start = 0, int? length = null) {
+        public void ReplaceText(string? newText, int start = 0, int? length = null) {
             if (length > 0)
                 _text = _text.Remove(start, length.Value);
             if (newText?.Length > 0)
@@ -183,7 +182,7 @@ namespace MirrorSharp.FSharp.Internal {
                 || trigger.Kind == CompletionTriggerKind.Invoke;
         }
 
-        public async Task<CompletionList> GetCompletionsAsync(int cursorPosition, CompletionTrigger trigger, CancellationToken cancellationToken) {
+        public async Task<CompletionList?> GetCompletionsAsync(int cursorPosition, CompletionTrigger trigger, CancellationToken cancellationToken) {
             var result = await ParseAndCheckAsync(cancellationToken);
             if (!(result.CheckAnswer is FSharpCheckFileAnswer.Succeeded success))
                 return null;
@@ -217,7 +216,7 @@ namespace MirrorSharp.FSharp.Internal {
             return items.MoveToImmutable();
         }
 
-        public Task<CompletionDescription> GetCompletionDescriptionAsync(CompletionItem item, CancellationToken cancellationToken) {
+        public Task<CompletionDescription?> GetCompletionDescriptionAsync(CompletionItem item, CancellationToken cancellationToken) {
             return NoCompletionDescriptiontTask;
         }
 

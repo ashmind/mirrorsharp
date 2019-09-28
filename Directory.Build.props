@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>8.0</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>1591</WarningsNotAsErrors>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+</Project>

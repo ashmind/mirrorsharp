@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using BenchmarkDotNet.Attributes;
 using MirrorSharp.Internal;
@@ -37,9 +37,9 @@ namespace MirrorSharp.Benchmarks.Of.Json {
 
         [Benchmark]
         public ArraySegment<byte> NewtonsoftJson_JsonWriter() {
-            _memoryStream.Seek(0, SeekOrigin.Begin);
+            _memoryStream!.Seek(0, SeekOrigin.Begin);
 
-            var writer = _newtonsoftJsonWriter;
+            var writer = _newtonsoftJsonWriter!;
             writer.WriteStartObject();
             writer.WritePropertyName("type");
             writer.WriteValue("completions");
@@ -67,7 +67,7 @@ namespace MirrorSharp.Benchmarks.Of.Json {
 
         [Benchmark]
         public ArraySegment<byte> MirrorSharp_FastJsonWriter() {
-            _fastJsonWriter.Reset();
+            _fastJsonWriter!.Reset();
 
             var writer = _fastJsonWriter;
             writer.WriteStartObject();

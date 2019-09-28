@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
-using JetBrains.Annotations;
 using MirrorSharp.Internal.Abstraction;
 
 namespace MirrorSharp.Internal {
@@ -12,7 +11,7 @@ namespace MirrorSharp.Internal {
         // ReSharper disable HeapView.ClosureAllocation
         // ReSharper disable HeapView.DelegateAllocation
         // ReSharper disable HeapView.ObjectAllocation.Possible
-        public LanguageManager([NotNull] ILanguageManagerOptions options) {
+        public LanguageManager(ILanguageManagerOptions options) {
             foreach (var language in options.Languages) {
                 _languages.Add(language.Key, new Lazy<ILanguage>(language.Value, LazyThreadSafetyMode.ExecutionAndPublication));
             }

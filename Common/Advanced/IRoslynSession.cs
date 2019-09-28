@@ -1,13 +1,11 @@
 using System;
-using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 
 namespace MirrorSharp.Advanced {
     /// <summary>Represents a user session based on Roslyn.</summary>
-    [PublicAPI]
     public interface IRoslynSession {
         /// <summary>Roslyn <see cref="Microsoft.CodeAnalysis.Project"/> associated with the current session.</summary>
-        [PublicAPI, NotNull] Project Project { get; set; }
+        Project Project { get; set; }
 
         /// <summary>
         /// Adds assembly references to the current session and attempts to discover corresponding XML documentation.
@@ -32,6 +30,6 @@ namespace MirrorSharp.Advanced {
         /// </remarks>
         /// <seealso cref="ProjectInfo.IsSubmission"/>
         /// <seealso cref="ProjectInfo.HostObjectType"/>
-        void SetScriptMode(bool isScript = true, [CanBeNull] Type hostObjectType = null);
+        void SetScriptMode(bool isScript = true, Type? hostObjectType = null);
     }
 }

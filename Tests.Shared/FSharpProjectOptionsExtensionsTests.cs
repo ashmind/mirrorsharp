@@ -93,18 +93,18 @@ namespace MirrorSharp.Tests {
             Assert.Same(options, updated);
         }
 
-        private FSharpProjectOptions NewOptions(string[] otherOptions = null) {
+        private FSharpProjectOptions NewOptions(string[]? otherOptions = null) {
             return new FSharpProjectOptions(
                 "_",
                 null,
-                new String[]{},
+                new string[0],
                 otherOptions,
                 null,
                 false,
                 false,
                 DateTime.MinValue,
                 null,
-                FSharpList<Tuple<Range.range, String>>.Empty,
+                FSharpList<Tuple<Range.range, string>>.Empty,
                 null,
                 null
             );

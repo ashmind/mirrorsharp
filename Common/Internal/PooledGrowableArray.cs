@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 
 namespace MirrorSharp.Internal {
@@ -18,8 +18,8 @@ namespace MirrorSharp.Internal {
                 return;
 
             var actualNewLength = _array.Length * (int)Math.Pow(2, Math.Log(Math.Ceiling((double)newLength / _array.Length), 2));
-            var newArray = (T[])null;
-            var oldArray = (T[])null;
+            var newArray = (T[]?)null;
+            var oldArray = (T[]?)null;
             try {
                 newArray = _pool.Rent(actualNewLength);
                 System.Array.Copy(_array, 0, newArray, 0, _array.Length);

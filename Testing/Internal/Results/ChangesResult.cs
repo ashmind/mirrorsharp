@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using JetBrains.Annotations;
+using System.Collections.Generic;
 
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable CollectionNeverUpdated.Global
@@ -7,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace MirrorSharp.Testing.Internal.Results {
     internal class ChangesResult {
-        [CanBeNull] public string Reason { get; set; }
-        [NotNull] public IList<ResultChange> Changes { get; } = new List<ResultChange>();
+        public string? Reason { get; set; }
+        public IList<ResultChange> Changes { get; } = new List<ResultChange>();
     }
 }

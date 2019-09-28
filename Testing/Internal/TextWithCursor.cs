@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MirrorSharp.Testing.Internal {
     internal class TextWithCursor {
         public static TextWithCursor Parse(string textWithCursor, char cursor = '|') {

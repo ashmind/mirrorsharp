@@ -22,7 +22,7 @@ namespace MirrorSharp.Internal {
         private readonly FastUtf8JsonWriter _messageWriter;
         private readonly IConnectionOptions _options;
 
-        public Connection(WebSocket socket, WorkSession session, ImmutableArray<ICommandHandler> handlers, ArrayPool<byte> bufferPool, IConnectionOptions options = null) {
+        public Connection(WebSocket socket, WorkSession session, ImmutableArray<ICommandHandler> handlers, ArrayPool<byte> bufferPool, IConnectionOptions? options = null) {
             _socket = socket;
             _session = session;
             _handlers = handlers;
@@ -42,7 +42,7 @@ namespace MirrorSharp.Internal {
                 var exception = ex;
                 try {
                     try {
-                        _options?.ExceptionLogger?.LogException(exception, _session);
+                        _options.ExceptionLogger?.LogException(exception, _session);
                     }
                     catch (Exception logException) {
                         exception = new AggregateException(exception, logException);

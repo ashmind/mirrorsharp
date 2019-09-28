@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Roslyn;
@@ -12,22 +9,21 @@ namespace MirrorSharp.Advanced {
     /// <typeparam name="TSelf">Type of the specific subclass (provided by that subclass).</typeparam>
     /// <typeparam name="TParseOptions">Type of <see cref="ParseOptions" /> for this language.</typeparam>
     /// <typeparam name="TCompilationOptions">Type of <see cref="CompilationOptions" /> for this language.</typeparam>
-    [PublicAPI]
     public abstract class MirrorSharpRoslynOptions<TSelf, TParseOptions, TCompilationOptions> : IRoslynLanguageOptions
         where TSelf: MirrorSharpRoslynOptions<TSelf, TParseOptions, TCompilationOptions>
         where TParseOptions : ParseOptions
         where TCompilationOptions : CompilationOptions
     {
-        [NotNull] private TParseOptions _parseOptions;
-        [NotNull] private TCompilationOptions _compilationOptions;
-        [NotNull] private ImmutableList<MetadataReference> _metadataReferences;
+        private TParseOptions _parseOptions;
+        private TCompilationOptions _compilationOptions;
+        private ImmutableList<MetadataReference> _metadataReferences;
         private bool _isScript;
-        [CanBeNull] private Type _hostObjectType;
+        private Type? _hostObjectType;
 
         internal MirrorSharpRoslynOptions(
-            [NotNull] TParseOptions parseOptions,
-            [NotNull] TCompilationOptions compilationOptions,
-            [NotNull] ImmutableList<MetadataReference> metadataReferences
+            TParseOptions parseOptions,
+            TCompilationOptions compilationOptions,
+            ImmutableList<MetadataReference> metadataReferences
         ) {
             _parseOptions = parseOptions;
             _compilationOptions = compilationOptions;
@@ -35,21 +31,18 @@ namespace MirrorSharp.Advanced {
         }
 
         /// <summary><see cref="ParseOptions" /> for this language.</summary>
-        [NotNull]
         public TParseOptions ParseOptions {
             get => _parseOptions;
             set => _parseOptions = Argument.NotNull(nameof(value), value);
         }
 
         /// <summary><see cref="CompilationOptions" /> for this language.</summary>
-        [NotNull]
         public TCompilationOptions CompilationOptions {
             get => _compilationOptions;
             set => _compilationOptions = Argument.NotNull(nameof(value), value);
         }
 
         /// <summary><see cref="MetadataReference" />s for this language.</summary>
-        [NotNull]
         public ImmutableList<MetadataReference> MetadataReferences {
             get => _metadataReferences;
             set => _metadataReferences = Argument.NotNull(nameof(value), value);
@@ -66,7 +59,7 @@ namespace MirrorSharp.Advanced {
         /// </remarks>
         /// <seealso cref="ProjectInfo.IsSubmission"/>
         /// <seealso cref="ProjectInfo.HostObjectType"/>
-        public TSelf SetScriptMode(bool isScript = true, Type hostObjectType = null) {
+        public TSelf SetScriptMode(bool isScript = true, Type? hostObjectType = null) {
             RoslynScriptHelper.Validate(isScript, hostObjectType);
 
             ParseOptions = (TParseOptions)ParseOptions.WithKind(RoslynScriptHelper.GetSourceKind(isScript));
@@ -95,6 +88,6 @@ namespace MirrorSharp.Advanced {
         CompilationOptions IRoslynLanguageOptions.CompilationOptions => CompilationOptions;
         ImmutableList<MetadataReference> IRoslynLanguageOptions.MetadataReferences => MetadataReferences;
         bool IRoslynLanguageOptions.IsScript => _isScript;
-        Type IRoslynLanguageOptions.HostObjectType => _hostObjectType;
+        Type? IRoslynLanguageOptions.HostObjectType => _hostObjectType;
     }
 }

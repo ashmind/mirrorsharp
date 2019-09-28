@@ -9,6 +9,6 @@ namespace MirrorSharp.Internal.Roslyn {
         ImmutableList<MetadataReference> MetadataReferences { get; }
 
         bool IsScript { get; }
-        Type HostObjectType { get; }
+        Type? HostObjectType { get; }
     }
 }

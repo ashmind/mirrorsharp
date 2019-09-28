@@ -1,7 +1,12 @@
 namespace MirrorSharp.Testing.Internal.Results {
     internal class CompletionsItemInfoPart {
-        public string Kind { get; set; }
-        public string Text { get; set; }
+        public CompletionsItemInfoPart(string kind, string text) {
+            Kind = kind;
+            Text = text;
+        }
+
+        public string Kind { get; }
+        public string Text { get; }
 
         public override string ToString() => Text;
     }

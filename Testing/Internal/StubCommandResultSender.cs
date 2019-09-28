@@ -10,8 +10,8 @@ namespace MirrorSharp.Testing.Internal {
     internal class StubCommandResultSender : ICommandResultSender {
         private readonly FastUtf8JsonWriter _writer = new FastUtf8JsonWriter(ArrayPool<byte>.Shared);
 
-        public string LastMessageTypeName { get; private set; }
-        public string LastMessageJson { get; private set; }
+        public string? LastMessageTypeName { get; private set; }
+        public string? LastMessageJson { get; private set; }
 
         public IFastJsonWriter StartJsonMessage(string messageTypeName) {
             LastMessageTypeName = messageTypeName;

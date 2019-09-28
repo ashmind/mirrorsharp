@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using JetBrains.Annotations;
+using System.Collections.Generic;
 
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable CollectionNeverUpdated.Global
@@ -7,6 +6,6 @@ using JetBrains.Annotations;
 
 namespace MirrorSharp.Testing.Results {
     public class OptionsEchoResult {
-        [NotNull] public IDictionary<string, string> Options { get; } = new Dictionary<string, string>();
+        public IDictionary<string, string> Options { get; } = new Dictionary<string, string>();
     }
 }

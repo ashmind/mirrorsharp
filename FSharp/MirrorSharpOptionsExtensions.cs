@@ -1,5 +1,4 @@
-﻿using System;
-using JetBrains.Annotations;
+using System;
 using MirrorSharp.FSharp;
 using MirrorSharp.FSharp.Internal;
 
@@ -14,8 +13,7 @@ namespace MirrorSharp {
         /// <param name="options">Options to configure</param>
         /// <param name="setup">Setup delegate used to configure <see cref="MirrorSharpFSharpOptions" /></param>
         /// <returns>Value of <paramref name="options" />, for convenience.</returns>
-        [NotNull]
-        public static MirrorSharpOptions EnableFSharp([NotNull] this MirrorSharpOptions options, [CanBeNull] Action<MirrorSharpFSharpOptions> setup = null) {
+        public static MirrorSharpOptions EnableFSharp(this MirrorSharpOptions options, Action<MirrorSharpFSharpOptions>? setup = null) {
             Argument.NotNull(nameof(options), options);
             options.Languages.Add(FSharpLanguage.Name, () => {
                 var fsharp = new MirrorSharpFSharpOptions();

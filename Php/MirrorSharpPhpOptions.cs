@@ -2,11 +2,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 
 namespace MirrorSharp.Php {
     /// <summary>MirrorSharp options for PHP</summary>
-    [PublicAPI]
     public class MirrorSharpPhpOptions {
         /// <summary>Contains the list of assembly reference paths to be used, not configurable.</summary>
         public static readonly ImmutableArray<string> AssemblyReferencePaths = GatherPeachpieReferences();

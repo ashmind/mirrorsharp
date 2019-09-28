@@ -1,19 +1,17 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../NuGet.Common.props" />
 
   <PropertyGroup>
     <AssemblyName>MirrorSharp.AspNetCore</AssemblyName>
     <RootNamespace>MirrorSharp.AspNetCore</RootNamespace>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <VersionPrefix>0.1</VersionPrefix>
+    <VersionPrefix>2.0</VersionPrefix>
     <Description>MirrorSharp ASP.NET Core server. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;CodeMirror</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="10.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.2.1" />
   </ItemGroup>
 

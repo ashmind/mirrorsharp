@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.IO;
 using BenchmarkDotNet.Attributes;
@@ -8,12 +8,12 @@ using Newtonsoft.Json;
 namespace MirrorSharp.Benchmarks.Of.Json {
     public class JsonBenchmarksBase {
         // ReSharper disable InconsistentNaming
-        protected MemoryStream _memoryStream;
-        protected JsonTextWriter _newtonsoftJsonWriter;
-        internal FastUtf8JsonWriter _fastJsonWriter;
+        protected MemoryStream? _memoryStream;
+        protected JsonTextWriter? _newtonsoftJsonWriter;
+        internal FastUtf8JsonWriter? _fastJsonWriter;
         // ReSharper restore InconsistentNaming
 
-        [Setup]
+        [IterationSetup]
         public void Setup() {
             _memoryStream = new MemoryStream();
             _newtonsoftJsonWriter = new JsonTextWriter(new StreamWriter(_memoryStream)) {
@@ -23,15 +23,15 @@ namespace MirrorSharp.Benchmarks.Of.Json {
         }
 
         protected ArraySegment<byte> FlushNewtonsoftJsonWriterAndGetBuffer() {
-            _newtonsoftJsonWriter.Flush();
+            _newtonsoftJsonWriter!.Flush();
             ArraySegment<byte> buffer;
-            _memoryStream.TryGetBuffer(out buffer);
+            _memoryStream!.TryGetBuffer(out buffer);
             return buffer;
         }
 
-        [Cleanup]
+        [IterationCleanup]
         public void Cleanup() {
-            _fastJsonWriter.Dispose();
+            _fastJsonWriter!.Dispose();
         }
     }
 }

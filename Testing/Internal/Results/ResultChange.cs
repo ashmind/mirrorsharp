@@ -1,13 +1,17 @@
-﻿using JetBrains.Annotations;
-
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable CollectionNeverUpdated.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace MirrorSharp.Testing.Internal.Results {
     internal class ResultChange {
-        public int Start { get; set; }
-        public int Length { get; set; }
-        [CanBeNull] public string Text { get; set; }
+        public ResultChange(int start, int length, string text) {
+            Start = start;
+            Length = length;
+            Text = text;
+        }
+
+        public int Start { get; }
+        public int Length { get; }
+        public string Text { get; }
     }
 }

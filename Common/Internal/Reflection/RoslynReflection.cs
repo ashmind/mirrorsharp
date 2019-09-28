@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -18,16 +17,15 @@ namespace MirrorSharp.Internal.Reflection {
     internal static class RoslynReflection {
         private static readonly BindingFlags DefaultInstanceBindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
 
-        // Roslyn v2
         private static readonly Func<CodeAction, bool> _getIsInlinable =
             RoslynTypes.CodeAction
                 .GetProperty("IsInlinable", DefaultInstanceBindingFlags)
-                ?.GetMethod.CreateDelegate<Func<CodeAction, bool>>();
+                .GetMethod.CreateDelegate<Func<CodeAction, bool>>();
 
         private static readonly Func<CodeAction, ImmutableArray<CodeAction>> _getNestedCodeActions =
             RoslynTypes.CodeAction
                 .GetProperty("NestedCodeActions", DefaultInstanceBindingFlags)
-                ?.GetMethod.CreateDelegate<Func<CodeAction, ImmutableArray<CodeAction>>>();
+                .GetMethod.CreateDelegate<Func<CodeAction, ImmutableArray<CodeAction>>>();
 
         private static readonly Func<AnalyzerOptions, OptionSet, Solution, AnalyzerOptions> _newWorkspaceAnalyzerOptions
             = BuildDelegateForConstructorSlow<Func<AnalyzerOptions, OptionSet, Solution, AnalyzerOptions>>(
@@ -36,8 +34,8 @@ namespace MirrorSharp.Internal.Reflection {
                       .FirstOrDefault()
               );
 
-        private static readonly Func<object, OptionSet> _newWorkspaceOptionSet
-            = BuildDelegateForConstructorSlow<Func<object, OptionSet>>(
+        private static readonly Func<object?, OptionSet> _newWorkspaceOptionSet
+            = BuildDelegateForConstructorSlow<Func<object?, OptionSet>>(
                   RoslynTypes.WorkspaceOptionSet
                       .GetConstructors(DefaultInstanceBindingFlags)
                       .FirstOrDefault(c => c.GetParameters().Length == 1)
@@ -71,29 +69,27 @@ namespace MirrorSharp.Internal.Reflection {
             var exports = (IEnumerable)getExportsOfProvider.Invoke(hostServices, null);
 
             var metadataLanguagePropery = EnsureFound(metadataType, "Language", (t, n) => t.GetProperty(n));
-            TypeInfo lazyType = null;
-            PropertyInfo metadataProperty = null;
-            PropertyInfo valueProperty = null;
+            TypeInfo? lazyType = null;
+            PropertyInfo? metadataProperty = null;
+            PropertyInfo? valueProperty = null;
             foreach (var export in exports) {
                 if (lazyType == null) {
                     lazyType = export.GetType().GetTypeInfo();
                     metadataProperty = EnsureFound(lazyType, "Metadata", (t, n) => t.GetProperty(n));
                     valueProperty = EnsureFound(lazyType, "Value", (t, n) => t.GetProperty(n));
                 }
-                var metadata = metadataProperty.GetValue(export);
+                var metadata = metadataProperty!.GetValue(export);
                 var language = (string)metadataLanguagePropery.GetValue(metadata);
                 yield return new Lazy<TExtensionWrapper, OrderableLanguageMetadataData>(
                     // ReSharper disable once AccessToModifiedClosure
-                    () => createWrapper(valueProperty.GetValue(export)),
+                    () => createWrapper(valueProperty!.GetValue(export)),
                     new OrderableLanguageMetadataData(language)
                 );
             }
         }
 
-        [NotNull]
         public static OptionSet NewWorkspaceOptionSet() => _newWorkspaceOptionSet(null);
 
-        [NotNull]
         public static AnalyzerOptions NewWorkspaceAnalyzerOptions(AnalyzerOptions options, OptionSet optionSet, Solution solution) =>
             _newWorkspaceAnalyzerOptions(options, optionSet, solution);
 

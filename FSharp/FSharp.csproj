@@ -5,11 +5,10 @@
     <AssemblyName>MirrorSharp.FSharp</AssemblyName>
     <RootNamespace>MirrorSharp.FSharp</RootNamespace>
     <TargetFrameworks>netstandard2.0; net461</TargetFrameworks>
-    <VersionPrefix>0.14.1</VersionPrefix>
+    <VersionPrefix>0.16</VersionPrefix>
     <Description>MirrorSharp F# support library. $(DescriptionSuffix)</Description>
     <PackageTags>F#;CodeMirror</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

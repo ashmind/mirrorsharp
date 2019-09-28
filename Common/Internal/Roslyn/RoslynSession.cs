@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -31,8 +30,8 @@ namespace MirrorSharp.Internal.Roslyn {
         private Document _document;
         private SourceText _sourceText;
 
-        private Solution _lastWorkspaceAnalyzerOptionsSolution;
-        private AnalyzerOptions _workspaceAnalyzerOptions;
+        private Solution? _lastWorkspaceAnalyzerOptionsSolution;
+        private AnalyzerOptions? _workspaceAnalyzerOptions;
 
         private readonly CompletionService _completionService;
 
@@ -62,11 +61,11 @@ namespace MirrorSharp.Internal.Roslyn {
                 .AddDocument(documentId, "_", sourceText);
             solution = _workspace.SetCurrentSolution(solution);
             workspace.OpenDocument(documentId);
-            return solution.GetDocument(documentId);
+            return solution.GetDocument(documentId)!;
         }
 
         public string GetText() => SourceText.ToString();
-        public void ReplaceText(string newText, int start = 0, int? length = null) {
+        public void ReplaceText(string? newText, int start = 0, int? length = null) {
             var finalLength = length ?? SourceText.Length - start;
             _oneTextChange[0] = new TextChange(new TextSpan(start, finalLength), newText);
             SourceText = SourceText.WithChanges(_oneTextChange);
@@ -89,11 +88,11 @@ namespace MirrorSharp.Internal.Roslyn {
             return _completionService.ShouldTriggerCompletion(SourceText, cursorPosition, trigger);
         }
 
-        public Task<CompletionList> GetCompletionsAsync(int cursorPosition, CompletionTrigger trigger, CancellationToken cancellationToken) {
+        public Task<CompletionList?> GetCompletionsAsync(int cursorPosition, CompletionTrigger trigger, CancellationToken cancellationToken) {
             return _completionService.GetCompletionsAsync(Document, cursorPosition, trigger, cancellationToken: cancellationToken);
         }
 
-        public Task<CompletionDescription> GetCompletionDescriptionAsync(CompletionItem item, CancellationToken cancellationToken) {
+        public Task<CompletionDescription?> GetCompletionDescriptionAsync(CompletionItem item, CancellationToken cancellationToken) {
             return _completionService.GetDescriptionAsync(Document, item, cancellationToken: cancellationToken);
         }
 
@@ -101,9 +100,8 @@ namespace MirrorSharp.Internal.Roslyn {
             return _completionService.GetChangeAsync(Document, item, cancellationToken: cancellationToken);
         }
 
-        [NotNull] public IList<CodeAction> CurrentCodeActions { get; } = new List<CodeAction>();
+        public IList<CodeAction> CurrentCodeActions { get; } = new List<CodeAction>();
 
-        [NotNull]
         public CustomWorkspace Workspace {
             get {
                 EnsureDocumentUpToDate();
@@ -123,7 +121,6 @@ namespace MirrorSharp.Internal.Roslyn {
             }
         }
 
-        [NotNull]
         public Document Document {
             get {
                 EnsureDocumentUpToDate();
@@ -141,19 +138,22 @@ namespace MirrorSharp.Internal.Roslyn {
             }
         }
 
-        [CanBeNull] public CurrentSignatureHelp? CurrentSignatureHelp { get; set; }
+        public CurrentSignatureHelp? CurrentSignatureHelp { get; set; }
 
         public ImmutableArray<DiagnosticAnalyzer> Analyzers { get; }
         public ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CodeFixProviders { get; }
         public QuickInfoService QuickInfoService { get; }
         public ImmutableArray<ISignatureHelpProviderWrapper> SignatureHelpProviders { get; }
 
-        public void SetScriptMode(bool isScript = true, Type hostObjectType = null) {
+        public void SetScriptMode(bool isScript = true, Type? hostObjectType = null) {
             RoslynScriptHelper.Validate(isScript, hostObjectType);
             var sourceKind = RoslynScriptHelper.GetSourceKind(isScript);
 
             var project = Project;
             var document = Document;
+
+            if (project.ParseOptions == null)
+                throw new NotSupportedException("Setting Script Mode on project without ParseOptions is not supported yet");
 
             var newProjectInfo = ProjectInfo.Create(
                 project.Id,
@@ -174,7 +174,7 @@ namespace MirrorSharp.Internal.Roslyn {
             var newSolution = project.Solution
                 .RemoveProject(project.Id)
                 .AddProject(newProjectInfo);
-            var newProject = newSolution.GetProject(project.Id);
+            var newProject = newSolution.GetProject(project.Id)!;
 
             if (project.DocumentIds.Count > 1)
                 throw new NotSupportedException($"Calling {nameof(SetScriptMode)} after adding documents to the project is not currently supported.");
@@ -182,7 +182,7 @@ namespace MirrorSharp.Internal.Roslyn {
             if (project.AdditionalDocumentIds.Count > 0)
                 throw new NotSupportedException($"Calling {nameof(SetScriptMode)} after adding additional documents to the project is not currently supported.");
 
-            var newDocument = newProject.GetDocument(document.Id).WithText(_sourceText);
+            var newDocument = newProject.GetDocument(document.Id)!.WithText(_sourceText);
 
             _workspace.SetCurrentSolution(newDocument.Project.Solution);
             UpdateDocumentAfterSolutionChange();
@@ -208,7 +208,7 @@ namespace MirrorSharp.Internal.Roslyn {
         }
 
         private void UpdateDocumentAfterSolutionChange() {
-            _document = _workspace.CurrentSolution.GetDocument(_document.Id);
+            _document = _workspace.CurrentSolution.GetDocument(_document.Id)!;
             _documentOutOfDate = false;
         }
 
@@ -216,12 +216,12 @@ namespace MirrorSharp.Internal.Roslyn {
             EnsureDocumentUpToDate();
             var oldProject = _document.Project;
             // ReSharper disable once PossibleNullReferenceException
-            var newProject = _workspace.CurrentSolution.GetProject(Project.Id);
+            var newProject = _workspace.CurrentSolution.GetProject(Project.Id)!;
             if (newProject == oldProject)
                 return NoTextChanges;
 
-            var newText = await newProject.GetDocument(_document.Id).GetTextAsync().ConfigureAwait(false);
-            _document = _workspace.SetCurrentSolution(oldProject.Solution).GetDocument(_document.Id);
+            var newText = await newProject.GetDocument(_document.Id)!.GetTextAsync().ConfigureAwait(false);
+            _document = _workspace.SetCurrentSolution(oldProject.Solution).GetDocument(_document.Id)!;
 
             return newText.GetTextChanges(_sourceText);
         }

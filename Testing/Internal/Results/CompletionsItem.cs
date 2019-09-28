@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable CollectionNeverUpdated.Global
@@ -7,8 +6,12 @@ using JetBrains.Annotations;
 
 namespace MirrorSharp.Testing.Internal.Results {
     internal class CompletionsItem {
-        [CanBeNull] public string DisplayText { get; set; }
-        [CanBeNull] public int? Priority { get; set; }
-        [NotNull] public IList<string> Kinds { get; } = new List<string>();
+        public CompletionsItem(string displayText) {
+            DisplayText = displayText;
+        }
+
+        public string DisplayText { get; }
+        public int? Priority { get; set; }
+        public IList<string> Kinds { get; } = new List<string>();
     }
 }

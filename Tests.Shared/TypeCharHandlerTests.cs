@@ -73,7 +73,7 @@ namespace MirrorSharp.Tests {
             var maxPriority = result.Completions.Select(c => c.Priority ?? 0).Max();
 
             Assert.NotNull(dayOfWeek?.Priority);
-            Assert.NotEqual(0, dayOfWeek.Priority);
+            Assert.NotEqual(0, dayOfWeek!.Priority);
             Assert.Equal(maxPriority, dayOfWeek.Priority);
         }
 

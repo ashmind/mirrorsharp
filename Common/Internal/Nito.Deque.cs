@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -312,14 +312,14 @@ namespace Nito
         /// </summary>
         /// <param name="item">The item to test.</param>
         /// <returns><c>true</c> if the item is appropriate to store in this container; otherwise, <c>false</c>.</returns>
-        private bool ObjectIsT(object item)
+        private bool ObjectIsT(object? item)
         {
             if (item is T)
             {
                 return true;
             }
 
-            if (item == null && default(T) == null)
+            if (item == null && default(T)! == null)
             {
                 return true;
             }
@@ -373,7 +373,7 @@ namespace Nito
             Remove((T)value);
         }
 
-        object System.Collections.IList.this[int index]
+        object? System.Collections.IList.this[int index]
         {
             get
             {
@@ -384,7 +384,7 @@ namespace Nito
             {
                 if (!ObjectIsT(value))
                     throw new ArgumentException("Item is not of the correct type.", "value");
-                this[index] = (T)value;
+                this[index] = (T)value!;
             }
         }
 

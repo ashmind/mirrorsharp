@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
-using JetBrains.Annotations;
 using FSharp.Compiler.AbstractIL.Internal;
 using MirrorSharp.FSharp.Advanced;
 
@@ -126,7 +125,6 @@ namespace MirrorSharp.FSharp.Internal {
                 || directory.Contains("lib/mono/");
         }
 
-        [AssertionMethod]
         private static void EnsureIsAssemblyFile(string fileName) {
             if (!IsAssemblyFile(fileName))
                 throw new NotSupportedException();
@@ -142,12 +140,11 @@ namespace MirrorSharp.FSharp.Internal {
             return fileName.EndsWith(".fs", StringComparison.OrdinalIgnoreCase);
         }
 
-        [NotNull]
-        public FSharpVirtualFile RegisterVirtualFile([NotNull] MemoryStream stream) {
+        public FSharpVirtualFile RegisterVirtualFile(MemoryStream stream) {
             Argument.NotNull(nameof(stream), stream);
 
             var name = "virtualfs#" + Guid.NewGuid().ToString("D");
-            var file = (FSharpVirtualFile)null;
+            var file = (FSharpVirtualFile?)null;
             try {
                 file = new FSharpVirtualFile(name, stream, _virtualFiles);
                 _virtualFiles.TryAdd(name, file);
@@ -159,8 +156,7 @@ namespace MirrorSharp.FSharp.Internal {
             }
         }
 
-        [CanBeNull]
-        private FSharpVirtualFile GetVirtualFile([NotNull] string path) {
+        private FSharpVirtualFile? GetVirtualFile(string path) {
             return _virtualFiles.TryGetValue(Path.GetFileName(path), out var file) ? file : null;
         }
     }

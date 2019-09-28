@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -6,12 +6,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 
 namespace MirrorSharp.Internal.Reflection {
     internal struct SignatureHelpItemData {
-        [UsedImplicitly] // see FromInternalTypeExpressionSlow
+        // see FromInternalTypeExpressionSlow
         public SignatureHelpItemData(
            Func<CancellationToken, IEnumerable<TaggedText>> documentationFactory,
            ImmutableArray<TaggedText> prefixParts,

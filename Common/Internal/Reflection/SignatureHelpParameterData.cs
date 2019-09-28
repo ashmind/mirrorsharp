@@ -1,14 +1,13 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 
 namespace MirrorSharp.Internal.Reflection {
     internal class SignatureHelpParameterData {
-        [UsedImplicitly] // see FromInternalTypeExpressionSlow
+        // see FromInternalTypeExpressionSlow
         public SignatureHelpParameterData(IList<TaggedText> displayParts, IList<TaggedText> prefixDisplayParts, IList<TaggedText> suffixDisplayParts) {
             DisplayParts = displayParts;
             PrefixDisplayParts = prefixDisplayParts;

@@ -1,10 +1,13 @@
-using JetBrains.Annotations;
-
 namespace MirrorSharp.Testing.Results {
     public class InfoTipSectionPart {
-        [NotNull] public string Kind { get; set; }
-        [CanBeNull] public string Text { get; set; }
+        public InfoTipSectionPart(string kind, string text) {
+            Kind = kind;
+            Text = text;
+        }
 
-        public override string ToString() => Text;
+        public string Kind { get; }
+        public string Text { get; }
+
+        public override string? ToString() => Text;
     }
 }

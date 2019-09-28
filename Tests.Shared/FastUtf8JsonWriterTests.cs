@@ -9,7 +9,7 @@ namespace MirrorSharp.Tests {
         [Fact]
         public void WriteValue_WritesNull() {
             var writer = CreateWriter();
-            writer.WriteValue((string)null);
+            writer.WriteValue((string?)null);
 
             var result = GetWrittenAsString(writer);
             Assert.Equal("null", result);

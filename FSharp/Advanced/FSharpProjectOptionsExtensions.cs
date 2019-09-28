@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using FSharp.Compiler.SourceCodeServices;
 
 namespace MirrorSharp.FSharp.Advanced {
@@ -17,8 +16,7 @@ namespace MirrorSharp.FSharp.Advanced {
         /// Either a new instance of <see cref="FSharpProjectOptions" /> with the option set; or <paramref name="options" />
         /// if it already matches the provided value.
         /// </returns>
-        [NotNull]
-        public static FSharpProjectOptions WithOtherOptionDebug([NotNull] this FSharpProjectOptions options, [CanBeNull] bool? debug) {
+        public static FSharpProjectOptions WithOtherOptionDebug(this FSharpProjectOptions options, bool? debug) {
             return options.WithOtherOptions(
                 options.OtherOptions.WithSwitch("--debug", debug)
             );
@@ -35,8 +33,7 @@ namespace MirrorSharp.FSharp.Advanced {
         /// Either a new instance of <see cref="FSharpProjectOptions" /> with the option set; or <paramref name="options" />
         /// if it already matches the provided value.
         /// </returns>
-        [NotNull]
-        public static FSharpProjectOptions WithOtherOptionOptimize([NotNull] this FSharpProjectOptions options, [CanBeNull] bool? optimize) {
+        public static FSharpProjectOptions WithOtherOptionOptimize(this FSharpProjectOptions options, bool? optimize) {
             return options.WithOtherOptions(
                 options.OtherOptions.WithSwitch("--optimize", optimize)
             );
@@ -53,8 +50,7 @@ namespace MirrorSharp.FSharp.Advanced {
         /// Either a new instance of <see cref="FSharpProjectOptions" /> with the option set; or <paramref name="options" />
         /// if it already matches the provided value.
         /// </returns>
-        [NotNull]
-        public static FSharpProjectOptions WithOtherOptionTarget([NotNull] this FSharpProjectOptions options, [CanBeNull] string target) {
+        public static FSharpProjectOptions WithOtherOptionTarget(this FSharpProjectOptions options, string? target) {
             return options.WithOtherOptions(
                 options.OtherOptions.With("--target:", target)
             );
@@ -73,8 +69,7 @@ namespace MirrorSharp.FSharp.Advanced {
         /// Either a new instance of <see cref="FSharpProjectOptions" /> with the option changed; or <paramref name="options" />
         /// if it already matches the provided value.
         /// </returns>
-        [NotNull]
-        public static FSharpProjectOptions WithOtherOptionDefine([NotNull] this FSharpProjectOptions options, [NotNull] string symbol, bool defined = true) {
+        public static FSharpProjectOptions WithOtherOptionDefine(this FSharpProjectOptions options, string symbol, bool defined = true) {
             Argument.NotNull(nameof(symbol), symbol);
             return options.WithOtherOptions(
                 defined ? options.OtherOptions.With("--define:" + symbol) : options.OtherOptions.Without("--define:" + symbol)
@@ -92,8 +87,7 @@ namespace MirrorSharp.FSharp.Advanced {
         /// Either a new instance of <see cref="FSharpProjectOptions" /> with <see cref="FSharpProjectOptions.OtherOptions" /> set;
         /// or <paramref name="options" /> if it already includes the provided value.
         /// </returns>
-        [NotNull]
-        public static FSharpProjectOptions WithOtherOptions([NotNull] this FSharpProjectOptions options, [NotNull] string[] otherOptions) {
+        public static FSharpProjectOptions WithOtherOptions(this FSharpProjectOptions options, string[] otherOptions) {
             Argument.NotNull(nameof(options), options);
             Argument.NotNull(nameof(otherOptions), otherOptions);
 
@@ -139,7 +133,7 @@ namespace MirrorSharp.FSharp.Advanced {
             return Array.FindAll(otherOptions, o => o != option);
         }
 
-        private static string[] With(this string[] otherOptions, string prefix, string value) {
+        private static string[] With(this string[] otherOptions, string prefix, string? value) {
             // generally options are not changed often, so it's OK to use LINQ
             if (value == null) {
                 // need to remove the item if it exists

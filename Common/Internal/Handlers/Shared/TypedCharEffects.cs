@@ -1,6 +1,5 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers.Shared {
@@ -8,7 +7,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         private readonly ICompletionSupport _completion;
         private readonly ISignatureHelpSupport _signatureHelp;
 
-        public TypedCharEffects([NotNull] ICompletionSupport completion, [NotNull] ISignatureHelpSupport signatureHelp) {
+        public TypedCharEffects(ICompletionSupport completion, ISignatureHelpSupport signatureHelp) {
             _completion = completion;
             _signatureHelp = signatureHelp;
         }

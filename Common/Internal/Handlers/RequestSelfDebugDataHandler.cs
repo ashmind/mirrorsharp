@@ -1,4 +1,5 @@
-﻿using System.Threading;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Results;
@@ -8,6 +9,9 @@ namespace MirrorSharp.Internal.Handlers {
         public char CommandId => CommandIds.RequestSelfDebugData;
 
         public Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            if (session.SelfDebug == null)
+                throw new InvalidOperationException("SelfDebug is disabled on this session.");
+
             var writer = sender.StartJsonMessage("self:debug");
             writer.WritePropertyStartArray("log");
             // ReSharper disable once PossibleNullReferenceException

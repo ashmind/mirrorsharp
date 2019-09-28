@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using FSharp.Compiler.SourceCodeServices;
 
 namespace MirrorSharp.FSharp.Advanced {
@@ -10,9 +9,9 @@ namespace MirrorSharp.FSharp.Advanced {
         }
 
         /// <summary>Gets the Parse results.</summary>
-        [NotNull] public FSharpParseFileResults ParseResults { get; }
+        public FSharpParseFileResults ParseResults { get; }
 
         /// <summary>Gets the Check answer.</summary>
-        [NotNull] public FSharpCheckFileAnswer CheckAnswer { get; }
+        public FSharpCheckFileAnswer CheckAnswer { get; }
     }
 }

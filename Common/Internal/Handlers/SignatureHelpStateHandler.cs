@@ -1,16 +1,15 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using MirrorSharp.Internal.Handlers.Shared;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
     internal class SignatureHelpStateHandler : ICommandHandler {
         public char CommandId => CommandIds.SignatureHelpState;
-        [NotNull] private readonly ISignatureHelpSupport _signatureHelp;
+        private readonly ISignatureHelpSupport _signatureHelp;
 
-        public SignatureHelpStateHandler([NotNull] ISignatureHelpSupport signatureHelp) {
+        public SignatureHelpStateHandler(ISignatureHelpSupport signatureHelp) {
             _signatureHelp = signatureHelp;
         }
 

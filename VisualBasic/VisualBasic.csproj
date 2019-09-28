@@ -4,19 +4,17 @@
   <PropertyGroup>
     <AssemblyName>MirrorSharp.VisualBasic</AssemblyName>
     <RootNamespace>MirrorSharp.VisualBasic</RootNamespace>
-    <TargetFrameworks>netstandard1.5;net46</TargetFrameworks>
-    <VersionPrefix>1.0.0</VersionPrefix>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <VersionPrefix>2.0</VersionPrefix>
     <Description>MirrorSharp Visual Basic .NET support library. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;Visual Basic;CodeMirror</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.5' ">$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;portable-net45+win8</PackageTargetFallback>
-    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="10.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="2.9.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="2.9.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.3.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="3.3.1" />
   </ItemGroup>
 
   <ItemGroup>

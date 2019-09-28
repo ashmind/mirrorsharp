@@ -1,10 +1,7 @@
-using JetBrains.Annotations;
-using Microsoft.CodeAnalysis;
 using FSharp.Compiler.AbstractIL.Internal;
 using MirrorSharp.Internal.Abstraction;
 
 namespace MirrorSharp.FSharp.Internal {
-    [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
     internal class FSharpLanguage : ILanguage {
         public const string Name = "F#";
 

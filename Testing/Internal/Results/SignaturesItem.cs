@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text;
-using JetBrains.Annotations;
 
 // ReSharper disable HeapView.ClosureAllocation
 // ReSharper disable HeapView.DelegateAllocation
@@ -9,12 +8,11 @@ using JetBrains.Annotations;
 
 namespace MirrorSharp.Testing.Internal.Results {
     internal class SignaturesItem {
-        public bool Selected { get; [UsedImplicitly] set; }
-        [NotNull, UsedImplicitly] public IList<SignaturesItemPart> Parts { get; } = new List<SignaturesItemPart>();
+        public bool Selected { get; set; }
+        public IList<SignaturesItemPart> Parts { get; } = new List<SignaturesItemPart>();
 
         public override string ToString() => ToString(true);
 
-        [NotNull]
         public string ToString(bool markSelected) {
             var builder = new StringBuilder();
             var inSelected = false;

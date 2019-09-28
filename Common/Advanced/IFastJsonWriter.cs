@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Text;
-using JetBrains.Annotations;
 
 namespace MirrorSharp.Advanced {
     /// <summary>
@@ -12,7 +11,6 @@ namespace MirrorSharp.Advanced {
     /// At the moment the output is not actively validated --
     /// writer can produce invalid JSON if not used carefully.
     /// </remarks>
-    [PublicAPI]
     public interface IFastJsonWriter : IDisposable {
         /// <summary>Opens a new JSON object (<c>{</c>).</summary>
         void WriteStartObject();
@@ -28,15 +26,15 @@ namespace MirrorSharp.Advanced {
 
         /// <summary>Writes a new JSON property name (e.g. <c>"name":</c>).</summary>
         /// <param name="name">Name of the property to write.</param>
-        void WritePropertyName([NotNull] string name);
+        void WritePropertyName(string name);
 
         /// <summary>Writes <see cref="String" /> value as a JSON string.</summary>
         /// <param name="value">Value to write; can be null.</param>
-        void WriteValue([CanBeNull] string value);
+        void WriteValue(string? value);
 
         /// <summary>Writes <see cref="StringBuilder" /> value as a JSON string.</summary>
         /// <param name="value">Value to write; can be null.</param>
-        void WriteValue([CanBeNull] StringBuilder value);
+        void WriteValue(StringBuilder? value);
 
         /// <summary>Writes <see cref="ArraySegment{Char}" /> value as a JSON string.</summary>
         /// <param name="value">Value to write.</param>

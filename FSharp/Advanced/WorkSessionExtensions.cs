@@ -1,15 +1,13 @@
-﻿using JetBrains.Annotations;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal;
 
 namespace MirrorSharp.FSharp.Advanced {
     /// <summary>Provides F#-related extensions to the <see cref="IWorkSession" />.</summary>
-    [PublicAPI]
     public static class WorkSessionExtensions {
         /// <summary>Specifies whether the <see cref="IWorkSession" /> is using F#.</summary>
         /// <param name="session">The session</param>
         /// <returns><c>true</c> if the session is using F#; otherwise, <c>false</c></returns>
-        public static bool IsFSharp([NotNull] this IWorkSession session) {
+        public static bool IsFSharp(this IWorkSession session) {
             Argument.NotNull(nameof(session), session);
             return ((WorkSession)session).LanguageSession is IFSharpSession;
         }
