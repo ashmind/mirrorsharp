@@ -1,10 +1,10 @@
-using System;
-using System.IO;
+using System.Text.Json;
 using BenchmarkDotNet.Attributes;
 using MirrorSharp.Internal;
 using Newtonsoft.Json;
 
 namespace MirrorSharp.Benchmarks.Of.Json {
+    [InProcess]
     public class ComplexObjectBenchmarks : JsonBenchmarksBase {
         /*
         {
@@ -36,9 +36,7 @@ namespace MirrorSharp.Benchmarks.Of.Json {
         */
 
         [Benchmark]
-        public ArraySegment<byte> NewtonsoftJson_JsonWriter() {
-            _memoryStream!.Seek(0, SeekOrigin.Begin);
-
+        public void NewtonsoftJson_JsonWriter() {
             var writer = _newtonsoftJsonWriter!;
             writer.WriteStartObject();
             writer.WritePropertyName("type");
@@ -61,15 +59,11 @@ namespace MirrorSharp.Benchmarks.Of.Json {
             writer.WriteEndArray();
             writer.WriteEndObject();
             writer.WriteEndObject();
-
-            return FlushNewtonsoftJsonWriterAndGetBuffer();
         }
 
         [Benchmark]
-        public ArraySegment<byte> MirrorSharp_FastJsonWriter() {
-            _fastJsonWriter!.Reset();
-
-            var writer = _fastJsonWriter;
+        public void MirrorSharp_FastJsonWriter() {
+            var writer = _fastJsonWriter!;
             writer.WriteStartObject();
             writer.WritePropertyName("type");
             writer.WriteValue("completions");
@@ -91,8 +85,33 @@ namespace MirrorSharp.Benchmarks.Of.Json {
             writer.WriteEndArray();
             writer.WriteEndObject();
             writer.WriteEndObject();
+        }
 
-            return _fastJsonWriter.WrittenSegment;
+
+        [Benchmark]
+        public void SystemTextJson_Utf8JsonWriter() {
+            var writer = _systemTextJsonWriter!;
+            writer.WriteStartObject();
+            writer.WritePropertyName("type");
+            writer.WriteStringValue("completions");
+            writer.WritePropertyName("completions");
+            writer.WriteStartObject();
+            writer.WritePropertyName("span");
+            writer.WriteStartObject();
+            writer.WritePropertyName("start");
+            writer.WriteNumberValue(70);
+            writer.WritePropertyName("length");
+            writer.WriteNumberValue(0);
+            writer.WriteEndObject();
+            writer.WritePropertyName("list");
+            writer.WriteStartArray();
+            WriteCompletion(writer, "Equals");
+            WriteCompletion(writer, "GetHashCode");
+            WriteCompletion(writer, "GetType");
+            WriteCompletion(writer, "ToString");
+            writer.WriteEndArray();
+            writer.WriteEndObject();
+            writer.WriteEndObject();
         }
 
         private static void WriteCompletion(JsonTextWriter writer, string text) {
@@ -119,6 +138,20 @@ namespace MirrorSharp.Benchmarks.Of.Json {
             writer.WriteStartArray();
             writer.WriteValue("method");
             writer.WriteValue("public");
+            writer.WriteEndArray();
+            writer.WriteEndObject();
+        }
+
+        private static void WriteCompletion(Utf8JsonWriter writer, string text) {
+            writer.WriteStartObject();
+            writer.WritePropertyName("filterText");
+            writer.WriteStringValue(text);
+            writer.WritePropertyName("displayText");
+            writer.WriteStringValue(text);
+            writer.WritePropertyName("tags");
+            writer.WriteStartArray();
+            writer.WriteStringValue("method");
+            writer.WriteStringValue("public");
             writer.WriteEndArray();
             writer.WriteEndObject();
         }

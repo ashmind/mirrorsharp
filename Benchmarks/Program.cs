@@ -1,4 +1,4 @@
-﻿using BenchmarkDotNet.Running;
+using BenchmarkDotNet.Running;
 using MirrorSharp.Benchmarks.Of.Json;
 
 namespace MirrorSharp.Benchmarks {

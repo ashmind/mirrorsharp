@@ -1,24 +1,26 @@
-using System;
-using System.IO;
 using BenchmarkDotNet.Attributes;
 
 namespace MirrorSharp.Benchmarks.Of.Json {
+    [InProcess]
     public class WriteValueInt32Benchmarks : JsonBenchmarksBase {
-        [Params(-111, 1, 1111111)]
+        [Params(-100, -111, 1, 1111111)]
         public int Value { get; set; }
 
         [Benchmark]
-        public ArraySegment<byte> NewtonsoftJson_JsonWriter() {
-            _memoryStream!.Seek(0, SeekOrigin.Begin);
+        public void NewtonsoftJson_JsonWriter() {
             _newtonsoftJsonWriter!.WriteValue(Value);
-            return FlushNewtonsoftJsonWriterAndGetBuffer();
+            _newtonsoftJsonWriter.Flush();
         }
 
         [Benchmark]
-        public ArraySegment<byte> MirrorSharp_FastJsonWriter() {
-            _fastJsonWriter!.Reset();
-            _fastJsonWriter.WriteValue(Value);
-            return _fastJsonWriter.WrittenSegment;
+        public void MirrorSharp_FastJsonWriter() {
+            _fastJsonWriter!.WriteValue(Value);
+        }
+
+        [Benchmark]
+        public void SystemTextJson_Utf8JsonWriter() {
+            _systemTextJsonWriter!.WriteNumberValue(Value);
+            _systemTextJsonWriter.Flush();
         }
     }
 }

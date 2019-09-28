@@ -1,29 +1,35 @@
 using System;
-using System.IO;
 using BenchmarkDotNet.Attributes;
 
 namespace MirrorSharp.Benchmarks.Of.Json {
+    [InProcess]
     public class WriteValueStringBenchmarks : JsonBenchmarksBase {
-        private const string String = @"
-            using System;
+        [Params("test", @"using System;
             public class C {
                 public void M() {
                 }
             }
-        ";
+        ", "")]
+        public string? Value { get; set; }
 
         [Benchmark]
-        public ArraySegment<byte> NewtonsoftJson_JsonWriter() {
-            _memoryStream!.Seek(0, SeekOrigin.Begin);
-            _newtonsoftJsonWriter!.WriteValue(String);
-            return FlushNewtonsoftJsonWriterAndGetBuffer();
+        public void NewtonsoftJson_JsonWriter() {
+            _newtonsoftJsonWriter!.WriteValue(Value);
+            _newtonsoftJsonWriter.Flush();
+            //return FlushNewtonsoftJsonWriterAndGetBuffer();
         }
 
         [Benchmark]
-        public ArraySegment<byte> MirrorSharp_FastJsonWriter() {
-            _fastJsonWriter!.Reset();
-            _fastJsonWriter.WriteValue(String);
-            return _fastJsonWriter.WrittenSegment;
+        public void MirrorSharp_FastJsonWriter() {
+            _fastJsonWriter!.WriteValue(Value);
+            //return _fastJsonWriter.WrittenSegment;
+        }
+
+        [Benchmark]
+        public void SystemTextJson_Utf8JsonWriter() {
+            _systemTextJsonWriter!.WriteStringValue(Value);
+            _systemTextJsonWriter.Flush();
+            //return FlushSystemTextJsonWriterAndGetBuffer();
         }
     }
 }
