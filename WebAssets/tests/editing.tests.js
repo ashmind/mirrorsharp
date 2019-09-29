@@ -15,3 +15,15 @@ test('undo sends all changes as a single replace', async () => {
     const lastSent = driver.socket.sent.filter(c => !c.startsWith('U')).last();
     expect(lastSent).toBe('R6:0:12::{d:f2}');
 });
+
+test('tab is replaced with 4 spaces', async () => {
+    const driver = await TestDriver.new({ textWithCursor: '|' });
+    const cm = driver.getCodeMirror();
+
+    driver.keys.press('tab');
+    await driver.completeBackgroundWork();
+
+    const value = cm.getValue();
+
+    expect(value).toBe('    ');
+});

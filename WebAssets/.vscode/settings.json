@@ -3,9 +3,15 @@
     "jest.showCoverageOnLoad": true,
     "cSpell.ignorePaths": [
         "**/node_modules/**",
+        "**/coverage/**",
         "package-lock.json",
         ".eslintrc.*"
     ],
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/coverage/**": true
+    },
     "cSpell.words": [
         "Andrey",
         "Cpath",

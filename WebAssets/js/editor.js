@@ -73,6 +73,13 @@ function Editor(textarea, connection, selfDebug, options) {
     const cm = cmSource.cm;
 
     const keyMap = {
+        'Tab': function() {
+            if (cm.somethingSelected()) {
+                cm.execCommand('indentMore');
+                return;
+            }
+            cm.replaceSelection('    ' , 'end');
+        },
         'Shift-Tab': 'indentLess',
         'Ctrl-Space': function() { connection.sendCompletionState('force'); },
         'Shift-Ctrl-Space': function() { connection.sendSignatureHelpState('force'); },

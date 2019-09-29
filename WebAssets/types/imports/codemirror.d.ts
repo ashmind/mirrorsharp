@@ -1,10 +1,6 @@
 declare module CodeMirror {
     export interface EditorConfiguration {
-        readonly indentUnit?: number;
-        readonly gutters?: Array<string>;
-        readonly mode?: string;
         readonly lineSeparator?: string;
-        readonly lint?: boolean | LintOptions;
     }
 
     export interface Document {
@@ -13,6 +9,8 @@ declare module CodeMirror {
         getCursor(): Pos;
         getRange(from: Pos, to: Pos): string;
         replaceRange(replacement: string, from: Pos, to: Pos, origin: string): void;
+        somethingSelected(): boolean;
+        replaceSelection(replacement: string, select?: 'start'|'around'|'end'): void;
         posFromIndex(index: number): Pos;
         indexFromPos(pos: Pos): number;
         charCoords(pos: Pos): Coords;
@@ -73,8 +71,6 @@ declare module CodeMirror {
         changeActive(index: number): void;
         pick(): void;
     }
-
-    export type UpdateLintingCallback = (annotations: ReadonlyArray<LintAnnotation>) => void;
 
     interface LintState {
 
