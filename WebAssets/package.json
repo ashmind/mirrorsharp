@@ -36,8 +36,8 @@
         "codemirror-addon-lint-fix": "^1.0.1"
     },
     "devDependencies": {
-        "eslint": "^4.1.0",
-        "eslint-plugin-es": "^1.4.0",
+        "eslint": "^6.5.1",
+        "eslint-plugin-es": "^2.0.0",
         "fs-jetpack": "^2.1.0",
         "jest": "^24.9.0",
         "keysim": "^2.0.0",
