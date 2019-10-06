@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing;
@@ -21,6 +21,29 @@ namespace MirrorSharp.Tests {
 
             Assert.Equal(
                 new[] { new { Start = 0, Length = 0, Text = "using System;\r\n\r\n" } },
+                changes.Changes.Select(c => new { c.Start, c.Length, c.Text })
+            );
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_ProducesExpectedChanges_ForRemovalOfParentheses() {
+            var code = @"
+                class C {
+                    void M() {
+                        if ((true)){}
+                    }
+                }
+            ";
+            var driver = MirrorSharpTestDriver.New().SetText(code);
+            var action = await ExecuteSlowUpdateAndGetDiagnosticActionAsync(driver, "Parentheses", "Remove");
+
+            var changes = await driver.SendAsync<ChangesResult>(ApplyDiagnosticAction, action.Id);
+
+            Assert.Equal(
+                new[] {
+                    new { Start = code.IndexOf("(tr"), Length = 1, Text = "" },
+                    new { Start = code.IndexOf("){}"), Length = 1, Text = "" }
+                },
                 changes.Changes.Select(c => new { c.Start, c.Length, c.Text })
             );
         }

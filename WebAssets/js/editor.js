@@ -315,11 +315,15 @@ function Editor(textarea, connection, selfDebug, options) {
     function receiveServerChanges(changes, reason) {
         changesAreFromServer = true;
         changeReason = reason || 'server';
-        for (var change of changes) {
-            const from = cm.posFromIndex(change.start);
-            const to = change.length > 0 ? cm.posFromIndex(change.start + change.length) : from;
-            cm.replaceRange(change.text, from, to, '+server');
-        }
+        cm.operation(function() {
+            var offset = 0;
+            for (var change of changes) {
+                const from = cm.posFromIndex(change.start + offset);
+                const to = change.length > 0 ? cm.posFromIndex(change.start + offset + change.length) : from;
+                cm.replaceRange(change.text, from, to, '+server');
+                offset += change.text.length - change.length;
+            }
+        });
         changeReason = null;
         changesAreFromServer = false;
     }
