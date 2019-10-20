@@ -13,15 +13,22 @@ namespace MirrorSharp.FSharp {
 
             var corelib = typeof(object).Assembly;
             assemblyPaths.Add(corelib.Location);
+
             // Initial version -- likely to need a lot of adjustment/alignment with other languages
             if (corelib.GetName().Name == "System.Private.CoreLib") {
                 // .NET Core
                 var basePath = Path.GetDirectoryName(corelib.Location);
                 assemblyPaths.Add(Path.Combine(basePath, "mscorlib.dll"));
+                assemblyPaths.Add(Path.Combine(basePath, "netstandard.dll"));
                 assemblyPaths.Add(Path.Combine(basePath, "System.dll"));
+                assemblyPaths.Add(Path.Combine(basePath, "System.Collections.dll"));
+                assemblyPaths.Add(Path.Combine(basePath, "System.IO.dll"));
+                assemblyPaths.Add(Path.Combine(basePath, "System.Net.Requests.dll"));
+                assemblyPaths.Add(Path.Combine(basePath, "System.Net.WebClient.dll"));
                 assemblyPaths.Add(Path.Combine(basePath, "System.Runtime.dll"));
                 assemblyPaths.Add(Path.Combine(basePath, "System.Runtime.Extensions.dll"));
-                assemblyPaths.Add(Path.Combine(basePath, "System.IO.dll"));
+                assemblyPaths.Add(Path.Combine(basePath, "System.Runtime.Numerics.dll"));
+
             }
             assemblyPaths.Add(typeof(EntryPointAttribute).Assembly.Location);
             AssemblyReferencePaths = assemblyPaths.ToImmutable();
