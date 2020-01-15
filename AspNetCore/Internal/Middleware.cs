@@ -21,12 +21,12 @@ namespace MirrorSharp.AspNetCore.Internal {
                 return _next(context);
             }
 
-            if (string.IsNullOrWhiteSpace(_options.WebSocketUrl)) {
+            if (string.IsNullOrWhiteSpace(_options?.WebSocketUrl)) {
                 if (!context.Request.Path.Value.EndsWith("/mirrorsharp", StringComparison.OrdinalIgnoreCase)) {
                     return _next(context);
                 }
             } else {
-                if (!context.Request.Path.Value.Equals(_options.WebSocketUrl.Trim(), StringComparison.OrdinalIgnoreCase)) {
+                if (!context.Request.Path.Value.Equals(_options?.WebSocketUrl?.Trim(), StringComparison.OrdinalIgnoreCase)) {
                     return _next(context);
                 }
             }   
