@@ -12,7 +12,7 @@ namespace MirrorSharp.AspNetCore.Internal {
 
         public Middleware(RequestDelegate next, MirrorSharpOptions options) : base(options) {
             _next = Argument.NotNull(nameof(next), next);
-            _options = options;
+            _options = Argument.NotNull(nameof(options), options);
         }
 
         public Task InvokeAsync(HttpContext context) {
