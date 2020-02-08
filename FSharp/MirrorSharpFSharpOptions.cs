@@ -45,5 +45,8 @@ namespace MirrorSharp.FSharp {
 
         /// <summary>Corresponds to option <c>--target</c> in <see cref="FSharpProjectOptions.OtherOptions"/>.</summary>
         public string? Target { get; set; }
+
+        /// <summary>Corresponds to option <c>--langversion</c> in <see cref="FSharpProjectOptions.OtherOptions"/>.</summary>
+        public string? LangVersion { get; set;}
     }
 }

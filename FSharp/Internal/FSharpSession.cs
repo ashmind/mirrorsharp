@@ -86,6 +86,8 @@ namespace MirrorSharp.FSharp.Internal {
                 results.Add("--optimize" + (options.Optimize.Value ? "+" : "-"));
             if (options.Target != null)
                 results.Add("--target:" + options.Target);
+            if (options.LangVersion != null)
+                results.Add("--langversion:" + options.LangVersion);
             foreach (var path in options.AssemblyReferencePaths) {
                 // ReSharper disable once HeapView.ObjectAllocation (Not worth fixing for now)
                 results.Add("-r:" + path);
