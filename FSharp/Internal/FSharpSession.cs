@@ -33,7 +33,8 @@ namespace MirrorSharp.FSharp.Internal {
                 keepAllBackgroundResolutions: true,
                 legacyReferenceResolver: null,
                 tryGetMetadataSnapshot: null,
-                suggestNamesForErrors: FSharpOption<bool>.Some(true)
+                suggestNamesForErrors: true,
+                keepAllBackgroundSymbolUses: false
             );
             Checker.ImplicitlyStartBackgroundWork = false;
             AssemblyReferencePaths = options.AssemblyReferencePaths;
@@ -48,7 +49,7 @@ namespace MirrorSharp.FSharp.Internal {
                 useScriptResolutionRules: false,
                 loadTime: DateTime.Now,
                 unresolvedReferences: null,
-                originalLoadReferences: FSharpList<Tuple<Range.range, string>>.Empty,
+                originalLoadReferences: FSharpList<Tuple<Range.range, string, string>>.Empty,
                 extraProjectInfo: null,
                 stamp: null
             );
