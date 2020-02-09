@@ -1,3 +1,4 @@
+using System;
 using Microsoft.CodeAnalysis;
 
 namespace MirrorSharp.Internal.Roslyn {
@@ -6,9 +7,14 @@ namespace MirrorSharp.Internal.Roslyn {
             LanguageNames.CSharp,
             "Microsoft.CodeAnalysis.CSharp.Features",
             "Microsoft.CodeAnalysis.CSharp.Workspaces",
-            "Microsoft.CodeAnalysis.CSharp.EditorFeatures",
             options
         ) {
+        }
+
+        protected override bool ShouldConsiderForHostServices(Type type) {            
+            return
+                // IntelliCode type, not available in normal environments
+                type.FullName != "Microsoft.CodeAnalysis.ExternalAccess.Pythia.PythiaSignatureHelpProvider";
         }
     }
 }

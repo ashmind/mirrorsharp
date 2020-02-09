@@ -30,10 +30,16 @@ You'll need the following:
 
 ### Server
 
+#### MirrorSharp.AspNetCore
+[![NuGet](https://img.shields.io/nuget/v/MirrorSharp.AspNetCore.svg?style=flat-square)](https://www.nuget.org/packages/MirrorSharp.AspNetCore)
+
+NuGet: `Install-Package MirrorSharp.AspNetCore`  
+Once installed, call `app.UseMirrorSharp()` in your `Startup`.
+
 #### MirrorSharp.Owin
 [![NuGet](https://img.shields.io/nuget/v/MirrorSharp.Owin.svg?style=flat-square)](https://www.nuget.org/packages/MirrorSharp.Owin)
 
-NuGet: `Install-Package MirrorSharp.Owin -Pre`  
+NuGet: `Install-Package MirrorSharp.Owin`  
 Once installed, call `app.UseMirrorSharp()` in your OWIN startup.
 
 ### Client

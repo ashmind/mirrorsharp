@@ -19,7 +19,6 @@ using MirrorSharp.Internal.Reflection;
 namespace MirrorSharp.Internal.Roslyn {
     internal class RoslynSession : ILanguageSessionInternal, IRoslynSession {
         private static AnalyzerOptions EmptyAnalyzerOptions = new AnalyzerOptions(ImmutableArray<AdditionalText>.Empty);
-        private static OptionSet EmptyOptionSet = RoslynReflection.NewWorkspaceOptionSet();
 
         private static readonly TextChange[] NoTextChanges = new TextChange[0];
 
@@ -75,7 +74,7 @@ namespace MirrorSharp.Internal.Roslyn {
             var compilation = await Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
             var solution = Project.Solution;
             if (_lastWorkspaceAnalyzerOptionsSolution != solution) {
-                _workspaceAnalyzerOptions = RoslynReflection.NewWorkspaceAnalyzerOptions(EmptyAnalyzerOptions, EmptyOptionSet, solution);
+                _workspaceAnalyzerOptions = RoslynReflection.NewWorkspaceAnalyzerOptions(EmptyAnalyzerOptions, solution);
                 _lastWorkspaceAnalyzerOptionsSolution = solution;
             }
 

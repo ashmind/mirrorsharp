@@ -1,14 +1,9 @@
 version: '{build}'
 configuration: Release
-image: Visual Studio 2019 Preview
-
-install:
-- ps: |-
-    choco install dotnetcore-sdk --version 3.0.100
+image: Visual Studio 2019
 
 cache:
 - C:\Users\appveyor\AppData\Local\Temp\1\chocolatey\vcredist140 -> .appveyor.yml
-- C:\Users\appveyor\AppData\Local\Temp\1\chocolatey\dotnetcore-sdk -> .appveyor.yml
 
 environment:
   NpmAuthToken:
@@ -21,7 +16,7 @@ build_script:
 - dotnet build --configuration Release
 
 test_script:
-- mirrorsharp test
+- dotnet test
   
 after_test:
 - mirrorsharp pack

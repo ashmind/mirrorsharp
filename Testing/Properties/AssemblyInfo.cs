@@ -10,7 +10,8 @@ using System.Runtime.InteropServices;
 [assembly: Guid("0814c69a-e4a5-4fc9-bc57-415f8295b6b6")]
 
 [assembly: InternalsVisibleTo("MirrorSharp.Benchmarks")]
-[assembly: InternalsVisibleTo("MirrorSharp.Tests.Roslyn2.NetCore")]
-[assembly: InternalsVisibleTo("MirrorSharp.Tests.Roslyn2.Net46")]
+[assembly: InternalsVisibleTo("MirrorSharp.Tests.NetCore")]
+[assembly: InternalsVisibleTo("MirrorSharp.Tests.Net46")]
+[assembly: InternalsVisibleTo("MirrorSharp.Tests.RoslynLatest")]
 [assembly: InternalsVisibleTo("SharpLab.Tests")]
 [assembly: InternalsVisibleTo("SharpLab.Tests.NetCore")]

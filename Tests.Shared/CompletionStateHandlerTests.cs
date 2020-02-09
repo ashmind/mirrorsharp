@@ -73,17 +73,17 @@ namespace MirrorSharp.Tests {
             var driver = MirrorSharpTestDriver.New(MirrorSharpOptionsWithXmlDocumentation.Instance)
                 .SetTextWithCursor("class C { void M(object o) { o.| } }");
             var completions = await driver.SendAsync<CompletionsResult>(CompletionState, 'F');
-            var toStringIndex = completions.Completions
+            var getHashCodeIndex = completions.Completions
                 .Select((c, index) => (c.DisplayText, index))
-                .First(x => x.DisplayText == nameof(ToString))
+                .First(x => x.DisplayText == nameof(GetHashCode))
                 .index;
 
-            var result = await driver.SendAsync<CompletionsItemInfoResult>(CompletionState, "I" + toStringIndex);
+            var result = await driver.SendAsync<CompletionsItemInfoResult>(CompletionState, "I" + getHashCodeIndex);
 
             Assert.NotNull(result);
-            Assert.Equal(toStringIndex, result.Index);
+            Assert.Equal(getHashCodeIndex, result.Index);
             Assert.Equal(
-                "string object.ToString()\r\nReturns a string that represents the current object.",
+                "int object.GetHashCode()\r\nServes as the default hash function.",
                 string.Join("", result.Parts)
             );
         }

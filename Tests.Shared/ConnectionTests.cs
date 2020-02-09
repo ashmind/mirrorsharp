@@ -54,7 +54,7 @@ namespace MirrorSharp.Tests {
         }
 
         private ArraySegment<T> Copy<T>(ArraySegment<T> segment) {
-            var newArray = new T[segment.Array.Length];
+            var newArray = new T[segment.Array!.Length];
             Buffer.BlockCopy(segment.Array, 0, newArray, 0, segment.Array.Length);
             return new ArraySegment<T>(newArray, segment.Offset, segment.Count);
         }
@@ -86,7 +86,7 @@ namespace MirrorSharp.Tests {
             var dataStream = new MemoryStream(Encoding.UTF8.GetBytes(command));
             mock.Setup(m => m.ReceiveAsync(It.IsAny<ArraySegment<byte>>(), It.IsAny<CancellationToken>()))
                 .Returns((ArraySegment<byte> data, CancellationToken _) => {
-                    var count = dataStream.Read(data.Array, data.Offset, data.Count);
+                    var count = dataStream.Read(data.Array!, data.Offset, data.Count);
                     return Task.FromResult(new WebSocketReceiveResult(count, WebSocketMessageType.Text, dataStream.Position == dataStream.Length));
                 });
             return mock.Object;
