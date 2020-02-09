@@ -48,5 +48,11 @@ namespace MirrorSharp.FSharp {
 
         /// <summary>Corresponds to option <c>--langversion</c> in <see cref="FSharpProjectOptions.OtherOptions"/>.</summary>
         public string? LangVersion { get; set; }
+
+        /// <summary>
+        /// Corresponds to option <c>--targetprofile</c> in <see cref="FSharpProjectOptions.OtherOptions"/>.
+        /// Valid values are "mscorlib", "netcore", and "netstandard"
+        /// </summary>
+        public string? TargetProfile { get; set; }
     }
 }

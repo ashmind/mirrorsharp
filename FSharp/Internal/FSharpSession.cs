@@ -88,6 +88,9 @@ namespace MirrorSharp.FSharp.Internal {
                 results.Add("--target:" + options.Target);
             if (options.LangVersion != null)
                 results.Add("--langversion:" + options.LangVersion);
+            if (options.TargetProfile != null)
+                results.Add("--targetprofile:" + options.TargetProfile);
+
             foreach (var path in options.AssemblyReferencePaths) {
                 // ReSharper disable once HeapView.ObjectAllocation (Not worth fixing for now)
                 results.Add("-r:" + path);
