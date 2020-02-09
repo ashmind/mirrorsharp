@@ -1,10 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <DefineConstants>$(DefineConstants);ROSLYN20</DefineConstants>
-    <AssemblyName>MirrorSharp.Tests.Roslyn2.NetCore</AssemblyName>
-    <PackageId>MirrorSharp.Tests.Roslyn2.NetCore</PackageId>
+    <DefineConstants>$(DefineConstants);PRE_ROSLYN_36</DefineConstants>
+    <AssemblyName>MirrorSharp.Tests.NetCore</AssemblyName>
     <RootNamespace>MirrorSharp.Tests</RootNamespace>
   </PropertyGroup>
 
@@ -17,18 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.Compiler.Service" Version="32.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="Moq" Version="4.7.99" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.3.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.3.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.3.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="3.3.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="3.3.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="3.3.1" />
-    <PackageReference Include="System.Net.WebSockets" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>

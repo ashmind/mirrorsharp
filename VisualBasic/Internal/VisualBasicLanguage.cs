@@ -7,7 +7,6 @@ namespace MirrorSharp.VisualBasic.Internal {
             LanguageNames.VisualBasic,
             "Microsoft.CodeAnalysis.VisualBasic.Features",
             "Microsoft.CodeAnalysis.VisualBasic.Workspaces",
-            "Microsoft.CodeAnalysis.VisualBasic.EditorFeatures",
             options
         ) {
         }

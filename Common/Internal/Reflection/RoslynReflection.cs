@@ -27,19 +27,8 @@ namespace MirrorSharp.Internal.Reflection {
                 .GetProperty("NestedCodeActions", DefaultInstanceBindingFlags)
                 .GetMethod.CreateDelegate<Func<CodeAction, ImmutableArray<CodeAction>>>();
 
-        private static readonly Func<AnalyzerOptions, OptionSet, Solution, AnalyzerOptions> _newWorkspaceAnalyzerOptions
-            = BuildDelegateForConstructorSlow<Func<AnalyzerOptions, OptionSet, Solution, AnalyzerOptions>>(
-                  RoslynTypes.WorkspaceAnalyzerOptions
-                      .GetConstructors(DefaultInstanceBindingFlags)
-                      .FirstOrDefault()
-              );
-
-        private static readonly Func<object?, OptionSet> _newWorkspaceOptionSet
-            = BuildDelegateForConstructorSlow<Func<object?, OptionSet>>(
-                  RoslynTypes.WorkspaceOptionSet
-                      .GetConstructors(DefaultInstanceBindingFlags)
-                      .FirstOrDefault(c => c.GetParameters().Length == 1)
-              );
+        private static readonly Func<AnalyzerOptions, Solution, AnalyzerOptions> _newWorkspaceAnalyzerOptions
+            = BuildDelegateForNewWorkspaceAnalyzerOptionsSlow();
 
         public static bool IsInlinable(CodeAction action) => _getIsInlinable(action);
         public static ImmutableArray<CodeAction> GetNestedCodeActions(CodeAction action) => _getNestedCodeActions(action);
@@ -88,10 +77,8 @@ namespace MirrorSharp.Internal.Reflection {
             }
         }
 
-        public static OptionSet NewWorkspaceOptionSet() => _newWorkspaceOptionSet(null);
-
-        public static AnalyzerOptions NewWorkspaceAnalyzerOptions(AnalyzerOptions options, OptionSet optionSet, Solution solution) =>
-            _newWorkspaceAnalyzerOptions(options, optionSet, solution);
+        public static AnalyzerOptions NewWorkspaceAnalyzerOptions(AnalyzerOptions options, Solution solution) =>
+            _newWorkspaceAnalyzerOptions(options, solution);
 
         public static TMemberInfo EnsureFound<TMemberInfo>(TypeInfo type, string name, Func<TypeInfo, string, TMemberInfo> getMember) {
             var member = getMember(type, name);
@@ -102,6 +89,27 @@ namespace MirrorSharp.Internal.Reflection {
 
         private static TDelegate CreateDelegate<TDelegate>(this MethodInfo method) {
             return (TDelegate)(object)method.CreateDelegate(typeof(TDelegate));
+        }
+
+        private static Func<AnalyzerOptions, Solution, AnalyzerOptions> BuildDelegateForNewWorkspaceAnalyzerOptionsSlow() {
+            var constructor = RoslynTypes.WorkspaceAnalyzerOptions
+                .GetConstructors(DefaultInstanceBindingFlags)
+                .FirstOrDefault();
+            var parameters = constructor.GetParameters();
+
+            // before Roslyn 3.6 
+            if (parameters.Length == 3 && parameters[1].ParameterType == typeof(OptionSet)) {
+                var newWorkspaceOptionSet = BuildDelegateForConstructorSlow<Func<object?, OptionSet>>(
+                    RoslynTypes.WorkspaceOptionSet!
+                        .GetConstructors(DefaultInstanceBindingFlags)
+                        .FirstOrDefault(c => c.GetParameters().Length == 1)
+                );
+                var newWorkspaceAnalyzerOptions = BuildDelegateForConstructorSlow<Func<AnalyzerOptions, OptionSet, Solution, AnalyzerOptions>>(constructor);
+                return (options, solution) => newWorkspaceAnalyzerOptions(options, newWorkspaceOptionSet(null), solution);
+            }
+
+            // after Roslyn 3.6
+            return BuildDelegateForConstructorSlow<Func<AnalyzerOptions, Solution, AnalyzerOptions>>(constructor);
         }
 
         private static TFunc BuildDelegateForConstructorSlow<TFunc>(ConstructorInfo constructor) {

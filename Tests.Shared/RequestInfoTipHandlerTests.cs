@@ -15,7 +15,13 @@ namespace MirrorSharp.Tests {
         )]
         [InlineData(
             "using System.Threading.Tasks; class C { Task ➭A() {} }",
-            "(awaitable) Task C.A()\r\n\r\nUsage:\r\n  await A();", new[] { "method", "private" }
+            // https://github.com/dotnet/roslyn/commit/d9be31dadff3d7a7c30ec38cae5d75bf0f6a0a22
+            #if PRE_ROSLYN_36
+            "(awaitable) Task C.A()\r\n\r\nUsage:\r\n  await A();",
+            #else
+            "(awaitable) Task C.A()",
+            #endif
+            new[] { "method", "private" }
         )]
         [InlineData(
             "class C { string P { g➭et; set; } }",

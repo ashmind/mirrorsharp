@@ -13,21 +13,19 @@
     <Compile Include="$(MSBuildThisFileDirectory)CompletionStateHandlerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConnectionTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FastUtf8JsonWriterTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\RoslynScriptModeTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FSharpProjectOptionsExtensionsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FSharpTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Internal\ObjectMembers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Internal\TrackingArrayPool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MirrorSharpOptionsWithXmlDocumentation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MoveCursorHandlerTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReplaceTextHandlerTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Features\RoslynScriptModeTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RequestInfoTipHandlerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SetOptionsHandlerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SignatureHelpStateHandlerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SlowUpdateHandlerTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TypeCharHandlerTests.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Features\" />
   </ItemGroup>
 </Project>

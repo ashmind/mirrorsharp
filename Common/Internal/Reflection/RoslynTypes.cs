@@ -21,7 +21,7 @@ namespace MirrorSharp.Internal.Reflection {
         public static readonly TypeInfo SignatureHelpItem = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpItem", true).GetTypeInfo();
         public static readonly TypeInfo SignatureHelpParameter = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpParameter", true).GetTypeInfo();
 
-        public static readonly TypeInfo WorkspaceOptionSet = MicrosoftCodeAnalysisWorkspaces.GetType("Microsoft.CodeAnalysis.Options.WorkspaceOptionSet", true).GetTypeInfo();
-        public static readonly TypeInfo WorkspaceAnalyzerOptions = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.Diagnostics.WorkspaceAnalyzerOptions", true).GetTypeInfo();        
+        public static readonly TypeInfo? WorkspaceOptionSet = MicrosoftCodeAnalysisWorkspaces.GetType("Microsoft.CodeAnalysis.Options.WorkspaceOptionSet", throwOnError: false)?.GetTypeInfo();
+        public static readonly TypeInfo WorkspaceAnalyzerOptions = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.Diagnostics.WorkspaceAnalyzerOptions", true).GetTypeInfo();
     }
 }

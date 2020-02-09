@@ -104,7 +104,7 @@ namespace MirrorSharp.Tests {
                 false,
                 DateTime.MinValue,
                 null,
-                FSharpList<Tuple<Range.range, string>>.Empty,
+                FSharpList<Tuple<global::FSharp.Compiler.Range.range, string>>.Empty,
                 null,
                 null
             );

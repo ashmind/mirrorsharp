@@ -26,11 +26,10 @@ namespace MirrorSharp.Internal.Roslyn {
             string name,
             string featuresAssemblyName,
             string workspacesAssemblyName,
-            string editorFeaturesAssemblyName,
             IRoslynLanguageOptions options
         ) {
             Name = name;
-            _hostServices = CreateHostServices(featuresAssemblyName, workspacesAssemblyName, editorFeaturesAssemblyName);
+            _hostServices = CreateHostServices(featuresAssemblyName, workspacesAssemblyName);
 
             _options = options;
             _defaultAnalyzerReferences = ImmutableList.Create<AnalyzerReference>(
@@ -43,15 +42,19 @@ namespace MirrorSharp.Internal.Roslyn {
             _defaultSignatureHelpProviders = CreateDefaultSignatureHelpProvidersSlow();
         }
 
-        private static MefHostServices CreateHostServices(string featuresAssemblyName, string workspacesAssemblyName, string editorFeaturesAssemblyName) {
-            var configuration = new ContainerConfiguration().WithAssemblies(new[] {
+        private MefHostServices CreateHostServices(string featuresAssemblyName, string workspacesAssemblyName) {
+            var types = new[] {
                 RoslynAssemblies.MicrosoftCodeAnalysisWorkspaces,
                 RoslynAssemblies.MicrosoftCodeAnalysisFeatures,
                 Assembly.Load(new AssemblyName(featuresAssemblyName)),
                 Assembly.Load(new AssemblyName(workspacesAssemblyName))
-            });
+            }.SelectMany(a => a.DefinedTypes).Where(ShouldConsiderForHostServices);
+
+            var configuration = new ContainerConfiguration().WithParts(types);
             return MefHostServices.Create(configuration.CreateContainer());
         }
+
+        protected virtual bool ShouldConsiderForHostServices(Type type) => true;
 
         public string Name { get; }
 
