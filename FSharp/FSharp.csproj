@@ -5,7 +5,7 @@
     <AssemblyName>MirrorSharp.FSharp</AssemblyName>
     <RootNamespace>MirrorSharp.FSharp</RootNamespace>
     <TargetFrameworks>netstandard2.0; net461</TargetFrameworks>
-    <VersionPrefix>0.17</VersionPrefix>
+    <VersionPrefix>0.18</VersionPrefix>
     <Description>MirrorSharp F# support library. $(DescriptionSuffix)</Description>
     <PackageTags>F#;CodeMirror</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.Compiler.Service" Version="32.0.0" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="34.0.1" />
     <PackageReference Include="FSharp.Core" Version="4.7.0" />
   </ItemGroup>
 

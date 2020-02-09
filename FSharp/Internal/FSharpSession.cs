@@ -33,7 +33,8 @@ namespace MirrorSharp.FSharp.Internal {
                 keepAllBackgroundResolutions: true,
                 legacyReferenceResolver: null,
                 tryGetMetadataSnapshot: null,
-                suggestNamesForErrors: FSharpOption<bool>.Some(true)
+                suggestNamesForErrors: true,
+                keepAllBackgroundSymbolUses: false
             );
             Checker.ImplicitlyStartBackgroundWork = false;
             AssemblyReferencePaths = options.AssemblyReferencePaths;
@@ -48,7 +49,7 @@ namespace MirrorSharp.FSharp.Internal {
                 useScriptResolutionRules: false,
                 loadTime: DateTime.Now,
                 unresolvedReferences: null,
-                originalLoadReferences: FSharpList<Tuple<Range.range, string>>.Empty,
+                originalLoadReferences: FSharpList<Tuple<Range.range, string, string>>.Empty,
                 extraProjectInfo: null,
                 stamp: null
             );
@@ -85,6 +86,11 @@ namespace MirrorSharp.FSharp.Internal {
                 results.Add("--optimize" + (options.Optimize.Value ? "+" : "-"));
             if (options.Target != null)
                 results.Add("--target:" + options.Target);
+            if (options.LangVersion != null)
+                results.Add("--langversion:" + options.LangVersion);
+            if (options.TargetProfile != null)
+                results.Add("--targetprofile:" + options.TargetProfile);
+
             foreach (var path in options.AssemblyReferencePaths) {
                 // ReSharper disable once HeapView.ObjectAllocation (Not worth fixing for now)
                 results.Add("-r:" + path);
