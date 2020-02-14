@@ -8,7 +8,7 @@
 function Connection(url, selfDebug) {
     /** @type {WebSocket} */
     var socket;
-    /** @type {Promise} */
+    /** @type {Promise<void>} */
     var openPromise;
     const handlers = {
         /** @type {Array<Function>} */

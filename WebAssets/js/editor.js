@@ -386,15 +386,28 @@ function Editor(textarea, connection, selfDebug, options) {
     function showSlowUpdate(update) {
         /** @type {Array<CodeMirror.LintAnnotation>} */
         const annotations = [];
-        for (var diagnostic of update.diagnostics) {
+
+        // Higher severities must go last -- CodeMirror uses last one for the icon.
+        // Unless one is error, in which case it's always error -- but still makes
+        // sense to handle this consistently.
+        /** @type {{ [key in public.DiagnosticSeverity]: number }} */
+        const priorityBySeverity = { hidden: 0, info: 1, warning: 2, error: 3 };
+        var diagnostics = update.diagnostics.slice(0);
+        diagnostics.sort(function(a, b) {
+            const aOrder = priorityBySeverity[a.severity];
+            const bOrder = priorityBySeverity[b.severity];
+            return aOrder !== bOrder ? (aOrder > bOrder ? 1 : -1) : 0;
+        });
+
+        for (var diagnostic of diagnostics) {
             /** @type {public.DiagnosticSeverity|'unnecessary'} */
             var severity = diagnostic.severity;
-            if (diagnostic.severity === 'hidden') {
-                if (diagnostic.tags.indexOf('unnecessary') < 0)
-                    continue;
+            const isUnnecessary = (diagnostic.tags.indexOf('unnecessary') >= 0);
+            if (severity === 'hidden' && !isUnnecessary)
+                continue;
 
+            if (isUnnecessary && (severity === 'hidden' || severity === 'info'))
                 severity = 'unnecessary';
-            }
 
             var range = spanToRange(diagnostic.span);
             annotations.push({

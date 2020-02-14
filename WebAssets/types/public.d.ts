@@ -46,7 +46,7 @@ declare namespace mirrorsharp {
         readonly tags: ReadonlyArray<string>;
     }
 
-    export type DiagnosticSeverity = 'hidden'|'warning'|'error';
+    export type DiagnosticSeverity = 'hidden'|'warning'|'error'|'info';
 
     export interface SpanData {
         readonly start: number;

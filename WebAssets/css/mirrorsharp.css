@@ -88,20 +88,34 @@
     opacity: 0.5;
 }
 
+.CodeMirror-lint-marker-info,
 .CodeMirror-lint-marker-unnecessary {
     background-position: center center;
-    background-repeat: no-repeat;
     cursor: pointer;
     display: inline-block;
     height: 16px;
     width: 16px;
     vertical-align: middle;
     position: relative;
-    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABl0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC4xMkMEa+wAAAEbSURBVDhPpZFNioNAEIVzhFnkELmD4MIT5AqR2QyuhtkEj5AD6ErwBxTRnd5FXHmFgYn5gUBNPZiStrvDDMzio3mv36tUmw0R/QurCdI03TJ75vhzbm05wwB5nh+Yr7Zt567rqGmaOcuymb03PbsSAOWyLOdhGGiapgVo9s98/67mV2WsiV/Wy8I4joRN1OfoA/ZYWwocXhAPz0Hu2YBj3/dLWUqqxjdB7tkAYwP1BL9tgG9wxlv1IQA+31+Qsw4ARVEEVVVdZIgMgK7rGn/lh5pflQWEwjC8xXF8xZujKLqyvutlsBIqnuedgiCgJEkIJ7QtZxiC4zivKAvQtpxhCFx4cV330/f9B05oW84wVLi0E2z3wGr+Hdp8A4845XOHdR5CAAAAAElFTkSuQmCC);
 }
 
+.CodeMirror-lint-marker-info.CodeMirror-lintfix-marker-fixable::before,
 .CodeMirror-lint-marker-unnecessary.CodeMirror-lintfix-marker-fixable::before {
     display: none;
+}
+
+.CodeMirror-lint-marker-info,
+.CodeMirror-lint-marker-unnecessary,
+.CodeMirror-lint-message-info,
+.CodeMirror-lint-message-unnecessary {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABl0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC4xMkMEa+wAAAEbSURBVDhPpZFNioNAEIVzhFnkELmD4MIT5AqR2QyuhtkEj5AD6ErwBxTRnd5FXHmFgYn5gUBNPZiStrvDDMzio3mv36tUmw0R/QurCdI03TJ75vhzbm05wwB5nh+Yr7Zt567rqGmaOcuymb03PbsSAOWyLOdhGGiapgVo9s98/67mV2WsiV/Wy8I4joRN1OfoA/ZYWwocXhAPz0Hu2YBj3/dLWUqqxjdB7tkAYwP1BL9tgG9wxlv1IQA+31+Qsw4ARVEEVVVdZIgMgK7rGn/lh5pflQWEwjC8xXF8xZujKLqyvutlsBIqnuedgiCgJEkIJ7QtZxiC4zivKAvQtpxhCFx4cV330/f9B05oW84wVLi0E2z3wGr+Hdp8A4845XOHdR5CAAAAAElFTkSuQmCC);
+    background-repeat: no-repeat;
+}
+
+.CodeMirror-lint-message-info,
+.CodeMirror-lint-message-unnecessary {
+    padding-left: 18px;
+    background-position: center left;
 }
 
 .mirrorsharp-tip-content {
