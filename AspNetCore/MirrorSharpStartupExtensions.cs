@@ -2,11 +2,12 @@ using System;
 using System.ComponentModel;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using MirrorSharp.AspNetCore.Internal;
 
 namespace MirrorSharp.AspNetCore {
-    /// <summary>MirrorSharp-related extensions for the <see cref="IApplicationBuilder" />.</summary>
-    public static class ApplicationBuilderExtensions {
+    /// <summary>MirrorSharp setup extensions.</summary>
+    public static class MirrorSharpStartupExtensions {
         /// <summary>Adds MirrorSharp middleware to the <see cref="IApplicationBuilder" />.</summary>
         /// <param name="app">The app builder.</param>
         /// <param name="options">The <see cref="MirrorSharpOptions" /> object used by the MirrorSharp middleware.</param>
@@ -28,6 +29,20 @@ namespace MirrorSharp.AspNetCore {
             Argument.NotNull(nameof(path), path.Value);
 
             return app.Map(path, a => a.UseMiddleware<Middleware>(options ?? new MirrorSharpOptions()));
+        }
+
+        /// <summary>Maps MirrorSharp middleware to a certain route in the <see cref="IEndpointRouteBuilder" />.</summary>
+        /// <param name="endpoints">The endpoint route builder.</param>
+        /// <param name="pattern">The route pattern to be used by MirrorSharp server, e.g. '/mirrorsharp'.</param>
+        /// <param name="options">The <see cref="MirrorSharpOptions" /> object used by the MirrorSharp middleware.</param>
+        public static IEndpointConventionBuilder MapMirrorSharp(this IEndpointRouteBuilder endpoints, string pattern, MirrorSharpOptions? options = null) {
+            Argument.NotNull(nameof(endpoints), endpoints);
+            Argument.NotNullOrEmpty(nameof(pattern), pattern);
+
+            var pipeline = endpoints.CreateApplicationBuilder()
+                .UseMiddleware<Middleware>(options ?? new MirrorSharpOptions())
+                .Build();
+            return endpoints.Map(pattern, pipeline);
         }
     }
 }

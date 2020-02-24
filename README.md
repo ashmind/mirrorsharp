@@ -33,47 +33,71 @@ You'll need the following:
 #### MirrorSharp.AspNetCore
 [![NuGet](https://img.shields.io/nuget/v/MirrorSharp.AspNetCore.svg?style=flat-square)](https://www.nuget.org/packages/MirrorSharp.AspNetCore)
 
-NuGet: `Install-Package MirrorSharp.AspNetCore`  
-Once installed, call `app.MapMirrorSharp("/mirrosharp")` in your `Startup`.
+```powershell
+Install-Package MirrorSharp.AspNetCore
+```
+
+If using Endpoint Routing (3.0+ only):
+```csharp
+app.UseEndpoints(endpoints => {
+    // ...
+    endpoints.MapMirrorSharp("/mirrorsharp");
+});
+```
+
+If not using Endpoint Routing:
+```csharp
+app.MapMirrorSharp("/mirrosharp");
+```
 
 #### MirrorSharp.Owin
 [![NuGet](https://img.shields.io/nuget/v/MirrorSharp.Owin.svg?style=flat-square)](https://www.nuget.org/packages/MirrorSharp.Owin)
 
-NuGet: `Install-Package MirrorSharp.Owin`  
-Once installed, call `app.MapMirrorSharp("/mirrosharp")` in your OWIN startup.
+```powershell
+Install-Package MirrorSharp.Owin
+```
+
+In your `Startup`:
+```csharp
+app.MapMirrorSharp("/mirrosharp");
+```
 
 ### Client
 [![npm](https://img.shields.io/npm/v/mirrorsharp.svg?style=flat-square)](https://www.npmjs.com/package/mirrorsharp)
 
-NPM: `npm install mirrorsharp --save`
+```
+npm install mirrorsharp --save
+```
 
 #### CSS
-If you are using LESS, CSS references can be done automatically by including `mirrorsharp/mirrorsharp.less`.  
+If you are using LESS, CSS references can be done automatically by including `mirrorsharp/mirrorsharp.less`.
+
 Otherwise, make sure to include the following:
 
-1. codemirror/lib/codemirror.css
-2. codemirror/addon/lint/lint.css
-3. codemirror/addon/hint/show-hint.css
-4. codemirror-addon-infotip/dist/infotip.css
-5. codemirror-addon-lint-fix/dist/lint-fix.css
-6. mirrorsharp/mirrorsharp.css
+1. `codemirror/lib/codemirror.css`
+2. `codemirror/addon/lint/lint.css`
+3. `codemirror/addon/hint/show-hint.css`
+4. `codemirror-addon-infotip/dist/infotip.css`
+5. `codemirror-addon-lint-fix/dist/lint-fix.css`
+6. `mirrorsharp/mirrorsharp.css`
 
 #### JS
 JS can be done automatically since mirrorsharp has proper requires. Otherwise:
 
-1. codemirror/lib/codemirror.js
-2. codemirror/mode/clike/clike.js
-3. codemirror/addon/lint/lint.js
-4. codemirror/addon/hint/show-hint.js
-5. codemirror-addon-infotip/dist/infotip.js
-6. codemirror-addon-lint-fix/dist/lint-fix.js
-7. mirrorsharp/mirrorsharp.js
+1. `codemirror/lib/codemirror.js`
+2. `codemirror/mode/clike/clike.js`
+3. `codemirror/addon/lint/lint.js`
+4. `codemirror/addon/hint/show-hint.js`
+5. `codemirror-addon-infotip/dist/infotip.js`
+6. `codemirror-addon-lint-fix/dist/lint-fix.js`
+7. `mirrorsharp/mirrorsharp.js`
 
 #### Usage
 Once referenced, you can do the following:
 ```javascript
 mirrorsharp(textarea, { serviceUrl: 'wss://your_app_root/mirrorsharp' })
 ```
+
 If you're not using HTTPS, you'll likely need `ws://` instead of `wss://`.
 
 Note that `textarea` is an actual textarea element, and not a CSS selector or jQuery object.
