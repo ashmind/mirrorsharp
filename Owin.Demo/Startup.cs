@@ -15,7 +15,8 @@ namespace MirrorSharp.Owin.Demo {
             app.UseDefaultFiles()
                .UseStaticFiles();
 
-            app.UseMirrorSharp(
+            app.MapMirrorSharp(
+                "/mirrorsharp",
                 new MirrorSharpOptions {
                     SelfDebugEnabled = true,
                     IncludeExceptionDetails = true,

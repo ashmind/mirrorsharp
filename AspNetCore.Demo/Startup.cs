@@ -17,7 +17,8 @@ namespace MirrorSharp.AspNetCore.Demo {
                .UseStaticFiles();
 
             app.UseWebSockets();
-            app.UseMirrorSharp(
+            app.MapMirrorSharp(
+                "/mirrorsharp",
                 new MirrorSharpOptions {
                     SelfDebugEnabled = true,
                     IncludeExceptionDetails = true,
