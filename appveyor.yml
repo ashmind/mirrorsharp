@@ -2,9 +2,6 @@ version: '{build}'
 configuration: Release
 image: Visual Studio 2019
 
-cache:
-- C:\Users\appveyor\AppData\Local\Temp\1\chocolatey\vcredist140 -> .appveyor.yml
-
 environment:
   NpmAuthToken:
     secure: ZdHER7r/cd8BLWjrL4OUjksloJt2CaGHXdWvS9dsPCaKxHpO1FLyQJjzqfPVzBmE
