@@ -1,3 +1,12 @@
 MirrorSharp.Owin.AppBuilderExtensions
 static MirrorSharp.Owin.AppBuilderExtensions.MapMirrorSharp(this Owin.IAppBuilder app, string path, MirrorSharp.MirrorSharpOptions options = null) -> Owin.IAppBuilder
+static MirrorSharp.Owin.AppBuilderExtensions.MapMirrorSharp(this Owin.IAppBuilder app, string path, MirrorSharp.MirrorSharpOptions options = null, MirrorSharp.Owin.MirrorSharpServices services = null) -> Owin.IAppBuilder
 static MirrorSharp.Owin.AppBuilderExtensions.UseMirrorSharp(this Owin.IAppBuilder app, MirrorSharp.MirrorSharpOptions options = null) -> Owin.IAppBuilder
+MirrorSharp.Owin.MirrorSharpServices
+MirrorSharp.Owin.MirrorSharpServices.ExceptionLogger.get -> MirrorSharp.Advanced.IExceptionLogger
+MirrorSharp.Owin.MirrorSharpServices.ExceptionLogger.set -> void
+MirrorSharp.Owin.MirrorSharpServices.MirrorSharpServices() -> void
+MirrorSharp.Owin.MirrorSharpServices.SetOptionsFromClient.get -> MirrorSharp.Advanced.ISetOptionsFromClientExtension
+MirrorSharp.Owin.MirrorSharpServices.SetOptionsFromClient.set -> void
+MirrorSharp.Owin.MirrorSharpServices.SlowUpdate.get -> MirrorSharp.Advanced.ISlowUpdateExtension
+MirrorSharp.Owin.MirrorSharpServices.SlowUpdate.set -> void

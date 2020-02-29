@@ -25,10 +25,10 @@ namespace MirrorSharp.Tests.Features {
 
         [Fact]
         public async Task Script_ProducesNoErrors_WhenSetThroughOptionExtension() {
-            var options = new MirrorSharpOptions {
+            var extensions = new MirrorSharpServices {
                 SetOptionsFromClient = new ScriptModeExtension(TestHostType)
             };
-            var driver = MirrorSharpTestDriver.New(options)
+            var driver = MirrorSharpTestDriver.New(extensions)
                 .SetText($"var x = {TestHostMethodName}();");
 
             await driver.SendSetOptionAsync("x-mode", "script");
@@ -39,10 +39,10 @@ namespace MirrorSharp.Tests.Features {
 
         [Fact]
         public async Task Script_CanApplyTextChanges_WhenSetThroughOptionExtension() {
-            var options = new MirrorSharpOptions {
+            var extensions = new MirrorSharpServices {
                 SetOptionsFromClient = new ScriptModeExtension(TestHostType)
             };
-            var driver = MirrorSharpTestDriver.New(options);
+            var driver = MirrorSharpTestDriver.New(extensions);
 
             await driver.SendSetOptionAsync("x-mode", "script");
             await driver.SendReplaceTextAsync($"var x = {TestHostMethodName}();");

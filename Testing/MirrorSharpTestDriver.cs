@@ -18,22 +18,42 @@ using Newtonsoft.Json;
 namespace MirrorSharp.Testing {
     public class MirrorSharpTestDriver {
         private static readonly MirrorSharpOptions DefaultOptions = new MirrorSharpOptions();
+        private static readonly MirrorSharpServices DefaultServices = new MirrorSharpServices();
         private static readonly ConcurrentDictionary<MirrorSharpOptions, LanguageManager> LanguageManagerCache = new ConcurrentDictionary<MirrorSharpOptions, LanguageManager>();
 
         private readonly TestMiddleware _middleware;
 
-        private MirrorSharpTestDriver(MirrorSharpOptions? options = null, string languageName = LanguageNames.CSharp) {
-            options = options ?? DefaultOptions;
+        private MirrorSharpTestDriver(MirrorSharpOptions? options = null, MirrorSharpServices? services = null, string languageName = LanguageNames.CSharp) {
+            options ??= DefaultOptions;
+            services ??= DefaultServices;
 
             var language = GetLanguageManager(options).GetLanguage(languageName);
-            _middleware = new TestMiddleware(options);
+            _middleware = new TestMiddleware(options, services);
             Session = new WorkSession(language, options);
         }
         
         internal WorkSession Session { get; }
 
+        // Obsolete: will be removed in the next major version. However no changes are required on caller side.
+        public static MirrorSharpTestDriver New() {
+            return new MirrorSharpTestDriver(options: null, services: null, languageName: LanguageNames.CSharp);
+        }
+
+        // Obsolete: will be removed in the next major version. However no changes are required on caller side.
         public static MirrorSharpTestDriver New(MirrorSharpOptions? options = null, string languageName = LanguageNames.CSharp) {
-            return new MirrorSharpTestDriver(options, languageName);
+            return new MirrorSharpTestDriver(options, services: null, languageName);
+        }
+
+        public static MirrorSharpTestDriver New(MirrorSharpServices services) {
+            return new MirrorSharpTestDriver(options: null, services: services, languageName: LanguageNames.CSharp);
+        }
+
+        public static MirrorSharpTestDriver New(MirrorSharpOptions options) {
+            return new MirrorSharpTestDriver(options: options, services: null, languageName: LanguageNames.CSharp);
+        }
+
+        public static MirrorSharpTestDriver New(MirrorSharpOptions? options = null, MirrorSharpServices? services = null, string languageName = LanguageNames.CSharp) {
+            return new MirrorSharpTestDriver(options, services, languageName);
         }
 
         public MirrorSharpTestDriver SetText(string text) {
@@ -100,7 +120,7 @@ namespace MirrorSharp.Testing {
         }
 
         private class TestMiddleware : MiddlewareBase {
-            public TestMiddleware(MirrorSharpOptions options) : base(GetLanguageManager(options), options) {
+            public TestMiddleware(MirrorSharpOptions options, MirrorSharpServices services) : base(GetLanguageManager(options), options, services.ToImmutable()) {
             }
         }
     }

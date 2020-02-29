@@ -54,3 +54,15 @@ override MirrorSharp.Testing.Results.InfoTipSection.ToString() -> string
 override MirrorSharp.Testing.Results.InfoTipSectionPart.ToString() -> string
 override MirrorSharp.Testing.Results.SlowUpdateDiagnostic.ToString() -> string
 static MirrorSharp.Testing.MirrorSharpTestDriver.New(MirrorSharp.MirrorSharpOptions options = null, string languageName = "C#") -> MirrorSharp.Testing.MirrorSharpTestDriver
+static MirrorSharp.Testing.MirrorSharpTestDriver.New() -> MirrorSharp.Testing.MirrorSharpTestDriver
+static MirrorSharp.Testing.MirrorSharpTestDriver.New(MirrorSharp.MirrorSharpOptions options = null, MirrorSharp.Testing.MirrorSharpServices services = null, string languageName = "C#") -> MirrorSharp.Testing.MirrorSharpTestDriver
+static MirrorSharp.Testing.MirrorSharpTestDriver.New(MirrorSharp.MirrorSharpOptions options) -> MirrorSharp.Testing.MirrorSharpTestDriver
+static MirrorSharp.Testing.MirrorSharpTestDriver.New(MirrorSharp.Testing.MirrorSharpServices services) -> MirrorSharp.Testing.MirrorSharpTestDriver
+MirrorSharp.Testing.MirrorSharpServices
+MirrorSharp.Testing.MirrorSharpServices.ExceptionLogger.get -> MirrorSharp.Advanced.IExceptionLogger
+MirrorSharp.Testing.MirrorSharpServices.ExceptionLogger.set -> void
+MirrorSharp.Testing.MirrorSharpServices.MirrorSharpServices() -> void
+MirrorSharp.Testing.MirrorSharpServices.SetOptionsFromClient.get -> MirrorSharp.Advanced.ISetOptionsFromClientExtension
+MirrorSharp.Testing.MirrorSharpServices.SetOptionsFromClient.set -> void
+MirrorSharp.Testing.MirrorSharpServices.SlowUpdate.get -> MirrorSharp.Advanced.ISlowUpdateExtension
+MirrorSharp.Testing.MirrorSharpServices.SlowUpdate.set -> void

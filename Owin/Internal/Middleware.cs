@@ -12,7 +12,7 @@ namespace MirrorSharp.Owin.Internal {
     internal class Middleware : MiddlewareBase {
         private readonly AppFunc _next;
 
-        public Middleware(AppFunc next, MirrorSharpOptions options) : base(options) {
+        public Middleware(AppFunc next, MirrorSharpOptions options, MirrorSharpServices extensions) : base(options, extensions.ToImmutable()) {
             _next = Argument.NotNull(nameof(next), next);
         }
 

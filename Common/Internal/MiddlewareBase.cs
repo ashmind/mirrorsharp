@@ -11,15 +11,19 @@ using MirrorSharp.Internal.Handlers.Shared;
 namespace MirrorSharp.Internal {
     internal abstract class MiddlewareBase {
         private readonly LanguageManager _languageManager;
-        private readonly MirrorSharpOptions _options;
+        #pragma warning disable CS0618 // Type or member is obsolete
+        private readonly IMiddlewareOptions _options;
+        #pragma warning restore CS0618
+        private readonly ImmutableExtensionServices _extensions;
         private readonly ImmutableArray<ICommandHandler> _handlers;
 
-        protected MiddlewareBase(MirrorSharpOptions options) 
-            : this(new LanguageManager(Argument.NotNull(nameof(options), options)), options) {
+        protected MiddlewareBase(IMiddlewareOptions options, ImmutableExtensionServices extensions)
+            : this(new LanguageManager(Argument.NotNull(nameof(options), options)), options, extensions) {
         }
 
-        internal MiddlewareBase(LanguageManager languageManager, MirrorSharpOptions options) {
+        internal MiddlewareBase(LanguageManager languageManager, IMiddlewareOptions options, ImmutableExtensionServices extensions) {
             _options = options;
+            _extensions = extensions;
             _languageManager = languageManager;
             _handlers = CreateHandlersIndexedByCommandId();
         }
@@ -42,10 +46,14 @@ namespace MirrorSharp.Internal {
                 new MoveCursorHandler(signatureHelp),
                 new ReplaceTextHandler(signatureHelp, completion, typedCharEffects, ArrayPool<char>.Shared),
                 new RequestSelfDebugDataHandler(),
-                new SetOptionsHandler(_languageManager, ArrayPool<char>.Shared, _options.SetOptionsFromClient),
+                #pragma warning disable CS0618 // Type or member is obsolete
+                new SetOptionsHandler(_languageManager, ArrayPool<char>.Shared, _extensions.SetOptionsFromClient),
+                #pragma warning restore CS0618
                 new SignatureHelpStateHandler(signatureHelp),
                 new RequestInfoTipHandler(),
-                new SlowUpdateHandler(_options.SlowUpdate),
+                #pragma warning disable CS0618 // Type or member is obsolete
+                new SlowUpdateHandler(_extensions.SlowUpdate),
+                #pragma warning restore CS0618 
                 new TypeCharHandler(typedCharEffects)
             };
         }
@@ -59,7 +67,7 @@ namespace MirrorSharp.Internal {
             Connection? connection = null;
             try {
                 session = new WorkSession(_languageManager.GetLanguage(LanguageNames.CSharp), _options);
-                connection = new Connection(socket, session, _handlers, ArrayPool<byte>.Shared, _options);
+                connection = new Connection(socket, session, _handlers, ArrayPool<byte>.Shared, _options, _extensions.ExceptionLogger);
 
                 while (connection.IsConnected) {
                     try {

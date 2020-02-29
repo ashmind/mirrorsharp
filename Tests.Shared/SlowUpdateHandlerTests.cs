@@ -65,7 +65,7 @@ namespace MirrorSharp.Tests {
         [Fact]
         public async Task SlowUpdate_DisposesExtensionResult_IfDisposable() {
             var disposable = Mock.Of<IDisposable>();
-            var driver = MirrorSharpTestDriver.New(new MirrorSharpOptions {
+            var driver = MirrorSharpTestDriver.New(new MirrorSharpServices {
                 SlowUpdate = Mock.Of<ISlowUpdateExtension>(
                     x => x.ProcessAsync(It.IsAny<IWorkSession>(), It.IsAny<IList<Diagnostic>>(), It.IsAny<CancellationToken>()) == Task.FromResult<object>(disposable)
                 )

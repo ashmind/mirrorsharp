@@ -8,7 +8,7 @@ using MirrorSharp.Internal.Roslyn;
 
 namespace MirrorSharp {
     /// <summary>MirrorSharp options object.</summary>
-    public sealed class MirrorSharpOptions : IConnectionOptions, IWorkSessionOptions, ILanguageManagerOptions {
+    public sealed class MirrorSharpOptions : IMiddlewareOptions {
         internal IDictionary<string, Func<ILanguage>> Languages { get; } = new Dictionary<string, Func<ILanguage>>();
 
         /// <summary>Creates a new instance of <see cref="MirrorSharpOptions" />.</summary>
@@ -21,12 +21,15 @@ namespace MirrorSharp {
         public MirrorSharpCSharpOptions CSharp { get; } = new MirrorSharpCSharpOptions();
 
         /// <summary>Defines a <see cref="ISetOptionsFromClientExtension" /> used to support extra options.</summary>
+        [Obsolete("ASP.NET Core: register ISetOptionsFromClientExtension in service collection instead. Owin: pass using MirrorSharpServices instead. This property will be removed in the next major version.")]
         public ISetOptionsFromClientExtension? SetOptionsFromClient { get; set; }
 
         /// <summary>Defines a <see cref="ISlowUpdateExtension" /> used to extend periodic processing.</summary>
+        [Obsolete("ASP.NET Core: register ISlowUpdateExtension in service collection instead. Owin: pass using MirrorSharpServices instead. This property will be removed in the next major version.")]
         public ISlowUpdateExtension? SlowUpdate { get; set; }
 
         /// <summary>Defines a <see cref="IExceptionLogger" /> called for any unhandled exception.</summary>
+        [Obsolete("ASP.NET Core: register IExceptionLogger in service collection instead. Owin: pass using MirrorSharpServices instead. This property will be removed in the next major version.")]
         public IExceptionLogger? ExceptionLogger { get; set; }
 
         /// <summary>Defines whether the exceptions should include full details (messages, stack traces).</summary>

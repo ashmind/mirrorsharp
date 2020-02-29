@@ -17,16 +17,20 @@ namespace MirrorSharp.Owin.Demo {
 
             app.MapMirrorSharp(
                 "/mirrorsharp",
+
                 new MirrorSharpOptions {
                     SelfDebugEnabled = true,
-                    IncludeExceptionDetails = true,
-                    SetOptionsFromClient = new SetOptionsFromClientExtension()
+                    IncludeExceptionDetails = true
                 }
                 .SetupCSharp(c => {
                     c.MetadataReferences = c.MetadataReferences.Clear();
                     c.AddMetadataReferencesFromFiles(MscorlibReferencePath);
                 })
-                .EnableFSharp()
+                .EnableFSharp(),
+
+                new MirrorSharpServices {
+                    SetOptionsFromClient = new SetOptionsFromClientExtension()
+                }
             );
         }
     }

@@ -20,14 +20,23 @@ namespace MirrorSharp.Internal {
         private readonly byte[] _inputBuffer;
 
         private readonly FastUtf8JsonWriter _messageWriter;
-        private readonly IConnectionOptions _options;
+        private readonly IConnectionOptions? _options;
+        private readonly IExceptionLogger? _exceptionLogger;
 
-        public Connection(WebSocket socket, WorkSession session, ImmutableArray<ICommandHandler> handlers, ArrayPool<byte> bufferPool, IConnectionOptions? options = null) {
+        public Connection(
+            WebSocket socket,
+            WorkSession session,
+            ImmutableArray<ICommandHandler> handlers,
+            ArrayPool<byte> bufferPool,
+            IConnectionOptions? options = null,
+            IExceptionLogger? exceptionLogger = null
+        ) {
             _socket = socket;
             _session = session;
             _handlers = handlers;
             _messageWriter = new FastUtf8JsonWriter(bufferPool);
-            _options = options ?? new MirrorSharpOptions();
+            _options = options;
+            _exceptionLogger = exceptionLogger;
             _bufferPool = bufferPool;
             _inputBuffer = bufferPool.Rent(InputBufferSize);
         }
@@ -42,12 +51,12 @@ namespace MirrorSharp.Internal {
                 var exception = ex;
                 try {
                     try {
-                        _options.ExceptionLogger?.LogException(exception, _session);
+                        _exceptionLogger?.LogException(exception, _session);
                     }
                     catch (Exception logException) {
                         exception = new AggregateException(exception, logException);
                     }
-                    var error = _options.IncludeExceptionDetails ? exception.ToString() : "A server error has occurred.";
+                    var error = (_options?.IncludeExceptionDetails ?? false) ? exception.ToString() : "A server error has occurred.";
                     await SendErrorAsync(error, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception sendException) {

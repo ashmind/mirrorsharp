@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal;
@@ -27,7 +27,7 @@ namespace MirrorSharp.Tests {
             var extensionMock = new Mock<ISetOptionsFromClientExtension>();
             extensionMock.SetReturnsDefault(true);
 
-            var driver = MirrorSharpTestDriver.New(new MirrorSharpOptions { SetOptionsFromClient = extensionMock.Object });
+            var driver = MirrorSharpTestDriver.New(new MirrorSharpServices { SetOptionsFromClient = extensionMock.Object });
             await driver.SendAsync(SetOptions, "x-testkey=testvalue");
             extensionMock.Verify(x => x.TrySetOption(driver.Session, "x-testkey", "testvalue"));
         }
@@ -37,7 +37,7 @@ namespace MirrorSharp.Tests {
             var extensionMock = new Mock<ISetOptionsFromClientExtension>();
             extensionMock.SetReturnsDefault(true);
 
-            var driver = MirrorSharpTestDriver.New(new MirrorSharpOptions { SetOptionsFromClient = extensionMock.Object });
+            var driver = MirrorSharpTestDriver.New(new MirrorSharpServices { SetOptionsFromClient = extensionMock.Object });
             await driver.SendAsync(SetOptions, "x-key1=value1");
             var optionsEcho = await driver.SendAsync<OptionsEchoResult>(SetOptions, "x-key2=value2");
             Assert.Equal(

@@ -22,7 +22,7 @@ namespace MirrorSharp.Internal {
 
         public ILanguage GetLanguage(string name) {
             if (!_languages.TryGetValue(name, out Lazy<ILanguage> lazy))
-                throw new Exception($"Language '{name}' was not enabled in {nameof(MirrorSharpOptions)}.");
+                throw new Exception($"Language '{name}' was not enabled in MirrorSharpOptions.");
 
             return lazy.Value;
         }
