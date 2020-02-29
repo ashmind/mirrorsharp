@@ -20,16 +20,29 @@ namespace MirrorSharp.Owin {
         /// <summary>Maps MirrorSharp middleware to a certain path in the <see cref="IAppBuilder" />.</summary>
         /// <param name="app">The app builder.</param>
         /// <param name="path">Relative path to be used by MirrorSharp server, e.g. '/mirrorsharp'.</param>
+        // This is obsolete, but we can't add an attribute as it will require people to pass in optional parameters
+        public static IAppBuilder MapMirrorSharp(this IAppBuilder app, string path) {
+            Argument.NotNull(nameof(app), app);
+            Argument.NotNullOrEmpty(nameof(path), path);
+
+            return app.MapMirrorSharp(path, options: null);
+        }
+
+        /// <summary>Maps MirrorSharp middleware to a certain path in the <see cref="IAppBuilder" />.</summary>
+        /// <param name="app">The app builder.</param>
+        /// <param name="path">Relative path to be used by MirrorSharp server, e.g. '/mirrorsharp'.</param>
         /// <param name="options">The <see cref="MirrorSharpOptions" /> object used by the MirrorSharp middleware.</param>
-        [Obsolete("This method will be removed in the next major version. Use app.MapMirrorSharp() taking MirrorSharpServices instead.")]
+        // This is obsolete, but we can't add an attribute as it will require people to pass in (optional) services
         public static IAppBuilder MapMirrorSharp(this IAppBuilder app, string path, MirrorSharpOptions? options = null) {
             Argument.NotNull(nameof(app), app);
             Argument.NotNullOrEmpty(nameof(path), path);
 
             return app.Map(path, a => a.Use(typeof(Middleware), options ?? new MirrorSharpOptions(), new MirrorSharpServices {
+                #pragma warning disable CS0618 // Type or member is obsolete
                 SetOptionsFromClient = options?.SetOptionsFromClient,
                 SlowUpdate = options?.SlowUpdate,
                 ExceptionLogger = options?.ExceptionLogger
+                #pragma warning restore CS0618 // Type or member is obsolete
             }));
         }
 

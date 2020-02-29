@@ -1,4 +1,5 @@
 MirrorSharp.Owin.AppBuilderExtensions
+static MirrorSharp.Owin.AppBuilderExtensions.MapMirrorSharp(this Owin.IAppBuilder app, string path) -> Owin.IAppBuilder
 static MirrorSharp.Owin.AppBuilderExtensions.MapMirrorSharp(this Owin.IAppBuilder app, string path, MirrorSharp.MirrorSharpOptions options = null) -> Owin.IAppBuilder
 static MirrorSharp.Owin.AppBuilderExtensions.MapMirrorSharp(this Owin.IAppBuilder app, string path, MirrorSharp.MirrorSharpOptions options = null, MirrorSharp.Owin.MirrorSharpServices services = null) -> Owin.IAppBuilder
 static MirrorSharp.Owin.AppBuilderExtensions.UseMirrorSharp(this Owin.IAppBuilder app, MirrorSharp.MirrorSharpOptions options = null) -> Owin.IAppBuilder
