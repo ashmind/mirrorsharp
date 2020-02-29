@@ -5,4 +5,28 @@
     <WarningsNotAsErrors>1591</WarningsNotAsErrors>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  
+  <PropertyGroup>
+    <HasPublicApi Condition="
+      !$(MSBuildProjectName.EndsWith('.Demo'))
+      And
+      !$(MSBuildProjectName.Contains('Tests.'))
+      And
+      '$(MSBuildProjectName)' != 'Benchmarks'
+      And
+      '$(MSBuildProjectName)' != 'WebAssets'
+    ">true</HasPublicApi>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Condition="'$(HasPublicApi)' == 'true'" Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="2.9.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(HasPublicApi)' == 'true'">
+    <AdditionalFiles Include="PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI.Unshipped.txt" />
+  </ItemGroup>
 </Project>

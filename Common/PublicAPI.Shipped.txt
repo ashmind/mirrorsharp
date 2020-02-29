@@ -1,0 +1,67 @@
+MirrorSharp.Advanced.FastJsonWriterExtensions
+MirrorSharp.Advanced.IExceptionLogger
+MirrorSharp.Advanced.IExceptionLogger.LogException(System.Exception exception, MirrorSharp.Advanced.IWorkSession session) -> void
+MirrorSharp.Advanced.IFastJsonWriter
+MirrorSharp.Advanced.IFastJsonWriter.OpenString() -> System.IO.TextWriter
+MirrorSharp.Advanced.IFastJsonWriter.WriteEndArray() -> void
+MirrorSharp.Advanced.IFastJsonWriter.WriteEndObject() -> void
+MirrorSharp.Advanced.IFastJsonWriter.WritePropertyName(string name) -> void
+MirrorSharp.Advanced.IFastJsonWriter.WriteStartArray() -> void
+MirrorSharp.Advanced.IFastJsonWriter.WriteStartObject() -> void
+MirrorSharp.Advanced.IFastJsonWriter.WriteValue(System.ArraySegment<char> value) -> void
+MirrorSharp.Advanced.IFastJsonWriter.WriteValue(System.Collections.Immutable.ImmutableArray<char> value) -> void
+MirrorSharp.Advanced.IFastJsonWriter.WriteValue(System.Text.StringBuilder value) -> void
+MirrorSharp.Advanced.IFastJsonWriter.WriteValue(bool value) -> void
+MirrorSharp.Advanced.IFastJsonWriter.WriteValue(char value) -> void
+MirrorSharp.Advanced.IFastJsonWriter.WriteValue(int value) -> void
+MirrorSharp.Advanced.IFastJsonWriter.WriteValue(string value) -> void
+MirrorSharp.Advanced.IRoslynSession
+MirrorSharp.Advanced.IRoslynSession.AddMetadataReferencesFromFiles(params string[] paths) -> void
+MirrorSharp.Advanced.IRoslynSession.Project.get -> Microsoft.CodeAnalysis.Project
+MirrorSharp.Advanced.IRoslynSession.Project.set -> void
+MirrorSharp.Advanced.IRoslynSession.SetScriptMode(bool isScript = true, System.Type hostObjectType = null) -> void
+MirrorSharp.Advanced.ISetOptionsFromClientExtension
+MirrorSharp.Advanced.ISetOptionsFromClientExtension.TrySetOption(MirrorSharp.Advanced.IWorkSession session, string name, string value) -> bool
+MirrorSharp.Advanced.ISlowUpdateExtension
+MirrorSharp.Advanced.ISlowUpdateExtension.ProcessAsync(MirrorSharp.Advanced.IWorkSession session, System.Collections.Generic.IList<Microsoft.CodeAnalysis.Diagnostic> diagnostics, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<object>
+MirrorSharp.Advanced.ISlowUpdateExtension.WriteResult(MirrorSharp.Advanced.IFastJsonWriter writer, object result, MirrorSharp.Advanced.IWorkSession session) -> void
+MirrorSharp.Advanced.IWorkSession
+MirrorSharp.Advanced.IWorkSession.ExtensionData.get -> System.Collections.Generic.IDictionary<string, object>
+MirrorSharp.Advanced.IWorkSession.GetText() -> string
+MirrorSharp.Advanced.IWorkSession.IsRoslyn.get -> bool
+MirrorSharp.Advanced.IWorkSession.LanguageName.get -> string
+MirrorSharp.Advanced.IWorkSession.Roslyn.get -> MirrorSharp.Advanced.IRoslynSession
+MirrorSharp.Advanced.MirrorSharpRoslynOptions<TSelf, TParseOptions, TCompilationOptions>
+MirrorSharp.Advanced.MirrorSharpRoslynOptions<TSelf, TParseOptions, TCompilationOptions>.AddMetadataReferencesFromFiles(params string[] paths) -> TSelf
+MirrorSharp.Advanced.MirrorSharpRoslynOptions<TSelf, TParseOptions, TCompilationOptions>.CompilationOptions.get -> TCompilationOptions
+MirrorSharp.Advanced.MirrorSharpRoslynOptions<TSelf, TParseOptions, TCompilationOptions>.CompilationOptions.set -> void
+MirrorSharp.Advanced.MirrorSharpRoslynOptions<TSelf, TParseOptions, TCompilationOptions>.MetadataReferences.get -> System.Collections.Immutable.ImmutableList<Microsoft.CodeAnalysis.MetadataReference>
+MirrorSharp.Advanced.MirrorSharpRoslynOptions<TSelf, TParseOptions, TCompilationOptions>.MetadataReferences.set -> void
+MirrorSharp.Advanced.MirrorSharpRoslynOptions<TSelf, TParseOptions, TCompilationOptions>.ParseOptions.get -> TParseOptions
+MirrorSharp.Advanced.MirrorSharpRoslynOptions<TSelf, TParseOptions, TCompilationOptions>.ParseOptions.set -> void
+MirrorSharp.Advanced.MirrorSharpRoslynOptions<TSelf, TParseOptions, TCompilationOptions>.SetScriptMode(bool isScript = true, System.Type hostObjectType = null) -> TSelf
+MirrorSharp.MirrorSharpCSharpOptions
+MirrorSharp.MirrorSharpOptions
+MirrorSharp.MirrorSharpOptions.CSharp.get -> MirrorSharp.MirrorSharpCSharpOptions
+MirrorSharp.MirrorSharpOptions.DisableCSharp() -> MirrorSharp.MirrorSharpOptions
+MirrorSharp.MirrorSharpOptions.ExceptionLogger.get -> MirrorSharp.Advanced.IExceptionLogger
+MirrorSharp.MirrorSharpOptions.ExceptionLogger.set -> void
+MirrorSharp.MirrorSharpOptions.IncludeExceptionDetails.get -> bool
+MirrorSharp.MirrorSharpOptions.IncludeExceptionDetails.set -> void
+MirrorSharp.MirrorSharpOptions.MirrorSharpOptions() -> void
+MirrorSharp.MirrorSharpOptions.SelfDebugEnabled.get -> bool
+MirrorSharp.MirrorSharpOptions.SelfDebugEnabled.set -> void
+MirrorSharp.MirrorSharpOptions.SetOptionsFromClient.get -> MirrorSharp.Advanced.ISetOptionsFromClientExtension
+MirrorSharp.MirrorSharpOptions.SetOptionsFromClient.set -> void
+MirrorSharp.MirrorSharpOptions.SetupCSharp(System.Action<MirrorSharp.MirrorSharpCSharpOptions> setup) -> MirrorSharp.MirrorSharpOptions
+MirrorSharp.MirrorSharpOptions.SlowUpdate.get -> MirrorSharp.Advanced.ISlowUpdateExtension
+MirrorSharp.MirrorSharpOptions.SlowUpdate.set -> void
+static MirrorSharp.Advanced.FastJsonWriterExtensions.WriteProperty(this MirrorSharp.Advanced.IFastJsonWriter writer, string name, System.ArraySegment<char> value) -> void
+static MirrorSharp.Advanced.FastJsonWriterExtensions.WriteProperty(this MirrorSharp.Advanced.IFastJsonWriter writer, string name, System.Collections.Immutable.ImmutableArray<char> value) -> void
+static MirrorSharp.Advanced.FastJsonWriterExtensions.WriteProperty(this MirrorSharp.Advanced.IFastJsonWriter writer, string name, System.Text.StringBuilder value) -> void
+static MirrorSharp.Advanced.FastJsonWriterExtensions.WriteProperty(this MirrorSharp.Advanced.IFastJsonWriter writer, string name, bool value) -> void
+static MirrorSharp.Advanced.FastJsonWriterExtensions.WriteProperty(this MirrorSharp.Advanced.IFastJsonWriter writer, string name, char value) -> void
+static MirrorSharp.Advanced.FastJsonWriterExtensions.WriteProperty(this MirrorSharp.Advanced.IFastJsonWriter writer, string name, int value) -> void
+static MirrorSharp.Advanced.FastJsonWriterExtensions.WriteProperty(this MirrorSharp.Advanced.IFastJsonWriter writer, string name, string value) -> void
+static MirrorSharp.Advanced.FastJsonWriterExtensions.WritePropertyStartArray(this MirrorSharp.Advanced.IFastJsonWriter writer, string name) -> void
+static MirrorSharp.Advanced.FastJsonWriterExtensions.WritePropertyStartObject(this MirrorSharp.Advanced.IFastJsonWriter writer, string name) -> void
