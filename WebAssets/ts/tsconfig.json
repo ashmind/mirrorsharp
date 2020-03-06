@@ -1,0 +1,17 @@
+{
+    "include": [
+        "."
+    ],
+    "compilerOptions": {
+        "target": "ES2018",
+        "noEmit": true,
+        "noImplicitAny": true,
+        "strict": true,
+        "noErrorTruncation": true,
+        "types": [
+            "codemirror",
+            "codemirror-addon-infotip",
+            "codemirror-addon-lint-fix"
+        ],
+    }
+}

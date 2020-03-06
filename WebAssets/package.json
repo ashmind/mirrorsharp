@@ -20,27 +20,36 @@
         "test": "jest"
     },
     "jest": {
+        "preset": "ts-jest",
         "testMatch": [
-            "**/tests/**/*.tests.js"
+            "**/tests/**/*.tests.ts"
         ],
         "collectCoverage": true,
         "collectCoverageFrom": [
-            "**/dist/**/*.js",
-            "**/tests/**/*.tests.js"
+            "**/ts/**/*.ts",
+            "**/tests/**/*.tests.ts"
         ]
     },
     "dependencies": {
+        "@types/codemirror": "0.0.87",
         "codemirror": "^5.18.2",
-        "@types/codemirror": "0.0.61",
-        "codemirror-addon-infotip": "^1.0.0",
-        "codemirror-addon-lint-fix": "^1.0.1"
+        "codemirror-addon-infotip": "^1.1.0",
+        "codemirror-addon-lint-fix": "^1.1.0"
     },
     "devDependencies": {
-        "eslint": "^6.5.1",
+        "@types/jest": "^25.1.4",
+        "@types/node": "^13.9.1",
+        "@typescript-eslint/eslint-plugin": "^2.21.0",
+        "@typescript-eslint/parser": "^2.21.0",
+        "dts-bundle-generator": "^3.3.1",
+        "eslint": "^6.8.0",
         "eslint-plugin-es": "^2.0.0",
+        "fast-glob": "^3.2.2",
         "fs-jetpack": "^2.1.0",
-        "jest": "^24.9.0",
+        "jest": "^25.1.0",
         "keysim": "^2.0.0",
-        "oldowan": "^1.0.0-preview-2"
+        "oldowan": "^1.0.0-preview-2",
+        "ts-jest": "^25.2.1",
+        "typescript": "^3.8.3"
     }
 }

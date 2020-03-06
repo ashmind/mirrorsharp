@@ -1,0 +1,27 @@
+{
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "env": {
+        "browser": true,
+        "amd": true,
+        "es6": true
+    },
+    "rules": {
+        "prefer-arrow-callback": "error",
+        "prefer-const": "error",
+        "arrow-parens": ["error", "as-needed"],
+        "object-shorthand": "error",
+        "quotes": ["error", "single"],
+
+        "@typescript-eslint/no-use-before-define": "off",
+        "@typescript-eslint/explicit-function-return-type": "off"
+    }
+}

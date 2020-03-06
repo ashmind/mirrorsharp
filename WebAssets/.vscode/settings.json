@@ -37,5 +37,6 @@
         "struct",
         "typeparameter",
         "xmlns"
-    ]
+    ],
+    "typescript.tsdk": "node_modules\\typescript\\lib"
 }
