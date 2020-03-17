@@ -1,6 +1,7 @@
 {
     "name": "mirrorsharp",
     "version": "1.0.4",
+    "type": "module",
     "description": "A code editor `<textarea>` for .NET.",
     "authors": [
         "Andrey Shchekin (https://github.com/ashmind)"
@@ -15,8 +16,8 @@
         "url": "git+https://github.com/ashmind/mirrorsharp.git"
     },
     "scripts": {
-        "build": "node ./build.js",
-        "watch": "node ./build.js --watch",
+        "build": "node --experimental-modules ./build.js",
+        "watch": "node --experimental-modules ./build.js --watch",
         "test": "jest"
     },
     "jest": {

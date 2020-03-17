@@ -1,8 +1,8 @@
 import type { Language, DiagnosticData, ServerOptions } from './interfaces/protocol';
 import type { EditorOptions, DestroyOptions } from './interfaces/editor';
-import { SelfDebug } from './self-debug';
-import { Connection } from './connection';
-import { Editor } from './editor';
+import { SelfDebug } from './main/self-debug';
+import { Connection } from './main/connection';
+import { Editor } from './main/editor';
 
 export { Language, DiagnosticData, ServerOptions };
 

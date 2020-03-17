@@ -1,11 +1,11 @@
-import type { PartData, CompletionItemData, SpanData } from './interfaces/protocol';
-import type { Hinter as HinterInterface, CompletionOptionalData, Hint } from './interfaces/hinter';
-import type { Connection } from './interfaces/connection';
+import type { PartData, CompletionItemData, SpanData } from '../interfaces/protocol';
+import type { Hinter as HinterInterface, CompletionOptionalData, Hint } from '../interfaces/hinter';
+import type { Connection } from '../interfaces/connection';
 import * as CodeMirror from 'codemirror';
 import 'codemirror/addon/hint/show-hint';
-import { addEvents } from './helpers/add-events';
-import { renderParts } from './helpers/render-parts';
-import { kindsToClassName } from './helpers/kinds-to-class-name';
+import { addEvents } from '../helpers/add-events';
+import { renderParts } from '../helpers/render-parts';
+import { kindsToClassName } from '../helpers/kinds-to-class-name';
 
 function Hinter<TExtensionData>(this: HinterInterface, cm: CodeMirror.Editor, connection: Connection<TExtensionData>) {
     const indexInListKey = '$mirrorsharp-indexInList';

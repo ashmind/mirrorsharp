@@ -1,5 +1,5 @@
-import type { SpanData, SignatureData } from './interfaces/protocol';
-import type { SignatureTip as SignatureTipInterface } from './interfaces/signature-tip';
+import type { SpanData, SignatureData } from '../interfaces/protocol';
+import type { SignatureTip as SignatureTipInterface } from '../interfaces/signature-tip';
 
 function SignatureTip(this: SignatureTipInterface, cm: CodeMirror.Editor) {
     const displayKindToClassMap: {

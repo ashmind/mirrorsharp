@@ -1,6 +1,6 @@
-import type { InfotipMessage, InfotipSectionData } from './interfaces/protocol';
-import { kindsToClassName } from './helpers/kinds-to-class-name';
-import { renderParts } from './helpers/render-parts';
+import type { InfotipMessage, InfotipSectionData } from '../interfaces/protocol';
+import { kindsToClassName } from '../helpers/kinds-to-class-name';
+import { renderParts } from '../helpers/render-parts';
 
 export const renderInfotip = (() => {
     function renderSection(mainElement: HTMLElement, section: InfotipSectionData, index: number, info: InfotipMessage) {

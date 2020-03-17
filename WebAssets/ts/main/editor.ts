@@ -1,7 +1,16 @@
-import type { Language, Message, ChangeData, DiagnosticData, SlowUpdateMessage, DiagnosticSeverity, ServerOptions, SpanData } from './interfaces/protocol';
-import type { Connection } from './interfaces/connection';
-import type { SelfDebug } from './interfaces/self-debug';
-import type { Editor as EditorInterface, DestroyOptions, EditorOptions } from './interfaces/editor';
+import type {
+    Language,
+    Message,
+    ChangeData,
+    DiagnosticData,
+    SlowUpdateMessage,
+    DiagnosticSeverity,
+    ServerOptions,
+    SpanData
+} from '../interfaces/protocol';
+import type { Connection } from '../interfaces/connection';
+import type { SelfDebug } from '../interfaces/self-debug';
+import type { Editor as EditorInterface, DestroyOptions, EditorOptions } from '../interfaces/editor';
 import * as CodeMirror from 'codemirror';
 import 'codemirror/mode/clike/clike';
 import 'codemirror-addon-infotip';
@@ -9,7 +18,7 @@ import 'codemirror-addon-lint-fix';
 import { renderInfotip } from './render-infotip';
 import { Hinter } from './hinter';
 import { SignatureTip } from './signature-tip';
-import { addEvents } from './helpers/add-events';
+import { addEvents } from '../helpers/add-events';
 
 const indexKey = '$mirrorsharp-index';
 interface PositionWithIndex extends CodeMirror.Position {

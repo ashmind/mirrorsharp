@@ -1,4 +1,4 @@
-import type { SelfDebug } from './interfaces/self-debug';
+import type { SelfDebug } from '../interfaces/self-debug';
 import type {
     Connection as ConnectionInterface,
     StateCommand,
@@ -7,8 +7,8 @@ import type {
     ConnectionMessageHandler,
     ConnectionCloseHandler,
     ConnectionEventMap
-} from './interfaces/connection';
-import { addEvents } from './helpers/add-events';
+} from '../interfaces/connection';
+import { addEvents } from '../helpers/add-events';
 
 function Connection<TExtensionData>(this: ConnectionInterface<TExtensionData>, url: string, selfDebug: SelfDebug<TExtensionData>|null): void {
     let socket: WebSocket;

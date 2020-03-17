@@ -1,6 +1,6 @@
-import type { SelfDebug as SelfDebugInterface } from './interfaces/self-debug';
-import type { Connection } from './interfaces/connection';
-import type { SelfDebugLogEntryData, SelfDebugMessage } from './interfaces/protocol';
+import type { SelfDebug as SelfDebugInterface } from '../interfaces/self-debug';
+import type { Connection } from '../interfaces/connection';
+import type { SelfDebugLogEntryData, SelfDebugMessage } from '../interfaces/protocol';
 
 function SelfDebug<TExtensionData>(this: SelfDebugInterface<TExtensionData>) {
     let getText: () => string;

@@ -1,12 +1,13 @@
-const jetpack = require('fs-jetpack');
-const fg = require('fast-glob');
-const ts = require('typescript');
-const { task, tasks, run } = require('oldowan');
+import jetpack from 'fs-jetpack';
+import fg from 'fast-glob';
+import ts from 'typescript';
+import oldowan from 'oldowan';
+const { task, tasks, run } = oldowan;
 
 task('ts', async () => {
     const { options } = ts.getParsedCommandLineOfConfigFile('ts/tsconfig.json', undefined, ts.sys);
     const program = ts.createProgram(['ts/mirrorsharp.ts'], Object.assign(options, {
-        module: ts.ModuleKind.CommonJS,
+        module: ts.ModuleKind.ES2015,
         noEmit: false,
         outDir: 'dist',
         declaration: true
@@ -29,11 +30,11 @@ task('ts', async () => {
     if (emitResult.emitSkipped)
         throw new Error("TypeScript compilation failed.");
 
-    // Add .js extension to all imports. Technically TypeScript already resolves
-    // .js to .ts, but it's a hack.
+    // Add .js extension to all imports.
+    // Technically TypeScript already resolves .js to .ts, but it's a hack.
     await Promise.all((await fg(['dist/**/*.js'])).map(async path => {
         const content = await jetpack.readAsync(path);
-        const replaced = content.replace(/require\("(\.[^"]+)"\)/g, 'require("$1.js")');
+        const replaced = content.replace(/from '(\.[^']+)';/g, "from '$1.js';");
         await jetpack.writeAsync(path, replaced);
     }));
 }, { inputs: ['ts/**/*.ts'] });
@@ -46,7 +47,7 @@ task('files', () => {
 }, { inputs: ['./README.md', './package.json'] });
 
 task('default', async () => Promise.all([
-    tasks.js(),
+    tasks.ts(),
     tasks.css(),
     tasks.files()
 ]));
