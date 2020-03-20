@@ -15,13 +15,15 @@ const spliceString = (string: string, start: number, length: number, newString =
     string.substring(0, start) + newString + string.substring(start + length);
 
 type MockSocketEventMap = {
-    'open': undefined,
-    'message': { readonly data: string }
-}
+    'open': undefined;
+    'message': { readonly data: string };
+};
 
 class MockSocket {
     public sent: Array<string>;
-    private readonly handlers: { [event: string]: Array<(e: any) => void> };
+    private readonly handlers: {
+        [K in keyof MockSocketEventMap]?: Array<(e: MockSocketEventMap[K]) => void>
+    };
 
     constructor() {
         this.sent = [];
@@ -33,19 +35,24 @@ class MockSocket {
     }
 
     trigger<K extends keyof MockSocketEventMap>(event: K, e?: MockSocketEventMap[K]) {
-        for (const handler of (this.handlers[event] || [])) {
+        // https://github.com/microsoft/TypeScript/issues/37505 ?
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        for (const handler of (this.handlers[event] as any || [])) {
             handler(e);
         }
     }
 
     addEventListener<K extends keyof MockSocketEventMap>(event: K, handler: (e: MockSocketEventMap[K]) => void) {
-        (this.handlers[event] = this.handlers[event] || []).push(handler);
+        // https://github.com/microsoft/TypeScript/issues/37505 ?
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (this.handlers[event] = this.handlers[event] as any || []).push(handler);
     }
 }
 
 class MockTextRange {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     getBoundingClientRect() {}
-    getClientRects() { return []; }
+    getClientRects(): [] { return []; }
 }
 global.document.body.createTextRange = () => new MockTextRange();
 
@@ -141,7 +148,7 @@ class TestDriver<TExtensionData = never> {
         }
     }
 
-    static async new<TExtensionData>(options: ({}|{ text: string, cursor?: number }|{ textWithCursor: string })&{ options?: Partial<MirrorSharpOptions<TExtensionData>> }) {
+    static async new<TExtensionData>(options: ({}|{ text: string; cursor?: number }|{ textWithCursor: string })&{ options?: Partial<MirrorSharpOptions<TExtensionData>> }) {
         const initial = getInitialState(options);
 
         const initialTextarea = document.createElement('textarea');
@@ -176,8 +183,8 @@ class TestDriver<TExtensionData = never> {
     }
 }
 
-function getInitialState(options: {}|{ text: string, cursor?: number }|{ textWithCursor: string }) {
-    let { text, cursor } = options as { text?: string, cursor?: number };
+function getInitialState(options: {}|{ text: string; cursor?: number }|{ textWithCursor: string }) {
+    let { text, cursor } = options as { text?: string; cursor?: number };
     if ('textWithCursor' in options) {
         text = options.textWithCursor.replace('|', '');
         cursor = options.textWithCursor.indexOf('|');

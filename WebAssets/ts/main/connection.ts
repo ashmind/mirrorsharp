@@ -93,7 +93,7 @@ function Connection<TExtensionData>(this: ConnectionInterface<TExtensionData>, u
     this.on = function<TKey extends keyof ConnectionEventMap<TExtensionData>>(key: TKey, handler: ConnectionEventMap<TExtensionData>[TKey]) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         handlers[key].push(handler as any);
-    }
+    };
 
     this.off = function<TKey extends keyof ConnectionEventMap<TExtensionData>>(key: TKey, handler: ConnectionEventMap<TExtensionData>[TKey]) {
         const list = handlers[key];

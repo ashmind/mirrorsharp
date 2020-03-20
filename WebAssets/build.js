@@ -21,14 +21,14 @@ task('ts', async () => {
     for (const diagnostic of diagnostics) {
         if (diagnostic.file) {
             const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-            const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n");
+            const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
             console.log(`${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
         } else {
-            console.log(ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"));
+            console.log(ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
         }
     }
     if (emitResult.emitSkipped)
-        throw new Error("TypeScript compilation failed.");
+        throw new Error('TypeScript compilation failed.');
 
     // Add .js extension to all imports.
     // Technically TypeScript already resolves .js to .ts, but it's a hack.

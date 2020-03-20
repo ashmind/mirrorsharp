@@ -1,12 +1,12 @@
-declare module NodeJS  {
+declare namespace NodeJS  {
     interface Global {
         document: {
             body: {
                 createTextRange: () => ({
                     getBoundingClientRect(): void;
-                    getClientRects(): ReadonlyArray<any>;
-                })
-            }
+                    getClientRects(): [];
+                });
+            };
         };
 
         WebSocket: () => Partial<WebSocket>;

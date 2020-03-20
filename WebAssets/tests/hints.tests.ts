@@ -1,15 +1,6 @@
 import type { CompletionItemData } from '../ts/interfaces/protocol';
 import { TestDriver } from './test-driver';
 
-// TODO: remove in year 3000 when TC39 finally specs this
-// eslint-disable-next-line no-extend-native
-(Array.prototype as any).last = (Array.prototype as any).last || function<T>(this: Array<T>) { return this[this.length - 1]; };
-declare global {
-    interface Array<T> {
-        last(): T;
-    }
-}
-
 test('opening hints requests info for the first hint', async () => {
     const driver = await TestDriver.new({ textWithCursor: 'c.|' });
 
@@ -18,7 +9,7 @@ test('opening hints requests info for the first hint', async () => {
     ]);
     await driver.completeBackgroundWork();
 
-    const lastSent = driver.socket.sent.last();
+    const lastSent = driver.socket.sent.slice(-1)[0];
     expect(lastSent).toBe('SI0');
 });
 
@@ -35,7 +26,7 @@ test('selecting hint requests info for the selected hint', async () => {
     driver.keys.press('down');
     await driver.completeBackgroundWork();
 
-    const lastSent = driver.socket.sent.last();
+    const lastSent = driver.socket.sent.slice(-1)[0];
     expect(lastSent).toBe('SI2');
 });
 
@@ -51,7 +42,7 @@ test('picking hint cancels info request', async () => {
     driver.keys.press('tab');
     await driver.completeBackgroundWork();
 
-    const lastSent = driver.socket.sent.last();
+    const lastSent = driver.socket.sent.slice(-1)[0];
     expect(lastSent).toBe('S1');
 });
 

@@ -20,8 +20,10 @@
         "arrow-parens": ["error", "as-needed"],
         "object-shorthand": "error",
         "quotes": ["error", "single"],
+        "semi": "off",
 
         "@typescript-eslint/no-use-before-define": "off",
-        "@typescript-eslint/explicit-function-return-type": "off"
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/semi": "error"
     }
 }

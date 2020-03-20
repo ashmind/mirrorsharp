@@ -1,5 +1,9 @@
 {
     "root": true,
+    "ignorePatterns": [
+        "node_modules/",
+        "dist/"
+    ],
     "extends": "eslint:recommended",
     "parserOptions": {
         "ecmaVersion": 2018,
@@ -11,6 +15,9 @@
     },
     "rules": {
         "no-var": "error",
+        "quotes": ["warn", "single", { "avoidEscape": true }],
+        "semi": "error",
+
         "object-shorthand": ["warn", "properties"],
         "prefer-arrow-callback": ["warn", { "allowNamedFunctions": true }],
         "prefer-rest-params": "warn",

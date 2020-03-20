@@ -16,7 +16,7 @@
         "url": "git+https://github.com/ashmind/mirrorsharp.git"
     },
     "scripts": {
-        "build": "node --experimental-modules ./build.js",
+        "build": "eslint . --max-warnings 0 --ext .js,.jsx,.ts,.tsx && node --experimental-modules ./build.js",
         "watch": "node --experimental-modules ./build.js --watch",
         "test": "jest"
     },

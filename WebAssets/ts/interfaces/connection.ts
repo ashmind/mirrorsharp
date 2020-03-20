@@ -12,7 +12,7 @@ export type ConnectionEventMap<TExtensionData> = {
     message: ConnectionMessageHandler<TExtensionData>;
     error: ConnectionErrorHandler;
     close: ConnectionCloseHandler;
-}
+};
 
 export interface Connection<TExtensionData> {
     on(key: 'open', handler: ConnectionOpenHandler): void;
