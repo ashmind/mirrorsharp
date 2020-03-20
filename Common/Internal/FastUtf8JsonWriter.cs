@@ -18,9 +18,9 @@ namespace MirrorSharp.Internal {
         private byte[] _buffer;
         private readonly Encoder _encoder;
 
+        private int _stateStackIndex;
         private readonly ArrayPool<State> _stateStackPool;
         private readonly State[] _stateStack;
-        private int _stateStackIndex = 0;
 
         private FastUtf8JsonStringWriter? _stringWriter;
 
@@ -28,8 +28,10 @@ namespace MirrorSharp.Internal {
             _bufferPool = bufferPool;
             _buffer = bufferPool.Rent(4096);
 
+            _stateStackIndex = 0;
             _stateStackPool = ArrayPool<State>.Shared;
             _stateStack = _stateStackPool.Rent(64);
+            _stateStack[0] = State.None;
 
             _encoder = Encoding.UTF8.GetEncoder();
         }
@@ -186,9 +188,9 @@ namespace MirrorSharp.Internal {
             WriteRawBytes(value ? Utf8.True : Utf8.False);
             WriteEndValue();
         }
-                
+
         private void WriteStartValue() {
-            if (_stateStack[_stateStackIndex] == State.ArrayAfterItem)
+            if (GetState() == State.ArrayAfterItem)
                 WriteRawByte(Utf8.Comma);
         }
 
