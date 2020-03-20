@@ -3,10 +3,11 @@ project.lock.json
 .vs/
 bower_components/
 node_modules/
+.cache/
 bin/
 obj/
 /*.tgz
 /WebAssets/dist
 /WebAssets/coverage
-/Owin.Demo/.cache
 /Owin.Demo/wwwroot
+/AspNetCore.Demo/wwwroot
