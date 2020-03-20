@@ -6,9 +6,9 @@ $ErrorActionPreference = 'Stop'
     Write-Host $_ -ForegroundColor White
     Push-Location $_
     try {
-        npm install
+        npm ci
         if ($LastExitCode -ne 0) {
-            throw "npm install exited with code $LastExitCode"
+            throw "npm ci exited with code $LastExitCode"
         }
         
         npm run build
