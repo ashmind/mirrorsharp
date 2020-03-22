@@ -112,7 +112,6 @@ function Hinter<TExtensionData>(this: HinterInterface, cm: CodeMirror.Editor, co
                 setTimeout(() => cm.state.completionActive.widget.changeActive(selectedIndex), 0);
         }
 
-        /** @type {internal.HintsResultEx} */
         const result = { from: start, list };
         CodeMirror.on(result, 'select', loadInfo);
 

@@ -1,34 +1,19 @@
 import jetpack from 'fs-jetpack';
+import execa from 'execa';
 import fg from 'fast-glob';
-import ts from 'typescript';
 import oldowan from 'oldowan';
 const { task, tasks, run } = oldowan;
 
 task('ts', async () => {
-    const { options } = ts.getParsedCommandLineOfConfigFile('ts/tsconfig.json', undefined, ts.sys);
-    const program = ts.createProgram(['ts/mirrorsharp.ts'], Object.assign(options, {
-        module: ts.ModuleKind.ES2015,
-        noEmit: false,
-        outDir: 'dist',
-        declaration: true
-    }));
+    await execa.command('eslint . --max-warnings 0 --ext .js,.jsx,.ts,.tsx', {
+        stdout: process.stdout,
+        stderr: process.stderr
+    });
 
-    const emitResult = program.emit();
-    const diagnostics = ts
-        .getPreEmitDiagnostics(program)
-        .concat(emitResult.diagnostics);
-
-    for (const diagnostic of diagnostics) {
-        if (diagnostic.file) {
-            const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-            const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
-            console.log(`${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
-        } else {
-            console.log(ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
-        }
-    }
-    if (emitResult.emitSkipped)
-        throw new Error('TypeScript compilation failed.');
+    await execa.command('tsc --project ./ts/tsconfig.json --module ES2015 --noEmit false --outDir ./dist --declaration true', {
+        stdout: process.stdout,
+        stderr: process.stderr
+    });
 
     // Add .js extension to all imports.
     // Technically TypeScript already resolves .js to .ts, but it's a hack.

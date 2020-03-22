@@ -22,6 +22,7 @@
         "clike",
         "codemirror",
         "enummember",
+        "execa",
         "extensionmethod",
         "httpd",
         "infotip",

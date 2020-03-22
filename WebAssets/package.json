@@ -16,7 +16,7 @@
         "url": "git+https://github.com/ashmind/mirrorsharp.git"
     },
     "scripts": {
-        "build": "eslint . --max-warnings 0 --ext .js,.jsx,.ts,.tsx && node --experimental-modules ./build.js",
+        "build": "node --experimental-modules ./build.js",
         "watch": "node --experimental-modules ./build.js --watch",
         "test": "jest"
     },
@@ -45,6 +45,7 @@
         "dts-bundle-generator": "^3.3.1",
         "eslint": "^6.8.0",
         "eslint-plugin-es": "^2.0.0",
+        "execa": "^4.0.0",
         "fast-glob": "^3.2.2",
         "fs-jetpack": "^2.1.0",
         "jest": "^25.1.0",

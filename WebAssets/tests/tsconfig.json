@@ -8,6 +8,7 @@
         "noEmit": true,
         "noImplicitAny": true,
         "strict": true,
+        "importsNotUsedAsValues": "error",
         "noErrorTruncation": true,
         "types": [
             "node",

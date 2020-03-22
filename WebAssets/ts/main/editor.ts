@@ -49,7 +49,6 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
         'PHP': 'application/x-httpd-php'
     };
 
-    /** @type {public.Language} */
     let language: Language;
     let serverOptions: {};
     let lintingSuspended = true;
@@ -120,7 +119,6 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
     if (!cmSource.existing)
         setText(textarea.value);
 
-    /** @type {() => string} */
     const getText = cm.getValue.bind(cm);
     if (selfDebug)
         selfDebug.watchEditor(getText, getCursorIndex);
