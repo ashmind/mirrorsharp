@@ -1,6 +1,6 @@
 {
     "name": "mirrorsharp",
-    "version": "1.0.4",
+    "version": "2.0.0-preview-01",
     "type": "module",
     "description": "A code editor `<textarea>` for .NET.",
     "authors": [
