@@ -17,7 +17,7 @@ namespace MirrorSharp.Tests {
             var driver = MirrorSharpTestDriver.New().SetText(@"class C { Action a; }");
             var action = await ExecuteSlowUpdateAndGetDiagnosticActionAsync(driver, "Action", "using");
 
-            var changes = await driver.SendAsync<ChangesResult>(ApplyDiagnosticAction, action.Id);
+            var changes = await driver.SendWithRequiredResultAsync<ChangesResult>(ApplyDiagnosticAction, action.Id);
 
             Assert.Equal(
                 new[] { new { Start = 0, Length = 0, Text = "using System;\r\n\r\n" } },
@@ -37,7 +37,7 @@ namespace MirrorSharp.Tests {
             var driver = MirrorSharpTestDriver.New().SetText(code);
             var action = await ExecuteSlowUpdateAndGetDiagnosticActionAsync(driver, "Parentheses", "Remove");
 
-            var changes = await driver.SendAsync<ChangesResult>(ApplyDiagnosticAction, action.Id);
+            var changes = await driver.SendWithRequiredResultAsync<ChangesResult>(ApplyDiagnosticAction, action.Id);
 
             Assert.Equal(
                 new[] {

@@ -33,7 +33,9 @@ namespace MirrorSharp.Tests {
 
             var result = await driver.SendRequestInfoTipAsync(text.CursorPosition);
 
-            Assert.Equal(expectedKinds, result.Kinds);
+            Assert.NotNull(result);
+            // https://github.com/xunit/assert.xunit/pull/36#issuecomment-578990557
+            Assert.Equal(expectedKinds, result!.Kinds);
             Assert.Equal(expectedResultText, result?.ToString());
         }
 
@@ -45,7 +47,8 @@ namespace MirrorSharp.Tests {
 
             var result = await driver.SendRequestInfoTipAsync(text.CursorPosition);
 
-            var documentation = Assert.Single(result.Sections.Where(e => e.Kind == QuickInfoSectionKinds.DocumentationComments.ToLowerInvariant()));
+            Assert.NotNull(result);
+            var documentation = Assert.Single(result!.Sections.Where(e => e.Kind == QuickInfoSectionKinds.DocumentationComments.ToLowerInvariant()));
             Assert.Equal(
                 "Converts the numeric value of this instance to its equivalent string representation.",
                 documentation.ToString()

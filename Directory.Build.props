@@ -19,7 +19,13 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Condition="'$(HasPublicApi)' == 'true'" Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="2.9.8">
+    <PackageReference Condition="'$(HasPublicApi)' == 'true' And '$(MSBuildProjectName)' != 'Common'" Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.0.0-beta2.final">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+
+    <!-- Common currently crashes, see https://github.com/dotnet/roslyn-analyzers/issues/3445 -->
+    <PackageReference Condition="'$(HasPublicApi)' == 'true' And '$(MSBuildProjectName)' == 'Common'" Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

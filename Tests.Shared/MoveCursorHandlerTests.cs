@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing;
@@ -27,8 +27,8 @@ namespace MirrorSharp.Tests {
                     void T() { M| }
                 }
             ");
-            var signatures = await driver.SendAsync<SignaturesResult>(TypeChar, '(');
-            var result = await driver.SendAsync<SignaturesResult>(MoveCursor, signatures.Span.Start - 1);
+            var signatures = await driver.SendWithRequiredResultAsync<SignaturesResult>(TypeChar, '(');
+            var result = await driver.SendWithRequiredResultAsync<SignaturesResult>(MoveCursor, signatures.Span.Start - 1);
             Assert.Equal(0, result.Signatures.Count);
         }
 
@@ -42,7 +42,7 @@ namespace MirrorSharp.Tests {
             ");
             await driver.SendTypeCharsAsync(",2,");
 
-            var result = await driver.SendAsync<SignaturesResult>(MoveCursor, driver.Session.CursorPosition - 1);
+            var result = await driver.SendWithRequiredResultAsync<SignaturesResult>(MoveCursor, driver.Session.CursorPosition - 1);
             var signature = result.Signatures.Single();
             Assert.Equal("void C.M(int a, *int b*, int c)", signature.ToString());
         }

@@ -72,7 +72,8 @@ namespace MirrorSharp.Tests {
                     new { DisplayText = "Method", Kind = "method" },
                     new { DisplayText = "ToString", Kind = "method" },
                 },
-                result.Completions.Select(c => new { c.DisplayText, Kind = c.Kinds.SingleOrDefault() })
+                // https://github.com/xunit/assert.xunit/pull/36#issuecomment-578990557
+                result!.Completions.Select(c => new { c.DisplayText, Kind = c.Kinds.SingleOrDefault() })
             );
         }
 
@@ -89,7 +90,7 @@ namespace MirrorSharp.Tests {
             ".Trim().Replace("                ", ""));
 
             await driver.SendTypeCharAsync('.');
-            var changes = await driver.SendAsync<ChangesResult>(CommandIds.CompletionState, "3");
+            var changes = await driver.SendWithRequiredResultAsync<ChangesResult>(CommandIds.CompletionState, "3");
 
             Assert.Equal(
                 new[] {

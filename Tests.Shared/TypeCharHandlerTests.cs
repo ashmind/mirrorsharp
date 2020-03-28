@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
@@ -46,7 +46,7 @@ namespace MirrorSharp.Tests {
                 class A { public int x; }
                 class B { void M(A a) { a| } }
             ");
-            var result = await driver.SendAsync<CompletionsResult>(TypeChar, '.');
+            var result = await driver.SendWithRequiredResultAsync<CompletionsResult>(TypeChar, '.');
 
             Assert.Equal(
                 new[] { "x" }.Concat(ObjectMembers.AllNames).OrderBy(n => n),
@@ -57,7 +57,7 @@ namespace MirrorSharp.Tests {
         [Fact]
         public async Task ExecuteAsync_ProducesExpectedCompletionWithSuggestionItem_InLambdaContext() {
             var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"class C { void M() { System.Action a = | } }");
-            var result = await driver.SendAsync<CompletionsResult>(TypeChar, 's');
+            var result = await driver.SendWithRequiredResultAsync<CompletionsResult>(TypeChar, 's');
 
             Assert.Equal("<lambda expression>", result.Suggestion?.DisplayText);
         }
@@ -68,7 +68,7 @@ namespace MirrorSharp.Tests {
                 using System;
                 class C { void M() { new DateTime().DayOfWeek =| } }
             ");
-            var result = await driver.SendAsync<CompletionsResult>(TypeChar, ' ');
+            var result = await driver.SendWithRequiredResultAsync<CompletionsResult>(TypeChar, ' ');
             var dayOfWeek = result.Completions.FirstOrDefault(c => c.DisplayText == nameof(DayOfWeek));
             var maxPriority = result.Completions.Select(c => c.Priority ?? 0).Max();
 
@@ -88,7 +88,7 @@ namespace MirrorSharp.Tests {
                     void T() { M| }
                 }
             ");
-            var result = await driver.SendAsync<SignaturesResult>(TypeChar, '(');
+            var result = await driver.SendWithRequiredResultAsync<SignaturesResult>(TypeChar, '(');
             Assert.Equal(expected, result.Signatures.Select(s => s.ToString(markSelected: false)));
         }
 
@@ -101,7 +101,7 @@ namespace MirrorSharp.Tests {
                     void T() { M(1| }
                 }
             ");
-            var result = await driver.SendAsync<SignaturesResult>(TypeChar, ',');
+            var result = await driver.SendWithRequiredResultAsync<SignaturesResult>(TypeChar, ',');
             var signature = result.Signatures.Single();
             Assert.Equal(expected, signature.ToString());
         }
@@ -115,7 +115,7 @@ namespace MirrorSharp.Tests {
                     void T() { M(1| }
                 }
             ");
-            var result = await driver.SendAsync<SignaturesResult>(TypeChar, ',');
+            var result = await driver.SendWithRequiredResultAsync<SignaturesResult>(TypeChar, ',');
             var selected = result.Signatures.Single(s => s.Selected);
             Assert.Equal(expectedSelected, string.Join("", selected.Parts.Select(p => p.Text)));
         }
@@ -129,7 +129,7 @@ namespace MirrorSharp.Tests {
                 }
             ");
             await driver.SendAsync(TypeChar, '(');
-            var result = await driver.SendAsync<SignaturesResult>(TypeChar, ')');
+            var result = await driver.SendWithRequiredResultAsync<SignaturesResult>(TypeChar, ')');
             Assert.Equal(0, result.Signatures.Count);
         }
     }

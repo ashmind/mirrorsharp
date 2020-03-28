@@ -20,7 +20,8 @@ namespace MirrorSharp.Tests {
         [Fact]
         public async Task SlowUpdate_ProducesDiagnosticWithCustomTagUnnecessary_ForUnusedNamespace() {
             var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"using System;|");
-            var result = await driver.SendAsync<SlowUpdateResult<object>>(SlowUpdate);
+
+            var result = await driver.SendWithRequiredResultAsync<SlowUpdateResult<object>>(SlowUpdate);
 
             Assert.Contains(
                 new { severity = DiagnosticSeverity.Hidden.ToString("G").ToLowerInvariant(), isUnnecessary = true },
@@ -33,9 +34,10 @@ namespace MirrorSharp.Tests {
         [Fact]
         public async Task SlowUpdate_ProducesAllExpectedActions_ForTypeFromUnreferencedNamespace() {
             var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"class C { Action a;| }");
-            var result = await driver.SendAsync<SlowUpdateResult<object>>(SlowUpdate);
-            var diagnostic = result.Diagnostics.Single(d => d.Message?.Contains("Action") ?? false);
 
+            var result = await driver.SendWithRequiredResultAsync<SlowUpdateResult<object>>(SlowUpdate);
+
+            var diagnostic = result.Diagnostics.Single(d => d.Message?.Contains("Action") ?? false);
             Assert.Equal(
                 new[] {
                     "Generate class 'Action'",
@@ -56,9 +58,9 @@ namespace MirrorSharp.Tests {
                     End Sub
                 End Class
             ");
-            var result = await driver.SendAsync<SlowUpdateResult<object>>(SlowUpdate);
 
-            Assert.NotNull(result);
+            var result = await driver.SendWithRequiredResultAsync<SlowUpdateResult<object>>(SlowUpdate);
+
             Assert.Empty(result.Diagnostics);
         }
 
