@@ -6,14 +6,18 @@ environment:
   NpmAuthToken:
     secure: ZdHER7r/cd8BLWjrL4OUjksloJt2CaGHXdWvS9dsPCaKxHpO1FLyQJjzqfPVzBmE
 
+install:
+- ps: |-
+    Install-Product node 12.16.1
+
 before_build:
-- dotnet restore
+- mirrorsharp restore
 
 build_script:
-- dotnet build --configuration Release
+- mirrorsharp build Release
 
 test_script:
-- dotnet test
+- mirrorsharp test
   
 after_test:
 - mirrorsharp pack
