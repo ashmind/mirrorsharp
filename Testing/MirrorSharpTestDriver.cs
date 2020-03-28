@@ -78,19 +78,19 @@ namespace MirrorSharp.Testing {
         public Task<SlowUpdateResult<object>> SendSlowUpdateAsync() => SendSlowUpdateAsync<object>();
 
         public Task<SlowUpdateResult<TExtensionResult>> SendSlowUpdateAsync<TExtensionResult>() {
-            return SendAsync<SlowUpdateResult<TExtensionResult>>(CommandIds.SlowUpdate);
+            return SendWithRequiredResultAsync<SlowUpdateResult<TExtensionResult>>(CommandIds.SlowUpdate);
         }
 
         public Task<OptionsEchoResult> SendSetOptionAsync(string name, string value) {
-            return SendAsync<OptionsEchoResult>(CommandIds.SetOptions, $"{name}={value}");
+            return SendWithRequiredResultAsync<OptionsEchoResult>(CommandIds.SetOptions, $"{name}={value}");
         }
 
         public Task<OptionsEchoResult> SendSetOptionsAsync(IDictionary<string, string> options) {
-            return SendAsync<OptionsEchoResult>(CommandIds.SetOptions, string.Join(",", options.Select(o => $"{o.Key}={o.Value}")));
+            return SendWithRequiredResultAsync<OptionsEchoResult>(CommandIds.SetOptions, string.Join(",", options.Select(o => $"{o.Key}={o.Value}")));
         }
 
-        public Task<InfoTipResult> SendRequestInfoTipAsync(int position) {
-            return SendAsync<InfoTipResult>(CommandIds.RequestInfoTip, position);
+        public Task<InfoTipResult?> SendRequestInfoTipAsync(int position) {
+            return SendWithOptionalResultAsync<InfoTipResult>(CommandIds.RequestInfoTip, position);
         }
 
         internal Task SendReplaceTextAsync(string newText, int start = 0, int length = 0, int newCursorPosition = 0, string reason = "") {
@@ -99,16 +99,25 @@ namespace MirrorSharp.Testing {
             // ReSharper restore HeapView.BoxingAllocation
         }
 
-        internal Task<CompletionsResult> SendTypeCharAsync(char @char) {
-            return SendAsync<CompletionsResult>(CommandIds.TypeChar, @char);
+        internal Task<CompletionsResult?> SendTypeCharAsync(char @char) {
+            return SendWithOptionalResultAsync<CompletionsResult>(CommandIds.TypeChar, @char);
         }
 
-        internal async Task<TResult> SendAsync<TResult>(char commandId, HandlerTestArgument? argument = null)
-            where TResult : class?
+        internal async Task<TResult> SendWithRequiredResultAsync<TResult>(char commandId, HandlerTestArgument? argument = null)
+            where TResult: class
+        {
+            return await SendWithOptionalResultAsync<TResult>(commandId, argument)
+                ?? throw new Exception($"Expected {typeof(TResult).Name} for command {commandId} was not received.");
+        }
+
+        internal async Task<TResult?> SendWithOptionalResultAsync<TResult>(char commandId, HandlerTestArgument? argument = null)
+            where TResult : class
         {
             var sender = new StubCommandResultSender();
             await _middleware.GetHandler(commandId).ExecuteAsync(argument?.ToAsyncData(commandId) ?? AsyncData.Empty, Session, sender, CancellationToken.None);
-            return sender.LastMessageJson != null ? JsonConvert.DeserializeObject<TResult>(sender.LastMessageJson) : null;
+            return sender.LastMessageJson != null
+                ? JsonConvert.DeserializeObject<TResult>(sender.LastMessageJson)
+                : null;
         }
 
         internal Task SendAsync(char commandId, HandlerTestArgument? argument = default(HandlerTestArgument)) {

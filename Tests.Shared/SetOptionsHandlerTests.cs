@@ -39,7 +39,7 @@ namespace MirrorSharp.Tests {
 
             var driver = MirrorSharpTestDriver.New(new MirrorSharpServices { SetOptionsFromClient = extensionMock.Object });
             await driver.SendAsync(SetOptions, "x-key1=value1");
-            var optionsEcho = await driver.SendAsync<OptionsEchoResult>(SetOptions, "x-key2=value2");
+            var optionsEcho = await driver.SendWithRequiredResultAsync<OptionsEchoResult>(SetOptions, "x-key2=value2");
             Assert.Equal(
                 new Dictionary<string, string> {
                     ["x-key1"] = "value1",

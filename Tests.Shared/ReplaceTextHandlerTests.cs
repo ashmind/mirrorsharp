@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
@@ -55,9 +55,9 @@ namespace MirrorSharp.Tests {
                     void T() { M| }
                 }
             ");
-            await driver.SendAsync<SignaturesResult>(TypeChar, '(');
+            await driver.SendWithRequiredResultAsync<SignaturesResult>(TypeChar, '(');
             var newPosition = driver.Session.CursorPosition - "T() { M(".Length;
-            var result = await driver.SendAsync<SignaturesResult>(ReplaceText, Argument(newPosition, 0, "X", newPosition));
+            var result = await driver.SendWithRequiredResultAsync<SignaturesResult>(ReplaceText, Argument(newPosition, 0, "X", newPosition));
             Assert.Equal(0, result.Signatures.Count);
         }
 
@@ -72,7 +72,7 @@ namespace MirrorSharp.Tests {
             await driver.SendTypeCharsAsync(",2,");
 
             var newPosition = driver.Session.CursorPosition - "2,".Length;
-            var result = await driver.SendAsync<SignaturesResult>(ReplaceText, Argument(newPosition, "2,".Length, "", newPosition));
+            var result = await driver.SendWithRequiredResultAsync<SignaturesResult>(ReplaceText, Argument(newPosition, "2,".Length, "", newPosition));
             var signature = result.Signatures.Single();
             Assert.Equal("void C.M(int a, *int b*, int c)", signature.ToString());
         }
@@ -86,10 +86,10 @@ namespace MirrorSharp.Tests {
             await driver.SendTypeCharsAsync("."); // this was the commit char, happens *before* echo
 
             var newPosition = driver.Session.CursorPosition + ("int.".Length - "in.".Length);
-            var result = await driver.SendAsync<CompletionsResult>(
+            var result = await driver.SendWithRequiredResultAsync<CompletionsResult>(
                 ReplaceText, Argument(driver.Session.CursorPosition - "in.".Length, "in".Length, "int", newPosition, reason: "completion")
             );
-            Assert.NotNull(result);
+
             Assert.Contains(nameof(int.Parse), result.Completions.Select(c => c.DisplayText));
         }
 
@@ -103,9 +103,10 @@ namespace MirrorSharp.Tests {
             await driver.SendTypeCharsAsync("("); // this was the commit char, happens *before* echo
 
             var newPosition = driver.Session.CursorPosition + ("Parse(".Length - "Pars(".Length);
-            var result = await driver.SendAsync<SignaturesResult>(
+            var result = await driver.SendWithRequiredResultAsync<SignaturesResult>(
                 ReplaceText, Argument(driver.Session.CursorPosition - "Pars(".Length, "Pars".Length, "Parse", newPosition, reason: "completion")
             );
+
             var signature = result.Signatures.First(s => s.Selected);
             Assert.Equal("int int.Parse(*string s*)", signature.ToString());
         }

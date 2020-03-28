@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing;
@@ -17,7 +17,7 @@ namespace MirrorSharp.Tests {
                     void T() { M(1|) }
                 }
             ");
-            var result = await driver.SendAsync<SignaturesResult>(SignatureHelpState, 'F');
+            var result = await driver.SendWithRequiredResultAsync<SignaturesResult>(SignatureHelpState, 'F');
             Assert.Equal(
                 new[] { "void C.M(*int a*)" },
                 result.Signatures.Select(s => s.ToString())

@@ -1,6 +1,6 @@
 #nullable enable
 MirrorSharp.Testing.MirrorSharpTestDriver
-MirrorSharp.Testing.MirrorSharpTestDriver.SendRequestInfoTipAsync(int position) -> System.Threading.Tasks.Task<MirrorSharp.Testing.Results.InfoTipResult!>!
+MirrorSharp.Testing.MirrorSharpTestDriver.SendRequestInfoTipAsync(int position) -> System.Threading.Tasks.Task<MirrorSharp.Testing.Results.InfoTipResult?>!
 MirrorSharp.Testing.MirrorSharpTestDriver.SendSetOptionAsync(string! name, string! value) -> System.Threading.Tasks.Task<MirrorSharp.Testing.Results.OptionsEchoResult!>!
 MirrorSharp.Testing.MirrorSharpTestDriver.SendSetOptionsAsync(System.Collections.Generic.IDictionary<string!, string!>! options) -> System.Threading.Tasks.Task<MirrorSharp.Testing.Results.OptionsEchoResult!>!
 MirrorSharp.Testing.MirrorSharpTestDriver.SendSlowUpdateAsync() -> System.Threading.Tasks.Task<MirrorSharp.Testing.Results.SlowUpdateResult<object!>!>!
