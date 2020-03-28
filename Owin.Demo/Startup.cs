@@ -1,8 +1,11 @@
 using System;
 using Microsoft.Owin;
+using Microsoft.Owin.StaticFiles;
+using Microsoft.Owin.FileSystems;
 using Owin;
 using MirrorSharp.Owin.Demo;
 using MirrorSharp.Owin.Demo.Extensions;
+using System.IO;
 
 [assembly: OwinStartup(typeof(Startup), nameof(Startup.Configuration))]
 
@@ -13,7 +16,9 @@ namespace MirrorSharp.Owin.Demo {
 
         public void Configuration(IAppBuilder app) {
             app.UseDefaultFiles()
-               .UseStaticFiles();
+               .UseStaticFiles(new StaticFileOptions {
+                   FileSystem = new PhysicalFileSystem("wwwroot")
+               });
 
             app.MapMirrorSharp(
                 "/mirrorsharp",

@@ -1,8 +1,7 @@
 {
-    "env": {
-        "jest": true,
-        "browser": true
-    },
+    "root": true,
+    "extends": "../ts/.eslintrc.json",
     "rules": {
+        "@typescript-eslint/no-non-null-assertion": "off"
     }
 }

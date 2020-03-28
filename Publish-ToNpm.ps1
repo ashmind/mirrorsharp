@@ -8,7 +8,7 @@ try {
             npm publish $($_.FullName)
         }
         catch {
-            # not failing sine it's likely we tried to publish package
+            # not failing since it's likely we tried to publish package
             # twice with the same name. later this should be improved
             # to actually check the error.
             Write-Output $_

@@ -1,8 +1,13 @@
 {
     "root": true,
+    "ignorePatterns": [
+        "node_modules/",
+        "dist/"
+    ],
     "extends": "eslint:recommended",
     "parserOptions": {
-        "ecmaVersion": 8
+        "ecmaVersion": 2018,
+        "sourceType": "module"
     },
     "env": {
         "node": true,
@@ -10,6 +15,9 @@
     },
     "rules": {
         "no-var": "error",
+        "quotes": ["warn", "single", { "avoidEscape": true }],
+        "semi": "error",
+
         "object-shorthand": ["warn", "properties"],
         "prefer-arrow-callback": ["warn", { "allowNamedFunctions": true }],
         "prefer-rest-params": "warn",

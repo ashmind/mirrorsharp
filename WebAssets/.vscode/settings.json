@@ -22,6 +22,7 @@
         "clike",
         "codemirror",
         "enummember",
+        "execa",
         "extensionmethod",
         "httpd",
         "infotip",
@@ -37,5 +38,6 @@
         "struct",
         "typeparameter",
         "xmlns"
-    ]
+    ],
+    "typescript.tsdk": "node_modules\\typescript\\lib"
 }

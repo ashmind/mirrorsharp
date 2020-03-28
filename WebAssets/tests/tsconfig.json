@@ -1,0 +1,18 @@
+{
+    "include": [
+        ".",
+        "../ts"
+    ],
+    "compilerOptions": {
+        "lib": ["es2018", "dom"],
+        "noEmit": true,
+        "noImplicitAny": true,
+        "strict": true,
+        "importsNotUsedAsValues": "error",
+        "noErrorTruncation": true,
+        "types": [
+            "node",
+            "jest"
+        ]
+    }
+}
