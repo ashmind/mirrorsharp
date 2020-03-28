@@ -25,7 +25,7 @@ MirrorSharp is a code editor `<textarea>` built on Roslyn and [CodeMirror](https
 
 You'll need the following:
 
-- **MirrorSharp.Owin** on the server (.NET Core is planned, but not supported yet)
+- **MirrorSharp.AspNetCore** on the server (MirrorSharp.Owin if .NET Framework)
 - **mirrorsharp.js** — client library that provides the user interface
 
 ### Server
@@ -70,6 +70,7 @@ npm install mirrorsharp --save
 ```
 
 #### CSS
+
 If you are using LESS, CSS references can be done automatically by including `mirrorsharp/mirrorsharp.less`.
 
 Otherwise, make sure to include the following:
@@ -82,19 +83,17 @@ Otherwise, make sure to include the following:
 6. `mirrorsharp/mirrorsharp.css`
 
 #### JS
-JS can be done automatically since mirrorsharp has proper requires. Otherwise:
 
-1. `codemirror/lib/codemirror.js`
-2. `codemirror/mode/clike/clike.js`
-3. `codemirror/addon/lint/lint.js`
-4. `codemirror/addon/hint/show-hint.js`
-5. `codemirror-addon-infotip/dist/infotip.js`
-6. `codemirror-addon-lint-fix/dist/lint-fix.js`
-7. `mirrorsharp/mirrorsharp.js`
+Since mirrorsharp JS files are not bundled, you'll either need to use a bundler such as [Webpack](https://webpack.js.org) or [Parcel](https://parceljs.org/), or use `<script type="module">`.
+
+AspNetCore.Demo project demonstrates use of Parcel.
+
+Note that mirrorsharp is written in TypeScript and so the package includes full TypeScript types.
 
 #### Usage
-Once referenced, you can do the following:
 ```javascript
+import mirrorsharp from 'mirrorsharp';
+
 mirrorsharp(textarea, { serviceUrl: 'wss://your_app_root/mirrorsharp' })
 ```
 
@@ -109,7 +108,7 @@ TODO. In general the idea is that "it just works", however customization is a go
 ## Demos
 
 You can check out the demos if you clone the repository locally.  
-After cloning, run `.\mirrorsharp build` to build and prepare everything.
+After cloning, run `mirrorsharp setup` to build and prepare everything.
 
 ## Testing
 
