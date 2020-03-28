@@ -1,3 +1,4 @@
+#nullable enable
 MirrorSharp.MirrorSharpOptionsExtensions
 MirrorSharp.VisualBasic.MirrorSharpVisualBasicOptions
-static MirrorSharp.MirrorSharpOptionsExtensions.EnableVisualBasic(this MirrorSharp.MirrorSharpOptions options, System.Action<MirrorSharp.VisualBasic.MirrorSharpVisualBasicOptions> setup = null) -> MirrorSharp.MirrorSharpOptions
+static MirrorSharp.MirrorSharpOptionsExtensions.EnableVisualBasic(this MirrorSharp.MirrorSharpOptions! options, System.Action<MirrorSharp.VisualBasic.MirrorSharpVisualBasicOptions!>? setup = null) -> MirrorSharp.MirrorSharpOptions!

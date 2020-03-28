@@ -1,19 +1,20 @@
+#nullable enable
 MirrorSharp.MirrorSharpOptionsExtensions
 MirrorSharp.Php.Advanced.IPhpSession
-MirrorSharp.Php.Advanced.IPhpSession.Compilation.get -> Pchp.CodeAnalysis.PhpCompilation
+MirrorSharp.Php.Advanced.IPhpSession.Compilation.get -> Pchp.CodeAnalysis.PhpCompilation!
 MirrorSharp.Php.Advanced.IPhpSession.Compilation.set -> void
 MirrorSharp.Php.Advanced.RoslynTypesExtensions
 MirrorSharp.Php.Advanced.WorkSessionExtensions
 MirrorSharp.Php.MirrorSharpPhpOptions
 MirrorSharp.Php.MirrorSharpPhpOptions.Debug.get -> bool?
 MirrorSharp.Php.MirrorSharpPhpOptions.Debug.set -> void
-static MirrorSharp.MirrorSharpOptionsExtensions.EnablePhp(this MirrorSharp.MirrorSharpOptions options, System.Action<MirrorSharp.Php.MirrorSharpPhpOptions> setup = null) -> MirrorSharp.MirrorSharpOptions
-static MirrorSharp.Php.Advanced.RoslynTypesExtensions.ToStandardRoslyn(this Microsoft.CodeAnalysis.Diagnostic diagnostic) -> Microsoft.CodeAnalysis.Diagnostic
+static MirrorSharp.MirrorSharpOptionsExtensions.EnablePhp(this MirrorSharp.MirrorSharpOptions! options, System.Action<MirrorSharp.Php.MirrorSharpPhpOptions!>? setup = null) -> MirrorSharp.MirrorSharpOptions!
+static MirrorSharp.Php.Advanced.RoslynTypesExtensions.ToStandardRoslyn(this Microsoft.CodeAnalysis.Diagnostic! diagnostic) -> Microsoft.CodeAnalysis.Diagnostic!
 static MirrorSharp.Php.Advanced.RoslynTypesExtensions.ToStandardRoslyn(this Microsoft.CodeAnalysis.DiagnosticSeverity severity) -> Microsoft.CodeAnalysis.DiagnosticSeverity
-static MirrorSharp.Php.Advanced.RoslynTypesExtensions.ToStandardRoslyn(this Microsoft.CodeAnalysis.Location location) -> Microsoft.CodeAnalysis.Location
+static MirrorSharp.Php.Advanced.RoslynTypesExtensions.ToStandardRoslyn(this Microsoft.CodeAnalysis.Location! location) -> Microsoft.CodeAnalysis.Location!
 static MirrorSharp.Php.Advanced.RoslynTypesExtensions.ToStandardRoslyn(this Microsoft.CodeAnalysis.Text.LinePosition position) -> Microsoft.CodeAnalysis.Text.LinePosition
 static MirrorSharp.Php.Advanced.RoslynTypesExtensions.ToStandardRoslyn(this Microsoft.CodeAnalysis.Text.LinePositionSpan span) -> Microsoft.CodeAnalysis.Text.LinePositionSpan
 static MirrorSharp.Php.Advanced.RoslynTypesExtensions.ToStandardRoslyn(this Microsoft.CodeAnalysis.Text.TextSpan span) -> Microsoft.CodeAnalysis.Text.TextSpan
-static MirrorSharp.Php.Advanced.WorkSessionExtensions.IsPhp(this MirrorSharp.Advanced.IWorkSession session) -> bool
-static MirrorSharp.Php.Advanced.WorkSessionExtensions.Php(this MirrorSharp.Advanced.IWorkSession session) -> MirrorSharp.Php.Advanced.IPhpSession
-static readonly MirrorSharp.Php.MirrorSharpPhpOptions.AssemblyReferencePaths -> System.Collections.Immutable.ImmutableArray<string>
+static MirrorSharp.Php.Advanced.WorkSessionExtensions.IsPhp(this MirrorSharp.Advanced.IWorkSession! session) -> bool
+static MirrorSharp.Php.Advanced.WorkSessionExtensions.Php(this MirrorSharp.Advanced.IWorkSession! session) -> MirrorSharp.Php.Advanced.IPhpSession!
+static readonly MirrorSharp.Php.MirrorSharpPhpOptions.AssemblyReferencePaths -> System.Collections.Immutable.ImmutableArray<string!>

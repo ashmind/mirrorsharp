@@ -11,7 +11,7 @@ namespace MirrorSharp.Advanced {
         /// <param name="writer">Writer to write the property to.</param>
         /// <param name="name">Name of the property to write.</param>
         /// <param name="value">Value of the property to write; can be null.</param> 
-        public static void WriteProperty( this IFastJsonWriter writer, string name, string? value) {
+        public static void WriteProperty(this IFastJsonWriter writer, string name, string? value) {
             Argument.NotNull(nameof(writer), writer);
             writer.WritePropertyName(name);
             writer.WriteValue(value);

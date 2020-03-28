@@ -1,27 +1,28 @@
+#nullable enable
 MirrorSharp.Testing.MirrorSharpTestDriver
-MirrorSharp.Testing.MirrorSharpTestDriver.SendRequestInfoTipAsync(int position) -> System.Threading.Tasks.Task<MirrorSharp.Testing.Results.InfoTipResult>
-MirrorSharp.Testing.MirrorSharpTestDriver.SendSetOptionAsync(string name, string value) -> System.Threading.Tasks.Task<MirrorSharp.Testing.Results.OptionsEchoResult>
-MirrorSharp.Testing.MirrorSharpTestDriver.SendSetOptionsAsync(System.Collections.Generic.IDictionary<string, string> options) -> System.Threading.Tasks.Task<MirrorSharp.Testing.Results.OptionsEchoResult>
-MirrorSharp.Testing.MirrorSharpTestDriver.SendSlowUpdateAsync() -> System.Threading.Tasks.Task<MirrorSharp.Testing.Results.SlowUpdateResult<object>>
-MirrorSharp.Testing.MirrorSharpTestDriver.SendSlowUpdateAsync<TExtensionResult>() -> System.Threading.Tasks.Task<MirrorSharp.Testing.Results.SlowUpdateResult<TExtensionResult>>
-MirrorSharp.Testing.MirrorSharpTestDriver.SendTypeCharsAsync(string value) -> System.Threading.Tasks.Task
-MirrorSharp.Testing.MirrorSharpTestDriver.SetText(string text) -> MirrorSharp.Testing.MirrorSharpTestDriver
-MirrorSharp.Testing.MirrorSharpTestDriver.SetTextWithCursor(string textWithCursor) -> MirrorSharp.Testing.MirrorSharpTestDriver
+MirrorSharp.Testing.MirrorSharpTestDriver.SendRequestInfoTipAsync(int position) -> System.Threading.Tasks.Task<MirrorSharp.Testing.Results.InfoTipResult!>!
+MirrorSharp.Testing.MirrorSharpTestDriver.SendSetOptionAsync(string! name, string! value) -> System.Threading.Tasks.Task<MirrorSharp.Testing.Results.OptionsEchoResult!>!
+MirrorSharp.Testing.MirrorSharpTestDriver.SendSetOptionsAsync(System.Collections.Generic.IDictionary<string!, string!>! options) -> System.Threading.Tasks.Task<MirrorSharp.Testing.Results.OptionsEchoResult!>!
+MirrorSharp.Testing.MirrorSharpTestDriver.SendSlowUpdateAsync() -> System.Threading.Tasks.Task<MirrorSharp.Testing.Results.SlowUpdateResult<object!>!>!
+MirrorSharp.Testing.MirrorSharpTestDriver.SendSlowUpdateAsync<TExtensionResult>() -> System.Threading.Tasks.Task<MirrorSharp.Testing.Results.SlowUpdateResult<TExtensionResult>!>!
+MirrorSharp.Testing.MirrorSharpTestDriver.SendTypeCharsAsync(string! value) -> System.Threading.Tasks.Task!
+MirrorSharp.Testing.MirrorSharpTestDriver.SetText(string! text) -> MirrorSharp.Testing.MirrorSharpTestDriver!
+MirrorSharp.Testing.MirrorSharpTestDriver.SetTextWithCursor(string! textWithCursor) -> MirrorSharp.Testing.MirrorSharpTestDriver!
 MirrorSharp.Testing.Results.InfoTipResult
 MirrorSharp.Testing.Results.InfoTipResult.InfoTipResult() -> void
-MirrorSharp.Testing.Results.InfoTipResult.Kinds.get -> System.Collections.Generic.IList<string>
-MirrorSharp.Testing.Results.InfoTipResult.Sections.get -> System.Collections.Generic.IList<MirrorSharp.Testing.Results.InfoTipSection>
-MirrorSharp.Testing.Results.InfoTipResult.Span.get -> MirrorSharp.Testing.Results.ResultSpan
+MirrorSharp.Testing.Results.InfoTipResult.Kinds.get -> System.Collections.Generic.IList<string!>!
+MirrorSharp.Testing.Results.InfoTipResult.Sections.get -> System.Collections.Generic.IList<MirrorSharp.Testing.Results.InfoTipSection!>!
+MirrorSharp.Testing.Results.InfoTipResult.Span.get -> MirrorSharp.Testing.Results.ResultSpan!
 MirrorSharp.Testing.Results.InfoTipSection
-MirrorSharp.Testing.Results.InfoTipSection.InfoTipSection(string kind) -> void
-MirrorSharp.Testing.Results.InfoTipSection.Kind.get -> string
-MirrorSharp.Testing.Results.InfoTipSection.Parts.get -> System.Collections.Generic.IList<MirrorSharp.Testing.Results.InfoTipSectionPart>
+MirrorSharp.Testing.Results.InfoTipSection.InfoTipSection(string! kind) -> void
+MirrorSharp.Testing.Results.InfoTipSection.Kind.get -> string!
+MirrorSharp.Testing.Results.InfoTipSection.Parts.get -> System.Collections.Generic.IList<MirrorSharp.Testing.Results.InfoTipSectionPart!>!
 MirrorSharp.Testing.Results.InfoTipSectionPart
-MirrorSharp.Testing.Results.InfoTipSectionPart.InfoTipSectionPart(string kind, string text) -> void
-MirrorSharp.Testing.Results.InfoTipSectionPart.Kind.get -> string
-MirrorSharp.Testing.Results.InfoTipSectionPart.Text.get -> string
+MirrorSharp.Testing.Results.InfoTipSectionPart.InfoTipSectionPart(string! kind, string! text) -> void
+MirrorSharp.Testing.Results.InfoTipSectionPart.Kind.get -> string!
+MirrorSharp.Testing.Results.InfoTipSectionPart.Text.get -> string!
 MirrorSharp.Testing.Results.OptionsEchoResult
-MirrorSharp.Testing.Results.OptionsEchoResult.Options.get -> System.Collections.Generic.IDictionary<string, string>
+MirrorSharp.Testing.Results.OptionsEchoResult.Options.get -> System.Collections.Generic.IDictionary<string!, string!>!
 MirrorSharp.Testing.Results.OptionsEchoResult.OptionsEchoResult() -> void
 MirrorSharp.Testing.Results.ResultSpan
 MirrorSharp.Testing.Results.ResultSpan.Length.get -> int
@@ -30,39 +31,39 @@ MirrorSharp.Testing.Results.ResultSpan.ResultSpan() -> void
 MirrorSharp.Testing.Results.ResultSpan.Start.get -> int
 MirrorSharp.Testing.Results.ResultSpan.Start.set -> void
 MirrorSharp.Testing.Results.SlowUpdateDiagnostic
-MirrorSharp.Testing.Results.SlowUpdateDiagnostic.Actions.get -> System.Collections.Generic.IList<MirrorSharp.Testing.Results.SlowUpdateDiagnosticAction>
-MirrorSharp.Testing.Results.SlowUpdateDiagnostic.Id.get -> string
-MirrorSharp.Testing.Results.SlowUpdateDiagnostic.Message.get -> string
-MirrorSharp.Testing.Results.SlowUpdateDiagnostic.Severity.get -> string
-MirrorSharp.Testing.Results.SlowUpdateDiagnostic.SlowUpdateDiagnostic(string id, string message, string severity, MirrorSharp.Testing.Results.ResultSpan span) -> void
-MirrorSharp.Testing.Results.SlowUpdateDiagnostic.Span.get -> MirrorSharp.Testing.Results.ResultSpan
-MirrorSharp.Testing.Results.SlowUpdateDiagnostic.Tags.get -> System.Collections.Generic.IList<string>
+MirrorSharp.Testing.Results.SlowUpdateDiagnostic.Actions.get -> System.Collections.Generic.IList<MirrorSharp.Testing.Results.SlowUpdateDiagnosticAction!>!
+MirrorSharp.Testing.Results.SlowUpdateDiagnostic.Id.get -> string!
+MirrorSharp.Testing.Results.SlowUpdateDiagnostic.Message.get -> string!
+MirrorSharp.Testing.Results.SlowUpdateDiagnostic.Severity.get -> string!
+MirrorSharp.Testing.Results.SlowUpdateDiagnostic.SlowUpdateDiagnostic(string! id, string! message, string! severity, MirrorSharp.Testing.Results.ResultSpan! span) -> void
+MirrorSharp.Testing.Results.SlowUpdateDiagnostic.Span.get -> MirrorSharp.Testing.Results.ResultSpan!
+MirrorSharp.Testing.Results.SlowUpdateDiagnostic.Tags.get -> System.Collections.Generic.IList<string!>!
 MirrorSharp.Testing.Results.SlowUpdateDiagnosticAction
 MirrorSharp.Testing.Results.SlowUpdateDiagnosticAction.Id.get -> int
 MirrorSharp.Testing.Results.SlowUpdateDiagnosticAction.Id.set -> void
 MirrorSharp.Testing.Results.SlowUpdateDiagnosticAction.SlowUpdateDiagnosticAction() -> void
-MirrorSharp.Testing.Results.SlowUpdateDiagnosticAction.Title.get -> string
+MirrorSharp.Testing.Results.SlowUpdateDiagnosticAction.Title.get -> string?
 MirrorSharp.Testing.Results.SlowUpdateDiagnosticAction.Title.set -> void
 MirrorSharp.Testing.Results.SlowUpdateResult<TExtensionResult>
-MirrorSharp.Testing.Results.SlowUpdateResult<TExtensionResult>.Diagnostics.get -> System.Collections.Generic.IList<MirrorSharp.Testing.Results.SlowUpdateDiagnostic>
+MirrorSharp.Testing.Results.SlowUpdateResult<TExtensionResult>.Diagnostics.get -> System.Collections.Generic.IList<MirrorSharp.Testing.Results.SlowUpdateDiagnostic!>!
 MirrorSharp.Testing.Results.SlowUpdateResult<TExtensionResult>.ExtensionResult.get -> TExtensionResult
 MirrorSharp.Testing.Results.SlowUpdateResult<TExtensionResult>.ExtensionResult.set -> void
-MirrorSharp.Testing.Results.SlowUpdateResult<TExtensionResult>.JoinErrors() -> string
+MirrorSharp.Testing.Results.SlowUpdateResult<TExtensionResult>.JoinErrors() -> string!
 MirrorSharp.Testing.Results.SlowUpdateResult<TExtensionResult>.SlowUpdateResult() -> void
-override MirrorSharp.Testing.Results.InfoTipResult.ToString() -> string
-override MirrorSharp.Testing.Results.InfoTipSection.ToString() -> string
-override MirrorSharp.Testing.Results.InfoTipSectionPart.ToString() -> string
-override MirrorSharp.Testing.Results.SlowUpdateDiagnostic.ToString() -> string
-static MirrorSharp.Testing.MirrorSharpTestDriver.New(MirrorSharp.MirrorSharpOptions options = null, string languageName = "C#") -> MirrorSharp.Testing.MirrorSharpTestDriver
-static MirrorSharp.Testing.MirrorSharpTestDriver.New() -> MirrorSharp.Testing.MirrorSharpTestDriver
-static MirrorSharp.Testing.MirrorSharpTestDriver.New(MirrorSharp.MirrorSharpOptions options = null, MirrorSharp.Testing.MirrorSharpServices services = null, string languageName = "C#") -> MirrorSharp.Testing.MirrorSharpTestDriver
-static MirrorSharp.Testing.MirrorSharpTestDriver.New(MirrorSharp.MirrorSharpOptions options) -> MirrorSharp.Testing.MirrorSharpTestDriver
-static MirrorSharp.Testing.MirrorSharpTestDriver.New(MirrorSharp.Testing.MirrorSharpServices services) -> MirrorSharp.Testing.MirrorSharpTestDriver
+override MirrorSharp.Testing.Results.InfoTipResult.ToString() -> string!
+override MirrorSharp.Testing.Results.InfoTipSection.ToString() -> string!
+override MirrorSharp.Testing.Results.InfoTipSectionPart.ToString() -> string?
+override MirrorSharp.Testing.Results.SlowUpdateDiagnostic.ToString() -> string!
+static MirrorSharp.Testing.MirrorSharpTestDriver.New(MirrorSharp.MirrorSharpOptions? options = null, string! languageName = "C#") -> MirrorSharp.Testing.MirrorSharpTestDriver!
+static MirrorSharp.Testing.MirrorSharpTestDriver.New() -> MirrorSharp.Testing.MirrorSharpTestDriver!
+static MirrorSharp.Testing.MirrorSharpTestDriver.New(MirrorSharp.MirrorSharpOptions? options = null, MirrorSharp.Testing.MirrorSharpServices? services = null, string! languageName = "C#") -> MirrorSharp.Testing.MirrorSharpTestDriver!
+static MirrorSharp.Testing.MirrorSharpTestDriver.New(MirrorSharp.MirrorSharpOptions! options) -> MirrorSharp.Testing.MirrorSharpTestDriver!
+static MirrorSharp.Testing.MirrorSharpTestDriver.New(MirrorSharp.Testing.MirrorSharpServices! services) -> MirrorSharp.Testing.MirrorSharpTestDriver!
 MirrorSharp.Testing.MirrorSharpServices
-MirrorSharp.Testing.MirrorSharpServices.ExceptionLogger.get -> MirrorSharp.Advanced.IExceptionLogger
+MirrorSharp.Testing.MirrorSharpServices.ExceptionLogger.get -> MirrorSharp.Advanced.IExceptionLogger?
 MirrorSharp.Testing.MirrorSharpServices.ExceptionLogger.set -> void
 MirrorSharp.Testing.MirrorSharpServices.MirrorSharpServices() -> void
-MirrorSharp.Testing.MirrorSharpServices.SetOptionsFromClient.get -> MirrorSharp.Advanced.ISetOptionsFromClientExtension
+MirrorSharp.Testing.MirrorSharpServices.SetOptionsFromClient.get -> MirrorSharp.Advanced.ISetOptionsFromClientExtension?
 MirrorSharp.Testing.MirrorSharpServices.SetOptionsFromClient.set -> void
-MirrorSharp.Testing.MirrorSharpServices.SlowUpdate.get -> MirrorSharp.Advanced.ISlowUpdateExtension
+MirrorSharp.Testing.MirrorSharpServices.SlowUpdate.get -> MirrorSharp.Advanced.ISlowUpdateExtension?
 MirrorSharp.Testing.MirrorSharpServices.SlowUpdate.set -> void

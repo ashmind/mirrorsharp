@@ -1,4 +1,5 @@
+#nullable enable
 MirrorSharp.AspNetCore.MirrorSharpStartupExtensions
-static MirrorSharp.AspNetCore.MirrorSharpStartupExtensions.MapMirrorSharp(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, Microsoft.AspNetCore.Http.PathString path, MirrorSharp.MirrorSharpOptions options = null) -> Microsoft.AspNetCore.Builder.IApplicationBuilder
-static MirrorSharp.AspNetCore.MirrorSharpStartupExtensions.MapMirrorSharp(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder endpoints, string pattern, MirrorSharp.MirrorSharpOptions options = null) -> Microsoft.AspNetCore.Builder.IEndpointConventionBuilder
-static MirrorSharp.AspNetCore.MirrorSharpStartupExtensions.UseMirrorSharp(this Microsoft.AspNetCore.Builder.IApplicationBuilder app, MirrorSharp.MirrorSharpOptions options = null) -> Microsoft.AspNetCore.Builder.IApplicationBuilder
+static MirrorSharp.AspNetCore.MirrorSharpStartupExtensions.MapMirrorSharp(this Microsoft.AspNetCore.Builder.IApplicationBuilder! app, Microsoft.AspNetCore.Http.PathString path, MirrorSharp.MirrorSharpOptions? options = null) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!
+static MirrorSharp.AspNetCore.MirrorSharpStartupExtensions.MapMirrorSharp(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints, string! pattern, MirrorSharp.MirrorSharpOptions? options = null) -> Microsoft.AspNetCore.Builder.IEndpointConventionBuilder!
+static MirrorSharp.AspNetCore.MirrorSharpStartupExtensions.UseMirrorSharp(this Microsoft.AspNetCore.Builder.IApplicationBuilder! app, MirrorSharp.MirrorSharpOptions? options = null) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!

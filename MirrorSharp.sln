@@ -47,6 +47,9 @@ EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Tests.Shared\MirrorSharp.Tests.Shared.projitems*{0a9078a1-bd26-4dc7-87bb-ded125f6218b}*SharedItemsImports = 13
+		Tests.Shared\MirrorSharp.Tests.Shared.projitems*{72b44faa-5b8e-470d-b20e-ac6017b5a1d9}*SharedItemsImports = 5
+		Tests.Shared\MirrorSharp.Tests.Shared.projitems*{7f531f1e-5af6-4fc6-bf71-84eb00c1b1ec}*SharedItemsImports = 5
+		Tests.Shared\MirrorSharp.Tests.Shared.projitems*{848abf7b-3c8e-46fe-aedd-f4dea97f4b5f}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
