@@ -188,7 +188,7 @@ namespace MirrorSharp.Internal.Roslyn {
         }
 
         public void AddMetadataReferencesFromFiles(params string[] paths) {
-            Project = Project.WithMetadataReferences(MetadataReferenceFactory.CreateFromFiles(paths));
+            Project = Project.WithMetadataReferences(MetadataReferenceFactory.CreateFromFilesSlow(paths));
         }
 
         private void EnsureDocumentUpToDate() {
