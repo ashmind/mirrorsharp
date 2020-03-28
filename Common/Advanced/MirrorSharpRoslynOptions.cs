@@ -80,7 +80,7 @@ namespace MirrorSharp.Advanced {
         /// </remarks>
         /// <seealso cref="MetadataReferences"/>
         public TSelf AddMetadataReferencesFromFiles(params string[] paths) {
-            _metadataReferences = _metadataReferences.AddRange(MetadataReferenceFactory.CreateFromFiles(paths));
+            _metadataReferences = _metadataReferences.AddRange(MetadataReferenceFactory.CreateFromFilesSlow(paths));
             return (TSelf)this;
         }
 
