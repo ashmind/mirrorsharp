@@ -84,11 +84,13 @@ Otherwise, make sure to include the following:
 
 #### JS
 
-Since mirrorsharp JS files are not bundled, you'll either need to use a bundler such as [Webpack](https://webpack.js.org) or [Parcel](https://parceljs.org/), or use `<script type="module">`.
+Since mirrorsharp JS files are not bundled, you'll need to either:
+1. Use a bundler such as [Webpack](https://webpack.js.org) or [Parcel](https://parceljs.org/)
+2. Use `<script type="module">`.
 
-AspNetCore.Demo project demonstrates use of Parcel.
+You can see a Parcel example in AspNetCore.Demo.  
 
-Note that mirrorsharp is written in TypeScript and so the package includes full TypeScript types.
+Note that mirrorsharp is written in TypeScript, and the package includes full TypeScript types.
 
 #### Usage
 ```javascript
