@@ -1,6 +1,6 @@
 {
     "name": "mirrorsharp",
-    "version": "2.0.0-preview-01",
+    "version": "2.0.0-preview-02",
     "type": "module",
     "description": "A code editor `<textarea>` for .NET.",
     "authors": [
@@ -22,13 +22,18 @@
     },
     "jest": {
         "preset": "ts-jest",
+        "globals": {
+            "ts-jest": {
+                "tsConfig": "<rootDir>/tests/tsconfig.json"
+            }
+        },
         "testMatch": [
-            "**/tests/**/*.tests.ts"
+            "<rootDir>/tests/**/*.tests.ts"
         ],
         "collectCoverage": true,
         "collectCoverageFrom": [
-            "**/ts/**/*.ts",
-            "**/tests/**/*.tests.ts"
+            "<rootDir>/ts/**/*.ts",
+            "<rootDir>/tests/**/*.tests.ts"
         ]
     },
     "dependencies": {

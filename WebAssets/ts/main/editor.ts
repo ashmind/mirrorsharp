@@ -11,7 +11,7 @@ import type {
 import type { Connection } from '../interfaces/connection';
 import type { SelfDebug } from '../interfaces/self-debug';
 import type { Editor as EditorInterface, DestroyOptions, EditorOptions } from '../interfaces/editor';
-import * as CodeMirror from 'codemirror';
+import CodeMirror from 'codemirror';
 import 'codemirror/mode/clike/clike';
 import 'codemirror-addon-infotip';
 import 'codemirror-addon-lint-fix';

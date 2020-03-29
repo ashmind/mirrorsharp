@@ -1,7 +1,7 @@
 import type { PartData, CompletionItemData, SpanData } from '../interfaces/protocol';
 import type { Hinter as HinterInterface, CompletionOptionalData, Hint } from '../interfaces/hinter';
 import type { Connection } from '../interfaces/connection';
-import * as CodeMirror from 'codemirror';
+import CodeMirror from 'codemirror';
 import 'codemirror/addon/hint/show-hint';
 import { addEvents } from '../helpers/add-events';
 import { renderParts } from '../helpers/render-parts';
