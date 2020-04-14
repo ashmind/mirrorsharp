@@ -7,7 +7,18 @@ import { addEvents } from '../helpers/add-events';
 import { renderParts } from '../helpers/render-parts';
 import { kindsToClassName } from '../helpers/kinds-to-class-name';
 
-function Hinter<TExtensionData>(this: HinterInterface, cm: CodeMirror.Editor, connection: Connection<TExtensionData>) {
+type CompletionActiveState = {
+    readonly widget?: CodeMirror.Handle & {
+        changeActive(i: number, avoidWrap?: boolean): void;
+    };
+    close(): void;
+}
+
+function Hinter<TExtensionServerOptions, TSlowUpdateExtensionData>(
+    this: HinterInterface,
+    cm: CodeMirror.Editor,
+    connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>
+) {
     const indexInListKey = '$mirrorsharp-indexInList';
     const priorityKey = '$mirrorsharp-priority';
     const cachedInfoKey = '$mirrorsharp-cached-info';
@@ -19,15 +30,19 @@ function Hinter<TExtensionData>(this: HinterInterface, cm: CodeMirror.Editor, co
 
     let infoLoadTimer: ReturnType<typeof setTimeout>;
 
-    const commit = function (_: CodeMirror.Editor, data: {}, item: Hint) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const getActiveCompletion = () => cm.state.completionActive as CompletionActiveState|undefined;
+
+    const commit = (_: CodeMirror.Editor, data: {}, item: Hint) => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-floating-promises
         connection.sendCompletionState(item[indexInListKey]!);
         state = 'committed';
     };
 
-    const cancel = function() {
-        if (cm.state.completionActive)
-            cm.state.completionActive.close();
+    const cancel = () => {
+        const activeCompletion = getActiveCompletion();
+        if (activeCompletion)
+            activeCompletion.close();
     };
 
     const removeCMEvents = addEvents(cm, {
@@ -35,8 +50,8 @@ function Hinter<TExtensionData>(this: HinterInterface, cm: CodeMirror.Editor, co
             if (state === 'stopped')
                 return;
             const key = e.key || String.fromCharCode(e.charCode || e.keyCode);
-            if (currentOptions.commitChars.indexOf(key) > -1) {
-                const widget = cm.state.completionActive.widget;
+            if (currentOptions.commitChars.includes(key)) {
+                const widget = getActiveCompletion()?.widget;
                 if (!widget) {
                     cancel();
                     return;
@@ -48,8 +63,10 @@ function Hinter<TExtensionData>(this: HinterInterface, cm: CodeMirror.Editor, co
         endCompletion() {
             if (state === 'starting')
                 return;
-            if (state === 'started')
+            if (state === 'started') {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 connection.sendCompletionState('cancel');
+            }
             state = 'stopped';
             hideInfoTip();
             if (infoLoadTimer)
@@ -72,7 +89,7 @@ function Hinter<TExtensionData>(this: HinterInterface, cm: CodeMirror.Editor, co
             item[priorityKey] = c.priority;
             if (c.span)
                 item.from = cm.posFromIndex(c.span.start);
-            return item as Hint;
+            return item;
         });
         const suggestion = options.suggestion;
         if (suggestion) {
@@ -109,7 +126,7 @@ function Hinter<TExtensionData>(this: HinterInterface, cm: CodeMirror.Editor, co
             // does not seem like I can use selectedHint here, as it does not force the scroll
             const selectedIndex = indexOfItemWithMaxPriority(list);
             if (selectedIndex > 0)
-                setTimeout(() => cm.state.completionActive.widget.changeActive(selectedIndex), 0);
+                setTimeout(() => getActiveCompletion()?.widget?.changeActive(selectedIndex), 0);
         }
 
         const result = { from: start, list };
@@ -130,13 +147,14 @@ function Hinter<TExtensionData>(this: HinterInterface, cm: CodeMirror.Editor, co
         }
 
         infoLoadTimer = setTimeout(() => {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             connection.sendCompletionState('info', selected.index);
             clearTimeout(infoLoadTimer);
         }, 300);
     }
 
-    let infoTipElement: HTMLDivElement;
-    let currentInfoTipIndex: number|null;
+    let infoTipElement: HTMLDivElement|undefined;
+    let currentInfoTipIndex: number|undefined|null;
 
     function showInfoTip(index: number, parts: ReadonlyArray<PartData>) {
         // autocompletion disappeared while we were loading
@@ -176,7 +194,7 @@ function Hinter<TExtensionData>(this: HinterInterface, cm: CodeMirror.Editor, co
         style.top = top + 'px';
         style.left = left + 'px';
         style.maxWidth = (screenWidth - left) + 'px';
-        renderParts(infoTipElement, parts);
+        renderParts(element, parts);
         style.display = 'block';
 
         currentInfoTipIndex = index;
@@ -204,6 +222,8 @@ function Hinter<TExtensionData>(this: HinterInterface, cm: CodeMirror.Editor, co
     }
 }
 
-const HinterAsConstructor = Hinter as unknown as { new<TExtensionData>(cm: CodeMirror.Editor, connection: Connection<TExtensionData>): HinterInterface };
+const HinterAsConstructor = Hinter as unknown as {
+    new<TExtensionServerOptions, TSlowUpdateExtensionData>(cm: CodeMirror.Editor, connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>): HinterInterface;
+};
 
 export { HinterAsConstructor as Hinter };

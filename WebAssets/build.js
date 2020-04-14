@@ -5,12 +5,14 @@ import oldowan from 'oldowan';
 const { task, tasks, run } = oldowan;
 
 task('ts', async () => {
-    await execa.command('eslint . --max-warnings 0 --ext .js,.jsx,.ts,.tsx', {
+    await execa.command('eslint ./ts --max-warnings 0 --ext .js,.jsx,.ts,.tsx', {
+        preferLocal: true,
         stdout: process.stdout,
         stderr: process.stderr
     });
 
     await execa.command('tsc --project ./ts/tsconfig.json --module ES2015 --noEmit false --outDir ./dist --declaration true', {
+        preferLocal: true,
         stdout: process.stdout,
         stderr: process.stderr
     });

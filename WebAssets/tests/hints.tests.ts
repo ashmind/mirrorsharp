@@ -54,7 +54,7 @@ test('completionDescription message shows info tip', async () => {
     driver.receive.completionInfo(0, [
         { kind: 'type',  text: 'int' },
         { kind: 'space', text: ' ' },
-        { kind: 'local', text: 'x' },
+        { kind: 'local', text: 'x' }
     ]);
     await driver.completeBackgroundWork();
 
@@ -75,7 +75,7 @@ test('completionDescription message updates info tip if already existed', async 
         () => driver.receive.completions([completion(), completion()]),
         () => driver.receive.completionInfo(0, [{ kind: 'test', text: 'old' }]),
         () => driver.keys.press('down'),
-        () => driver.receive.completionInfo(1, [{ kind: 'test', text: 'new' }]),
+        () => driver.receive.completionInfo(1, [{ kind: 'test', text: 'new' }])
     );
 
     const tip = getTooltip();

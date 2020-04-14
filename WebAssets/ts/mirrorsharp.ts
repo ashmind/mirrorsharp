@@ -1,37 +1,62 @@
-import type { Language, DiagnosticData, ServerOptions } from './interfaces/protocol';
-import type { EditorOptions, DestroyOptions } from './interfaces/editor';
+import type { Language, DiagnosticSeverity } from './interfaces/protocol';
 import { SelfDebug } from './main/self-debug';
 import { Connection } from './main/connection';
 import { Editor } from './main/editor';
 
-export { Language, DiagnosticData, ServerOptions };
+export type MirrorSharpLanguage = Language;
+export type MirrorSharpConnectionState = 'open'|'error'|'close';
 
-export interface MirrorSharpOptions<TExtensionData = never> {
-    serviceUrl: string;
-
-    selfDebugEnabled?: boolean;
-
-    language?: Language;
-
-    on?: EditorOptions<TExtensionData>['on'];
-
-    forCodeMirror?: CodeMirror.EditorConfiguration;
+export interface MirrorSharpDiagnostic {
+    readonly id: string;
+    readonly severity: DiagnosticSeverity;
+    readonly message: string;
 }
 
-export interface MirrorSharp<TServerOptions extends ServerOptions = ServerOptions> {
+export interface MirrorSharpSlowUpdateResult<TExtensionData = never> {
+    readonly diagnostics: ReadonlyArray<MirrorSharpDiagnostic>;
+    readonly x: TExtensionData;
+}
+
+export interface MirrorSharpOptions<TExtensionServerOptions = never, TSlowUpdateExtensionData = never> {
+    readonly serviceUrl: string;
+
+    readonly selfDebugEnabled?: boolean;
+
+    readonly language?: MirrorSharpLanguage;
+
+    // See EditorOptions<TExtensionData>['on']. This is not DRY, but
+    // it's good to be explicit on what we are exporting.
+    readonly on?: {
+        readonly slowUpdateWait?: () => void;
+        readonly slowUpdateResult?: (args: MirrorSharpSlowUpdateResult<TSlowUpdateExtensionData>) => void;
+        readonly textChange?: (getText: () => string) => void;
+        readonly connectionChange?: {
+            (event: 'open', e: Event): void;
+            (event: 'error', e: ErrorEvent): void;
+            (event: 'close', e: CloseEvent): void;
+        };
+        readonly serverError?: (message: string) => void;
+    };
+
+    readonly initialServerOptions?: TExtensionServerOptions;
+
+    readonly forCodeMirror?: CodeMirror.EditorConfiguration;
+}
+
+export interface MirrorSharpInstance<TExtensionServerOptions> {
     getCodeMirror(): CodeMirror.Editor;
     setText(text: string): void;
-    getLanguage(): Language;
-    setLanguage(value: Language): void;
-    sendServerOptions(value: TServerOptions): Promise<void>;
-    destroy(destroyOptions: DestroyOptions): void;
+    getLanguage(): MirrorSharpLanguage;
+    setLanguage(value: MirrorSharpLanguage): void;
+    setServerOptions(value: TExtensionServerOptions): Promise<void>;
+    destroy(destroyOptions: { keepCodeMirror?: boolean }): void;
 }
 
-export default function mirrorsharp<
-    TServerOptions extends ServerOptions = ServerOptions,
-    TExtensionData = never
->(textarea: HTMLTextAreaElement, options: MirrorSharpOptions<TExtensionData>): MirrorSharp<TServerOptions> {
-    const selfDebug = options.selfDebugEnabled ? new SelfDebug<TExtensionData>() : null;
+export default function mirrorsharp<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
+    textarea: HTMLTextAreaElement,
+    options: MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
+): MirrorSharpInstance<TExtensionServerOptions> {
+    const selfDebug = options.selfDebugEnabled ? new SelfDebug<TExtensionServerOptions, TSlowUpdateExtensionData>() : null;
     const connection = new Connection(options.serviceUrl, selfDebug);
     const editor = new Editor(textarea, connection, selfDebug, options);
 
@@ -40,9 +65,9 @@ export default function mirrorsharp<
         setText: (text: string) => editor.setText(text),
         getLanguage: () => editor.getLanguage(),
         setLanguage: (value: Language) => editor.setLanguage(value),
-        sendServerOptions: (value: TServerOptions) => editor.sendServerOptions(value),
+        setServerOptions: (value: TExtensionServerOptions) => editor.setServerOptions(value),
 
-        destroy(destroyOptions?: DestroyOptions) {
+        destroy(destroyOptions?: { keepCodeMirror?: boolean }) {
             editor.destroy(destroyOptions);
             connection.close();
         }

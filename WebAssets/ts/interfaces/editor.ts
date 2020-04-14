@@ -1,9 +1,10 @@
-import type { Language, DiagnosticData, ServerOptions } from './protocol';
+import type { Language, DiagnosticData } from './protocol';
 
-export interface EditorOptions<TExtensionData> {
+export interface EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> {
+    language?: Language;
     on?: {
         slowUpdateWait?: () => void;
-        slowUpdateResult?: (args: { diagnostics: ReadonlyArray<DiagnosticData>; x: TExtensionData }) => void;
+        slowUpdateResult?: (args: { diagnostics: ReadonlyArray<DiagnosticData>; x: TSlowUpdateExtensionData }) => void;
         textChange?: (getText: () => string) => void;
         connectionChange?: {
             (event: 'open', e: Event): void;
@@ -13,15 +14,15 @@ export interface EditorOptions<TExtensionData> {
         serverError?: (message: string) => void;
     };
     forCodeMirror?: CodeMirror.EditorConfiguration;
-    language?: Language;
+    initialServerOptions?: TExtensionServerOptions;
 }
 
-export interface Editor<TServerOptions extends ServerOptions> {
+export interface Editor<TExtensionServerOptions> {
     getCodeMirror(): CodeMirror.Editor;
     setText(text: string): void;
     getLanguage(): Language;
-    setLanguage(value: Language): void;
-    sendServerOptions(value: TServerOptions): Promise<void>;
+    setLanguage(value: Language): Promise<void>;
+    setServerOptions(value: Partial<TExtensionServerOptions>): Promise<void>;
     destroy(destroyOptions?: DestroyOptions): void;
 }
 

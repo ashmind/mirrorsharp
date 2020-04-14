@@ -2,7 +2,9 @@ import type { SelfDebug as SelfDebugInterface } from '../interfaces/self-debug';
 import type { Connection } from '../interfaces/connection';
 import type { SelfDebugLogEntryData, SelfDebugMessage } from '../interfaces/protocol';
 
-function SelfDebug<TExtensionData>(this: SelfDebugInterface<TExtensionData>) {
+function SelfDebug<TExtensionServerOptions, TSlowUpdateExtensionData>(
+    this: SelfDebugInterface<TExtensionServerOptions, TSlowUpdateExtensionData>
+) {
     let getText: () => string;
     let getCursorIndex: () => number;
     const clientLog: Array<SelfDebugLogEntryData> = [];
@@ -26,9 +28,9 @@ function SelfDebug<TExtensionData>(this: SelfDebugInterface<TExtensionData>) {
         }
     };
 
-    this.requestData = function(connection: Connection<TExtensionData>) {
+    this.requestData = function(connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>) {
         clientLogSnapshot = clientLog.slice(0);
-        connection.sendRequestSelfDebugData();
+        return connection.sendRequestSelfDebugData();
     };
 
     this.displayData = function(serverData: SelfDebugMessage) {
@@ -67,6 +69,8 @@ function SelfDebug<TExtensionData>(this: SelfDebugInterface<TExtensionData>) {
     };
 }
 
-const SelfDebugAsConstructor = SelfDebug as unknown as { new<TExtensionData>(): SelfDebugInterface<TExtensionData> };
+const SelfDebugAsConstructor = SelfDebug as unknown as {
+    new<TExtensionServerOptions, TSlowUpdateExtensionData>(): SelfDebugInterface<TExtensionServerOptions, TSlowUpdateExtensionData>;
+};
 
 export { SelfDebugAsConstructor as SelfDebug };

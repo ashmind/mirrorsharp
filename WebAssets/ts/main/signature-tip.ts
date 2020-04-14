@@ -1,4 +1,3 @@
-import type { SpanData, SignatureData } from '../interfaces/protocol';
 import type { SignatureTip as SignatureTipInterface } from '../interfaces/signature-tip';
 
 function SignatureTip(this: SignatureTipInterface, cm: CodeMirror.Editor) {
@@ -10,18 +9,19 @@ function SignatureTip(this: SignatureTipInterface, cm: CodeMirror.Editor) {
     };
 
     let active = false;
-    let tooltip: HTMLDivElement;
+    let tooltip: HTMLDivElement|undefined;
     let ol: HTMLOListElement;
 
     const hide = () => {
         if (!active)
             return;
 
-        document.body.removeChild(tooltip);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        document.body.removeChild(tooltip!);
         active = false;
     };
 
-    this.update = function(signatures: ReadonlyArray<SignatureData>, span: SpanData) {
+    this.update = function({ signatures, span }) {
         if (!tooltip) {
             tooltip = document.createElement('div');
             tooltip.className = 'mirrorsharp-theme mirrorsharp-any-tooltip mirrorsharp-signature-tooltip';
@@ -44,7 +44,7 @@ function SignatureTip(this: SignatureTipInterface, cm: CodeMirror.Editor) {
                 li.className = 'mirrorsharp-signature-selected';
 
             for (const part of signature.parts) {
-                let className = displayKindToClassMap[part.kind] || '';
+                let className = displayKindToClassMap[part.kind] ?? '';
                 if (part.selected)
                     className += ' mirrorsharp-signature-part-selected';
 
@@ -62,7 +62,8 @@ function SignatureTip(this: SignatureTipInterface, cm: CodeMirror.Editor) {
             ol.appendChild(li);
         }
 
-        const startPos = cm.posFromIndex(span.start);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const startPos = cm.posFromIndex(span!.start);
 
         active = true;
 

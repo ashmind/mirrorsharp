@@ -8,15 +8,20 @@ import type {
     ConnectionCloseHandler,
     ConnectionEventMap
 } from '../interfaces/connection';
+import type { Message } from '../interfaces/protocol';
 import { addEvents } from '../helpers/add-events';
 
-function Connection<TExtensionData>(this: ConnectionInterface<TExtensionData>, url: string, selfDebug: SelfDebug<TExtensionData>|null): void {
+function Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(
+    this: ConnectionInterface<TExtensionServerOptions, TSlowUpdateExtensionData>,
+    url: string,
+    selfDebug: SelfDebug<TExtensionServerOptions, TSlowUpdateExtensionData>|null
+): void {
     let socket: WebSocket;
     let openPromise: Promise<void>;
     const eventKeys = ['open', 'message', 'error', 'close'] as const;
     const handlers = {
         open:    [] as Array<ConnectionOpenHandler>,
-        message: [] as Array<ConnectionMessageHandler<TExtensionData>>,
+        message: [] as Array<ConnectionMessageHandler<TExtensionServerOptions, TSlowUpdateExtensionData>>,
         error:   [] as Array<ConnectionErrorHandler>,
         close:   [] as Array<ConnectionCloseHandler>
     } as const;
@@ -40,20 +45,20 @@ function Connection<TExtensionData>(this: ConnectionInterface<TExtensionData>, u
         for (const key of eventKeys) {
             const handlersByKey = handlers[key];
             socket.addEventListener(key, e => {
-                const handlerArguments = [e];
+                const handlerArguments = [e] as [CloseEvent|Event]|[Message<unknown, unknown>, MessageEvent];
                 if (key === 'message') {
-                    const data = JSON.parse((e as MessageEvent).data);
+                    const data = JSON.parse((e as MessageEvent).data as string) as Message<unknown, unknown>;
                     if (data.type === 'self:debug') {
                         for (const entry of data.log) {
-                            entry.time = new Date(entry.time);
+                            (entry as { time: Date }).time = new Date(entry.time as unknown as string);
                         }
                     }
                     if (selfDebug)
                         selfDebug.log('before', JSON.stringify(data));
-                    handlerArguments.unshift(data);
+                    (handlerArguments as [Message<unknown, unknown>, MessageEvent]).unshift(data);
                 }
                 for (const handler of handlersByKey) {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
                     (handler as any)(...handlerArguments);
                 }
                 if (selfDebug && key === 'message')
@@ -90,14 +95,20 @@ function Connection<TExtensionData>(this: ConnectionInterface<TExtensionData>, u
         socket.send(command);
     }
 
-    this.on = function<TKey extends keyof ConnectionEventMap<TExtensionData>>(key: TKey, handler: ConnectionEventMap<TExtensionData>[TKey]) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.on = function<TKey extends keyof ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>>(
+        key: TKey,
+        handler: ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>[TKey]
+    ) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
         handlers[key].push(handler as any);
     };
 
-    this.off = function<TKey extends keyof ConnectionEventMap<TExtensionData>>(key: TKey, handler: ConnectionEventMap<TExtensionData>[TKey]) {
+    this.off = function<TKey extends keyof ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>>(
+        key: TKey,
+        handler: ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>[TKey]
+    ) {
         const list = handlers[key];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
         const index = list.indexOf(handler as any);
         if (index >= 0)
             list.splice(index, 1);
@@ -113,9 +124,9 @@ function Connection<TExtensionData>(this: ConnectionInterface<TExtensionData>, u
         length: number,
         newText: string,
         cursorIndexAfter: number,
-        reason: string
+        reason?: string | null
     ) {
-        return sendWhenOpen('R' + start + ':' + length + ':' + cursorIndexAfter + ':' + (reason || '') + ':' + newText);
+        return sendWhenOpen('R' + start + ':' + length + ':' + cursorIndexAfter + ':' + (reason ?? '') + ':' + newText);
     };
 
     this.sendMoveCursor = function(cursorIndex: number) {
@@ -126,15 +137,15 @@ function Connection<TExtensionData>(this: ConnectionInterface<TExtensionData>, u
         return sendWhenOpen('C' + char);
     };
 
-    const stateCommandMap: Readonly<{
+    const stateCommandMap = { cancel: 'X', force: 'F' } as Readonly<{
         cancel: 'X';
         force: 'F';
         [key: number]: undefined;
-    }> = { cancel: 'X', force: 'F' };
+    }>;
 
     this.sendCompletionState = function(indexOrCommand: StateCommand|'info'|number, indexIfInfo?: number) {
         const argument = indexOrCommand !== 'info'
-            ? (stateCommandMap[indexOrCommand] || indexOrCommand)
+            ? (stateCommandMap[indexOrCommand] ?? indexOrCommand)
             : 'I' + indexIfInfo;
         return sendWhenOpen('S' + argument);
     };
@@ -155,10 +166,10 @@ function Connection<TExtensionData>(this: ConnectionInterface<TExtensionData>, u
         return sendWhenOpen('F' + actionId);
     };
 
-    this.sendSetOptions = function(options: { [key: string]: unknown }) {
+    this.sendSetOptions = function(options) {
         const optionPairs = [];
         for (const key in options) {
-            optionPairs.push(key + '=' + options[key]);
+            optionPairs.push(key + '=' + (options as Record<string, string>)[key]);
         }
         return sendWhenOpen('O' + optionPairs.join(','));
     };
@@ -175,7 +186,8 @@ function Connection<TExtensionData>(this: ConnectionInterface<TExtensionData>, u
 }
 
 const ConnectionAsConstructor = Connection as unknown as {
-    new<TExtensionData>(url: string, selfDebug: SelfDebug<TExtensionData>|null): ConnectionInterface<TExtensionData>;
+    new<TExtensionServerOptions, TSlowUpdateExtensionData>(url: string, selfDebug: SelfDebug<TExtensionServerOptions, TSlowUpdateExtensionData>|null):
+        ConnectionInterface<TExtensionServerOptions, TSlowUpdateExtensionData>;
 };
 
 export { ConnectionAsConstructor as Connection };

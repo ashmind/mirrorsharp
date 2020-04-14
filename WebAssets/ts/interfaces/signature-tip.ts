@@ -1,6 +1,6 @@
 import type { SpanData, SignatureData } from './protocol';
 
 export interface SignatureTip {
-    update(signatures: ReadonlyArray<SignatureData>, span: SpanData): void;
+    update(data: { signatures: ReadonlyArray<SignatureData>; span: SpanData }|{ signatures?: undefined; span?: undefined }): void;
     hide(): void;
 }

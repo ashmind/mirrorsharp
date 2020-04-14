@@ -1,10 +1,12 @@
-export type Message<TExtensionData> = ChangesMessage
+export type Message<TExtensionServerOptions, TSlowUpdateExtensionData> = ChangesMessage
                     | CompletionsMessage
                     | CompletionInfoMessage
                     | SignaturesMessage
+                    | SignaturesEmptyMessage
                     | InfotipMessage
-                    | SlowUpdateMessage<TExtensionData>
-                    | OptionsEchoMessage
+                    | InfotipEmptyMessage
+                    | SlowUpdateMessage<TSlowUpdateExtensionData>
+                    | OptionsEchoMessage<TExtensionServerOptions>
                     | SelfDebugMessage
                     | ErrorMessage
                     | UnknownMessage;
@@ -12,7 +14,7 @@ export type Message<TExtensionData> = ChangesMessage
 export interface ChangesMessage {
     readonly type: 'changes';
     readonly changes: ReadonlyArray<ChangeData>;
-    readonly reason: string;
+    readonly reason: 'completion'|'fix';
 }
 
 export interface ChangeData {
@@ -53,6 +55,12 @@ export interface SignaturesMessage {
     readonly signatures: ReadonlyArray<SignatureData>;
 }
 
+export interface SignaturesEmptyMessage {
+    readonly type: 'signatures';
+    readonly span?: undefined;
+    readonly signatures?: undefined;
+}
+
 export interface SignatureData {
     readonly parts: ReadonlyArray<SignaturePartData>;
     readonly selected?: boolean;
@@ -69,6 +77,11 @@ export interface InfotipMessage {
     readonly sections: ReadonlyArray<InfotipSectionData>;
 }
 
+export interface InfotipEmptyMessage {
+    readonly type: 'infotip';
+    readonly sections?: undefined;
+}
+
 export interface InfotipSectionData {
     readonly kind: string;
     readonly parts: ReadonlyArray<PartData>;
@@ -81,6 +94,7 @@ export interface SlowUpdateMessage<TExtensionData> {
 }
 
 export interface DiagnosticData {
+    readonly id: string;
     readonly span: SpanData;
     readonly severity: DiagnosticSeverity;
     readonly message: string;
@@ -95,9 +109,9 @@ export interface DiagnosticActionData {
     readonly title: string;
 }
 
-export interface OptionsEchoMessage {
+export interface OptionsEchoMessage<TExtensionServerOptions> {
     readonly type: 'optionsEcho';
-    readonly options: ServerOptions;
+    readonly options: ServerOptions & TExtensionServerOptions;
 }
 
 export type Language = 'C#'|'Visual Basic'|'F#'|'PHP';
@@ -144,4 +158,5 @@ type DiscriminateUnion<T, K extends keyof T, V extends T[K]> =
 type MapDiscriminatedUnion<T extends Record<K, string>, K extends keyof T> =
   { [V in T[K]]: DiscriminateUnion<T, K, V> };
 
-export type MessageMap<TExtensionData> = MapDiscriminatedUnion<Message<TExtensionData>, 'type'>;
+export type MessageMap<TExtensionServerOptions, TSlowUpdateExtensionData> =
+    MapDiscriminatedUnion<Message<TExtensionServerOptions, TSlowUpdateExtensionData>, 'type'>;

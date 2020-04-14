@@ -1,5 +1,4 @@
 import type {
-    Language,
     Message,
     ChangeData,
     DiagnosticData,
@@ -33,13 +32,15 @@ interface AnnotationFixWithId extends CodeMirror.AnnotationFix {
     readonly id: number;
 }
 
-function Editor<TServerOptions extends ServerOptions, TExtensionData>(
-    this: EditorInterface<TServerOptions>,
+function Editor<TExtensionServerOptions, TSlowUpdateExtensionData>(
+    this: EditorInterface<TExtensionServerOptions>,
     textarea: HTMLTextAreaElement,
-    connection: Connection<TExtensionData>,
-    selfDebug: SelfDebug<TExtensionData>|null,
-    options: EditorOptions<TExtensionData>
+    connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>,
+    selfDebug: SelfDebug<TExtensionServerOptions, TSlowUpdateExtensionData>|null,
+    options: EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
 ) {
+    type ExtendedServerOptions = ServerOptions & TExtensionServerOptions;
+
     const lineSeparator = '\r\n';
     const defaultLanguage = 'C#';
     const languageModes = {
@@ -49,45 +50,46 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
         'PHP': 'application/x-httpd-php'
     };
 
-    let language: Language;
-    let serverOptions: {};
     let lintingSuspended = true;
     let hadChangesSinceLastLinting = false;
     let capturedUpdateLinting: CodeMirror.UpdateLintingCallback|null|undefined;
 
-    options = Object.assign({ language: defaultLanguage }, options);
-    options.on = Object.assign({
+    options = { language: defaultLanguage, ...options };
+    options.on = {
         slowUpdateWait:   () => ({}),
         slowUpdateResult: () => ({}),
         textChange:       () => ({}),
         connectionChange: () => ({}),
-        serverError:      (message: string) => { throw new Error(message); }
-    }, options.on);
+        serverError:      (message: string) => { throw new Error(message); },
+        ...options.on
+    };
 
-    const cmOptions: CodeMirror.EditorConfiguration = Object.assign({ gutters: [], indentUnit: 4 }, options.forCodeMirror, {
+    const cmOptions = {
+        gutters: [],
+        indentUnit: 4,
+        ...options.forCodeMirror,
         lineSeparator,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         mode: languageModes[options.language!],
         lint: { async: true, getAnnotations: lintGetAnnotations, hasGutters: true },
         lintFix: { getFixes },
         infotip: { async: true, delay: 500, getInfo: infotipGetInfo, render: renderInfotip }
-    });
+    } as CodeMirror.EditorConfiguration & { lineSeparator: string };
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     cmOptions.gutters!.push('CodeMirror-lint-markers');
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    language = options.language!;
-    if (language !== defaultLanguage)
-        serverOptions = { language };
+    let language = options.language!;
+    let serverOptions = { ...(options.initialServerOptions ?? {}), language } as ExtendedServerOptions;
 
     const cmSource = (function getCodeMirror() {
-        const next = textarea.nextSibling as { CodeMirror?: CodeMirror.Editor };
-        if (next && next.CodeMirror) {
+        const next = textarea.nextSibling as { CodeMirror?: CodeMirror.EditorFromTextArea };
+        if (next?.CodeMirror) {
             const existing = next.CodeMirror;
             for (const key in cmOptions) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                existing.setOption((key as any), cmOptions[key as keyof typeof cmOptions]);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
+                existing.setOption(key as any, cmOptions[key as keyof typeof cmOptions]);
             }
             return { cm: existing, existing: true };
         }
@@ -103,18 +105,24 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
                 cm.execCommand('indentMore');
                 return;
             }
-            cm.replaceSelection('    ' , 'end');
+            cm.replaceSelection('    ', 'end');
         },
         'Shift-Tab': 'indentLess',
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         'Ctrl-Space': () => { connection.sendCompletionState('force'); },
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         'Shift-Ctrl-Space': () => { connection.sendSignatureHelpState('force'); },
         'Ctrl-.': 'lintFixShow',
-        'Shift-Ctrl-Y': selfDebug ? () => selfDebug.requestData(connection) : false
+        'Shift-Ctrl-Y': selfDebug ? () => {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            selfDebug.requestData(connection);
+        } : false
         /* eslint-enable object-shorthand */
     } as const;
     cm.addKeyMap(keyMap);
     // see https://github.com/codemirror/CodeMirror/blob/dbaf6a94f1ae50d387fa77893cf6b886988c2147/addon/lint/lint.js#L133
     // ensures that next 'id' will be -1 whether a change happened or not
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     cm.state.lint.waitingFor = -2;
     if (!cmSource.existing)
         setText(textarea.value);
@@ -131,8 +139,10 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
     const removeConnectionEvents = addEvents(connection, {
         open(e: Event) {
             hideConnectionLoss();
-            if (serverOptions)
+            if (!areDefaultServerOptions(serverOptions)) {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 connection.sendSetOptions(serverOptions);
+            }
 
             const text = cm.getValue();
             if (text === '' || text == null) {
@@ -140,13 +150,16 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
                 return;
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             connection.sendReplaceText(0, 0, text, getCursorIndex());
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             options.on!.connectionChange!('open', e);
             lintingSuspended = false;
             hadChangesSinceLastLinting = true;
-            if (capturedUpdateLinting)
+            if (capturedUpdateLinting) {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 requestSlowUpdate();
+            }
         },
         message: onMessage,
         error: onCloseOrError,
@@ -179,6 +192,7 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
         cursorActivity() {
             if (changePending)
                 return;
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             connection.sendMoveCursor(getCursorIndex());
         },
 
@@ -193,11 +207,15 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
                 const length = (change.to as PositionWithIndex)[indexKey] - start;
                 const text = change.text.join(lineSeparator);
                 if (cursorIndex === start + 1 && text.length === 1 && !changesAreFromServer) {
-                    if (length > 0)
+                    if (length > 0) {
+                        // eslint-disable-next-line @typescript-eslint/no-floating-promises
                         connection.sendReplaceText(start, length, '', cursorIndex - 1);
+                    }
+                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
                     connection.sendTypeChar(text);
                 }
                 else {
+                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
                     connection.sendReplaceText(start, length, text, cursorIndex, changeReason);
                 }
             }
@@ -244,7 +262,7 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
             && (first.to.ch + first.text[0].length) === second.from.ch;
     }
 
-    function onMessage(message: Message<TExtensionData>) {
+    function onMessage(message: Message<TExtensionServerOptions, TSlowUpdateExtensionData>) {
         switch (message.type) {
             case 'changes':
                 receiveServerChanges(message.changes, message.reason);
@@ -262,7 +280,7 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
                 break;
 
             case 'signatures':
-                signatureTip.update(message.signatures, message.span);
+                signatureTip.update(message);
                 break;
 
             case 'infotip':
@@ -301,14 +319,15 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
 
     function lintGetAnnotations(_: string, updateLinting: CodeMirror.UpdateLintingCallback) {
         if (!capturedUpdateLinting) {
-            capturedUpdateLinting = function(this: unknown) {
+            capturedUpdateLinting = function(this: ThisParameterType<CodeMirror.UpdateLintingCallback>, ...args: Parameters<CodeMirror.UpdateLintingCallback>) {
                 // see https://github.com/codemirror/CodeMirror/blob/dbaf6a94f1ae50d387fa77893cf6b886988c2147/addon/lint/lint.js#L133
                 // ensures that next 'id' will always match 'waitingFor'
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 cm.state.lint.waitingFor = -1;
-                // eslint-disable-next-line no-invalid-this, @typescript-eslint/no-explicit-any, prefer-rest-params
-                updateLinting.apply(this, arguments as any);
+                updateLinting.apply(this, args);
             };
         }
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         requestSlowUpdate();
     }
 
@@ -320,9 +339,9 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
         cm.setValue(text.replace(/(\r\n|\r|\n)/g, '\r\n'));
     }
 
-    function receiveServerChanges(changes: ReadonlyArray<ChangeData>, reason: string) {
+    function receiveServerChanges(changes: ReadonlyArray<ChangeData>, reason: string|null) {
         changesAreFromServer = true;
-        changeReason = reason || 'server';
+        changeReason = reason ?? 'server';
         cm.operation(() => {
             let offset = 0;
             for (const change of changes) {
@@ -354,10 +373,12 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
     }
 
     function requestApplyFixAction(cm: CodeMirror.Editor, line: number, fix: AnnotationFixWithId) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         connection.sendApplyDiagnosticAction(fix.id);
     }
 
     function infotipGetInfo(cm: CodeMirror.Editor, position: CodeMirror.Position) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         connection.sendRequestInfoTip(cm.indexFromPos(position));
     }
 
@@ -370,7 +391,7 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
         return connection.sendSlowUpdate();
     }
 
-    function showSlowUpdate(update: SlowUpdateMessage<TExtensionData>) {
+    function showSlowUpdate(update: SlowUpdateMessage<TSlowUpdateExtensionData>) {
         const annotations: Array<DiagnosticAnnotation> = [];
 
         // Higher severities must go last -- CodeMirror uses last one for the icon.
@@ -386,7 +407,7 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
 
         for (const diagnostic of diagnostics) {
             let severity: DiagnosticSeverity|'unnecessary' = diagnostic.severity;
-            const isUnnecessary = (diagnostic.tags.indexOf('unnecessary') >= 0);
+            const isUnnecessary = diagnostic.tags.includes('unnecessary');
             if (severity === 'hidden' && !isUnnecessary)
                 continue;
 
@@ -428,13 +449,22 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
         cm.getWrapperElement().classList.remove('mirrorsharp-connection-has-issue');
     }
 
-    async function sendServerOptions(value: ServerOptions) {
+    function areDefaultServerOptions(value: ExtendedServerOptions) {
+        const keys = Object.keys(value);
+        return keys.length === 1
+            && keys[0] === 'language'
+            && value.language === defaultLanguage;
+    }
+
+    async function sendServerOptions(value: ServerOptions|Partial<ExtendedServerOptions>) {
         await connection.sendSetOptions(value);
         await requestSlowUpdate(true);
     }
 
-    function receiveServerOptions(value: ServerOptions) {
-        serverOptions = value;
+    function receiveServerOptions(value: ExtendedServerOptions) {
+        serverOptions = { ...serverOptions, ...value };
+        // TODO: understand later
+        // eslint-disable-next-line no-undefined
         if (value.language !== undefined && value.language !== language) {
             language = value.language;
             cm.setOption('mode', languageModes[language]);
@@ -449,38 +479,37 @@ function Editor<TServerOptions extends ServerOptions, TExtensionData>(
     }
 
     function destroy(destroyOptions: DestroyOptions = {}) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (cm as any).save();
+        cm.save();
         removeConnectionEvents();
         if (!destroyOptions.keepCodeMirror) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (cm as any).toTextArea();
+            cm.toTextArea();
             return;
         }
         cm.removeKeyMap(keyMap);
         removeCMEvents();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        cm.setOption('lint', null as any as undefined);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        cm.setOption('lint', null!);
         cm.setOption('lintFix', null);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        cm.setOption('infotip', null as any as undefined);
+        // TODO: fix in infotip
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        cm.setOption('infotip', null!);
     }
 
     this.getCodeMirror = () => cm;
     this.setText = setText;
     this.getLanguage = () => language;
     this.setLanguage = value => sendServerOptions({ language: value });
-    this.sendServerOptions = sendServerOptions;
+    this.setServerOptions = value => sendServerOptions(value);
     this.destroy = destroy;
 }
 
 const EditorAsConstructor = Editor as unknown as {
-    new<TServerOptions extends ServerOptions, TExtensionData>(
+    new<TExtensionServerOptions, TSlowUpdateExtensionData>(
         textarea: HTMLTextAreaElement,
-        connection: Connection<TExtensionData>,
-        selfDebug: SelfDebug<TExtensionData>|null,
-        options: EditorOptions<TExtensionData>
-    ): EditorInterface<TServerOptions>;
+        connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>,
+        selfDebug: SelfDebug<TExtensionServerOptions, TSlowUpdateExtensionData>|null,
+        options: EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
+    ): EditorInterface<TSlowUpdateExtensionData>;
 };
 
 export { EditorAsConstructor as Editor };
