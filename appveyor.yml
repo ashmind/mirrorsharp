@@ -18,9 +18,9 @@ build_script:
 
 test_script:
 - mirrorsharp test
-  
+
 after_test:
-- mirrorsharp pack
+- mirrorsharp pack Release
 
 artifacts:
 - path: '*.nupkg'

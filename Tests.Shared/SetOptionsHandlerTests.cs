@@ -33,6 +33,40 @@ namespace MirrorSharp.Tests {
         }
 
         [Fact]
+        public async void ExecuteAsync_ReappliesExtensionOption_WhenChangingLanguage() {
+            var extensionMock = new Mock<ISetOptionsFromClientExtension>();
+            extensionMock.SetReturnsDefault(true);
+
+            var driver = MirrorSharpTestDriver.New(new MirrorSharpOptions().EnableVisualBasic(), new MirrorSharpServices {
+                SetOptionsFromClient = extensionMock.Object
+            });
+
+            await driver.SendAsync(SetOptions, "x-testkey=testvalue");
+            extensionMock.Invocations.Clear();
+            await driver.SendAsync(SetOptions, "language=" + LanguageNames.VisualBasic);
+
+            extensionMock.Verify(x => x.TrySetOption(driver.Session, "x-testkey", "testvalue"), Times.Once);
+            extensionMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async void ExecuteAsync_DoesNotApplyExtensionOptionTwice_WhenChangingLanguage_IfOptionIsSentWithLanguageChange() {
+            var extensionMock = new Mock<ISetOptionsFromClientExtension>();
+            extensionMock.SetReturnsDefault(true);
+
+            var driver = MirrorSharpTestDriver.New(new MirrorSharpOptions().EnableVisualBasic(), new MirrorSharpServices {
+                SetOptionsFromClient = extensionMock.Object
+            });
+
+            await driver.SendAsync(SetOptions, "x-testkey=testvalue");
+            extensionMock.Invocations.Clear();
+            await driver.SendAsync(SetOptions, "language=" + LanguageNames.VisualBasic + "; x-testkey=testvalue");
+
+            extensionMock.Verify(x => x.TrySetOption(driver.Session, "x-testkey", "testvalue"), Times.Once);
+            extensionMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
         public async void ExecuteAsync_EchoesOptionsIncludingPreviousCalls() {
             var extensionMock = new Mock<ISetOptionsFromClientExtension>();
             extensionMock.SetReturnsDefault(true);

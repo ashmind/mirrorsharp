@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,8 +41,8 @@ namespace MirrorSharp.Internal.Handlers {
                 .ToDictionary(p => p[0], p => p[1]);
 
             if (options.TryGetValue(LanguageOptionName, out var language)) {
-                // this has to be done first, as it might reset other options
-                SetLanguage(session, language);
+                // this has to be done first, as other options work on the session
+                SetLanguage(session, language, options);
                 session.RawOptionsFromClient[LanguageOptionName] = language;
             }
 
@@ -50,22 +51,36 @@ namespace MirrorSharp.Internal.Handlers {
                 if (name == LanguageOptionName)
                     continue;
 
-                if (name.StartsWith("x-")) {
-                    if (!(_extension?.TrySetOption(session, name, value) ?? false))
-                        throw new FormatException($"Extension option '{name}' was not recognized.");
-                    session.RawOptionsFromClient[name] = value;
-                    continue;
-                }
-                
-                throw new FormatException($"Option '{name}' was not recognized (to use {nameof(ISetOptionsFromClientExtension)}, make sure your option name starts with 'x-').");
+                if (!IsExtensionOption(name))
+                    throw new FormatException($"Option '{name}' was not recognized (to use {nameof(ISetOptionsFromClientExtension)}, make sure your option name starts with 'x-').");
+
+                if (!(_extension?.TrySetOption(session, name, value) ?? false))
+                    throw new FormatException($"Extension option '{name}' was not recognized.");
+                session.RawOptionsFromClient[name] = value;
             }
 
             await SendOptionsEchoAsync(session, sender, cancellationToken).ConfigureAwait(false);
         }
 
-        private void SetLanguage(WorkSession session, string value) {
+        private void SetLanguage(WorkSession session, string value, IReadOnlyDictionary<string, string> resentOptions) {
             var language = _languageManager.GetLanguage(value);
             session.ChangeLanguage(language);
+
+            // reapply all other options if not re-sent
+            foreach (var option in session.RawOptionsFromClient) {
+                if (!IsExtensionOption(option.Key)) // handled separately
+                    continue;
+
+                if (resentOptions.ContainsKey(option.Key))
+                    continue; // will re-apply right after this anyways
+
+                if (!(_extension?.TrySetOption(session, option.Key, option.Value) ?? false))
+                    throw new FormatException($"Extension option '{option.Key}' was not recognized after changing language.");
+            }
+        }
+
+        private bool IsExtensionOption(string name) {
+            return name.StartsWith("x-");
         }
 
         private async Task SendOptionsEchoAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
