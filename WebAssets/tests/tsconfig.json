@@ -4,7 +4,7 @@
         "../ts"
     ],
     "compilerOptions": {
-        "lib": ["es2018", "dom"],
+        "target": "ES2019",
         "noEmit": true,
         "noImplicitAny": true,
         "strict": true,

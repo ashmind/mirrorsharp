@@ -12,7 +12,7 @@ type CompletionActiveState = {
         changeActive(i: number, avoidWrap?: boolean): void;
     };
     close(): void;
-}
+};
 
 function Hinter<TExtensionServerOptions, TSlowUpdateExtensionData>(
     this: HinterInterface,

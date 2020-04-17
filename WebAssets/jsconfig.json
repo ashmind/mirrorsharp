@@ -1,0 +1,14 @@
+{
+    "include": [
+        "./build.js",
+        "build/*.js"
+    ],
+    "compilerOptions": {
+        "target": "ESNext",
+        "moduleResolution": "node",
+        "noEmit": true,
+        "noImplicitAny": true,
+        "strict": true,
+        "checkJs": true
+    }
+}

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "parcel build index.html --out-dir wwwroot"
+    "build": "parcel build index.html --out-dir wwwroot --no-minify"
   },
   "dependencies": {
     "codemirror": "^5.18.2",
