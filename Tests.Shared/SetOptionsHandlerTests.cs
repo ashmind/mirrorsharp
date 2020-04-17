@@ -60,7 +60,7 @@ namespace MirrorSharp.Tests {
 
             await driver.SendAsync(SetOptions, "x-testkey=testvalue");
             extensionMock.Invocations.Clear();
-            await driver.SendAsync(SetOptions, "language=" + LanguageNames.VisualBasic + "; x-testkey=testvalue");
+            await driver.SendAsync(SetOptions, "language=" + LanguageNames.VisualBasic + ",x-testkey=testvalue");
 
             extensionMock.Verify(x => x.TrySetOption(driver.Session, "x-testkey", "testvalue"), Times.Once);
             extensionMock.VerifyNoOtherCalls();
