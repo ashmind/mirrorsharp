@@ -1,4 +1,4 @@
-{,
+{
     "files.exclude": {
         "**/.git": true,
         "bin/": true,
