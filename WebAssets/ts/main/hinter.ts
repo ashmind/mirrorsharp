@@ -1,5 +1,4 @@
-import type { PartData, CompletionItemData, SpanData } from '../interfaces/protocol';
-import type { Hinter as HinterInterface, CompletionOptionalData, Hint } from '../interfaces/hinter';
+import type { PartData, CompletionItemData, SpanData, CompletionSuggestionData } from '../interfaces/protocol';
 import type { Connection } from '../interfaces/connection';
 import CodeMirror from 'codemirror';
 import 'codemirror/addon/hint/show-hint';
@@ -7,177 +6,161 @@ import { addEvents } from '../helpers/add-events';
 import { renderParts } from '../helpers/render-parts';
 import { kindsToClassName } from '../helpers/kinds-to-class-name';
 
-type CompletionActiveState = {
+const indexInListKey = Symbol('mirrorsharp:indexInList');
+const priorityKey = Symbol('mirrorsharp:priority');
+const cachedInfoKey = Symbol('mirrorsharp:cachedInfo');
+
+interface Hint {
+    text?: string;
+    displayText?: string;
+    from?: CodeMirror.Position;
+    className?: string;
+    hint?: () => void;
+
+    [indexInListKey]?: number;
+    [priorityKey]?: number;
+    [cachedInfoKey]?: ReadonlyArray<PartData>;
+}
+
+interface CompletionActiveState {
     readonly widget?: CodeMirror.Handle & {
         changeActive(i: number, avoidWrap?: boolean): void;
     };
     close(): void;
-};
+}
 
-function Hinter<TExtensionServerOptions, TSlowUpdateExtensionData>(
-    this: HinterInterface,
-    cm: CodeMirror.Editor,
-    connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>
-) {
-    const indexInListKey = '$mirrorsharp-indexInList';
-    const priorityKey = '$mirrorsharp-priority';
-    const cachedInfoKey = '$mirrorsharp-cached-info';
+interface CompletionOptionalData {
+    readonly suggestion?: CompletionSuggestionData;
+    readonly commitChars: ReadonlyArray<string>;
+}
 
-    let state: 'starting'|'started'|'stopped'|'committed' = 'stopped';
-    let hasSuggestion: boolean;
-    let currentOptions: CompletionOptionalData;
-    let selected: { item: Hint; index: number; element: HTMLElement };
+export class Hinter<TExtensionServerOptions, TSlowUpdateExtensionData> {
+    readonly #cm: CodeMirror.Editor;
+    readonly #connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>;
 
-    let infoLoadTimer: ReturnType<typeof setTimeout>;
+    #state: 'starting'|'started'|'stopped'|'committed' = 'stopped';
+    #currentOptions: CompletionOptionalData|undefined;
+    #hasSuggestion: boolean|undefined;
+    #selected: { item: Hint; index: number; element: HTMLElement }|undefined;
+    #infoLoadTimer: ReturnType<typeof setTimeout>|undefined;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const getActiveCompletion = () => cm.state.completionActive as CompletionActiveState|undefined;
+    #removeCodeMirrorEvents: () => void;
 
-    const commit = (_: CodeMirror.Editor, data: {}, item: Hint) => {
+    constructor(cm: CodeMirror.Editor, connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>) {
+        this.#cm = cm;
+        this.#connection = connection;
+        this.#removeCodeMirrorEvents = addEvents(cm, {
+            keypress: (_: unknown, e: KeyboardEvent) => {
+                if (this.#state === 'stopped' || !this.#currentOptions)
+                    return;
+                const key = e.key || String.fromCharCode(e.charCode || e.keyCode);
+                if (this.#currentOptions.commitChars.includes(key)) {
+                    const widget = this.#getActiveCompletion()?.widget;
+                    if (!widget) {
+                        this.#cancel();
+                        return;
+                    }
+                    widget.pick();
+                }
+            },
+
+            endCompletion: () => {
+                if (this.#state === 'starting')
+                    return;
+                if (this.#state === 'started') {
+                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                    connection.sendCompletionState('cancel');
+                }
+                this.#state = 'stopped';
+                this.#hideInfoTip();
+                if (this.#infoLoadTimer)
+                    clearTimeout(this.#infoLoadTimer);
+            }
+        });
+    }
+
+    #getActiveCompletion = () => (this.#cm.state as { completionActive?: CompletionActiveState }).completionActive;
+
+    #commit = (_: CodeMirror.Editor, data: {}, item: Hint) => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-floating-promises
-        connection.sendCompletionState(item[indexInListKey]!);
-        state = 'committed';
+        this.#connection.sendCompletionState(item[indexInListKey]!);
+        this.#state = 'committed';
     };
 
-    const cancel = () => {
-        const activeCompletion = getActiveCompletion();
+    #cancel = () => {
+        const activeCompletion = this.#getActiveCompletion();
         if (activeCompletion)
             activeCompletion.close();
     };
 
-    const removeCMEvents = addEvents(cm, {
-        keypress(_: unknown, e: KeyboardEvent) {
-            if (state === 'stopped')
-                return;
-            const key = e.key || String.fromCharCode(e.charCode || e.keyCode);
-            if (currentOptions.commitChars.includes(key)) {
-                const widget = getActiveCompletion()?.widget;
-                if (!widget) {
-                    cancel();
-                    return;
-                }
-                widget.pick();
-            }
-        },
-
-        endCompletion() {
-            if (state === 'starting')
-                return;
-            if (state === 'started') {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                connection.sendCompletionState('cancel');
-            }
-            state = 'stopped';
-            hideInfoTip();
-            if (infoLoadTimer)
-                clearTimeout(infoLoadTimer);
-        }
-    });
-
-    this.start = function(list: ReadonlyArray<CompletionItemData>, span: SpanData, options: CompletionOptionalData) {
-        state = 'starting';
-        currentOptions = options;
-        const hintStart = cm.posFromIndex(span.start);
-        const hintList = list.map((c, index) => {
-            const item = {
-                text: c.filterText,
-                displayText: c.displayText,
-                className: 'mirrorsharp-hint ' + kindsToClassName(c.kinds),
-                hint: commit
-            } as Hint;
-            item[indexInListKey] = index;
-            item[priorityKey] = c.priority;
-            if (c.span)
-                item.from = cm.posFromIndex(c.span.start);
-            return item;
-        });
-        const suggestion = options.suggestion;
-        if (suggestion) {
-            hintList.unshift({
-                displayText: suggestion.displayText,
-                className: 'mirrorsharp-hint mirrorsharp-hint-suggestion',
-                hint: cancel
-            });
-        }
-        cm.showHint({
-            hint: () => getHints(hintList, hintStart),
-            completeSingle: false
-        });
-        state = 'started';
-    };
-
-    this.showTip = showInfoTip;
-
-    this.destroy = function() {
-        cancel();
-        removeCMEvents();
-    };
-
-    function getHints(list: ReadonlyArray<Hint>, start: CodeMirror.Position) {
-        const prefix = cm.getRange(start, cm.getCursor());
+    #getHints = (list: ReadonlyArray<Hint>, start: CodeMirror.Position) => {
+        const prefix = this.#cm.getRange(start, this.#cm.getCursor());
         if (prefix.length > 0) {
             const regexp = new RegExp('^' + prefix.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            list = list.filter((item, index) => (hasSuggestion && index === 0) || regexp.test(item.text!));
-            if (hasSuggestion && list.length === 1)
+            list = list.filter((item, index) => (this.#hasSuggestion && index === 0) || regexp.test(item.text!));
+            if (this.#hasSuggestion && list.length === 1)
                 list = [];
         }
-        if (!hasSuggestion) {
+        if (!this.#hasSuggestion) {
             // does not seem like I can use selectedHint here, as it does not force the scroll
-            const selectedIndex = indexOfItemWithMaxPriority(list);
+            const selectedIndex = this.#indexOfItemWithMaxPriority(list);
             if (selectedIndex > 0)
-                setTimeout(() => getActiveCompletion()?.widget?.changeActive(selectedIndex), 0);
+                setTimeout(() => this.#getActiveCompletion()?.widget?.changeActive(selectedIndex), 0);
         }
 
         const result = { from: start, list };
-        CodeMirror.on(result, 'select', loadInfo);
+        CodeMirror.on(result, 'select', this.#loadInfo);
 
         return result;
-    }
+    };
 
-    function loadInfo(item: Hint, element: HTMLElement) {
+    #loadInfo = (item: Hint, element: HTMLElement) => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        selected = { item, index: item[indexInListKey]!, element };
-        if (infoLoadTimer)
-            clearTimeout(infoLoadTimer);
+        this.#selected = { item, index: item[indexInListKey]!, element };
+        if (this.#infoLoadTimer)
+            clearTimeout(this.#infoLoadTimer);
 
         if (item[cachedInfoKey]) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            showInfoTip(selected.index, item[cachedInfoKey]!);
+            this.#showInfoTip(this.#selected.index, item[cachedInfoKey]!);
         }
 
-        infoLoadTimer = setTimeout(() => {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            connection.sendCompletionState('info', selected.index);
-            clearTimeout(infoLoadTimer);
+        this.#infoLoadTimer = setTimeout(() => {
+            if (this.#selected) {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                this.#connection.sendCompletionState('info', this.#selected.index);
+            }
+            if (this.#infoLoadTimer)
+                clearTimeout(this.#infoLoadTimer);
         }, 300);
-    }
+    };
 
-    let infoTipElement: HTMLDivElement|undefined;
-    let currentInfoTipIndex: number|undefined|null;
+    #infoTipElement: HTMLDivElement|undefined;
+    #currentInfoTipIndex: number|undefined|null;
 
-    function showInfoTip(index: number, parts: ReadonlyArray<PartData>) {
+    #showInfoTip = (index: number, parts: ReadonlyArray<PartData>) => {
         // autocompletion disappeared while we were loading
-        if (state !== 'started')
+        if (this.#state !== 'started' || !this.#selected)
             return;
 
         // selected index changed while we were loading
-        if (index !== selected.index)
+        if (index !== this.#selected.index)
             return;
 
         // we are already showing tooltip for this index
-        if (index === currentInfoTipIndex)
+        if (index === this.#currentInfoTipIndex)
             return;
 
-        selected.item[cachedInfoKey] = parts;
+        this.#selected.item[cachedInfoKey] = parts;
 
-        let element = infoTipElement;
+        let element = this.#infoTipElement;
         if (!element) {
             element = document.createElement('div');
             element.className = 'mirrorsharp-hint-info-tooltip mirrorsharp-any-tooltip mirrorsharp-theme';
             element.style.display = 'none';
             document.body.appendChild(element);
-            infoTipElement = element;
+            this.#infoTipElement = element;
         }
         else {
             while (element.firstChild) {
@@ -185,9 +168,9 @@ function Hinter<TExtensionServerOptions, TSlowUpdateExtensionData>(
             }
         }
 
-        const top = selected.element.getBoundingClientRect().top;
+        const top = this.#selected.element.getBoundingClientRect().top;
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const left = selected.element.parentElement!.getBoundingClientRect().right;
+        const left = this.#selected.element.parentElement!.getBoundingClientRect().right;
         const screenWidth = document.documentElement.getBoundingClientRect().width;
 
         const style = element.style;
@@ -197,33 +180,65 @@ function Hinter<TExtensionServerOptions, TSlowUpdateExtensionData>(
         renderParts(element, parts);
         style.display = 'block';
 
-        currentInfoTipIndex = index;
-    }
+        this.#currentInfoTipIndex = index;
+    };
 
-    function hideInfoTip() {
-        currentInfoTipIndex = null;
-        if (infoTipElement)
-            infoTipElement.style.display = 'none';
-    }
+    #hideInfoTip = () => {
+        this.#currentInfoTipIndex = null;
+        if (this.#infoTipElement)
+            this.#infoTipElement.style.display = 'none';
+    };
 
-    function indexOfItemWithMaxPriority(list: ReadonlyArray<Hint>) {
+    #indexOfItemWithMaxPriority = (list: ReadonlyArray<Hint>) => {
         let maxPriority = 0;
         let result = 0;
         for (let i = 0; i < list.length; i++) {
-            const priority = list[i][priorityKey];
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            if (priority! > maxPriority) {
+            const priority = list[i][priorityKey]!;
+            if (priority > maxPriority) {
                 result = i;
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                maxPriority = priority!;
+                maxPriority = priority;
             }
         }
         return result;
+    };
+
+    start(list: ReadonlyArray<CompletionItemData>, span: SpanData, options: CompletionOptionalData) {
+        this.#state = 'starting';
+        this.#currentOptions = options;
+        const hintStart = this.#cm.posFromIndex(span.start);
+        const hintList = list.map((c, index) => {
+            const item = {
+                text: c.filterText,
+                displayText: c.displayText,
+                className: 'mirrorsharp-hint ' + kindsToClassName(c.kinds),
+                hint: this.#commit
+            } as Hint;
+            item[indexInListKey] = index;
+            item[priorityKey] = c.priority;
+            if (c.span)
+                item.from = this.#cm.posFromIndex(c.span.start);
+            return item;
+        });
+        const suggestion = options.suggestion;
+        if (suggestion) {
+            hintList.unshift({
+                displayText: suggestion.displayText,
+                className: 'mirrorsharp-hint mirrorsharp-hint-suggestion',
+                hint: this.#cancel
+            });
+        }
+        this.#cm.showHint({
+            hint: () => this.#getHints(hintList, hintStart),
+            completeSingle: false
+        });
+        this.#state = 'started';
+    }
+
+    readonly showTip = this.#showInfoTip;
+
+    destroy() {
+        this.#cancel();
+        this.#removeCodeMirrorEvents();
     }
 }
-
-const HinterAsConstructor = Hinter as unknown as {
-    new<TExtensionServerOptions, TSlowUpdateExtensionData>(cm: CodeMirror.Editor, connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>): HinterInterface;
-};
-
-export { HinterAsConstructor as Hinter };
