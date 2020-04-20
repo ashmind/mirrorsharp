@@ -12,7 +12,7 @@ import type {
     SpanData,
     Language
 } from '../interfaces/protocol';
-import type { Connection } from '../interfaces/connection';
+import type { Connection } from './connection';
 import type { SelfDebug } from './self-debug';
 import { renderInfotip } from './render-infotip';
 import { Hinter } from './hinter';
@@ -65,7 +65,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly #options: EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData>;
 
     readonly #cm: CodeMirror.EditorFromTextArea;
-    readonly #hinter: InstanceType<typeof Hinter>;
+    readonly #hinter: Hinter<TExtensionServerOptions, TSlowUpdateExtensionData>;
     readonly #signatureTip: InstanceType<typeof SignatureTip>;
 
     readonly #keyMap: CodeMirror.KeyMap;

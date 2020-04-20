@@ -1,7 +1,7 @@
-import type { PartData, CompletionItemData, SpanData, CompletionSuggestionData } from '../interfaces/protocol';
-import type { Connection } from '../interfaces/connection';
 import CodeMirror from 'codemirror';
 import 'codemirror/addon/hint/show-hint';
+import type { PartData, CompletionItemData, SpanData, CompletionSuggestionData } from '../interfaces/protocol';
+import type { Connection } from './connection';
 import { addEvents } from '../helpers/add-events';
 import { renderParts } from '../helpers/render-parts';
 import { kindsToClassName } from '../helpers/kinds-to-class-name';

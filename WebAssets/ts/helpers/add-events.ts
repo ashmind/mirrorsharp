@@ -1,11 +1,5 @@
 import type * as CodeMirror from 'codemirror';
-import type {
-    Connection,
-    ConnectionOpenHandler,
-    ConnectionMessageHandler,
-    ConnectionErrorHandler,
-    ConnectionCloseHandler
-} from '../interfaces/connection';
+import type { Connection, ConnectionEventMap } from '../main/connection';
 
 // Workaround for https://github.com/microsoft/TypeScript/issues/37204
 // and https://github.com/microsoft/TypeScript/issues/37263
@@ -20,12 +14,10 @@ type KnownEventGroups<TExtensionServerOptions, TSlowUpdateExtensionData> =
     }]
     |
     // Connection
-    [Connection<TExtensionServerOptions, TSlowUpdateExtensionData>, {
-        open?: ConnectionOpenHandler;
-        message?: ConnectionMessageHandler<TExtensionServerOptions, TSlowUpdateExtensionData>;
-        error?: ConnectionErrorHandler;
-        close?: ConnectionCloseHandler;
-    }];
+    [
+        Connection<TExtensionServerOptions, TSlowUpdateExtensionData>,
+        Partial<ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>>
+    ];
 
 function addEvents<TExtensionServerOptions, TSlowUpdateExtensionData>(
     ...args: KnownEventGroups<TExtensionServerOptions, TSlowUpdateExtensionData>
