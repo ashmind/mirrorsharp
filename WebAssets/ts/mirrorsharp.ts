@@ -56,8 +56,8 @@ export default function mirrorsharp<TExtensionServerOptions = never, TSlowUpdate
     textarea: HTMLTextAreaElement,
     options: MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
 ): MirrorSharpInstance<TExtensionServerOptions> {
-    const selfDebug = options.selfDebugEnabled ? new SelfDebug<TExtensionServerOptions, TSlowUpdateExtensionData>() : null;
-    const connection = new Connection(options.serviceUrl, selfDebug);
+    const selfDebug = options.selfDebugEnabled ? new SelfDebug() : null;
+    const connection = new Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(options.serviceUrl, selfDebug);
     const editor = new Editor(textarea, connection, selfDebug, options);
 
     return Object.freeze({

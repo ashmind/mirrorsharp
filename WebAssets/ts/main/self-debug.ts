@@ -1,43 +1,47 @@
-import type { SelfDebug as SelfDebugInterface } from '../interfaces/self-debug';
-import type { Connection } from '../interfaces/connection';
 import type { SelfDebugLogEntryData, SelfDebugMessage } from '../interfaces/protocol';
 
-function SelfDebug<TExtensionServerOptions, TSlowUpdateExtensionData>(
-    this: SelfDebugInterface<TExtensionServerOptions, TSlowUpdateExtensionData>
-) {
-    let getText: () => string;
-    let getCursorIndex: () => number;
-    const clientLog: Array<SelfDebugLogEntryData> = [];
-    let clientLogSnapshot: Array<SelfDebugLogEntryData>;
+export interface SelfDebugConnection {
+    sendRequestSelfDebugData(): Promise<void>;
+}
 
-    this.watchEditor = function(getTextValue: () => string, getCursorIndexValue: () => number) {
-        getText = getTextValue;
-        getCursorIndex = getCursorIndexValue;
-    };
+export class SelfDebug {
+    #getText: (() => string)|undefined;
+    #getCursorIndex: (() => number)|undefined;
+    #clientLog: Array<SelfDebugLogEntryData> = [];
+    #clientLogSnapshot: Array<SelfDebugLogEntryData>|undefined;
 
-    this.log = function(event: string, message: string) {
-        clientLog.push({
+    watchEditor(getText: () => string, getCursorIndex: () => number) {
+        this.#getText = getText;
+        this.#getCursorIndex = getCursorIndex;
+    }
+
+    log(event: string, message: string) {
+        this.#clientLog.push({
             time: new Date(),
             event,
             message,
-            text: getText(),
-            cursor: getCursorIndex()
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            text: this.#getText!(),
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            cursor: this.#getCursorIndex!()
         });
-        while (clientLog.length > 100) {
-            clientLog.shift();
+        while (this.#clientLog.length > 100) {
+            this.#clientLog.shift();
         }
-    };
+    }
 
-    this.requestData = function(connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>) {
-        clientLogSnapshot = clientLog.slice(0);
+    requestData(connection: SelfDebugConnection) {
+        this.#clientLogSnapshot = this.#clientLog.slice(0);
         return connection.sendRequestSelfDebugData();
-    };
+    }
 
-    this.displayData = function(serverData: SelfDebugMessage) {
+    displayData(serverData: SelfDebugMessage) {
         const log: Array<{ entry: SelfDebugLogEntryData; on: string; index: number }> = [];
 
-        for (let i = 0; i < clientLogSnapshot.length; i++) {
-            log.push({ entry: clientLogSnapshot[i], on: 'client', index: i });
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        for (let i = 0; i < this.#clientLogSnapshot!.length; i++) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            log.push({ entry: this.#clientLogSnapshot![i], on: 'client', index: i });
         }
 
         for (let i = 0; i < serverData.log.length; i++) {
@@ -66,11 +70,5 @@ function SelfDebug<TExtensionServerOptions, TSlowUpdateExtensionData>(
                 text: l.entry.text
             };
         }));
-    };
+    }
 }
-
-const SelfDebugAsConstructor = SelfDebug as unknown as {
-    new<TExtensionServerOptions, TSlowUpdateExtensionData>(): SelfDebugInterface<TExtensionServerOptions, TSlowUpdateExtensionData>;
-};
-
-export { SelfDebugAsConstructor as SelfDebug };

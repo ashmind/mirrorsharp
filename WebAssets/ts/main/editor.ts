@@ -1,3 +1,7 @@
+import CodeMirror from 'codemirror';
+import 'codemirror/mode/clike/clike';
+import 'codemirror-addon-infotip';
+import 'codemirror-addon-lint-fix';
 import type {
     Message,
     ChangeData,
@@ -9,11 +13,7 @@ import type {
     Language
 } from '../interfaces/protocol';
 import type { Connection } from '../interfaces/connection';
-import type { SelfDebug } from '../interfaces/self-debug';
-import CodeMirror from 'codemirror';
-import 'codemirror/mode/clike/clike';
-import 'codemirror-addon-infotip';
-import 'codemirror-addon-lint-fix';
+import type { SelfDebug } from './self-debug';
 import { renderInfotip } from './render-infotip';
 import { Hinter } from './hinter';
 import { SignatureTip } from './signature-tip';
@@ -61,7 +61,7 @@ const lineSeparator = '\r\n';
 
 export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly #connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>;
-    readonly #selfDebug: SelfDebug<TExtensionServerOptions, TSlowUpdateExtensionData>|null;
+    readonly #selfDebug: SelfDebug|null;
     readonly #options: EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData>;
 
     readonly #cm: CodeMirror.EditorFromTextArea;
@@ -86,7 +86,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     constructor(
         textarea: HTMLTextAreaElement,
         connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>,
-        selfDebug: SelfDebug<TExtensionServerOptions, TSlowUpdateExtensionData>|null,
+        selfDebug: SelfDebug|null,
         options: EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
     ) {
         this.#connection = connection;

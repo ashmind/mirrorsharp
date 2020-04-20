@@ -1,4 +1,3 @@
-import type { SelfDebug } from '../interfaces/self-debug';
 import type {
     Connection as ConnectionInterface,
     StateCommand,
@@ -9,12 +8,13 @@ import type {
     ConnectionEventMap
 } from '../interfaces/connection';
 import type { Message } from '../interfaces/protocol';
+import type { SelfDebug } from './self-debug';
 import { addEvents } from '../helpers/add-events';
 
 function Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(
     this: ConnectionInterface<TExtensionServerOptions, TSlowUpdateExtensionData>,
     url: string,
-    selfDebug: SelfDebug<TExtensionServerOptions, TSlowUpdateExtensionData>|null
+    selfDebug: SelfDebug|null
 ): void {
     let socket: WebSocket;
     let openPromise: Promise<void>;
@@ -186,7 +186,7 @@ function Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(
 }
 
 const ConnectionAsConstructor = Connection as unknown as {
-    new<TExtensionServerOptions, TSlowUpdateExtensionData>(url: string, selfDebug: SelfDebug<TExtensionServerOptions, TSlowUpdateExtensionData>|null):
+    new<TExtensionServerOptions, TSlowUpdateExtensionData>(url: string, selfDebug: SelfDebug|null):
         ConnectionInterface<TExtensionServerOptions, TSlowUpdateExtensionData>;
 };
 
