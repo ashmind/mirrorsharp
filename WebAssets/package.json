@@ -45,10 +45,7 @@
         ]
     },
     "dependencies": {
-        "@types/codemirror": "0.0.87",
-        "codemirror": "^5.18.2",
-        "codemirror-addon-infotip": "^1.1.0",
-        "codemirror-addon-lint-fix": "^1.1.0"
+        "@codemirror/next": "^0.5.5"
     },
     "devDependencies": {
         "@babel/core": "^7.9.0",
