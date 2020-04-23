@@ -1,4 +1,13 @@
 {
+    "files.exclude": {
+        "**/.git": true,
+        "bin/": true,
+        "obj/": true,
+        "*.csproj*": true
+    },
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true
+    },
     "jest.pathToJest": "npm run test --",
     "jest.showCoverageOnLoad": true,
     "cSpell.ignorePaths": [
@@ -19,6 +28,7 @@
         "Segoe",
         "Shchekin",
         "Typer",
+        "browserslist",
         "clike",
         "codemirror",
         "enummember",

@@ -1,37 +1,40 @@
-import type { SignatureTip as SignatureTipInterface } from '../interfaces/signature-tip';
+import type { SignatureData, SpanData } from '../interfaces/protocol';
 
-function SignatureTip(this: SignatureTipInterface, cm: CodeMirror.Editor) {
-    const displayKindToClassMap: {
-        keyword: 'cm-keyword';
-        [key: string]: string|undefined;
-    } = {
-        keyword: 'cm-keyword'
-    };
+const displayKindToClassMap = {
+    keyword: 'cm-keyword'
+} as {
+    keyword: 'cm-keyword';
+    [key: string]: string|undefined;
+};
 
-    let active = false;
-    let tooltip: HTMLDivElement|undefined;
-    let ol: HTMLOListElement;
+export class SignatureTip {
+    readonly #cm: CodeMirror.Editor;
 
-    const hide = () => {
-        if (!active)
-            return;
+    #active = false;
+    #elements: { tooltip: HTMLDivElement; ol: HTMLOListElement }|undefined;
 
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        document.body.removeChild(tooltip!);
-        active = false;
-    };
+    constructor(cm: CodeMirror.Editor) {
+        this.#cm = cm;
+    }
 
-    this.update = function({ signatures, span }) {
+    update({ signatures, span }: { signatures: ReadonlyArray<SignatureData>; span: SpanData }|{ signatures?: undefined; span?: undefined }) {
+        let { tooltip, ol } = this.#elements ?? {};
         if (!tooltip) {
             tooltip = document.createElement('div');
             tooltip.className = 'mirrorsharp-theme mirrorsharp-any-tooltip mirrorsharp-signature-tooltip';
             ol = document.createElement('ol');
             tooltip.appendChild(ol);
+
+            this.#elements = { tooltip, ol };
+        }
+        else {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            ol = ol!;
         }
 
         if (!signatures || signatures.length === 0) {
-            if (active)
-                hide();
+            if (this.#active)
+                this.hide();
             return;
         }
 
@@ -63,19 +66,22 @@ function SignatureTip(this: SignatureTipInterface, cm: CodeMirror.Editor) {
         }
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const startPos = cm.posFromIndex(span!.start);
+        const startPos = this.#cm.posFromIndex(span!.start);
 
-        active = true;
+        this.#active = true;
 
-        const startCharCoords = cm.charCoords(startPos);
+        const startCharCoords = this.#cm.charCoords(startPos);
         tooltip.style.top = startCharCoords.bottom + 'px';
         tooltip.style.left = startCharCoords.left + 'px';
         document.body.appendChild(tooltip);
-    };
+    }
 
-    this.hide = hide;
+    hide() {
+        if (!this.#active)
+            return;
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        document.body.removeChild(this.#elements!.tooltip);
+        this.#active = false;
+    }
 }
-
-const SignatureTipAsConstructor = SignatureTip as unknown as { new(cm: CodeMirror.Editor): SignatureTipInterface };
-
-export { SignatureTipAsConstructor as SignatureTip };

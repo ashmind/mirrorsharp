@@ -60,6 +60,7 @@
             "MemberExpression"
         ] }],
         "@typescript-eslint/quotes": ["error", "single", { "avoidEscape": true, "allowTemplateLiterals": true }],
+        "@typescript-eslint/semi": "error",
         "@typescript-eslint/brace-style": ["warn", "stroustrup", { "allowSingleLine": true }],
         "@typescript-eslint/restrict-template-expressions": ["error", { "allowBoolean": true, "allowNumber": true }],
         "@typescript-eslint/array-type": ["error", { "default": "generic" }],

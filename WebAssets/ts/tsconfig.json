@@ -3,7 +3,7 @@
         "."
     ],
     "compilerOptions": {
-        "target": "ES2018",
+        "target": "ESNext",
         "noEmit": true,
         "noImplicitAny": true,
         "strict": true,
