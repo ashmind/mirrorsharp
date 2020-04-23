@@ -7,7 +7,7 @@ import convertPrivateFields from './build/babel-plugin-convert-private-fields-to
 const { task, tasks, run } = oldowan;
 
 task('clean', async () => {
-    const paths = await fg(['dist/**/*.*']);
+    const paths = await fg(['dist/**/*.*', '!dist/node_modules/**/*.*']);
     await Promise.all(paths.map(jetpack.removeAsync));
 });
 
