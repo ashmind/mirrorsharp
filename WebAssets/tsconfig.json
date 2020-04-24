@@ -1,14 +1,15 @@
 {
     "include": [
-        "./build.js",
-        "build/*.js"
+        "./build.ts",
+        "build/*.ts"
     ],
     "compilerOptions": {
         "target": "ESNext",
         "moduleResolution": "node",
         "noEmit": true,
-        "noImplicitAny": true,
         "strict": true,
-        "checkJs": true
+        "importsNotUsedAsValues": "error",
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true
     }
 }

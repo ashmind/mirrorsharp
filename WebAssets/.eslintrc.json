@@ -1,26 +1,8 @@
 {
     "root": true,
-    "ignorePatterns": [
-        "node_modules/",
-        "dist/"
-    ],
-    "extends": "eslint:recommended",
+    "extends": "../ts/.eslintrc.json",
     "parserOptions": {
-        "ecmaVersion": 2018,
-        "sourceType": "module"
-    },
-    "env": {
-        "node": true,
-        "es6": true
-    },
-    "rules": {
-        "no-var": "error",
-        "quotes": ["warn", "single", { "avoidEscape": true }],
-        "semi": "error",
-
-        "object-shorthand": ["warn", "properties"],
-        "prefer-arrow-callback": ["warn", { "allowNamedFunctions": true }],
-        "prefer-rest-params": "warn",
-        "prefer-spread": "warn"
+        // https://github.com/typescript-eslint/typescript-eslint/issues/540
+        "project": "./tsconfig.json"
     }
 }
