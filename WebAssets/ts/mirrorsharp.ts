@@ -23,6 +23,7 @@ export interface MirrorSharpOptions<TExtensionServerOptions = never, TSlowUpdate
     readonly selfDebugEnabled?: boolean;
 
     readonly language?: MirrorSharpLanguage;
+    readonly initialText?: string;
 
     // See EditorOptions<TExtensionData>['on']. This is not DRY, but
     // it's good to be explicit on what we are exporting.
@@ -40,12 +41,12 @@ export interface MirrorSharpOptions<TExtensionServerOptions = never, TSlowUpdate
 
     readonly initialServerOptions?: TExtensionServerOptions;
 
-    readonly forCodeMirror?: CodeMirror.EditorConfiguration;
+    // readonly forCodeMirror?: CodeMirror.EditorConfiguration;
 }
 
 export interface MirrorSharpInstance<TExtensionServerOptions> {
-    getCodeMirror(): CodeMirror.Editor;
-    setText(text: string): void;
+    // getCodeMirror(): CodeMirror.Editor;
+    // setText(text: string): void;
     getLanguage(): MirrorSharpLanguage;
     setLanguage(value: MirrorSharpLanguage): void;
     setServerOptions(value: TExtensionServerOptions): Promise<void>;
@@ -61,8 +62,8 @@ export default function mirrorsharp<TExtensionServerOptions = never, TSlowUpdate
     const editor = new Editor(textarea, connection, selfDebug, options);
 
     return Object.freeze({
-        getCodeMirror: () => editor.getCodeMirror(),
-        setText: (text: string) => editor.setText(text),
+        // getCodeMirror: () => editor.getCodeMirror(),
+        // setText: (text: string) => editor.setText(text),
         getLanguage: () => editor.getLanguage(),
         setLanguage: (value: Language) => editor.setLanguage(value),
         setServerOptions: (value: TExtensionServerOptions) => editor.setServerOptions(value),

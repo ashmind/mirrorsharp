@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "parcel build index.html --out-dir wwwroot --no-minify"
+    "build": "parcel build index.html --out-dir wwwroot --no-minify",
+    "watch": "parcel watch index.html --out-dir wwwroot"
   },
   "dependencies": {
     "codemirror": "^5.18.2",

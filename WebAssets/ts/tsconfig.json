@@ -4,14 +4,10 @@
     ],
     "compilerOptions": {
         "target": "ESNext",
+        "moduleResolution": "node",
         "noEmit": true,
         "strict": true,
         "importsNotUsedAsValues": "error",
-        "allowSyntheticDefaultImports": true,
-        "types": [
-            "codemirror",
-            "codemirror-addon-infotip",
-            "codemirror-addon-lint-fix"
-        ],
+        "allowSyntheticDefaultImports": true
     }
 }
