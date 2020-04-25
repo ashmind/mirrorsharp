@@ -13,7 +13,7 @@ const ts = task('ts', async () => {
     await exec('eslint ./ts --max-warnings 0 --ext .js,.jsx,.ts,.tsx');
     await exec('tsc --project ./ts/tsconfig.json --module ES2015 --noEmit false --outDir ./dist --declaration true');
 
-    await Promise.all((await fg(['dist/**/*.js'])).map(async path => {
+    await Promise.all((await fg(['dist/**/*.js', '!dist/node_modules/**/*.*'])).map(async path => {
         const { code: transformed } = (await transformFileAsync(path, {
             plugins: [
                 // Add .js extension to all imports.

@@ -8,8 +8,7 @@ const params = window.location.search.replace(/^\?/, '').split('&').reduce(funct
 const language = (params['language'] || 'CSharp').replace('Sharp', '#');
 const mode = params['mode'] || 'regular';
 
-const code = `
-using System;
+const code = `using System;
 
 class C {
     const int C2 = 5;
@@ -27,8 +26,7 @@ class C {
 }
 
 class G<T> {
-}
-`;
+}`;
 
 if (language === 'F#') {
     code = '[<EntryPoint>]\r\nlet main argv = \r\n    0';

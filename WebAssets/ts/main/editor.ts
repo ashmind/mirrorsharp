@@ -171,13 +171,13 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         //     this.setText(textarea.value);
 
         this.#wrapper = document.createElement('div');
+        container.appendChild(this.#wrapper);
         this.#cmView = new EditorView({ state: createState({ initialText: options.initialText }) });
 
         if (selfDebug)
             selfDebug.watchEditor(this.#getText, this.#getCursorIndex);
 
         this.#wrapper.appendChild(this.#cmView.dom);
-        container.appendChild(this.#wrapper);
         // const cmWrapper = this.#cm.getWrapperElement();
         // cmWrapper.classList.add('mirrorsharp', 'mirrorsharp-theme');
 
