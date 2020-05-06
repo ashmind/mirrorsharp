@@ -13,6 +13,7 @@ export const csharpSyntax = new LezerSyntax(parser.withProps(
   styleTags({
       //'get set async static': 'modifier',
       Keyword: 'keyword',
+      Comment: 'comment',
       //in of await yield void typeof delete instanceof': 'operatorKeyword',
       //'export import let var const function class extends': 'keyword definition',
       //'with debugger from as': 'keyword',
