@@ -45,7 +45,8 @@
         ]
     },
     "dependencies": {
-        "@codemirror/next": "^0.5.5"
+        "@codemirror/next": "^0.5.5",
+        "lezer-csharp-tokens-only": "file:d:/Development/JavaScript/lezer-csharp-tokens-only"
     },
     "devDependencies": {
         "@babel/core": "^7.9.0",

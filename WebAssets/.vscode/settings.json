@@ -39,6 +39,7 @@
         "jetpack",
         "jsparts",
         "keysim",
+        "lezer",
         "lintfix",
         "mirrorsharp",
         "nocheck",
