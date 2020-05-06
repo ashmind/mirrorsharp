@@ -5,11 +5,9 @@
     "compilerOptions": {
         "target": "ESNext",
         "noEmit": true,
-        "noImplicitAny": true,
         "strict": true,
         "importsNotUsedAsValues": "error",
         "allowSyntheticDefaultImports": true,
-        "noErrorTruncation": true,
         "types": [
             "codemirror",
             "codemirror-addon-infotip",

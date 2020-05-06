@@ -1,15 +1,13 @@
-// WeakMap is an overkill -- using symbols instead
-/** @param {{types: import("@babel/types")}} _ */
-export default ({ types: t }) => {
-    /** @type {WeakMap<import("@babel/types").ClassDeclaration, { uid: string, symbols: Map<string, import("@babel/types").Identifier> }>} */
-    const classMap = new WeakMap();
+import type { ClassDeclaration, ClassProperty, Identifier } from '@babel/types';
+import type { Visitor, NodePath, types } from '@babel/core';
 
-    /** @type {import("@babel/core").Visitor} */
+// WeakMap is an overkill -- using symbols instead
+export default ({ types: t }: { types: typeof types }) => {
+    const classMap = new WeakMap<ClassDeclaration, { uid: string, symbols: Map<string, Identifier> }>();
+
     const visitor = {
         PrivateName(path) {
-            const classPath = /** @type {import("@babel/core").NodePath<import("@babel/types").ClassDeclaration>?} */(
-                path.findParent(c => c.isClassDeclaration())
-            );
+            const classPath = path.findParent(c => c.isClassDeclaration()) as NodePath<ClassDeclaration>|undefined;
             if (!classPath)
                 throw new Error('Unsupported private field outside of a class');
 
@@ -49,20 +47,19 @@ export default ({ types: t }) => {
                         break;
                     }
 
-                    // @ts-ignore
                     path.parentPath.replaceWith({
                         ...parent,
                         type: 'ClassProperty',
                         computed: true,
                         key: symbolName
-                    });
+                    } as ClassProperty);
                     break;
 
                 default:
                     throw new Error(`Unsupported private field context: ${parent.type}`);
             }
         }
-    };
+    } as Visitor;
 
     return { visitor };
 };
