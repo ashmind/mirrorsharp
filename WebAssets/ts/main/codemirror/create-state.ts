@@ -9,6 +9,7 @@ export function createState({ initialText }: { initialText?: string }) {
     return EditorState.create({
         doc: initialText,
         extensions: [
+            EditorState.indentUnit.of(4),
             history(),
             keymap(baseKeymap),
             csharp(),

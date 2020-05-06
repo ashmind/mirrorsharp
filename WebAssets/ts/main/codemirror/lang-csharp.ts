@@ -1,4 +1,4 @@
-import { parser } from 'lezer-csharp-tokens-only';
+import { parser } from 'lezer-csharp-simple';
 import { LezerSyntax } from '@codemirror/next/syntax';
 import { languageData } from '@codemirror/next/state';
 import { styleTags } from '@codemirror/next/highlight';
