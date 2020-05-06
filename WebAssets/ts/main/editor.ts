@@ -5,13 +5,13 @@ import { EditorView } from '@codemirror/next/view';
 import type {
     Message,
     ChangeData,
-    DiagnosticData,
     SlowUpdateMessage,
     DiagnosticSeverity,
     ServerOptions,
     // SpanData,
     Language
 } from '../interfaces/protocol';
+import type { SlowUpdateOptions } from '../interfaces/slow-update';
 import type { Connection } from './connection';
 import type { SelfDebug } from './self-debug';
 import { createState } from './codemirror/create-state';
@@ -37,8 +37,6 @@ interface EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> {
     language?: Language;
     initialText?: string;
     on?: {
-        slowUpdateWait?: () => void;
-        slowUpdateResult?: (args: { diagnostics: ReadonlyArray<DiagnosticData>; x: TSlowUpdateExtensionData }) => void;
         textChange?: (getText: () => string) => void;
         connectionChange?: {
             (event: 'open', e: Event): void;
@@ -46,7 +44,7 @@ interface EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> {
             (event: 'close', e: CloseEvent): void;
         };
         serverError?: (message: string) => void;
-    };
+    } & SlowUpdateOptions<TSlowUpdateExtensionData>;
     // forCodeMirror?: CodeMirror.EditorConfiguration;
     initialServerOptions?: TExtensionServerOptions;
 }
@@ -124,7 +122,10 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.#language = options.language!;
-        this.#serverOptions = { ...(options.initialServerOptions ?? {}), language: this.#language } as ServerOptions&TExtensionServerOptions;
+        this.#serverOptions = {
+            ...(options.initialServerOptions ?? {}),
+            language: this.#language
+        } as ServerOptions & TExtensionServerOptions;
 
         // const cmSource = (function getCodeMirror() {
         //     const next = textarea.nextSibling as { CodeMirror?: CodeMirror.EditorFromTextArea };
@@ -172,7 +173,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
         this.#wrapper = document.createElement('div');
         container.appendChild(this.#wrapper);
-        this.#cmView = new EditorView({ state: createState({ initialText: options.initialText }) });
+        this.#cmView = new EditorView({ state: createState(this.#connection, { initialText: options.initialText }) });
 
         if (selfDebug)
             selfDebug.watchEditor(this.#getText, this.#getCursorIndex);
