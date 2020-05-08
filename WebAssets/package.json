@@ -1,11 +1,11 @@
 {
-    "name": "mirrorsharp",
-    "version": "2.0.0-preview-04",
+    "name": "mirrorsharp-codemirror-6-preview",
+    "version": "0.0.1",
     "type": "module",
     "engines": {
         "node": ">=12.6.1"
     },
-    "description": "A code editor `<textarea>` for .NET.",
+    "description": "Experimental version of mirrorsharp based on CodeMirror 6 preview.",
     "authors": [
         "Andrey Shchekin (https://github.com/ashmind)"
     ],
