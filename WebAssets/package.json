@@ -29,7 +29,8 @@
         "test": "jest"
     },
     "jest": {
-        "preset": "ts-jest",
+        "preset": "ts-jest/presets/js-with-ts",
+        "transformIgnorePatterns": [ "/node_modules/(?!@codemirror)" ],
         "globals": {
             "ts-jest": {
                 "tsConfig": "<rootDir>/tests/tsconfig.json"

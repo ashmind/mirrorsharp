@@ -1,3 +1,5 @@
+import type { EditorView } from '@codemirror/next/view';
+import { EditorSelection } from '@codemirror/next/state';
 import type { PartData, CompletionItemData, ChangeData } from '../ts/interfaces/protocol';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../ts/mirrorsharp';
 import { Keyboard } from 'keysim';
@@ -61,34 +63,70 @@ class MockTextRange {
     getBoundingClientRect() {}
     getClientRects(): [] { return []; }
 }
+
+class MockSelection {
+    readonly anchorNode = null;
+    readonly anchorOffset = 0;
+    readonly focusNode = null;
+    readonly focusOffset = 0;
+}
+
 global.document.body.createTextRange = () => new MockTextRange();
+global.document.getSelection = () => new MockSelection();
 
 class TestKeys {
-    private readonly input: HTMLTextAreaElement|HTMLInputElement;
+    private readonly editable: HTMLElement;
     private readonly getCursor: () => number;
 
-    constructor(input: HTMLTextAreaElement|HTMLInputElement, getCursor: () => number) {
-        this.input = input;
+    constructor(editable: HTMLElement, getCursor: () => number) {
+        this.editable = editable;
         this.getCursor = getCursor;
     }
 
     type(text: string) {
-        const input = this.input;
-        input.focus();
-        input.value = spliceString(input.value, this.getCursor(), 0, text);
-        keyboard.dispatchEventsForInput(text, input);
+        const editable = this.editable;
+        editable.focus();
+
+        const htmlOffset = this.mapToHTMLOffset(this.getCursor());
+        editable.innerHTML = spliceString(editable.innerHTML, htmlOffset, 0, text);
+        keyboard.dispatchEventsForInput(text, editable);
     }
 
     backspace(count: number) {
-        const input = this.input;
+        const editable = this.editable;
         for (let i = 0; i < count; i++) {
-            input.value = spliceString(input.value, this.getCursor() - 1, 1);
-            keyboard.dispatchEventsForAction('backspace', this.input);
+            const htmlOffset = this.mapToHTMLOffset(this.getCursor() - 1);
+            editable.innerHTML = spliceString(editable.innerHTML, htmlOffset, 1);
+            keyboard.dispatchEventsForAction('backspace', editable);
         }
     }
 
     press(keys: string) {
-        keyboard.dispatchEventsForAction(keys, this.input);
+        keyboard.dispatchEventsForAction(keys, this.editable);
+    }
+
+    private mapToHTMLOffset(textOffset: number) {
+        let htmlOffset = 0;
+
+        const parts = this.editable.innerHTML.split(/(<[^>]+>)/);
+        let textLengthBefore = 0;
+        for (const part of parts) {
+            const isHTML = part.startsWith('<');
+            if (isHTML) {
+                htmlOffset += part.length;
+                continue;
+            }
+
+            if (textLengthBefore + part.length > textOffset) {
+                htmlOffset += textOffset - textLengthBefore;
+                break;
+            }
+
+            htmlOffset += part.length;
+            textLengthBefore += part.length;
+        }
+
+        return htmlOffset;
     }
 }
 
@@ -122,24 +160,24 @@ class TestDriver<TExtensionServerOptions = never> {
     public readonly keys: TestKeys;
     public readonly receive: TestReceiver;
 
-    private readonly cm: CodeMirror.Editor;
+    private readonly cmView: EditorView;
 
     private constructor(
         socket: MockSocket,
         mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>,
-        cm: CodeMirror.Editor,
+        cmView: EditorView,
         keys: TestKeys,
         receive: TestReceiver
     ) {
         this.socket = socket;
         this.mirrorsharp = mirrorsharp;
-        this.cm = cm;
+        this.cmView = cmView;
         this.keys = keys;
         this.receive = receive;
     }
 
-    getCodeMirror() {
-        return this.cm;
+    getCodeMirrorView() {
+        return this.cmView;
     }
 
     async completeBackgroundWork() {
@@ -168,18 +206,22 @@ class TestDriver<TExtensionServerOptions = never> {
         global.WebSocket = function() { return socket; };
 
         const ms = mirrorsharp(initialTextarea, (options.options ?? {}) as MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>);
-        const cm = ms.getCodeMirror();
 
         delete global.WebSocket;
 
-        if (initial.cursor)
-            cm.setCursor(cm.posFromIndex(initial.cursor));
+        const cmView = ms.getCodeMirrorView();
 
-        const input = cm.getWrapperElement().querySelector('textarea')!;
+        if (initial.cursor) {
+            cmView.dispatch(
+                cmView.state.t().setSelection(EditorSelection.single(initial.cursor))
+            );
+        }
+
+        const input = cmView.dom;
 
         const driver = new TestDriver(
-            socket, ms, cm,
-            new TestKeys(input, () => cm.indexFromPos(cm.getCursor())),
+            socket, ms, cmView,
+            new TestKeys(input, () => cmView.state.selection.primaryIndex),
             new TestReceiver(socket)
         );
 

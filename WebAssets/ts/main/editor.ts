@@ -1,3 +1,5 @@
+
+import { EditorSelection } from '@codemirror/next/state';
 import { EditorView } from '@codemirror/next/view';
 //import 'codemirror/mode/clike/clike';
 //import 'codemirror-addon-infotip';
@@ -176,7 +178,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         this.#cmView = new EditorView({ state: createState(this.#connection, { initialText: options.initialText }) });
 
         if (selfDebug)
-            selfDebug.watchEditor(this.#getText, this.#getCursorIndex);
+            selfDebug.watchEditor(this.getText, this.#getCursorIndex);
 
         this.#wrapper.appendChild(this.#cmView.dom);
         // const cmWrapper = this.#cm.getWrapperElement();
@@ -205,7 +207,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
             this.#connection.sendSetOptions(this.#serverOptions);
         }
 
-        const text = this.#getText();
+        const text = this.getText();
         if (text === '' || text == null) {
             this.#lintingSuspended = false;
             return;
@@ -384,7 +386,6 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     //     this.#requestSlowUpdate();
     // };
 
-    #getText = () => this.#cmView.state.doc.toString();
     #getCursorIndex = () => this.#cmView.state.selection.primaryIndex;
 
     #receiveServerChanges = (changes: ReadonlyArray<ChangeData>, reason: string|null) => {
@@ -534,6 +535,14 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     // setText(text: string) {
     //     this.#cm.setValue(text.replace(/(\r\n|\r|\n)/g, '\r\n'));
     // }
+
+    getCodeMirrorView() {
+        return this.#cmView;
+    }
+
+    getText() {
+        return this.#cmView.state.doc.toString();
+    }
 
     getLanguage() {
         return this.#language;

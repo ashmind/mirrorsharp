@@ -32,7 +32,7 @@ test('sends extended options on connection open', async () => {
     expect(driver.socket.sent).toEqual(['Ox-test=value,language=C#']);
 });
 
-test('options echo without a language does not unset language', async () => {
+/*test('options echo without a language does not unset language', async () => {
     const driver = await TestDriver.new({
         options: { language: 'C#' }
     });
@@ -46,7 +46,7 @@ test('options echo without a language does not unset default language', async ()
     driver.receive.optionsEcho({});
 
     expect((driver.getCodeMirror().getMode() as { name: string }).name).toBe('clike');
-});
+});*/
 
 test('options echo without extended option does not unset extended option for next open', async () => {
     const driver = await TestDriver.new({

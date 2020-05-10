@@ -1,3 +1,5 @@
+import type { EditorStateConfig } from '@codemirror/next/state';
+import type { EditorView } from '@codemirror/next/view';
 import type { Language, DiagnosticSeverity } from './interfaces/protocol';
 import { SelfDebug } from './main/self-debug';
 import { Connection } from './main/connection';
@@ -41,11 +43,12 @@ export interface MirrorSharpOptions<TExtensionServerOptions = never, TSlowUpdate
 
     readonly initialServerOptions?: TExtensionServerOptions;
 
-    // readonly forCodeMirror?: CodeMirror.EditorConfiguration;
+    readonly configureCodeMirror?: (config: EditorStateConfig) => void;
 }
 
 export interface MirrorSharpInstance<TExtensionServerOptions> {
-    // getCodeMirror(): CodeMirror.Editor;
+    getCodeMirrorView(): EditorView;
+    getText(): string;
     // setText(text: string): void;
     getLanguage(): MirrorSharpLanguage;
     setLanguage(value: MirrorSharpLanguage): void;
@@ -62,7 +65,8 @@ export default function mirrorsharp<TExtensionServerOptions = never, TSlowUpdate
     const editor = new Editor(textarea, connection, selfDebug, options);
 
     return Object.freeze({
-        // getCodeMirror: () => editor.getCodeMirror(),
+        getCodeMirrorView: () => editor.getCodeMirrorView(),
+        getText: () => editor.getText(),
         // setText: (text: string) => editor.setText(text),
         getLanguage: () => editor.getLanguage(),
         setLanguage: (value: Language) => editor.setLanguage(value),
