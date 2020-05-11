@@ -1,6 +1,6 @@
 {
     "root": true,
-    "extends": "../ts/.eslintrc.json",
+    "extends": "./ts/.eslintrc.json",
     "parserOptions": {
         // https://github.com/typescript-eslint/typescript-eslint/issues/540
         "project": "./tsconfig.json"

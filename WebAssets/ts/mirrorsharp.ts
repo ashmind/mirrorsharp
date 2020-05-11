@@ -1,4 +1,3 @@
-import type { EditorStateConfig } from '@codemirror/next/state';
 import type { EditorView } from '@codemirror/next/view';
 import type { Language, DiagnosticSeverity } from './interfaces/protocol';
 import { SelfDebug } from './main/self-debug';
@@ -26,6 +25,7 @@ export interface MirrorSharpOptions<TExtensionServerOptions = never, TSlowUpdate
 
     readonly language?: MirrorSharpLanguage;
     readonly initialText?: string;
+    readonly initialCursorOffset?: number;
 
     // See EditorOptions<TExtensionData>['on']. This is not DRY, but
     // it's good to be explicit on what we are exporting.
@@ -42,8 +42,6 @@ export interface MirrorSharpOptions<TExtensionServerOptions = never, TSlowUpdate
     };
 
     readonly initialServerOptions?: TExtensionServerOptions;
-
-    readonly configureCodeMirror?: (config: EditorStateConfig) => void;
 }
 
 export interface MirrorSharpInstance<TExtensionServerOptions> {
@@ -57,12 +55,12 @@ export interface MirrorSharpInstance<TExtensionServerOptions> {
 }
 
 export default function mirrorsharp<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
-    textarea: HTMLTextAreaElement,
+    container: HTMLElement,
     options: MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
 ): MirrorSharpInstance<TExtensionServerOptions> {
     const selfDebug = options.selfDebugEnabled ? new SelfDebug() : null;
     const connection = new Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(options.serviceUrl, selfDebug);
-    const editor = new Editor(textarea, connection, selfDebug, options);
+    const editor = new Editor(container, connection, selfDebug, options);
 
     return Object.freeze({
         getCodeMirrorView: () => editor.getCodeMirrorView(),

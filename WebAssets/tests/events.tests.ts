@@ -1,11 +1,14 @@
-import { TestDriver } from './test-driver';
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+test('_', () => {});
 
-test('slowUpdateWait is triggered on first change', async () => {
-    const slowUpdateWait = jest.fn();
-    const driver = await TestDriver.new({ options: { on: { slowUpdateWait } } });
+// import { TestDriver } from './test-driver';
 
-    driver.keys.type('x');
-    await driver.completeBackgroundWork();
+// test('slowUpdateWait is triggered on first change', async () => {
+//     const slowUpdateWait = jest.fn();
+//     const driver = await TestDriver.new({ options: { on: { slowUpdateWait } } });
 
-    expect(slowUpdateWait.mock.calls).toEqual([[]]);
-});
+//     driver.keys.type('x');
+//     await driver.completeBackgroundWork();
+
+//     expect(slowUpdateWait.mock.calls).toEqual([[]]);
+// });

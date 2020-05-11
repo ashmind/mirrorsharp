@@ -1,5 +1,4 @@
 
-import { EditorSelection } from '@codemirror/next/state';
 import { EditorView } from '@codemirror/next/view';
 //import 'codemirror/mode/clike/clike';
 //import 'codemirror-addon-infotip';
@@ -36,19 +35,21 @@ interface AnnotationFixWithId extends CodeMirror.AnnotationFix {
 }*/
 
 interface EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> {
-    language?: Language;
-    initialText?: string;
-    on?: {
-        textChange?: (getText: () => string) => void;
-        connectionChange?: {
+    readonly language?: Language;
+    readonly initialText?: string;
+    readonly initialCursorOffset?: number;
+
+    readonly on?: {
+        readonly textChange?: (getText: () => string) => void;
+        readonly connectionChange?: {
             (event: 'open', e: Event): void;
             (event: 'error', e: ErrorEvent): void;
             (event: 'close', e: CloseEvent): void;
         };
-        serverError?: (message: string) => void;
+        readonly serverError?: (message: string) => void;
     } & SlowUpdateOptions<TSlowUpdateExtensionData>;
-    // forCodeMirror?: CodeMirror.EditorConfiguration;
-    initialServerOptions?: TExtensionServerOptions;
+
+    readonly initialServerOptions?: TExtensionServerOptions;
 }
 
 // const languageModes = {
@@ -96,14 +97,17 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         this.#connection = connection;
         this.#selfDebug = selfDebug;
 
-        options = { language: defaultLanguage, ...options };
-        options.on = {
-            slowUpdateWait:   () => ({}),
-            slowUpdateResult: () => ({}),
-            textChange:       () => ({}),
-            connectionChange: () => ({}),
-            serverError:      (message: string) => { throw new Error(message); },
-            ...options.on
+        options = {
+            language: defaultLanguage,
+            ...options,
+            on: {
+                slowUpdateWait:   () => ({}),
+                slowUpdateResult: () => ({}),
+                textChange:       () => ({}),
+                connectionChange: () => ({}),
+                serverError:      (message: string) => { throw new Error(message); },
+                ...options.on
+            }
         };
         this.#options = options;
 
@@ -175,7 +179,12 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
         this.#wrapper = document.createElement('div');
         container.appendChild(this.#wrapper);
-        this.#cmView = new EditorView({ state: createState(this.#connection, { initialText: options.initialText }) });
+        this.#cmView = new EditorView({
+            state: createState(this.#connection, {
+                initialText: options.initialText,
+                initialCursorOffset: options.initialCursorOffset
+            })
+        });
 
         if (selfDebug)
             selfDebug.watchEditor(this.getText, this.#getCursorIndex);
@@ -386,7 +395,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     //     this.#requestSlowUpdate();
     // };
 
-    #getCursorIndex = () => this.#cmView.state.selection.primaryIndex;
+    #getCursorIndex = () => this.#cmView.state.selection.primary.from;
 
     #receiveServerChanges = (changes: ReadonlyArray<ChangeData>, reason: string|null) => {
         this.#changesAreFromServer = true;

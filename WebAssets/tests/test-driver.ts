@@ -1,5 +1,5 @@
 import type { EditorView } from '@codemirror/next/view';
-import { EditorSelection } from '@codemirror/next/state';
+import type { Transaction } from '@codemirror/next/state';
 import type { PartData, CompletionItemData, ChangeData } from '../ts/interfaces/protocol';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../ts/mirrorsharp';
 import { Keyboard } from 'keysim';
@@ -74,59 +74,39 @@ class MockSelection {
 global.document.body.createTextRange = () => new MockTextRange();
 global.document.getSelection = () => new MockSelection();
 
-class TestKeys {
-    private readonly editable: HTMLElement;
-    private readonly getCursor: () => number;
+(HTMLElement.prototype as unknown as { elementFromPoint: () => HTMLElement|null }).elementFromPoint = () => { throw 'hmm!!!'; };
 
-    constructor(editable: HTMLElement, getCursor: () => number) {
-        this.editable = editable;
-        this.getCursor = getCursor;
+class TestKeys {
+    private readonly cmView: EditorView;
+
+    constructor(cmView: EditorView) {
+        this.cmView = cmView;
     }
 
     type(text: string) {
-        const editable = this.editable;
-        editable.focus();
+        this.cmView.contentDOM.focus();
 
-        const htmlOffset = this.mapToHTMLOffset(this.getCursor());
-        editable.innerHTML = spliceString(editable.innerHTML, htmlOffset, 0, text);
-        keyboard.dispatchEventsForInput(text, editable);
+        const { node, offset } = this.getCursorInfo();
+
+        node.textContent = spliceString(node.textContent ?? '', offset, 0, text);
+        keyboard.dispatchEventsForInput(text, this.cmView.contentDOM);
     }
 
     backspace(count: number) {
-        const editable = this.editable;
+        const { node, offset } = this.getCursorInfo();
         for (let i = 0; i < count; i++) {
-            const htmlOffset = this.mapToHTMLOffset(this.getCursor() - 1);
-            editable.innerHTML = spliceString(editable.innerHTML, htmlOffset, 1);
-            keyboard.dispatchEventsForAction('backspace', editable);
+            node.textContent = spliceString(node.textContent!, offset, 1);
+            keyboard.dispatchEventsForAction('backspace', this.cmView.contentDOM);
         }
     }
 
     press(keys: string) {
-        keyboard.dispatchEventsForAction(keys, this.editable);
+        keyboard.dispatchEventsForAction(keys, this.cmView.contentDOM);
     }
 
-    private mapToHTMLOffset(textOffset: number) {
-        let htmlOffset = 0;
-
-        const parts = this.editable.innerHTML.split(/(<[^>]+>)/);
-        let textLengthBefore = 0;
-        for (const part of parts) {
-            const isHTML = part.startsWith('<');
-            if (isHTML) {
-                htmlOffset += part.length;
-                continue;
-            }
-
-            if (textLengthBefore + part.length > textOffset) {
-                htmlOffset += textOffset - textLengthBefore;
-                break;
-            }
-
-            htmlOffset += part.length;
-            textLengthBefore += part.length;
-        }
-
-        return htmlOffset;
+    private getCursorInfo() {
+        const index = this.cmView.state.selection.primary.from;
+        return this.cmView.domAtPos(index);
     }
 }
 
@@ -180,6 +160,10 @@ class TestDriver<TExtensionServerOptions = never> {
         return this.cmView;
     }
 
+    dispatchCodeMirrorTransaction(setup: (t: Transaction) => Transaction) {
+        this.cmView.dispatch(setup(this.cmView.state.t()));
+    }
+
     async completeBackgroundWork() {
         jest.runOnlyPendingTimers();
         await new Promise(resolve => resolve());
@@ -194,34 +178,32 @@ class TestDriver<TExtensionServerOptions = never> {
     }
 
     static async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
-        options: ({}|{ text: string; cursor?: number }|{ textWithCursor: string })&{ options?: Partial<MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>> }
+        options: ({}|{ text: string; cursor?: number }|{ textWithCursor: string }) & {
+            options?: Partial<MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>> & { configureCodeMirror?: never };
+        }
     ) {
         const initial = getInitialState(options);
 
-        const initialTextarea = document.createElement('textarea');
-        initialTextarea.value = initial.text ?? '';
-        document.body.appendChild(initialTextarea);
+        const container = document.createElement('div');
+        document.body.appendChild(container);
 
         const socket = new MockSocket();
         global.WebSocket = function() { return socket; };
 
-        const ms = mirrorsharp(initialTextarea, (options.options ?? {}) as MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>);
+        const msOptions = {
+            ...(options.options ?? {}),
+            initialText: initial.text ?? '',
+            initialCursorOffset: initial.cursor
+        } as MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>;
+        const ms = mirrorsharp(container, msOptions);
 
         delete global.WebSocket;
 
         const cmView = ms.getCodeMirrorView();
 
-        if (initial.cursor) {
-            cmView.dispatch(
-                cmView.state.t().setSelection(EditorSelection.single(initial.cursor))
-            );
-        }
-
-        const input = cmView.dom;
-
         const driver = new TestDriver(
             socket, ms, cmView,
-            new TestKeys(input, () => cmView.state.selection.primaryIndex),
+            new TestKeys(cmView),
             new TestReceiver(socket)
         );
 
