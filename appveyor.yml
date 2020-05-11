@@ -8,7 +8,7 @@ environment:
 
 install:
 - ps: |-
-    Install-Product node 13.2.0
+    Install-Product node 12.16.1
 
 before_build:
 - ms restore
