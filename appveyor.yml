@@ -11,16 +11,16 @@ install:
     Install-Product node 12.16.1
 
 before_build:
-- mirrorsharp restore
+- ms restore
 
 build_script:
-- mirrorsharp build Release
+- ms build Release
 
 test_script:
-- mirrorsharp test
+- ms test
 
 after_test:
-- mirrorsharp pack Release
+- ms pack Release
 
 artifacts:
 - path: '*.nupkg'
