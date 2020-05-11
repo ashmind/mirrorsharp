@@ -3,12 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "parcel build index.html --out-dir wwwroot --no-minify"
+    "build": "parcel build index.html --out-dir wwwroot --no-minify",
+    "watch": "parcel watch index.html --out-dir wwwroot"
   },
   "dependencies": {
-    "codemirror": "^5.18.2",
-    "codemirror-addon-infotip": "1.0.0-pre-20180923",
-    "codemirror-addon-lint-fix": "^1.0.1-pre-20170118",
     "mirrorsharp": "file:../WebAssets/dist",
     "typeface-open-sans": "0.0.75"
   },
