@@ -29,7 +29,7 @@ artifacts:
 deploy:
   - provider: NuGet
     on:
-      branch: /^(master|\d\.\d)$/
+      branch: /^(master|\d\.\d|feature\/codemirror-6)$/
     api_key:
       secure: rV20COJkB2Lt/O6E7NvcdMJlHtBS8C7uuUWhFXu6XTPmEVqAeMKCDyz/yuOZwVRo
     artifact: /.*\.nupkg/

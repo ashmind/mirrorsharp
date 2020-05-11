@@ -30,7 +30,9 @@
     },
     "jest": {
         "preset": "ts-jest/presets/js-with-ts",
-        "transformIgnorePatterns": [ "/node_modules/(?!@codemirror)" ],
+        "transformIgnorePatterns": [
+            "/node_modules/(?!@codemirror)"
+        ],
         "globals": {
             "ts-jest": {
                 "tsConfig": "<rootDir>/tests/tsconfig.json"
@@ -47,7 +49,7 @@
     },
     "dependencies": {
         "@codemirror/next": "^0.5.5",
-        "lezer-csharp-simple": "file:d:/Development/JavaScript/lezer-csharp-simple"
+        "lezer-csharp-simple": "^0.0.2"
     },
     "devDependencies": {
         "@babel/core": "^7.9.0",
