@@ -80,6 +80,8 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     #language: Language;
     #serverOptions: ServerOptions&TExtensionServerOptions;
 
+    #shouldResendServerOptions: boolean;
+
     #lintingSuspended = true;
     #hadChangesSinceLastLinting = false;
     // #capturedUpdateLinting: CodeMirror.UpdateLintingCallback|null|undefined;
@@ -133,6 +135,12 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
             language: this.#language
         } as ServerOptions & TExtensionServerOptions;
 
+        if (!this.#hasDefaultServerOptions()) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.#connection.sendSetOptions(this.#serverOptions);
+        }
+        this.#shouldResendServerOptions = false; // first open
+
         // const cmSource = (function getCodeMirror() {
         //     const next = textarea.nextSibling as { CodeMirror?: CodeMirror.EditorFromTextArea };
         //     if (next?.CodeMirror) {
@@ -178,6 +186,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         //     this.setText(textarea.value);
 
         this.#wrapper = document.createElement('div');
+        this.#wrapper.classList.add('mirrorsharp');
         container.appendChild(this.#wrapper);
         this.#cmView = new EditorView({
             state: createState(this.#connection, {
@@ -211,9 +220,14 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
     #onConnectionOpen = (e: Event) => {
         this.#hideConnectionLoss();
-        if (!this.#hasDefaultServerOptions()) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.#connection.sendSetOptions(this.#serverOptions);
+        if (this.#shouldResendServerOptions) {
+            if (!this.#hasDefaultServerOptions()) {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                this.#connection.sendSetOptions(this.#serverOptions);
+            }
+        }
+        else {
+            this.#shouldResendServerOptions = true; // next open
         }
 
         const text = this.getText();

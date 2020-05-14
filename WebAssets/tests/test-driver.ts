@@ -179,6 +179,7 @@ class TestDriver<TExtensionServerOptions = never> {
 
     static async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
         options: ({}|{ text: string; cursor?: number }|{ textWithCursor: string }) & {
+            keepSocketClosed?: boolean;
             options?: Partial<MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>> & { configureCodeMirror?: never };
         }
     ) {
@@ -206,6 +207,9 @@ class TestDriver<TExtensionServerOptions = never> {
             new TestKeys(cmView),
             new TestReceiver(socket)
         );
+
+        if (options.keepSocketClosed)
+            return driver;
 
         driver.socket.trigger('open');
         await driver.completeBackgroundWork();

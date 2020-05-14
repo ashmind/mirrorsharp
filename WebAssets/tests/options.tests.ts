@@ -1,8 +1,10 @@
 import { TestDriver } from './test-driver';
+import { advanceBy as advanceDateBy } from 'jest-date-mock';
 
 test('does not send default options on connection open', async () => {
     const driver = await TestDriver.new({
-        options: { language: 'C#' }
+        options: { language: 'C#' },
+        keepSocketClosed: true
     });
     driver.socket.trigger('open');
     await driver.completeBackgroundWork();
@@ -12,7 +14,8 @@ test('does not send default options on connection open', async () => {
 
 test('sends non-default language on connection open', async () => {
     const driver = await TestDriver.new({
-        options: { language: 'Visual Basic' }
+        options: { language: 'Visual Basic' },
+        keepSocketClosed: true
     });
     driver.socket.trigger('open');
     await driver.completeBackgroundWork();
@@ -20,11 +23,45 @@ test('sends non-default language on connection open', async () => {
     expect(driver.socket.sent).toEqual(['Olanguage=Visual Basic']);
 });
 
+test('resends non-default language on next connection open', async () => {
+    const driver = await TestDriver.new({
+        options: { language: 'Visual Basic' },
+        keepSocketClosed: true
+    });
+
+    driver.socket.trigger('open');
+    await driver.completeBackgroundWork();
+    driver.socket.sent = [];
+    driver.socket.trigger('open');
+    await driver.completeBackgroundWork();
+
+    expect(driver.socket.sent).toEqual(['Olanguage=Visual Basic']);
+});
+
+test('always sends options before slow update', async () => {
+    const driver = await TestDriver.new({
+        keepSocketClosed: true,
+        options: { language: 'Visual Basic' }
+    });
+    advanceDateBy(1000);
+    jest.advanceTimersToNextTimer();
+    await driver.completeBackgroundWork();
+
+    driver.socket.trigger('open');
+    await driver.completeBackgroundWork();
+
+    expect(driver.socket.sent).toEqual([
+        'Olanguage=Visual Basic',
+        'U'
+    ]);
+});
+
 test('sends extended options on connection open', async () => {
     const driver = await TestDriver.new({
         options: {
             initialServerOptions: { 'x-test': 'value' }
-        }
+        },
+        keepSocketClosed: true
     });
     driver.socket.trigger('open');
     await driver.completeBackgroundWork();

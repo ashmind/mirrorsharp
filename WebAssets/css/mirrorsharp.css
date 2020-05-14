@@ -1,3 +1,10 @@
+/* New */
+
+.mirrorsharp .cm-lintRange-hidden {
+    opacity: 0.5;
+}
+
+/* Old */
 .CodeMirror,
 .mirrorsharp-signature-tooltip {
     font-family: Consolas, Menlo, Monaco, monospace;
@@ -82,10 +89,6 @@
     width: 1.2em;
     height: 1.2em;
     background-repeat: no-repeat;
-}
-
-.mirrorsharp .CodeMirror-lint-mark-unnecessary {
-    opacity: 0.5;
 }
 
 .CodeMirror-lint-marker-info,
