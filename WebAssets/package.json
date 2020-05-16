@@ -1,6 +1,6 @@
 {
     "name": "mirrorsharp-codemirror-6-preview",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "type": "module",
     "engines": {
         "node": ">=12.6.1"
@@ -38,7 +38,9 @@
                 "tsConfig": "<rootDir>/tests/tsconfig.json"
             }
         },
-        "setupFiles": ["jest-date-mock"],
+        "setupFiles": [
+            "jest-date-mock"
+        ],
         "testMatch": [
             "<rootDir>/tests/**/*.tests.ts"
         ],

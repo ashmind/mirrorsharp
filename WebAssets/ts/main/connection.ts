@@ -95,7 +95,7 @@ export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
         this.#reopening = true;
         setTimeout(() => {
-            open();
+            this.#open();
             this.#reopening = false;
         }, this.#reopenPeriod);
         if (this.#reopenPeriod < 60000)
