@@ -19,10 +19,12 @@ interface MockSocketMessageEvent {
 }
 
 class MockSocket {
+    public createdCount = 0;
     public sent: Array<string>;
     private readonly handlers: {
         open?: Array<() => void>;
         message?: Array<(e: MockSocketMessageEvent) => void>;
+        close?: Array<() => void>;
     };
 
     constructor() {
@@ -36,7 +38,8 @@ class MockSocket {
 
     trigger(event: 'open'): void;
     trigger(event: 'message', e: MockSocketMessageEvent): void;
-    trigger(...[event, e]: ['open']|['message', MockSocketMessageEvent]) {
+    trigger(event: 'close'): void;
+    trigger(...[event, e]: ['open']|['message', MockSocketMessageEvent]|['close']) {
         // https://github.com/microsoft/TypeScript/issues/37505 ?
         for (const handler of (this.handlers[event] ?? [])) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
@@ -46,7 +49,8 @@ class MockSocket {
 
     addEventListener(event: 'open', handler: () => void): void;
     addEventListener(event: 'message', handler: (e: MockSocketMessageEvent) => void): void;
-    addEventListener(...[event, handler]: ['open', () => void]|['message', (e: MockSocketMessageEvent) => void]) {
+    addEventListener(event: 'close', handler: () => void): void;
+    addEventListener(...[event, handler]: ['open', () => void]|['message', (e: MockSocketMessageEvent) => void]|['close', () => void]) {
         let handlers = this.handlers[event];
         if (!handlers) {
             handlers = [] as NonNullable<typeof handlers>;
@@ -164,13 +168,17 @@ class TestDriver<TExtensionServerOptions = never> {
         initialTextarea.value = initial.text ?? '';
         document.body.appendChild(initialTextarea);
 
+        if (global.WebSocket instanceof MockSocket)
+            throw new Error(`Global WebSocket is already set up in this context.`);
+
         const socket = new MockSocket();
-        global.WebSocket = function() { return socket; };
+        global.WebSocket = function() {
+            socket.createdCount += 1;
+            return socket;
+        };
 
         const ms = mirrorsharp(initialTextarea, (options.options ?? {}) as MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>);
         const cm = ms.getCodeMirror();
-
-        delete global.WebSocket;
 
         if (initial.cursor)
             cm.setCursor(cm.posFromIndex(initial.cursor));
@@ -200,5 +208,15 @@ function getInitialState(options: {}|{ text: string; cursor?: number }|{ textWit
     }
     return { text, cursor };
 }
+
+
+let savedWebSocket: (typeof global.WebSocket)|undefined;
+beforeEach(() => {
+    savedWebSocket = global.WebSocket;
+});
+
+afterEach(() => {
+    global.WebSocket = savedWebSocket!;
+});
 
 export { TestDriver };
