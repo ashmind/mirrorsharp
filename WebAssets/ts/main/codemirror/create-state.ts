@@ -2,15 +2,15 @@ import { EditorState, EditorSelection } from '@codemirror/next/state';
 import { highlighter } from '@codemirror/next/highlight';
 import { history } from '@codemirror/next/history';
 import { keymap } from '@codemirror/next/keymap';
-import { baseKeymap } from '@codemirror/next/commands';
 import type { Connection } from '../connection';
 import type { SlowUpdateOptions } from '../../interfaces/slow-update';
 import { csharp } from './lang-csharp';
 import highlighterSpec from './highlighter-spec';
+import lineSeparator from './line-separator';
+import keymapSpec from './keymap-spec';
 import { sendChangesToServer } from './server/send-changes';
 import { sendCursorToServer } from './server/send-cursor';
 import { slowUpdateLinter } from './server/slow-update-linter';
-import lineSeparator from './line-separator';
 
 export function createState<O, U>(
     connection: Connection<O, U>,
@@ -27,7 +27,7 @@ export function createState<O, U>(
             EditorState.lineSeparator.of(lineSeparator),
 
             history(),
-            keymap(baseKeymap),
+            keymap(keymapSpec),
             csharp(),
             highlighter(highlighterSpec),
 
