@@ -1,5 +1,6 @@
 import type { EditorView } from '@codemirror/next/view';
 import type { Transaction } from '@codemirror/next/state';
+import { advanceBy as advanceDateBy } from 'jest-date-mock';
 import type { PartData, CompletionItemData, ChangeData } from '../ts/interfaces/protocol';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../ts/mirrorsharp';
 import { Keyboard } from 'keysim';
@@ -181,10 +182,20 @@ class TestDriver<TExtensionServerOptions = never> {
         }
     }
 
+    async advanceTimeAndCompleteNextLinting() {
+        advanceDateBy(1000);
+        jest.advanceTimersToNextTimer();
+        await this.completeBackgroundWork();
+    }
+
     static async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
         options: ({}|{ text: string; cursor?: number }|{ textWithCursor: string }) & {
             keepSocketClosed?: boolean;
-            options?: Partial<MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>> & { configureCodeMirror?: never };
+            options?: Partial<MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>> & {
+                initialText?: never;
+                initialCursorOffset?: never;
+                configureCodeMirror?: never;
+            };
         }
     ) {
         const initial = getInitialState(options);

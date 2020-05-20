@@ -1,6 +1,7 @@
 import type { Connection } from '../../connection';
 import type { SlowUpdateOptions } from '../../../interfaces/slow-update';
 import type { DiagnosticData } from '../../../interfaces/protocol';
+import { StateField } from '@codemirror/next/state';
 import { linter, Diagnostic } from '@codemirror/next/lint';
 
 export const slowUpdateLinter = <O, TExtensionData>(
@@ -34,9 +35,22 @@ export const slowUpdateLinter = <O, TExtensionData>(
             slowUpdateResult(message);
     });
 
-    return linter(async () => {
+    const active = StateField.define<boolean>({
+        create(state) {
+            return state.doc.length > 0;
+        },
+
+        update(value, _, newState) {
+            return value || newState.doc.length > 0;
+        }
+    });
+
+    return [active, linter(async view => {
+        if (!view.state.field(active))
+            return [];
+
         const promise = new Promise<ReadonlyArray<Diagnostic>>(r => resolveDiagnostics = r);
         await connection.sendSlowUpdate();
         return promise;
-    });
+    })];
 };

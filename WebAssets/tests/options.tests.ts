@@ -1,5 +1,4 @@
 import { TestDriver } from './test-driver';
-import { advanceBy as advanceDateBy } from 'jest-date-mock';
 
 test('does not send default options on connection open', async () => {
     const driver = await TestDriver.new({
@@ -23,7 +22,7 @@ test('sends non-default language on connection open', async () => {
     expect(driver.socket.sent).toEqual(['Olanguage=Visual Basic']);
 });
 
-test('resends non-default language on next connection open', async () => {
+test('re-sends non-default language on next connection open', async () => {
     const driver = await TestDriver.new({
         options: { language: 'Visual Basic' },
         keepSocketClosed: true
@@ -41,16 +40,15 @@ test('resends non-default language on next connection open', async () => {
 test('always sends options before slow update', async () => {
     const driver = await TestDriver.new({
         keepSocketClosed: true,
+        text: "' Test",
         options: { language: 'Visual Basic' }
     });
-    advanceDateBy(1000);
-    jest.advanceTimersToNextTimer();
-    await driver.completeBackgroundWork();
 
+    await driver.advanceTimeAndCompleteNextLinting();
     driver.socket.trigger('open');
     await driver.completeBackgroundWork();
 
-    expect(driver.socket.sent).toEqual([
+    expect(driver.socket.sent.slice(0, 2)).toEqual([
         'Olanguage=Visual Basic',
         'U'
     ]);
