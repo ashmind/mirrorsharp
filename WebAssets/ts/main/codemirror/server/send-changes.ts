@@ -1,16 +1,48 @@
 import type { Connection } from '../../connection';
-import { EditorState } from '@codemirror/next/state';
-import lineSeparator from '../line-separator';
+import { EditorState, Text } from '@codemirror/next/state';
 
-export const sendChangesToServer = <O, U>(connection: Connection<O, U>) => EditorState.changeFilter.of(({ from, to, text }, state) => {
+function sendReplace<O, U>(connection: Connection<O, U>, from: number, to: number, text: Text) {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    connection.sendReplaceText(from, to - from, text.toString(), 0);
+}
+
+export const sendChangesToServer = <O, U>(connection: Connection<O, U>) => EditorState.changeFilter.of(({ changes }, state) => {
     const cursorOffset = state.selection.primary.from;
-    if (from === cursorOffset && to === from && text.length === 1 && text[0].length === 1) {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        connection.sendTypeChar(text[0][0]);
-        return null;
+
+    let changeCount = 0;
+    let firstFrom: number|undefined;
+    let firstTo: number|undefined;
+    let firstText: Text|undefined;
+    changes.iterChanges((from, to, _f, _t, inserted) => {
+        changeCount += 1;
+        if (changeCount === 1) {
+            firstFrom = from;
+            firstTo = to;
+            firstText = inserted;
+            return;
+        }
+
+        if (changeCount === 2) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            sendReplace(connection, firstFrom!, firstTo!, firstText!);
+            return true;
+        }
+
+        sendReplace(connection, from, to - from, inserted);
+        return true;
+    });
+
+    if (changeCount === 1) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        if (firstFrom === cursorOffset && firstTo === firstFrom && firstText!.length === 1) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises, @typescript-eslint/no-non-null-assertion
+            connection.sendTypeChar(firstText!.line(1).slice(0, 1));
+            return true;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        sendReplace(connection, firstFrom!, firstTo!, firstText!);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    connection.sendReplaceText(from, to - from, text.join(lineSeparator), 0);
-    return null;
+    return true;
 });

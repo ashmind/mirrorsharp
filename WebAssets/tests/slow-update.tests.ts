@@ -35,7 +35,7 @@ test('slowUpdate is sent if text is set after initial setup', async () => {
     driver.socket.trigger('open');
     await driver.advanceTimeAndCompleteNextLinting();
 
-    driver.dispatchCodeMirrorTransaction(t => t.replace(0, 0, 'Test'));
+    driver.dispatchCodeMirrorTransaction({ changes: { from: 0, insert: 'Test' } });
     await driver.advanceTimeAndCompleteNextLinting();
 
     expect(driver.socket.sent).toEqual([

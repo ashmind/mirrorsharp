@@ -51,7 +51,7 @@
         ]
     },
     "dependencies": {
-        "@codemirror/next": "^0.5.5",
+        "@codemirror/next": "^0.6.0",
         "lezer-csharp-simple": "^0.0.3"
     },
     "devDependencies": {

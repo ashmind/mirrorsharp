@@ -1,5 +1,5 @@
 import type { EditorView } from '@codemirror/next/view';
-import type { Transaction } from '@codemirror/next/state';
+import type { Transaction, TransactionSpec } from '@codemirror/next/state';
 import { advanceBy as advanceDateBy } from 'jest-date-mock';
 import type { PartData, CompletionItemData, ChangeData } from '../ts/interfaces/protocol';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../ts/mirrorsharp';
@@ -165,8 +165,8 @@ class TestDriver<TExtensionServerOptions = never> {
         return this.cmView;
     }
 
-    dispatchCodeMirrorTransaction(setup: (t: Transaction) => Transaction) {
-        this.cmView.dispatch(setup(this.cmView.state.t()));
+    dispatchCodeMirrorTransaction(...specs: ReadonlyArray<TransactionSpec>) {
+        this.cmView.dispatch(this.cmView.state.update(...specs));
     }
 
     async completeBackgroundWork() {

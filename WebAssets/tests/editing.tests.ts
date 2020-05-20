@@ -3,7 +3,9 @@ import { TestDriver } from './test-driver';
 test('change at cursor is sent as typed text', async () => {
     const driver = await TestDriver.new({ textWithCursor: 'a|bc' });
 
-    driver.dispatchCodeMirrorTransaction(t => t.replace(1, 1, 'x'));
+    driver.dispatchCodeMirrorTransaction({
+        changes: { from: 1, insert: 'x' }
+    });
     await driver.completeBackgroundWork();
 
     const lastSent = driver.socket.sent.filter(c => !c.startsWith('U')).slice(-1)[0];
@@ -13,7 +15,9 @@ test('change at cursor is sent as typed text', async () => {
 test('change not at cursor is sent as replaced text', async () => {
     const driver = await TestDriver.new({ textWithCursor: 'a|bc' });
 
-    driver.dispatchCodeMirrorTransaction(t => t.replace(2, 2, 'x'));
+    driver.dispatchCodeMirrorTransaction({
+        changes: { from: 2, insert: 'x' }
+    });
     await driver.completeBackgroundWork();
 
     const lastSent = driver.socket.sent.filter(c => !c.startsWith('U')).slice(-1)[0];
