@@ -14,6 +14,7 @@ const ts = task('ts', async () => {
     await exec('tsc --project ./ts/tsconfig.json --module ES2015 --noEmit false --outDir ./dist --declaration true');
 
     await Promise.all((await fg(['dist/**/*.js', '!dist/node_modules/**/*.*'])).map(async path => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const { code: transformed } = (await transformFileAsync(path, {
             plugins: [
                 // Add .js extension to all imports.
@@ -28,15 +29,16 @@ const ts = task('ts', async () => {
             ]
         }))!;
 
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         await jetpack.writeAsync(path, transformed!);
     }));
 }, { inputs: ['ts/**/*.ts'] });
 
 const css = task('css', () => jetpack.copyAsync('css', 'dist', { overwrite: true }), { inputs: ['css/*.*'] });
 
-const files = task('files', () => {
-    jetpack.copyAsync('./README.md', 'dist/README.md', { overwrite: true });
-    jetpack.copyAsync('./package.json', 'dist/package.json', { overwrite: true });
+const files = task('files', async () => {
+    await jetpack.copyAsync('./README.md', 'dist/README.md', { overwrite: true });
+    await jetpack.copyAsync('./package.json', 'dist/package.json', { overwrite: true });
 }, { inputs: ['./README.md', './package.json'] });
 
 task('default', async () => {
