@@ -24,6 +24,38 @@ test('change not at cursor is sent as replaced text', async () => {
     expect(lastSent).toBe('R2:0:0::x');
 });
 
+// two changed are handled in a special way in code
+test('two changes are sent as individual replaced text', async () => {
+    const driver = await TestDriver.new({ textWithCursor: 'a|bc' });
+
+    driver.dispatchCodeMirrorTransaction({
+        changes: [{ from: 1, insert: 'x' }, { from: 2, insert: 'y' }]
+    });
+    await driver.completeBackgroundWork();
+
+    const lastSent = driver.socket.sent.filter(c => !c.startsWith('U'));
+    expect(lastSent).toEqual([
+        'R1:0:0::x',
+        'R2:0:0::y'
+    ]);
+});
+
+test('three changes are sent as individual replaced text', async () => {
+    const driver = await TestDriver.new({ textWithCursor: 'a|bc' });
+
+    driver.dispatchCodeMirrorTransaction({
+        changes: [{ from: 1, insert: 'x' }, { from: 2, insert: 'y' }, { from: 3, insert: 'z' }]
+    });
+    await driver.completeBackgroundWork();
+
+    const lastSent = driver.socket.sent.filter(c => !c.startsWith('U'));
+    expect(lastSent).toEqual([
+        'R1:0:0::x',
+        'R2:0:0::y',
+        'R3:0:0::z'
+    ]);
+});
+
 /*test('undo sends all changes as a single replace', async () => {
     const driver = await TestDriver.new({ textWithCursor: '{d:f2}{d:f2}|' });
     const cm = driver.getCodeMirror();

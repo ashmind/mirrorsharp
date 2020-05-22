@@ -25,11 +25,9 @@ export const sendChangesToServer = <O, U>(connection: Connection<O, U>) => Edito
         if (changeCount === 2) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             sendReplace(connection, firstFrom!, firstTo!, firstText!);
-            return true;
         }
 
-        sendReplace(connection, from, to - from, inserted);
-        return true;
+        sendReplace(connection, from, to, inserted);
     });
 
     if (changeCount === 1) {
