@@ -1,5 +1,5 @@
 import type { Message, ServerOptions } from '../interfaces/protocol';
-import type { SelfDebug } from './self-debug';
+// import type { SelfDebug } from './self-debug';
 import { addEvents } from '../helpers/add-events';
 
 const eventKeys = ['open', 'message', 'error', 'close'] as const;
@@ -19,7 +19,7 @@ export type ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData
 
 export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly #url: string;
-    readonly #selfDebug: SelfDebug|null;
+    // readonly #selfDebug: SelfDebug|null;
 
     readonly #handlers = {
         open:    [] as Array<ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>['open']>,
@@ -38,9 +38,9 @@ export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
     #removeEvents: () => void;
 
-    constructor(url: string, selfDebug: SelfDebug|null) {
+    constructor(url: string/* , selfDebug: SelfDebug|null */) {
         this.#url = url;
-        this.#selfDebug = selfDebug;
+        // this.#selfDebug = selfDebug;
 
         this.#open();
 
@@ -70,16 +70,16 @@ export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
                             (entry as { time: Date }).time = new Date(entry.time as unknown as string);
                         }
                     }
-                    if (this.#selfDebug)
-                        this.#selfDebug.log('before', JSON.stringify(data));
+                    // if (this.#selfDebug)
+                    //     this.#selfDebug.log('before', JSON.stringify(data));
                     (handlerArguments as [Message<unknown, unknown>, MessageEvent]).unshift(data);
                 }
                 for (const handler of handlersByKey) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
                     (handler as any)(...handlerArguments);
                 }
-                if (this.#selfDebug && key === 'message')
-                    this.#selfDebug.log('after', JSON.stringify(handlerArguments[0]));
+                // if (this.#selfDebug && key === 'message')
+                //     this.#selfDebug.log('after', JSON.stringify(handlerArguments[0]));
             });
         }
     };
@@ -107,8 +107,8 @@ export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
             throw `Cannot send command '${command}' after the close() call.`;
 
         await this.#openPromise;
-        if (this.#selfDebug)
-            this.#selfDebug.log('send', command);
+        // if (this.#selfDebug)
+        //     this.#selfDebug.log('send', command);
         this.#socket.send(command);
     };
 

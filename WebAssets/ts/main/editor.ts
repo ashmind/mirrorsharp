@@ -14,7 +14,7 @@ import type {
 } from '../interfaces/protocol';
 import type { SlowUpdateOptions } from '../interfaces/slow-update';
 import type { Connection } from './connection';
-import type { SelfDebug } from './self-debug';
+// import type { SelfDebug } from './self-debug';
 import { createState } from './codemirror/create-state';
 // import { renderInfotip } from './render-infotip';
 import { Hinter } from './hinter';
@@ -64,7 +64,7 @@ const defaultLanguage = 'C#';
 
 export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly #connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>;
-    readonly #selfDebug: SelfDebug|null;
+    // readonly #selfDebug: SelfDebug|null;
     readonly #options: EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData>;
 
     // readonly #cm: CodeMirror.EditorFromTextArea;
@@ -93,11 +93,11 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     constructor(
         container: HTMLElement,
         connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>,
-        selfDebug: SelfDebug|null,
+        // selfDebug: SelfDebug|null,
         options: EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
     ) {
         this.#connection = connection;
-        this.#selfDebug = selfDebug;
+        // this.#selfDebug = selfDebug;
 
         options = {
             language: defaultLanguage,
@@ -195,8 +195,8 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
             })
         });
 
-        if (selfDebug)
-            selfDebug.watchEditor(this.getText, this.#getCursorIndex);
+        // if (selfDebug)
+        //     selfDebug.watchEditor(this.getText, this.#getCursorIndex);
 
         this.#wrapper.appendChild(this.#cmView.dom);
         // const cmWrapper = this.#cm.getWrapperElement();
@@ -290,7 +290,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
             case 'self:debug':
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                this.#selfDebug!.displayData(message);
+                // this.#selfDebug!.displayData(message);
                 break;
 
             case 'error':

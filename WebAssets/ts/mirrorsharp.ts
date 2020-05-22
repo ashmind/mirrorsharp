@@ -1,6 +1,6 @@
 import type { EditorView } from '@codemirror/next/view';
 import type { Language, DiagnosticSeverity } from './interfaces/protocol';
-import { SelfDebug } from './main/self-debug';
+// import { SelfDebug } from './main/self-debug';
 import { Connection } from './main/connection';
 import { Editor } from './main/editor';
 
@@ -58,9 +58,9 @@ export default function mirrorsharp<TExtensionServerOptions = never, TSlowUpdate
     container: HTMLElement,
     options: MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
 ): MirrorSharpInstance<TExtensionServerOptions> {
-    const selfDebug = options.selfDebugEnabled ? new SelfDebug() : null;
-    const connection = new Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(options.serviceUrl, selfDebug);
-    const editor = new Editor(container, connection, selfDebug, options);
+    // const selfDebug = options.selfDebugEnabled ? new SelfDebug() : null;
+    const connection = new Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(options.serviceUrl/*, selfDebug*/);
+    const editor = new Editor(container, connection/*, selfDebug*/, options);
 
     return Object.freeze({
         getCodeMirrorView: () => editor.getCodeMirrorView(),

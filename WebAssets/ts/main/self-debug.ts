@@ -1,4 +1,4 @@
-import type { SelfDebugLogEntryData, SelfDebugMessage } from '../interfaces/protocol';
+/*import type { SelfDebugLogEntryData, SelfDebugMessage } from '../interfaces/protocol';
 
 export interface SelfDebugConnection {
     sendRequestSelfDebugData(): Promise<void>;
@@ -71,4 +71,4 @@ export class SelfDebug {
             };
         }));
     }
-}
+}*/
