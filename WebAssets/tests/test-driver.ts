@@ -82,36 +82,39 @@ global.document.getSelection = () => new MockSelection();
 (HTMLElement.prototype as unknown as { elementFromPoint: () => HTMLElement|null }).elementFromPoint = () => { throw 'hmm!!!'; };
 
 class TestKeys {
-    private readonly cmView: EditorView;
+    readonly #cmView: EditorView;
 
     constructor(cmView: EditorView) {
-        this.cmView = cmView;
+        this.#cmView = cmView;
     }
 
     type(text: string) {
-        this.cmView.contentDOM.focus();
-
-        const { node, offset } = this.getCursorInfo();
-
-        node.textContent = spliceString(node.textContent ?? '', offset, 0, text);
-        keyboard.dispatchEventsForInput(text, this.cmView.contentDOM);
+        let cursorOffset = this.#cmView.state.selection.primary.anchor;
+        for (const char of text) {
+            const newCursorOffset = cursorOffset + 1;
+            this.#cmView.dispatch(this.#cmView.state.update({
+                changes: { from: cursorOffset, insert: char },
+                selection: { anchor: newCursorOffset }
+            }));
+            cursorOffset = newCursorOffset;
+        }
     }
 
     backspace(count: number) {
         const { node, offset } = this.getCursorInfo();
         for (let i = 0; i < count; i++) {
             node.textContent = spliceString(node.textContent!, offset, 1);
-            keyboard.dispatchEventsForAction('backspace', this.cmView.contentDOM);
+            keyboard.dispatchEventsForAction('backspace', this.#cmView.contentDOM);
         }
     }
 
     press(keys: string) {
-        keyboard.dispatchEventsForAction(keys, this.cmView.contentDOM);
+        keyboard.dispatchEventsForAction(keys, this.#cmView.contentDOM);
     }
 
     private getCursorInfo() {
-        const index = this.cmView.state.selection.primary.from;
-        return this.cmView.domAtPos(index);
+        const index = this.#cmView.state.selection.primary.from;
+        return this.#cmView.domAtPos(index);
     }
 }
 

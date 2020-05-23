@@ -40,7 +40,7 @@ test('re-sends non-default language on next connection open', async () => {
 test('always sends options before slow update', async () => {
     const driver = await TestDriver.new({
         keepSocketClosed: true,
-        text: "' Test",
+        text: 'test',
         options: { language: 'Visual Basic' }
     });
 
@@ -48,8 +48,9 @@ test('always sends options before slow update', async () => {
     driver.socket.trigger('open');
     await driver.completeBackgroundWork();
 
-    expect(driver.socket.sent.slice(0, 2)).toEqual([
+    expect(driver.socket.sent).toEqual([
         'Olanguage=Visual Basic',
+        'R0:0:0::test',
         'U'
     ]);
 });

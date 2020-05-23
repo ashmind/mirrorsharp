@@ -10,6 +10,7 @@ import keymap from './keymap';
 import { sendChangesToServer } from './server/send-changes';
 import { sendCursorToServer } from './server/send-cursor';
 import { slowUpdateLinter } from './server/slow-update-linter';
+import { connectionState } from './server/connection-state';
 
 export function createState<O, U>(
     connection: Connection<O, U>,
@@ -30,6 +31,7 @@ export function createState<O, U>(
             csharp(),
             highlighter(highlighterSpec),
 
+            connectionState(connection),
             sendChangesToServer(connection),
             sendCursorToServer(connection),
             slowUpdateLinter(connection, options)

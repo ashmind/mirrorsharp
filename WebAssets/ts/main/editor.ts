@@ -236,8 +236,6 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
             return;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.#connection.sendReplaceText(0, 0, text, this.#getCursorIndex());
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.#options.on!.connectionChange!('open', e);
         this.#lintingSuspended = false;
