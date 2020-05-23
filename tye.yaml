@@ -1,0 +1,16 @@
+name: mirrorsharp
+services:
+- name: webassets
+  executable: pwsh
+  args: -Command "npm run watch"
+  workingDirectory: WebAssets
+
+- name: aspnetcore-demo-assets  
+  executable: pwsh
+  args: -Command "npm run watch"
+  workingDirectory: AspNetCore.Demo
+
+- name: aspnetcore-demo-dotnet
+  project: AspNetCore.Demo/AspNetCore.Demo.csproj
+  bindings:
+  - protocol: http

@@ -26,7 +26,7 @@ class C {
 }
 
 class G<T> {
-}`;
+}`.replace(/(\r\n|\r|\n)/g, '\r\n'); // Parcel changes newlines to LF
 
 if (language === 'F#') {
     code = '[<EntryPoint>]\r\nlet main argv = \r\n    0';
