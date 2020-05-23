@@ -88,18 +88,6 @@ class TestKeys {
         this.#cmView = cmView;
     }
 
-    type(text: string) {
-        let cursorOffset = this.#cmView.state.selection.primary.anchor;
-        for (const char of text) {
-            const newCursorOffset = cursorOffset + 1;
-            this.#cmView.dispatch(this.#cmView.state.update({
-                changes: { from: cursorOffset, insert: char },
-                selection: { anchor: newCursorOffset }
-            }));
-            cursorOffset = newCursorOffset;
-        }
-    }
-
     backspace(count: number) {
         const { node, offset } = this.getCursorInfo();
         for (let i = 0; i < count; i++) {
@@ -115,6 +103,26 @@ class TestKeys {
     private getCursorInfo() {
         const index = this.#cmView.state.selection.primary.from;
         return this.#cmView.domAtPos(index);
+    }
+}
+
+class TestText {
+    readonly #cmView: EditorView;
+
+    constructor(cmView: EditorView) {
+        this.#cmView = cmView;
+    }
+
+    type(text: string) {
+        let cursorOffset = this.#cmView.state.selection.primary.anchor;
+        for (const char of text) {
+            const newCursorOffset = cursorOffset + 1;
+            this.#cmView.dispatch(this.#cmView.state.update({
+                changes: { from: cursorOffset, insert: char },
+                selection: { anchor: newCursorOffset }
+            }));
+            cursorOffset = newCursorOffset;
+        }
     }
 }
 
@@ -146,30 +154,28 @@ class TestDriver<TExtensionServerOptions = never> {
     public readonly socket: MockSocket;
     public readonly mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>;
     public readonly keys: TestKeys;
+    public readonly text: TestText;
     public readonly receive: TestReceiver;
 
-    private readonly cmView: EditorView;
+    readonly #cmView: EditorView;
 
-    private constructor(
-        socket: MockSocket,
-        mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>,
-        cmView: EditorView,
-        keys: TestKeys,
-        receive: TestReceiver
-    ) {
+    private constructor(socket: MockSocket, mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>) {
+        const cmView = mirrorsharp.getCodeMirrorView();
+
         this.socket = socket;
+        this.#cmView = cmView;
         this.mirrorsharp = mirrorsharp;
-        this.cmView = cmView;
-        this.keys = keys;
-        this.receive = receive;
+        this.keys = new TestKeys(cmView);
+        this.text = new TestText(cmView);
+        this.receive = new TestReceiver(socket);
     }
 
     getCodeMirrorView() {
-        return this.cmView;
+        return this.#cmView;
     }
 
     dispatchCodeMirrorTransaction(...specs: ReadonlyArray<TransactionSpec>) {
-        this.cmView.dispatch(this.cmView.state.update(...specs));
+        this.#cmView.dispatch(this.#cmView.state.update(...specs));
     }
 
     async completeBackgroundWork() {
@@ -222,13 +228,7 @@ class TestDriver<TExtensionServerOptions = never> {
         } as MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>;
         const ms = mirrorsharp(container, msOptions);
 
-        const cmView = ms.getCodeMirrorView();
-
-        const driver = new TestDriver(
-            socket, ms, cmView,
-            new TestKeys(cmView),
-            new TestReceiver(socket)
-        );
+        const driver = new TestDriver(socket, ms);
 
         if (options.keepSocketClosed)
             return driver;

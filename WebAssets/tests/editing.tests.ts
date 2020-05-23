@@ -3,9 +3,7 @@ import { TestDriver } from './test-driver';
 test('change at cursor is sent as typed text', async () => {
     const driver = await TestDriver.new({ textWithCursor: 'a|bc' });
 
-    driver.dispatchCodeMirrorTransaction({
-        changes: { from: 1, insert: 'x' }
-    });
+    driver.text.type('x');
     await driver.completeBackgroundWork();
 
     const lastSent = driver.socket.sent.filter(c => !c.startsWith('U')).slice(-1)[0];
@@ -21,7 +19,7 @@ test('change not at cursor is sent as replaced text', async () => {
     await driver.completeBackgroundWork();
 
     const lastSent = driver.socket.sent.filter(c => !c.startsWith('U')).slice(-1)[0];
-    expect(lastSent).toBe('R2:0:0::x');
+    expect(lastSent).toBe('R2:0:1::x');
 });
 
 // two changed are handled in a special way in code
@@ -35,8 +33,8 @@ test('two changes are sent as individual replaced text', async () => {
 
     const lastSent = driver.socket.sent.filter(c => !c.startsWith('U'));
     expect(lastSent).toEqual([
-        'R1:0:0::x',
-        'R2:0:0::y'
+        'R1:0:1::x',
+        'R2:0:1::y'
     ]);
 });
 
@@ -50,9 +48,9 @@ test('three changes are sent as individual replaced text', async () => {
 
     const lastSent = driver.socket.sent.filter(c => !c.startsWith('U'));
     expect(lastSent).toEqual([
-        'R1:0:0::x',
-        'R2:0:0::y',
-        'R3:0:0::z'
+        'R1:0:1::x',
+        'R2:0:1::y',
+        'R3:0:1::z'
     ]);
 });
 

@@ -67,9 +67,9 @@ test('slowUpdate is sent only once on reopen if connection is closed', async () 
     });
 
     await driver.advanceTimeAndCompleteNextLinting();
-    driver.keys.type('b');
+    driver.text.type('b');
     await driver.advanceTimeAndCompleteNextLinting();
-    driver.keys.type('c');
+    driver.text.type('c');
     driver.socket.trigger('open');
     await driver.advanceTimeAndCompleteNextLinting();
 
