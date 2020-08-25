@@ -13,7 +13,7 @@ if (language === 'F#') {
     textarea.value = '[<EntryPoint>]\r\nlet main argv = \r\n    0';
 }
 else if (mode === 'script') {
-    textarea.value = '// C# Script uses Random as the host object.\r\nvar m = Next();';
+    textarea.value = 'var messages = Context.Messages;';
 }
 
 const ms = mirrorsharp(textarea, {

@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using AspNetCore.Demo.Library;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,10 +30,22 @@ namespace MirrorSharp.AspNetCore.Demo {
                 "/mirrorsharp",
                 new MirrorSharpOptions {
                     SelfDebugEnabled = true,
-                    IncludeExceptionDetails = true
+                    IncludeExceptionDetails = true,
                 }
+                .SetupCSharp(o => {
+                    o.AddMetadataReferencesFromFiles(GetAllReferencePaths().ToArray());
+                    o.SetScriptMode(true, typeof(IScriptGlobals));
+                })
                 .EnableFSharp()
             ));
+        }
+
+        IEnumerable<string> GetAllReferencePaths() {
+            var assembly = typeof(IScriptGlobals).Assembly;
+            yield return assembly.Location;
+            foreach (var name in assembly.GetReferencedAssemblies()) {
+                yield return Assembly.Load(name).Location;
+            }
         }
     }
 }
