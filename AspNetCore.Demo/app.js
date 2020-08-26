@@ -22,4 +22,4 @@ const ms = mirrorsharp(textarea, {
     language: language
 });
 if (mode !== 'regular')
-    ms.sendServerOptions({ 'language': language, 'x-mode': mode });
+    ms.setServerOptions({ 'language': language, 'x-mode': mode });
