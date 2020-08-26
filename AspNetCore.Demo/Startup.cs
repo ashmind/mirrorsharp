@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using AspNetCore.Demo.Library;
@@ -40,7 +41,13 @@ namespace MirrorSharp.AspNetCore.Demo {
             ));
         }
 
-        IEnumerable<string> GetAllReferencePaths() {
+        static IEnumerable<string> GetAllReferencePaths() {
+            var assemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location)
+                               ?? throw new InvalidOperationException("Could not find the assembly for object.");
+            yield return Path.Combine(assemblyPath, "mscorlib.dll");
+            yield return Path.Combine(assemblyPath, "System.dll");
+            yield return Path.Combine(assemblyPath, "System.Core.dll");
+            yield return Path.Combine(assemblyPath, "System.Runtime.dll");
             var assembly = typeof(IScriptGlobals).Assembly;
             yield return assembly.Location;
             foreach (var name in assembly.GetReferencedAssemblies()) {
