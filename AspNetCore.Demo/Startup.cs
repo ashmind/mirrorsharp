@@ -41,7 +41,7 @@ namespace MirrorSharp.AspNetCore.Demo {
             ));
         }
 
-        static IEnumerable<string> GetAllReferencePaths() {
+        private static IEnumerable<string> GetAllReferencePaths() {
             var assemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location)
                                ?? throw new InvalidOperationException("Could not find the assembly for object.");
             yield return Path.Combine(assemblyPath, "mscorlib.dll");
