@@ -1,6 +1,7 @@
 *.user
 project.lock.json
 .vs/
+.idea/
 bower_components/
 node_modules/
 .cache/
