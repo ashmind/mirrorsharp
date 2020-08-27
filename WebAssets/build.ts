@@ -34,9 +34,14 @@ const ts = task('ts', async () => {
 
 const css = task('css', () => jetpack.copyAsync('css', 'dist', { overwrite: true }), { inputs: ['css/*.*'] });
 
-const files = task('files', () => {
-    jetpack.copyAsync('./README.md', 'dist/README.md', { overwrite: true });
-    jetpack.copyAsync('./package.json', 'dist/package.json', { overwrite: true });
+const files = task('files', async () => {
+    await jetpack.copyAsync('./README.md', 'dist/README.md', { overwrite: true });
+    const packageJson = JSON.parse((await jetpack.readAsync('./package.json'))!);
+    // cannot be specified in current package.json due to https://github.com/TypeStrong/ts-node/issues/935
+    // which is fine, from perspective of the project itself it's TypeScript, so type=module is irrelevant
+    // only the output (dist) is JS modules
+    packageJson.type = 'module';
+    await jetpack.writeAsync('dist/package.json', JSON.stringify(packageJson, null, 4));
 }, { inputs: ['./README.md', './package.json'] });
 
 task('default', async () => {
