@@ -1,8 +1,7 @@
-import { keymap } from '@codemirror/next/keymap';
-import { baseKeymap } from '@codemirror/next/commands';
-import { undo, redo } from '@codemirror/next/history';
-import { indentMore, indentLess } from './indent-temp';
-import { ViewPlugin, EditorView } from '@codemirror/next/view';
+
+import { defaultKeymap, indentMore, indentLess } from '@codemirror/next/commands';
+import { historyKeymap } from '@codemirror/next/history';
+import { keymap, ViewPlugin, EditorView } from '@codemirror/next/view';
 
 const tabTrapped = new WeakMap<EditorView, boolean>();
 const tabTrapPlugin = ViewPlugin.define(view => {
@@ -14,16 +13,13 @@ const tabTrapPlugin = ViewPlugin.define(view => {
     });
 });
 
-export default [tabTrapPlugin, keymap({
-    ...baseKeymap,
-
-    'Mod-z': undo,
-    'Shift-Mod-z': redo,
-
-    'Tab': view => tabTrapped.get(view) ? indentMore(view) : false,
-    'Shift-Tab': view => tabTrapped.get(view) ? indentLess(view) : false,
-    'Escape': view => {
+export default [tabTrapPlugin, keymap([
+    ...defaultKeymap,
+    ...historyKeymap,
+    { key: 'Tab', run: view => tabTrapped.get(view) ? indentMore(view) : false },
+    { key: 'Shift-Tab', run: view => tabTrapped.get(view) ? indentLess(view) : false },
+    { key: 'Escape', run: view => {
         tabTrapped.set(view, false);
         return true;
-    }
-})];
+    } }
+])];

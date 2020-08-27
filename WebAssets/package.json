@@ -1,6 +1,6 @@
 {
     "name": "mirrorsharp-codemirror-6-preview",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "type": "module",
     "engines": {
         "node": ">=12.6.1"
@@ -51,7 +51,7 @@
         ]
     },
     "dependencies": {
-        "@codemirror/next": "^0.6.0",
+        "@codemirror/next": "^0.8.0",
         "lezer-csharp-simple": "^0.0.3"
     },
     "devDependencies": {

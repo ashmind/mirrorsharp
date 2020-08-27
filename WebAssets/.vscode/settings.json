@@ -3,7 +3,8 @@
         "**/.git": true,
         "bin/": true,
         "obj/": true,
-        "*.csproj*": true
+        "*.csproj*": true,
+        "Properties/": true
     },
     "editor.codeActionsOnSave": {
         "source.fixAll": true

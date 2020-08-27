@@ -1,5 +1,5 @@
 import { ViewPlugin, EditorView, PluginValue } from '@codemirror/next/view';
-import { linting, Diagnostic, setDiagnostics } from '@codemirror/next/lint';
+import { linter, Diagnostic, setDiagnostics } from '@codemirror/next/lint';
 import type { Connection } from '../../connection';
 import type { SlowUpdateOptions } from '../../../interfaces/slow-update';
 import type { DiagnosticData } from '../../../interfaces/protocol';
@@ -35,9 +35,7 @@ const createLinterPlugin = <O, TExtensionData>(
                 if (b.from > a.from) return -1;
                 return 0;
             });
-            view.dispatch(view.state.update({
-                effects: [setDiagnostics.of(diagnostics)]
-            }));
+            view.dispatch(setDiagnostics(view.state, diagnostics));
 
             if (slowUpdateResult)
                 slowUpdateResult(message);
@@ -89,6 +87,5 @@ export const slowUpdateLinter = <O, TExtensionData>(
     connection: Connection<O, TExtensionData>,
     options: SlowUpdateOptions<TExtensionData>
 ) => [
-    ViewPlugin.define(view => createLinterPlugin(view, connection, options)),
-    linting()
+    ViewPlugin.define(view => createLinterPlugin(view, connection, options))
 ];
