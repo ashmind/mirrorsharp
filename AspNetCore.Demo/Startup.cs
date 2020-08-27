@@ -31,7 +31,7 @@ namespace MirrorSharp.AspNetCore.Demo {
                 "/mirrorsharp",
                 new MirrorSharpOptions {
                     SelfDebugEnabled = true,
-                    IncludeExceptionDetails = true,
+                    IncludeExceptionDetails = true
                 }
                 .SetupCSharp(o => {
                     o.AddMetadataReferencesFromFiles(GetAllReferencePaths().ToArray());
