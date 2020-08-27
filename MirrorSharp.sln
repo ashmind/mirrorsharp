@@ -44,6 +44,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Demo", "AspNetCo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.RoslynLatest", "Tests.RoslynLatest\Tests.RoslynLatest.csproj", "{72B44FAA-5B8E-470D-B20E-AC6017B5A1D9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Demo.Library", "AspNetCore.Demo.Library\AspNetCore.Demo.Library.csproj", "{2FD91F17-E789-4789-A1F6-5D794E6B6DA7}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Tests.Shared\MirrorSharp.Tests.Shared.projitems*{0a9078a1-bd26-4dc7-87bb-ded125f6218b}*SharedItemsImports = 13
@@ -110,6 +112,10 @@ Global
 		{72B44FAA-5B8E-470D-B20E-AC6017B5A1D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72B44FAA-5B8E-470D-B20E-AC6017B5A1D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72B44FAA-5B8E-470D-B20E-AC6017B5A1D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FD91F17-E789-4789-A1F6-5D794E6B6DA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FD91F17-E789-4789-A1F6-5D794E6B6DA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FD91F17-E789-4789-A1F6-5D794E6B6DA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FD91F17-E789-4789-A1F6-5D794E6B6DA7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -127,6 +133,7 @@ Global
 		{D3BFCC28-012C-45A0-8B24-D1349D81E86D} = {8FC36475-1AD2-4EA0-96E0-D09E35E4B721}
 		{8E96EC9F-6332-4274-AA07-F8D30FA0284C} = {8FC36475-1AD2-4EA0-96E0-D09E35E4B721}
 		{72B44FAA-5B8E-470D-B20E-AC6017B5A1D9} = {269EAC4A-4214-4458-9B65-42E809E168E7}
+		{2FD91F17-E789-4789-A1F6-5D794E6B6DA7} = {8FC36475-1AD2-4EA0-96E0-D09E35E4B721}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AA05E375-911A-4C8F-A6D6-C0B895E7BDE4}
