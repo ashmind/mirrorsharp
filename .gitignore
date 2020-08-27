@@ -1,6 +1,7 @@
 *.user
 project.lock.json
 .vs/
+.idea/
 bower_components/
 node_modules/
 .cache/
@@ -11,5 +12,3 @@ obj/
 /WebAssets/coverage
 /Owin.Demo/wwwroot
 /AspNetCore.Demo/wwwroot
-/AspNetCore.Demo/dist
-.idea/
