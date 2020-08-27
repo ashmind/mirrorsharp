@@ -13,7 +13,7 @@
     "typeface-open-sans": "0.0.75"
   },
   "devDependencies": {
-    "less": "^3.11.1",
+    "less": "^3.12.2",
     "parcel": "^1.12.4"
   }
 }
