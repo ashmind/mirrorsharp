@@ -102,15 +102,24 @@ test('info tip has expected position and size', async () => {
 
     driver.receive.completions([completion()]);
     await driver.completeBackgroundWork();
-    mockRect(document.querySelector('.CodeMirror-hints')!, { right: 150 });
-    mockRect(document.querySelector('.CodeMirror-hints .CodeMirror-hint:first-child')!, { top: 300 });
+
+    const hints = document.querySelector('.CodeMirror-hints') as HTMLElement;
+    const selected = document.querySelector('.CodeMirror-hints .CodeMirror-hint:first-child')!;
+
+    Object.defineProperty(hints, 'offsetTop', { value: 50 });
+    mockRect(hints, { top: 100, right: 150 });
+    mockRect(selected, { top: 300 });
     mockRect(document.documentElement, { width: 200 });
 
     driver.receive.completionInfo(0, []);
     await driver.completeBackgroundWork();
 
     const tip = getTooltip();
-    expect(tip.style.top).toBe('300px');
+
+    // 300 (boundingRect top) - 100 (parent boundingRect top) = 200
+    // 200 + 50 (parent offsetTop) = 250
+    expect(tip.style.top).toBe('250px');
+
     expect(tip.style.left).toBe('150px');
     expect(tip.style.maxWidth).toBe('50px');
 });

@@ -168,9 +168,14 @@ export class Hinter<TExtensionServerOptions, TSlowUpdateExtensionData> {
             }
         }
 
-        const top = this.#selected.element.getBoundingClientRect().top;
+        const selectedElement = this.#selected.element;
+        const selectedRect = selectedElement.getBoundingClientRect();
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const left = this.#selected.element.parentElement!.getBoundingClientRect().right;
+        const parentElement = this.#selected.element.parentElement!;
+        const parentRect = parentElement.getBoundingClientRect();
+
+        const top = parentElement.offsetTop + (selectedRect.top - parentRect.top);
+        const left = parentRect.right;
         const screenWidth = document.documentElement.getBoundingClientRect().width;
 
         const style = element.style;
