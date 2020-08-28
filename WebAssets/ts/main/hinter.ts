@@ -171,7 +171,7 @@ export class Hinter<TExtensionServerOptions, TSlowUpdateExtensionData> {
         const selectedElement = this.#selected.element;
         const selectedRect = selectedElement.getBoundingClientRect();
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const parentElement = this.#selected.element.parentElement!;
+        const parentElement = selectedElement.parentElement!;
         const parentRect = parentElement.getBoundingClientRect();
 
         const top = parentElement.offsetTop + (selectedRect.top - parentRect.top);
