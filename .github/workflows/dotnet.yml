@@ -1,0 +1,29 @@
+name: Server (C#)
+
+on:
+  push:
+    paths-ignore:
+    - 'WebAssets/**'
+
+jobs:
+  build-and-publish:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-dotnet@v1
+      with:
+          dotnet-version: '3.1.x'
+      env:
+          NUGET_AUTH_TOKEN: ${{secrets.NUGET_TOKEN}}
+
+    - run: dotnet build --configuration Release 
+    - run: dotnet test
+    - run: dotnet pack --no-build --output .
+
+    - if: github.ref == 'refs/heads/master'
+      run: dotnet nuget push *.nupkg
+
+    - if: github.ref == 'refs/heads/master'
+      uses: actions/upload-artifact@v2-preview
+      with:
+        path: *.nupkg

@@ -23,6 +23,9 @@ jobs:
     - name: 'WebAssets: npm run build'
       run: npm run build
       working-directory: WebAssets
+    - name: 'WebAssets: npm test'
+      run: npm test
+      working-directory: WebAssets
       
     - name: 'AspNetCore.Demo: npm ci'    
       run: npm ci
