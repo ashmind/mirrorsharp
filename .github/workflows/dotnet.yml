@@ -20,8 +20,8 @@ jobs:
           NUGET_AUTH_TOKEN: ${{secrets.NUGET_TOKEN}}
 
     - run: dotnet build --configuration Release 
-    - run: dotnet test --no-build
-    - run: dotnet pack --no-build --output .
+    - run: dotnet test --no-build --configuration Release 
+    - run: dotnet pack --no-build --output . --configuration Release
 
     - if: github.ref == 'refs/heads/master'
       run: dotnet nuget push *.nupkg
