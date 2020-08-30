@@ -3,6 +3,8 @@
     <LangVersion>8.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsNotAsErrors>1591</WarningsNotAsErrors>
+    <!-- Move to WarningsNotAsErrors after https://github.com/NuGet/Home/issues/5375 -->
+    <NoWarn>NU1701</NoWarn>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   
