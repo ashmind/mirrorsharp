@@ -1,15 +1,15 @@
-name: build-web-assets
+name: Client (JS)
 
 on:
   push:
     paths:
-    - '.github/workflows/build-web-assets.yml'
+    - '.github/workflows/web-assets.yml'
     - 'WebAssets/**'
     - 'AspNetCore.Demo'
     - 'Owin.Demo'
 
 jobs:
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -37,3 +37,14 @@ jobs:
     - name: 'Owin.Demo: npm run build'
       run: npm run build
       working-directory: Owin.Demo
+
+    - if: github.ref == 'refs/heads/master'
+      uses: JS-DevTools/npm-publish@v1
+      with:
+        token: ${{ secrets.NPM_TOKEN }}
+      working-directory: WebAssets
+
+    - if: github.ref == 'refs/heads/master'
+      uses: actions/upload-artifact@v2-preview
+      with:
+        path: WebAssets/*.tgz
