@@ -1,13 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <AssemblyName>MirrorSharp.Benchmarks</AssemblyName>
     <OutputType>Exe</OutputType>
-    <PackageId>MirrorSharp.Benchmarks</PackageId>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <RootNamespace>MirrorSharp.Benchmarks</RootNamespace>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   
   <ItemGroup>

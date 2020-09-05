@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <AssemblyName>MirrorSharp.AspNetCore.Demo</AssemblyName>
     <RootNamespace>MirrorSharp.AspNetCore.Demo</RootNamespace>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

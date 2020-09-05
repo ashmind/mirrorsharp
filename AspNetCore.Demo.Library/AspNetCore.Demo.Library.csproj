@@ -1,12 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
 
-    <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <AdditionalFiles Remove="PublicAPI.Shipped.txt" />
-      <AdditionalFiles Remove="PublicAPI.Unshipped.txt" />
-    </ItemGroup>
-
+  <ItemGroup>
+    <AdditionalFiles Remove="PublicAPI.Shipped.txt" />
+    <AdditionalFiles Remove="PublicAPI.Unshipped.txt" />
+  </ItemGroup>
 </Project>
