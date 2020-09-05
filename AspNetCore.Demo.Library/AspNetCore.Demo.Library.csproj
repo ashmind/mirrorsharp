@@ -2,6 +2,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <IsPackable>false</IsPackable>
+    <AssemblyName>MirrorSharp.AspNetCore.Demo.Library</AssemblyName>
+    <RootNamespace>MirrorSharp.AspNetCore.Demo.Library</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

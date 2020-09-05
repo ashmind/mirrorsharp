@@ -64,6 +64,18 @@ export interface SignaturesEmptyMessage {
 export interface SignatureData {
     readonly parts: ReadonlyArray<SignaturePartData>;
     readonly selected?: boolean;
+    readonly info?: SignatureInfoData;
+}
+
+export interface SignatureInfoData {
+    readonly parts: ReadonlyArray<PartData>;
+    // normally represents the selected parameter
+    readonly parameter?: SignatureInfoParameterData;
+}
+
+export interface SignatureInfoParameterData {
+    readonly name: string;
+    readonly parts: ReadonlyArray<PartData>;
 }
 
 export interface SignaturePartData extends PartData {

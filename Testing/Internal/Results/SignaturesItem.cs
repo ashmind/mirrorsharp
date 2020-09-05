@@ -10,6 +10,7 @@ namespace MirrorSharp.Testing.Internal.Results {
     internal class SignaturesItem {
         public bool Selected { get; set; }
         public IList<SignaturesItemPart> Parts { get; } = new List<SignaturesItemPart>();
+        public SignaturesItemInfo? Info { get; set; }
 
         public override string ToString() => ToString(true);
 

@@ -1,4 +1,5 @@
-import type { SignatureData, SpanData } from '../interfaces/protocol';
+import type { SignatureData, SpanData, SignatureInfoParameterData } from '../interfaces/protocol';
+import { renderParts } from '../helpers/render-parts';
 
 const displayKindToClassMap = {
     keyword: 'cm-keyword'
@@ -62,6 +63,8 @@ export class SignatureTip {
                 }
                 li.appendChild(child);
             }
+            this.#renderInfo(li, signature);
+
             ol.appendChild(li);
         }
 
@@ -75,6 +78,35 @@ export class SignatureTip {
         tooltip.style.left = startCharCoords.left + 'px';
         document.body.appendChild(tooltip);
     }
+
+    #renderInfo = (parent: HTMLElement, signature: SignatureData) => {
+        const { info } = signature;
+        if (!info)
+            return;
+
+        const element = document.createElement('div');
+        renderParts(element, info.parts);
+        parent.appendChild(element);
+
+        const { parameter } = info;
+        if (!parameter)
+            return;
+
+        this.#renderInfoParameter(parent, parameter);
+    };
+
+    #renderInfoParameter = (parent: HTMLElement, parameter: SignatureInfoParameterData) => {
+        const element = document.createElement('div');
+        element.className = 'mirrorsharp-signature-info-parameter';
+
+        const nameElement = document.createElement('span');
+        nameElement.className = 'mirrorsharp-signature-info-parameter-name';
+        nameElement.innerText = parameter.name + ': ';
+        element.appendChild(nameElement);
+        renderParts(element, parameter.parts);
+
+        parent.appendChild(element);
+    };
 
     hide() {
         if (!this.#active)

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
-namespace AspNetCore.Demo.Library {
+namespace MirrorSharp.AspNetCore.Demo.Library {
     public interface IScriptContext {
         string Arguments { get; }
 

@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using AspNetCore.Demo.Library;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MirrorSharp.Advanced;
 using MirrorSharp.AspNetCore.Demo.Extensions;
+using MirrorSharp.AspNetCore.Demo.Library;
+using SharpLab.Server.Common.Internal;
 
 namespace MirrorSharp.AspNetCore.Demo {
     public class Startup {
@@ -34,25 +35,26 @@ namespace MirrorSharp.AspNetCore.Demo {
                     IncludeExceptionDetails = true
                 }
                 .SetupCSharp(o => {
-                    o.AddMetadataReferencesFromFiles(GetAllReferencePaths().ToArray());
-                    o.SetScriptMode(true, typeof(IScriptGlobals));
+                    o.MetadataReferences = o.MetadataReferences.AddRange(GetAllReferences());
                 })
                 .EnableFSharp()
             ));
         }
 
-        private static IEnumerable<string> GetAllReferencePaths() {
-            var assemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location)
-                               ?? throw new InvalidOperationException("Could not find the assembly for object.");
-            yield return Path.Combine(assemblyPath, "mscorlib.dll");
-            yield return Path.Combine(assemblyPath, "System.dll");
-            yield return Path.Combine(assemblyPath, "System.Core.dll");
-            yield return Path.Combine(assemblyPath, "System.Runtime.dll");
+        private static IEnumerable<MetadataReference> GetAllReferences() {
+            yield return ReferenceWithDocumentation(typeof(object).Assembly.Location);
+
+            var referenceBasePath = Path.GetDirectoryName(typeof(object).Assembly.Location);
+            yield return ReferenceWithDocumentation(Path.Join(referenceBasePath, "System.Runtime.dll"));
+
             var assembly = typeof(IScriptGlobals).Assembly;
-            yield return assembly.Location;
+            yield return MetadataReference.CreateFromFile(assembly.Location);
             foreach (var name in assembly.GetReferencedAssemblies()) {
-                yield return Assembly.Load(name).Location;
+                yield return ReferenceWithDocumentation(Assembly.Load(name).Location);
             }
         }
+
+        private static MetadataReference ReferenceWithDocumentation(string path)
+            => MetadataReference.CreateFromFile(path, documentation: XmlDocumentationResolver.GetProvider(path));
     }
 }
