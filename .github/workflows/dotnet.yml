@@ -16,14 +16,13 @@ jobs:
           dotnet-version: 2.1.x, 3.1.x
       env:
           DOTNET_NOLOGO: true
-          NUGET_AUTH_TOKEN: ${{secrets.NUGET_TOKEN}}
 
     - run: dotnet build --configuration Release 
     - run: dotnet test --no-build --configuration Release 
     - run: dotnet pack --no-build --output . --configuration Release
 
     - if: github.ref == 'refs/heads/master'
-      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_TOKEN}} --skip-duplicate 
 
     - if: github.ref == 'refs/heads/master'
       uses: actions/upload-artifact@v2-preview
