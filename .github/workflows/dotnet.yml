@@ -23,7 +23,7 @@ jobs:
     - run: dotnet pack --no-build --output . --configuration Release
 
     - if: github.ref == 'refs/heads/master'
-      run: dotnet nuget push *.nupkg
+      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json
 
     - if: github.ref == 'refs/heads/master'
       uses: actions/upload-artifact@v2-preview
