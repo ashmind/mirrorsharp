@@ -5,15 +5,18 @@ import { task, exec, build } from 'oldowan';
 import convertPrivateFields from './build/babel-plugin-convert-private-fields-to-symbols';
 
 const clean = task('clean', async () => {
-    const paths = await fg(['dist/**/*.*', '!dist/node_modules/**/*.*']);
+    const paths = await fg(['.temp/**/*.*', 'dist/**/*.*', '!dist/node_modules/**/*.*']);
     await Promise.all(paths.map(jetpack.removeAsync));
 });
 
-const ts = task('ts', async () => {
-    await exec('eslint ./ts --max-warnings 0 --ext .js,.jsx,.ts,.tsx');
-    await exec('tsc --project ./ts/tsconfig.json --module ES2015 --noEmit false --outDir ./dist --declaration true');
+const tscArgs = '--project ./ts/tsconfig.json --module ES2015 --noEmit false --outDir ./.temp --declaration true'
+const tsTsc = task('ts:tsc',
+    () => exec(`tsc ${tscArgs}`),
+    { watch: () => exec(`tsc --watch ${tscArgs}`) }
+);
 
-    await Promise.all((await fg(['dist/**/*.js'])).map(async path => {
+const tsTransform = task('ts:transform', async () => {
+    await Promise.all((await fg(['.temp/**/*.js'])).map(async path => {
         const { code: transformed } = (await transformFileAsync(path, {
             plugins: [
                 // Add .js extension to all imports.
@@ -28,11 +31,17 @@ const ts = task('ts', async () => {
             ]
         }))!;
 
-        await jetpack.writeAsync(path, transformed!);
+        await jetpack.writeAsync(path.replace('.temp', 'dist'), transformed!);
     }));
-}, { inputs: ['ts/**/*.ts'] });
+}, { watch: ['.temp/**/*.js'] });
 
-const css = task('css', () => jetpack.copyAsync('css', 'dist', { overwrite: true }), { inputs: ['css/*.*'] });
+const ts = task('ts', async () => {
+    await exec('eslint ./ts --max-warnings 0 --ext .js,.jsx,.ts,.tsx');
+    await tsTsc();
+    await tsTransform();
+})
+
+const css = task('css', () => jetpack.copyAsync('css', 'dist', { overwrite: true }), { watch: ['css/*.*'] });
 
 const files = task('files', async () => {
     await jetpack.copyAsync('./README.md', 'dist/README.md', { overwrite: true });
@@ -42,7 +51,7 @@ const files = task('files', async () => {
     // only the output (dist) is JS modules
     packageJson.type = 'module';
     await jetpack.writeAsync('dist/package.json', JSON.stringify(packageJson, null, 4));
-}, { inputs: ['./README.md', './package.json'] });
+}, { watch: ['./README.md', './package.json'] });
 
 task('default', async () => {
     await clean();
