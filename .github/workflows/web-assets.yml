@@ -45,10 +45,5 @@ jobs:
     - if: github.ref == 'refs/heads/master'
       uses: JS-DevTools/npm-publish@v1
       with:
-        package: './WebAssets/package.json'
+        package: './WebAssets/dist/package.json'
         token: ${{ secrets.NPM_TOKEN }}
-
-    - if: github.ref == 'refs/heads/master'
-      uses: actions/upload-artifact@v2-preview
-      with:
-        path: WebAssets/*.tgz
