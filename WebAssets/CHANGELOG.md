@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0.2-preview-02] - 2020-09-09
+
+### Fixed
+- Fix npm package structure broken in 2.0.2-preview-01.
+
 ## [2.0.2-preview-01] - 2020-09-06
 
 ### Added
