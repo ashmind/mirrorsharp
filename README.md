@@ -1,8 +1,5 @@
 ## Overview
 
-[![AppVeyor branch](https://img.shields.io/appveyor/ci/ashmind/mirrorsharp/master.svg?style=flat-square)](https://ci.appveyor.com/project/ashmind/mirrorsharp)
-[![AppVeyor tests](https://img.shields.io/appveyor/tests/ashmind/mirrorsharp.svg?style=flat-square)](https://ci.appveyor.com/project/ashmind/mirrorsharp/build/tests)
-
 MirrorSharp is a code editor `<textarea>` built on Roslyn and [CodeMirror](https://codemirror.net/).
 
 ### Features
@@ -29,6 +26,8 @@ You'll need the following:
 - **mirrorsharp.js** — client library that provides the user interface
 
 ### Server
+
+[![build](https://img.shields.io/github/workflow/status/ashmind/mirrorsharp/Server%20%28C%23%29.svg?style=flat-square)](https://github.com/ashmind/mirrorsharp/actions?query=workflow%3A%22Server+%28C%23%29%22)
 
 #### MirrorSharp.AspNetCore
 [![NuGet](https://img.shields.io/nuget/v/MirrorSharp.AspNetCore.svg?style=flat-square)](https://www.nuget.org/packages/MirrorSharp.AspNetCore)
@@ -63,6 +62,8 @@ app.MapMirrorSharp("/mirrosharp");
 ```
 
 ### Client
+
+[![build](https://img.shields.io/github/workflow/status/ashmind/mirrorsharp/Client%20%28JS%29.svg?style=flat-square)](https://github.com/ashmind/mirrorsharp/actions?query=workflow%3A%22Client+%28JS%29%22)  
 [![npm](https://img.shields.io/npm/v/mirrorsharp.svg?style=flat-square)](https://www.npmjs.com/package/mirrorsharp)
 
 ```
