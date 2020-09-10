@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0.2-preview-03] - 2020-09-10
+
+### Fixed
+- Do not show signature help documentation if empty.
+
 ## [2.0.2-preview-02] - 2020-09-09
 
 ### Fixed

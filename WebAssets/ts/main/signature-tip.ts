@@ -84,9 +84,11 @@ export class SignatureTip {
         if (!info)
             return;
 
-        const element = document.createElement('div');
-        renderParts(element, info.parts);
-        parent.appendChild(element);
+        if (info.parts.length > 0) {
+            const element = document.createElement('div');
+            renderParts(element, info.parts);
+            parent.appendChild(element);
+        }
 
         const { parameter } = info;
         if (!parameter)
@@ -96,6 +98,9 @@ export class SignatureTip {
     };
 
     #renderInfoParameter = (parent: HTMLElement, parameter: SignatureInfoParameterData) => {
+        if (parameter.parts.length === 0)
+            return;
+
         const element = document.createElement('div');
         element.className = 'mirrorsharp-signature-info-parameter';
 
