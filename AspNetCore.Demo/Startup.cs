@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
-using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.CodeAnalysis;
@@ -10,7 +10,6 @@ using Microsoft.Extensions.Hosting;
 using MirrorSharp.Advanced;
 using MirrorSharp.AspNetCore.Demo.Extensions;
 using MirrorSharp.AspNetCore.Demo.Library;
-using SharpLab.Server.Common.Internal;
 
 namespace MirrorSharp.AspNetCore.Demo {
     public class Startup {
@@ -35,26 +34,33 @@ namespace MirrorSharp.AspNetCore.Demo {
                     IncludeExceptionDetails = true
                 }
                 .SetupCSharp(o => {
-                    o.MetadataReferences = o.MetadataReferences.AddRange(GetAllReferences());
+                    o.MetadataReferences = GetAllReferences().ToImmutableList();
                 })
                 .EnableFSharp()
             ));
         }
 
         private static IEnumerable<MetadataReference> GetAllReferences() {
-            yield return ReferenceWithDocumentation(typeof(object).Assembly.Location);
-
-            var referenceBasePath = Path.GetDirectoryName(typeof(object).Assembly.Location);
-            yield return ReferenceWithDocumentation(Path.Join(referenceBasePath, "System.Runtime.dll"));
-
+            yield return ReferenceAssembly("System.Runtime");
+            yield return ReferenceAssembly("System.Collections");
             var assembly = typeof(IScriptGlobals).Assembly;
             yield return MetadataReference.CreateFromFile(assembly.Location);
-            foreach (var name in assembly.GetReferencedAssemblies()) {
-                yield return ReferenceWithDocumentation(Assembly.Load(name).Location);
+            foreach (var reference in assembly.GetReferencedAssemblies()) {
+                yield return ReferenceAssembly(reference.Name!);
             }
         }
 
-        private static MetadataReference ReferenceWithDocumentation(string path)
-            => MetadataReference.CreateFromFile(path, documentation: XmlDocumentationResolver.GetProvider(path));
+        private static MetadataReference ReferenceAssembly(string name) {
+            var rootPath = Path.Combine(
+                Path.GetDirectoryName(new Uri(typeof(Startup).Assembly.EscapedCodeBase).LocalPath)!,
+                "ref-assemblies"
+            );
+            var assemblyPath = Path.Combine(rootPath, name + ".dll");
+            var documentationPath = Path.Combine(rootPath, name + ".xml");
+
+            return MetadataReference.CreateFromFile(
+                assemblyPath, documentation: XmlDocumentationProvider.CreateFromFile(documentationPath)
+            );
+        }
     }
 }
