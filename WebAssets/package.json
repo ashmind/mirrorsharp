@@ -1,6 +1,6 @@
 {
     "name": "mirrorsharp",
-    "version": "2.0.2-preview-03",
+    "version": "2.0.2",
     "engines": {
         "node": ">=12.6.1"
     },

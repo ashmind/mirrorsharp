@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.2.1-preview-01] - 2020-09-06
+## [2.2.1] - 2020-09-12
 
 ### Added
 - Show XML documentation in signature help.
