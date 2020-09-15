@@ -2,9 +2,11 @@
 project.lock.json
 .vs/
 .tye/
+.idea/
 bower_components/
 node_modules/
 .cache/
+.temp/
 bin/
 obj/
 /*.tgz

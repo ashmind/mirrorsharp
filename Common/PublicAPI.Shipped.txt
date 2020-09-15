@@ -65,3 +65,5 @@ static MirrorSharp.Advanced.FastJsonWriterExtensions.WriteProperty(this MirrorSh
 static MirrorSharp.Advanced.FastJsonWriterExtensions.WriteProperty(this MirrorSharp.Advanced.IFastJsonWriter writer, string name, string value) -> void
 static MirrorSharp.Advanced.FastJsonWriterExtensions.WritePropertyStartArray(this MirrorSharp.Advanced.IFastJsonWriter writer, string name) -> void
 static MirrorSharp.Advanced.FastJsonWriterExtensions.WritePropertyStartObject(this MirrorSharp.Advanced.IFastJsonWriter writer, string name) -> void
+MirrorSharp.Advanced.MirrorSharpRoslynOptions<TSelf, TParseOptions, TCompilationOptions>.AnalyzerReferences.get -> System.Collections.Immutable.ImmutableList<Microsoft.CodeAnalysis.Diagnostics.AnalyzerReference>
+MirrorSharp.Advanced.MirrorSharpRoslynOptions<TSelf, TParseOptions, TCompilationOptions>.AnalyzerReferences.set -> void

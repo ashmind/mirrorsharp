@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <AssemblyName>MirrorSharp.AspNetCore.Demo</AssemblyName>
     <RootNamespace>MirrorSharp.AspNetCore.Demo</RootNamespace>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,9 +16,25 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AspNetCore.Demo.Library\AspNetCore.Demo.Library.csproj" />
     <ProjectReference Include="..\AspNetCore\AspNetCore.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\FSharp\FSharp.csproj" />
   </ItemGroup>
 
+  <Target Name="CopyFrameworkXmlDocumentation" AfterTargets="ResolveReferences">
+    <ItemGroup>
+      <Content Include="@(Reference->'%(RootDir)%(Directory)%(Filename)%(Extension)')"
+               Link="@(Reference->'ref-assemblies\%(Filename)%(Extension)')"
+               Condition="$([System.String]::new('%(Filename)').StartsWith('System')) or '%(Filename)' == 'netstandard'">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="@(Reference->'%(RootDir)%(Directory)%(Filename).xml')"
+               Link="@(Reference->'ref-assemblies\%(Filename).xml')"
+               Condition="($([System.String]::new('%(Filename)').StartsWith('System')) or '%(Filename)' == 'netstandard')
+                          and Exists('%(RootDir)%(Directory)%(Filename).xml')">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+  </Target>
 </Project>

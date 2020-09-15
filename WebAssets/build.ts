@@ -5,15 +5,18 @@ import { task, exec, build } from 'oldowan';
 import convertPrivateFields from './build/babel-plugin-convert-private-fields-to-symbols';
 
 const clean = task('clean', async () => {
-    const paths = await fg(['dist/**/*.*', '!dist/node_modules/**/*.*']);
+    const paths = await fg(['.temp/**/*.*', 'dist/**/*.*', '!dist/node_modules/**/*.*']);
     await Promise.all(paths.map(jetpack.removeAsync));
 });
 
-const ts = task('ts', async () => {
-    await exec('eslint ./ts --max-warnings 0 --ext .js,.jsx,.ts,.tsx');
-    await exec('tsc --project ./ts/tsconfig.json --module ES2015 --noEmit false --outDir ./dist --declaration true');
+const tscArgs = '--project ./ts/tsconfig.json --module ES2015 --noEmit false --outDir ./.temp --declaration true';
+const tsTsc = task('ts:tsc',
+    () => exec(`tsc ${tscArgs}`),
+    { watch: () => exec(`tsc --watch ${tscArgs}`) }
+);
 
-    await Promise.all((await fg(['dist/**/*.js', '!dist/node_modules/**/*.*'])).map(async path => {
+const tsTransform = task('ts:transform', async () => {
+    await Promise.all((await fg(['.temp/**/*.js'])).map(async path => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const { code: transformed } = (await transformFileAsync(path, {
             plugins: [
@@ -29,17 +32,30 @@ const ts = task('ts', async () => {
             ]
         }))!;
 
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        await jetpack.writeAsync(path, transformed!);
+        await jetpack.writeAsync(path.replace('.temp', 'dist'), transformed!);
     }));
-}, { inputs: ['ts/**/*.ts'] });
+}, { watch: ['.temp/**/*.js'] });
 
-const css = task('css', () => jetpack.copyAsync('css', 'dist', { overwrite: true }), { inputs: ['css/*.*'] });
+const ts = task('ts', async () => {
+    await exec('eslint ./ts --max-warnings 0 --ext .js,.jsx,.ts,.tsx');
+    await tsTsc();
+    await tsTransform();
+});
+
+const css = task('css', () => jetpack.copyAsync('css', 'dist', { overwrite: true }), { watch: ['css/*.*'] });
 
 const files = task('files', async () => {
     await jetpack.copyAsync('./README.md', 'dist/README.md', { overwrite: true });
-    await jetpack.copyAsync('./package.json', 'dist/package.json', { overwrite: true });
-}, { inputs: ['./README.md', './package.json'] });
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const packageJson = JSON.parse((await jetpack.readAsync('./package.json'))!) as {
+        type?: 'module';
+    };
+    // cannot be specified in current package.json due to https://github.com/TypeStrong/ts-node/issues/935
+    // which is fine, from perspective of the project itself it's TypeScript, so type=module is irrelevant
+    // only the output (dist) is JS modules
+    packageJson.type = 'module';
+    await jetpack.writeAsync('dist/package.json', JSON.stringify(packageJson, null, 4));
+}, { watch: ['./README.md', './package.json'] });
 
 task('default', async () => {
     await clean();
@@ -50,4 +66,5 @@ task('default', async () => {
     ]);
 });
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 build();

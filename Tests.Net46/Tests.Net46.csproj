@@ -6,6 +6,7 @@
     <TargetFramework>net461</TargetFramework>
     <RuntimeIdentifier Condition="'$(TargetFramework)' == 'net46'">win</RuntimeIdentifier>
     <DefineConstants>$(DefineConstants);NET46;PRE_ROSLYN_36</DefineConstants>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <Import Project="..\Tests.Shared\MirrorSharp.Tests.Shared.projitems" Label="Shared" />

@@ -1,4 +1,5 @@
-// import type { SignatureData, SpanData } from '../interfaces/protocol';
+// import type { SignatureData, SpanData, SignatureInfoParameterData } from '../interfaces/protocol';
+// import { renderParts } from '../helpers/render-parts';
 
 // const displayKindToClassMap = {
 //     keyword: 'cm-keyword'
@@ -50,20 +51,21 @@ export class SignatureTip {
     //             let className = displayKindToClassMap[part.kind] ?? '';
     //             if (part.selected)
     //                 className += ' mirrorsharp-signature-part-selected';
+        //         let child;
+        //         if (className) {
+        //             child = document.createElement('span');
+        //             child.className = className;
+        //             child.textContent = part.text;
+        //         }
+        //         else {
+        //             child = document.createTextNode(part.text);
+        //         }
+        //         li.appendChild(child);
+        //     }
+        //     this.#renderInfo(li, signature);
 
-    //             let child;
-    //             if (className) {
-    //                 child = document.createElement('span');
-    //                 child.className = className;
-    //                 child.textContent = part.text;
-    //             }
-    //             else {
-    //                 child = document.createTextNode(part.text);
-    //             }
-    //             li.appendChild(child);
-    //         }
-    //         ol.appendChild(li);
-    //     }
+        //     ol.appendChild(li);
+        // }
 
     //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     //     const startPos = this.#cm.posFromIndex(span!.start);
@@ -75,6 +77,40 @@ export class SignatureTip {
     //     tooltip.style.left = startCharCoords.left + 'px';
     //     document.body.appendChild(tooltip);
     // }
+
+    // #renderInfo = (parent: HTMLElement, signature: SignatureData) => {
+    //     const { info } = signature;
+    //     if (!info)
+    //         return;
+
+    //     if (info.parts.length > 0) {
+    //         const element = document.createElement('div');
+    //         renderParts(element, info.parts);
+    //         parent.appendChild(element);
+    //     }
+
+    //     const { parameter } = info;
+    //     if (!parameter)
+    //         return;
+
+    //     this.#renderInfoParameter(parent, parameter);
+    // };
+
+    // #renderInfoParameter = (parent: HTMLElement, parameter: SignatureInfoParameterData) => {
+    //     if (parameter.parts.length === 0)
+    //         return;
+
+    //     const element = document.createElement('div');
+    //     element.className = 'mirrorsharp-signature-info-parameter';
+
+    //     const nameElement = document.createElement('span');
+    //     nameElement.className = 'mirrorsharp-signature-info-parameter-name';
+    //     nameElement.innerText = parameter.name + ': ';
+    //     element.appendChild(nameElement);
+    //     renderParts(element, parameter.parts);
+
+    //     parent.appendChild(element);
+    // };
 
     hide() {
         // if (!this.#active)

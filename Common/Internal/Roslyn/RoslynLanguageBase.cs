@@ -18,9 +18,8 @@ namespace MirrorSharp.Internal.Roslyn {
         private readonly IRoslynLanguageOptions _options;
         private readonly MefHostServices _hostServices;
         private readonly ImmutableArray<ISignatureHelpProviderWrapper> _defaultSignatureHelpProviders;
-        private readonly ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> _defaultCodeFixProvidersIndexedByDiagnosticIds;
-        private readonly ImmutableArray<DiagnosticAnalyzer> _defaultAnalyzers;
-        private readonly ImmutableList<AnalyzerReference> _defaultAnalyzerReferences;
+        private readonly ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> _codeFixProvidersIndexedByDiagnosticIds;
+        private readonly ImmutableArray<DiagnosticAnalyzer> _analyzers;
 
         protected RoslynLanguageBase(
             string name,
@@ -32,12 +31,9 @@ namespace MirrorSharp.Internal.Roslyn {
             _hostServices = CreateHostServices(featuresAssemblyName, workspacesAssemblyName);
 
             _options = options;
-            _defaultAnalyzerReferences = ImmutableList.Create<AnalyzerReference>(
-                CreateAnalyzerReference(featuresAssemblyName)
-            );
-            _defaultCodeFixProvidersIndexedByDiagnosticIds = CreateDefaultCodeFixProvidersSlow();
-            _defaultAnalyzers = ImmutableArray.CreateRange(
-                _defaultAnalyzerReferences.SelectMany(r => r.GetAnalyzers(Name))
+            _codeFixProvidersIndexedByDiagnosticIds = CreateDefaultCodeFixProvidersSlow();
+            _analyzers = ImmutableArray.CreateRange(
+                _options.AnalyzerReferences.SelectMany(r => r.GetAnalyzers(Name))
             );
             _defaultSignatureHelpProviders = CreateDefaultSignatureHelpProvidersSlow();
         }
@@ -68,15 +64,15 @@ namespace MirrorSharp.Internal.Roslyn {
                 hostObjectType: _options.HostObjectType,
                 compilationOptions: _options.CompilationOptions,
                 metadataReferences: _options.MetadataReferences,
-                analyzerReferences: _defaultAnalyzerReferences
+                analyzerReferences: _options.AnalyzerReferences
             );
 
             return new RoslynSession(
                 SourceText.From(text, Encoding.UTF8),
                 projectInfo,
                 _hostServices,
-                _defaultAnalyzers,
-                _defaultCodeFixProvidersIndexedByDiagnosticIds,
+                _analyzers,
+                _codeFixProvidersIndexedByDiagnosticIds,
                 _defaultSignatureHelpProviders
             );
         }
@@ -90,7 +86,8 @@ namespace MirrorSharp.Internal.Roslyn {
         }
 
         private ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CreateDefaultCodeFixProvidersSlow() {
-            var codeFixProviderTypes = _defaultAnalyzerReferences
+            var codeFixProviderTypes = _options
+                .AnalyzerReferences
                 .OfType<AnalyzerFileReference>()
                 .Select(a => a.GetAssembly())
                 .SelectMany(a => a.DefinedTypes)
@@ -112,11 +109,6 @@ namespace MirrorSharp.Internal.Roslyn {
             return ImmutableDictionary.CreateRange(
                 providersByDiagnosticIds.Select(p => new KeyValuePair<string, ImmutableArray<CodeFixProvider>>(p.Key, ImmutableArray.CreateRange(p.Value)))
             );
-        }
-
-        private AnalyzerFileReference CreateAnalyzerReference(string assemblyName) {
-            var assembly = Assembly.Load(new AssemblyName(assemblyName));
-            return new AnalyzerFileReference(assembly.Location, new PreloadedAnalyzerAssemblyLoader(assembly));
         }
     }
 }

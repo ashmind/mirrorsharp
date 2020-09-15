@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Reflection;
 using MirrorSharp.Internal.Results;
@@ -81,27 +83,73 @@ namespace MirrorSharp.Internal.Handlers.Shared {
                 writer.WriteStartObject();
                 if (selectedItemIndex == null && items.ArgumentCount <= item.ParameterCount)
                     selectedItemIndex = itemIndex;
-                if (itemIndex == selectedItemIndex)
+                var isSelected = (itemIndex == selectedItemIndex);
+                if (isSelected)
                     writer.WriteProperty("selected", true);
-                writer.WritePropertyStartArray("parts");
-                writer.WriteTaggedTexts(item.PrefixDisplayParts);
-                var parameterIndex = 0;
-                foreach (var parameter in item.Parameters) {
-                    if (parameterIndex > 0)
-                        writer.WriteTaggedTexts(item.SeparatorDisplayParts);
-                    var selected = items.ArgumentIndex == parameterIndex;
-                    writer.WriteTaggedTexts(parameter.PrefixDisplayParts, selected);
-                    writer.WriteTaggedTexts(parameter.DisplayParts, selected);
-                    writer.WriteTaggedTexts(parameter.SuffixDisplayParts, selected);
-                    parameterIndex += 1;
-                }
-                writer.WriteTaggedTexts(item.SuffixDisplayParts);
-                writer.WriteEndArray();
+
+                WriteSignatureParts(writer, item, items, out var selectedParameter);
+                if (isSelected)
+                    WriteSignatureDocumentation(writer, item, selectedParameter, cancellationToken);
+
                 writer.WriteEndObject();
                 itemIndex += 1;
             }
             writer.WriteEndArray();
             return sender.SendJsonMessageAsync(cancellationToken);
+        }
+
+        private void WriteSignatureParts(
+            IFastJsonWriter writer,
+            SignatureHelpItemData item,
+            SignatureHelpItemsData items,
+            out SignatureHelpParameterData? selectedParameter
+        ) {
+            selectedParameter = null;
+            writer.WritePropertyStartArray("parts");
+            writer.WriteTaggedTexts(item.PrefixDisplayParts);
+            var parameterIndex = 0;
+            foreach (var parameter in item.Parameters) {
+                if (parameterIndex > 0)
+                    writer.WriteTaggedTexts(item.SeparatorDisplayParts);
+                var selected = items.ArgumentIndex == parameterIndex;
+                writer.WriteTaggedTexts(parameter.PrefixDisplayParts, selected);
+                writer.WriteTaggedTexts(parameter.DisplayParts, selected);
+                writer.WriteTaggedTexts(parameter.SuffixDisplayParts, selected);
+                if (selected)
+                    selectedParameter = parameter;
+                parameterIndex += 1;
+            }
+            writer.WriteTaggedTexts(item.SuffixDisplayParts);
+            writer.WriteEndArray();
+        }
+
+        private void WriteSignatureDocumentation(
+            IFastJsonWriter writer,
+            SignatureHelpItemData selectedItem,
+            SignatureHelpParameterData? selectedParameter,
+            CancellationToken cancellationToken
+        ) {
+            writer.WritePropertyStartObject("info");
+            writer.WritePropertyStartArray("parts");
+            var documentation = selectedItem.DocumentationFactory(cancellationToken);
+            writer.WriteTaggedTexts(documentation);
+            writer.WriteEndArray();
+
+            if (selectedParameter == null) {
+                writer.WriteEndObject();
+                return;
+            }
+
+            writer.WritePropertyStartObject("parameter");
+            writer.WriteProperty("name", selectedParameter.Name);
+
+            writer.WritePropertyStartArray("parts");
+            var parameterDocumentation = selectedParameter.DocumentationFactory(cancellationToken);
+            writer.WriteTaggedTexts(parameterDocumentation);
+            writer.WriteEndArray();
+
+            writer.WriteEndObject();
+            writer.WriteEndObject();
         }
     }
 }

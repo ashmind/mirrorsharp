@@ -250,3 +250,11 @@
 .mirrorsharp-signature-part-selected {
     font-weight: bold;
 }
+
+.mirrorsharp-signature-info-parameter {
+    font-style: italic;
+}
+
+.mirrorsharp-signature-info-parameter-name {
+    font-weight: bold;
+}

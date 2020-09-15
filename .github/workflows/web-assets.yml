@@ -1,0 +1,49 @@
+name: Client (JS)
+
+on:
+  push:
+    paths:
+    - '.github/workflows/web-assets.yml'
+    - 'WebAssets/**'
+    - 'AspNetCore.Demo'
+    - 'Owin.Demo'
+  pull_request:
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12.16.1'
+        
+    - name: 'WebAssets: npm ci'
+      run: npm ci
+      working-directory: WebAssets
+    - name: 'WebAssets: npm run build'
+      run: npm run build
+      working-directory: WebAssets
+    - name: 'WebAssets: npm test'
+      run: npm test
+      working-directory: WebAssets
+      
+    - name: 'AspNetCore.Demo: npm ci'    
+      run: npm ci
+      working-directory: AspNetCore.Demo
+    - name: 'AspNetCore.Demo: npm run build'
+      run: npm run build
+      working-directory: AspNetCore.Demo
+      
+    - name: 'Owin.Demo: npm ci'
+      run: npm ci
+      working-directory: Owin.Demo
+    - name: 'Owin.Demo: npm run build'
+      run: npm run build
+      working-directory: Owin.Demo
+
+    - if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/feature/codemirror-6'
+      uses: JS-DevTools/npm-publish@v1
+      with:
+        package: './WebAssets/dist/package.json'
+        token: ${{ secrets.NPM_TOKEN }}

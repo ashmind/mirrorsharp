@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,8 @@ using MirrorSharp.Advanced;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing;
 using MirrorSharp.Testing.Results;
+using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.CSharp;
 
 // ReSharper disable HeapView.BoxingAllocation
 
@@ -75,6 +78,37 @@ namespace MirrorSharp.Tests {
             await driver.SendAsync(SlowUpdate);
 
             Mock.Get(disposable).Verify(x => x.Dispose());
+        }
+
+        [Fact]
+        public async Task SlowUpdate_ProducesDiagnostic_FromCustomAnalyzerInstance() {
+            var reference = new AnalyzerImageReference(ImmutableArray.Create<DiagnosticAnalyzer>(new TestAnalyzer()));
+            var driver = MirrorSharpTestDriver.New(
+                new MirrorSharpOptions().SetupCSharp(c => c.AnalyzerReferences = c.AnalyzerReferences.Add(reference))
+            ).SetText("class C {}");
+
+            var result = await driver.SendWithRequiredResultAsync<SlowUpdateResult<object>>(SlowUpdate);
+
+            Assert.Contains(
+                ("T01", "Test"),
+                result.Diagnostics.Select(d => (d.Id, d.Message)).ToArray()
+            );
+        }
+
+        [DiagnosticAnalyzer(LanguageNames.CSharp)]
+        private class TestAnalyzer : DiagnosticAnalyzer {
+            private static readonly DiagnosticDescriptor Descriptor = new DiagnosticDescriptor("T01", "Test", "Test", "Test", DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+            public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(Descriptor);
+
+            public override void Initialize(AnalysisContext context) {
+                context.EnableConcurrentExecution();
+                context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+                context.RegisterSyntaxNodeAction(
+                    c => c.ReportDiagnostic(Diagnostic.Create(Descriptor, c.Node.GetLocation())),
+                    SyntaxKind.ClassDeclaration
+                );
+            }
         }
     }
 }

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Immutable;
+using System.Reflection;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Roslyn;
 
@@ -17,17 +19,20 @@ namespace MirrorSharp.Advanced {
         private TParseOptions _parseOptions;
         private TCompilationOptions _compilationOptions;
         private ImmutableList<MetadataReference> _metadataReferences;
+        private ImmutableList<AnalyzerReference> _analyzerReferences;
         private bool _isScript;
         private Type? _hostObjectType;
 
         internal MirrorSharpRoslynOptions(
             TParseOptions parseOptions,
             TCompilationOptions compilationOptions,
-            ImmutableList<MetadataReference> metadataReferences
+            ImmutableList<MetadataReference> metadataReferences,
+            ImmutableList<AnalyzerReference> analyzerReferences
         ) {
             _parseOptions = parseOptions;
             _compilationOptions = compilationOptions;
             _metadataReferences = metadataReferences;
+            _analyzerReferences = analyzerReferences;
         }
 
         /// <summary><see cref="ParseOptions" /> for this language.</summary>
@@ -46,6 +51,12 @@ namespace MirrorSharp.Advanced {
         public ImmutableList<MetadataReference> MetadataReferences {
             get => _metadataReferences;
             set => _metadataReferences = Argument.NotNull(nameof(value), value);
+        }
+
+        /// <summary><see cref="AnalyzerReference" />s for this language.</summary>
+        public ImmutableList<AnalyzerReference> AnalyzerReferences {
+            get => _analyzerReferences;
+            set => _analyzerReferences = Argument.NotNull(nameof(value), value);
         }
 
         /// <summary>Sets or unsets script mode for this language.</summary>
@@ -82,6 +93,11 @@ namespace MirrorSharp.Advanced {
         public TSelf AddMetadataReferencesFromFiles(params string[] paths) {
             _metadataReferences = _metadataReferences.AddRange(MetadataReferenceFactory.CreateFromFilesSlow(paths));
             return (TSelf)this;
+        }
+
+        private protected static AnalyzerFileReference CreateAnalyzerReference(string assemblyName) {
+            var assembly = Assembly.Load(new AssemblyName(assemblyName));
+            return new AnalyzerFileReference(assembly.Location, new PreloadedAnalyzerAssemblyLoader(assembly));
         }
 
         ParseOptions IRoslynLanguageOptions.ParseOptions => ParseOptions;
