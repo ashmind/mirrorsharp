@@ -1,6 +1,6 @@
 
 import { defaultKeymap, indentMore, indentLess } from '@codemirror/next/commands';
-import { historyKeymap } from '@codemirror/next/history';
+import { historyKeymap } from '@codemirror/next/history/dist';
 import { keymap, ViewPlugin, EditorView } from '@codemirror/next/view';
 
 const tabTrapped = new WeakMap<EditorView, boolean>();

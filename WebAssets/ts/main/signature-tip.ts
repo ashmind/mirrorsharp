@@ -51,21 +51,21 @@ export class SignatureTip {
     //             let className = displayKindToClassMap[part.kind] ?? '';
     //             if (part.selected)
     //                 className += ' mirrorsharp-signature-part-selected';
-        //         let child;
-        //         if (className) {
-        //             child = document.createElement('span');
-        //             child.className = className;
-        //             child.textContent = part.text;
-        //         }
-        //         else {
-        //             child = document.createTextNode(part.text);
-        //         }
-        //         li.appendChild(child);
-        //     }
-        //     this.#renderInfo(li, signature);
+    //             let child;
+    //             if (className) {
+    //                 child = document.createElement('span');
+    //                 child.className = className;
+    //                 child.textContent = part.text;
+    //             }
+    //             else {
+    //                 child = document.createTextNode(part.text);
+    //             }
+    //             li.appendChild(child);
+    //         }
+    //         this.#renderInfo(li, signature);
 
-        //     ol.appendChild(li);
-        // }
+    //         ol.appendChild(li);
+    //     }
 
     //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     //     const startPos = this.#cm.posFromIndex(span!.start);

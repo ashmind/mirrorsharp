@@ -7,7 +7,7 @@ export function defineEffectField<T>(initialValue: T) {
         create: () => initialValue,
 
         update(value, { effects }) {
-            const effect = effects.find(e => e.type === effectType) as StateEffect<T>|undefined;
+            const effect = effects.find(e => e.is(effectType)) as StateEffect<T>|undefined;
             return effect ? effect.value : value;
         }
     });

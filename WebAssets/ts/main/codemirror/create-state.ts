@@ -1,6 +1,6 @@
 import { EditorState, EditorSelection } from '@codemirror/next/state';
 import { highlighter } from '@codemirror/next/highlight';
-import { history } from '@codemirror/next/history';
+import { history } from '@codemirror/next/history/dist';
 import type { Connection } from '../connection';
 import type { SlowUpdateOptions } from '../../interfaces/slow-update';
 import { csharp } from './lang-csharp';
@@ -22,7 +22,7 @@ export function createState<O, U>(
         ...(options.initialText ? { doc: options.initialText } : {}),
         ...(options.initialCursorOffset ? { selection: EditorSelection.single(options.initialCursorOffset) } : {}),
         extensions: [
-            EditorState.indentUnit.of(4),
+            EditorState.indentUnit.of('    '),
             EditorState.lineSeparator.of(lineSeparator),
 
             history(),
