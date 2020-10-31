@@ -1,11 +1,10 @@
 import type { EditorView } from '@codemirror/next/view';
-import type { Transaction, TransactionSpec } from '@codemirror/next/state';
-import { advanceBy as advanceDateBy } from 'jest-date-mock';
-import type { PartData, CompletionItemData, ChangeData } from '../ts/interfaces/protocol';
+import type { TransactionSpec } from '@codemirror/next/state';
+import type { PartData, CompletionItemData, ChangeData, ChangesMessage } from '../ts/interfaces/protocol';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../ts/mirrorsharp';
 import { Keyboard } from 'keysim';
 
-jest.useFakeTimers();
+jest.useFakeTimers('modern');
 (() => {
     // clean JSDOM between tests
     const emptyHTML = document.body.innerHTML;
@@ -133,7 +132,7 @@ class TestReceiver {
         this.socket = socket;
     }
 
-    changes(changes: ReadonlyArray<ChangeData> = [], reason = '') {
+    changes(reason: ChangesMessage['reason'], changes: ReadonlyArray<ChangeData> = []) {
         this.socket.trigger('message', { data: JSON.stringify({ type: 'changes', changes, reason }) });
     }
 
@@ -192,7 +191,7 @@ class TestDriver<TExtensionServerOptions = never> {
     }
 
     async advanceTimeAndCompleteNextLinting() {
-        advanceDateBy(1000);
+        jest.advanceTimersByTime(1000);
         jest.advanceTimersToNextTimer();
         await this.completeBackgroundWork();
     }

@@ -29,7 +29,7 @@ export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => [
 
     ViewPlugin.define(view => {
         const applyCompletion = ((_, c: CompletionWithIndex) => {
-            console.log(c);
+            console.log('before sendCompletionState');
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             connection.sendCompletionState(c[completionIndexKey]);
         }) as CompletionWithIndex['apply'];

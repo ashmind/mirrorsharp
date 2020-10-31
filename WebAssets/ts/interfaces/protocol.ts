@@ -36,11 +36,11 @@ export interface CompletionSuggestionData {
 }
 
 export interface CompletionItemData {
-    readonly filterText: string;
     readonly displayText: string;
-    readonly priority: number;
     readonly kinds: ReadonlyArray<string>;
+    readonly filterText?: string;
     readonly span?: SpanData;
+    readonly priority?: number;
 }
 
 export interface CompletionInfoMessage {
