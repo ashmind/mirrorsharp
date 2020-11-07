@@ -6,7 +6,7 @@ import { addEvents } from '../../../helpers/add-events';
 import { defineEffectField } from '../../../helpers/define-effect-field';
 import { applyChangesFromServer } from '../../../helpers/apply-changes-from-server';
 
-const [lastCompletionsFromServer, dispatchLastCompletionsFromServerChanged] = defineEffectField<ReadonlyArray<Completion>>([]);
+const [lastCompletionsFromServer, dispatchLastCompletionsFromServerChanged] = defineEffectField<ReadonlyArray<CompletionItemData>>([]);
 const completionIndexKey = Symbol('completionIndex');
 
 type CompletionWithIndex = Omit<Completion, 'apply'> & {
@@ -14,38 +14,53 @@ type CompletionWithIndex = Omit<Completion, 'apply'> & {
     apply: (view: EditorView, completion: CompletionWithIndex) => void;
 };
 
-const getLastServerCompletions = (context => ({
-    from: context.pos,
-    options: context.state.field(lastCompletionsFromServer)
-})) as CompletionSource;
+export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => {
+    const applyCompletion = ((_, c: CompletionWithIndex) => {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        connection.sendCompletionState(c[completionIndexKey]);
+    }) as CompletionWithIndex['apply'];
 
-export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => [
-    lastCompletionsFromServer,
+    const mapCompletionFromServer = ({ completion: { displayText, kinds }, index }: { completion: CompletionItemData; index: number }) => ({
+        label: displayText,
+        type: kinds[0],
+        apply: applyCompletion,
+        [completionIndexKey]: index
+    } as CompletionWithIndex);
 
-    autocompletion({
-        activateOnTyping: false,
-        override: [getLastServerCompletions]
-    }),
+    const getAndFilterCompletions = (context => {
+        const all = context.state.field(lastCompletionsFromServer).map((completion, index) => ({ completion, index }));
+        const prefix = context.matchBefore(/[\w\d]+/);
 
-    ViewPlugin.define(view => {
-        const applyCompletion = ((_, c: CompletionWithIndex) => {
-            console.log('before sendCompletionState');
+        const filtered = prefix
+            ? all.filter(({ completion: c }) => (c.filterText ?? c.displayText).startsWith(prefix.text))
+            : all;
+
+        return {
+            from: prefix?.from ?? context.pos,
+            options: filtered.map(mapCompletionFromServer)
+        };
+    }) as CompletionSource;
+
+    const sendCancelCompletionToServer = ViewPlugin.define(() => ({
+        update: u => {
+            const previousStatus = completionStatus(u.prevState);
+            if (previousStatus === null)
+                return;
+
+            const currentStatus = completionStatus(u.state);
+            if (currentStatus !== null)
+                return;
+
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            connection.sendCompletionState(c[completionIndexKey]);
-        }) as CompletionWithIndex['apply'];
+            connection.sendCompletionState('cancel');
+        }
+    }));
 
-        const mapCompletionFromServer = ({ displayText, kinds }: CompletionItemData, index: number) => ({
-            label: displayText,
-            type: kinds[0],
-            apply: applyCompletion,
-            [completionIndexKey]: index
-        } as CompletionWithIndex);
-
+    const receiveCompletionMessagesFromServer = ViewPlugin.define(view => {
         const removeEvents = addEvents(connection, {
             message: message => {
                 if (message.type === 'completions') {
-                    dispatchLastCompletionsFromServerChanged(view, message.completions.map(mapCompletionFromServer));
-                    console.log(message.completions.map(mapCompletionFromServer));
+                    dispatchLastCompletionsFromServerChanged(view, message.completions);
                     startCompletion(view);
                     return;
                 }
@@ -58,20 +73,17 @@ export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => [
         });
 
         return {
-            update: u => {
-                const previousStatus = completionStatus(u.prevState);
-                if (previousStatus === null)
-                    return;
-
-                const currentStatus = completionStatus(u.state);
-                if (currentStatus !== null)
-                    return;
-
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                connection.sendCompletionState('cancel');
-            },
-
             destroy: removeEvents
         };
-    })
-];
+    });
+
+    return [
+        lastCompletionsFromServer,
+        autocompletion({
+            activateOnTyping: true,
+            override: [getAndFilterCompletions]
+        }),
+        sendCancelCompletionToServer,
+        receiveCompletionMessagesFromServer
+    ];
+};

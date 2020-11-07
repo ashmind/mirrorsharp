@@ -1,5 +1,5 @@
 import type { EditorView } from '@codemirror/next/view';
-import type { TransactionSpec } from '@codemirror/next/state';
+import { TransactionSpec, Transaction } from '@codemirror/next/state';
 import type { PartData, CompletionItemData, ChangeData, ChangesMessage } from '../ts/interfaces/protocol';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../ts/mirrorsharp';
 import { Keyboard } from 'keysim';
@@ -117,6 +117,7 @@ class TestText {
         for (const char of text) {
             const newCursorOffset = cursorOffset + 1;
             this.#cmView.dispatch(this.#cmView.state.update({
+                annotations: [Transaction.userEvent.of('input')],
                 changes: { from: cursorOffset, insert: char },
                 selection: { anchor: newCursorOffset }
             }));
