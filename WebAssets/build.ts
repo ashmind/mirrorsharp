@@ -32,6 +32,7 @@ const tsTransform = task('ts:transform', async () => {
             ]
         }))!;
 
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         await jetpack.writeAsync(path.replace('.temp', 'dist'), transformed!);
     }));
 }, { watch: ['.temp/**/*.js'] });

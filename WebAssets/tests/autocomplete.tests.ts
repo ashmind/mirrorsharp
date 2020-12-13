@@ -66,3 +66,21 @@ test('completion list is filtered based on new typed text', async () => {
     const state = driver.getCodeMirrorView().state;
     expect(currentCompletions(state).map(c => c.label)).toEqual(['aba', 'abb']);
 });
+
+test.each([
+    [1, ['class', 'constant', 'delegate', 'enum', 'enummember', 'event', 'extensionmethod']],
+    [2, ['field', 'interface', 'keyword', 'local', 'method', 'module', 'namespace']],
+    [3, ['parameter', 'property', 'structure', 'typeparameter', 'union']]
+])('completion list is rendered correctly (%p)', async (_, kinds) => {
+    const driver = await TestDriver.new({ textWithCursor: '|' });
+
+    driver.receive.completions(kinds.map(k => ({
+        displayText: k,
+        kinds: [k]
+    })));
+    await driver.completeBackgroundWork();
+
+    const rendered = await driver.render();
+
+    expect(rendered).toMatchImageSnapshot();
+});

@@ -17,7 +17,7 @@ export function createState<O, U>(
     options: {
         initialText?: string;
         initialCursorOffset?: number;
-    } & SlowUpdateOptions<U>
+    } & SlowUpdateOptions<U> = {}
 ) {
     return EditorState.create({
         ...(options.initialText ? { doc: options.initialText } : {}),

@@ -33,6 +33,7 @@
         "browserslist",
         "clike",
         "codemirror",
+        "devtools",
         "enummember",
         "execa",
         "extensionmethod",
