@@ -107,9 +107,7 @@ export default async function render(
     await loadPromise;
     const screenshot = await page.screenshot();
 
-    console.log('before close');
     await browser.close();
-    console.log('after close');
 
     return screenshot;
 }
