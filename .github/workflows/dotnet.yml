@@ -11,11 +11,12 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: coderpatros/setup-dotnet@sxs
+    - uses: actions/setup-dotnet@v1
       with:
-          dotnet-version: 2.1.x, 3.1.x
-      env:
-          DOTNET_NOLOGO: true
+          dotnet-version: 2.1.x
+    - uses: actions/setup-dotnet@v1
+      with:
+          dotnet-version: 3.1.x
 
     - run: dotnet build --configuration Release 
     - run: dotnet test --no-build --configuration Release 
