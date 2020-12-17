@@ -1,4 +1,5 @@
 using System;
+using MirrorSharp.Internal;
 using MirrorSharp.Php;
 using MirrorSharp.Php.Internal;
 

@@ -29,7 +29,7 @@ namespace MirrorSharp.Testing {
 
             var language = GetLanguageManager(options).GetLanguage(languageName);
             _middleware = new TestMiddleware(options, services);
-            Session = new WorkSession(language, options);
+            Session = new WorkSession(language, options, services.ToImmutable());
         }
         
         internal WorkSession Session { get; }

@@ -10,10 +10,10 @@ using Microsoft.FSharp.Collections;
 using FSharp.Compiler;
 using FSharp.Compiler.SourceCodeServices;
 using Microsoft.FSharp.Control;
-using Microsoft.FSharp.Core;
 using MirrorSharp.FSharp.Advanced;
 using MirrorSharp.Internal.Abstraction;
 using SourceText = FSharp.Compiler.Text.SourceText;
+using MirrorSharp.Internal;
 
 namespace MirrorSharp.FSharp.Internal {
     internal class FSharpSession : ILanguageSessionInternal, IFSharpSession {

@@ -1,4 +1,5 @@
 using FSharp.Compiler.AbstractIL.Internal;
+using MirrorSharp.Internal;
 using MirrorSharp.Internal.Abstraction;
 
 namespace MirrorSharp.FSharp.Internal {
@@ -15,7 +16,7 @@ namespace MirrorSharp.FSharp.Internal {
             _options = options;
         }
 
-        public ILanguageSessionInternal CreateSession(string text) {
+        public ILanguageSessionInternal CreateSession(string text, ILanguageSessionExtensions extensions) {
             return new FSharpSession(text, _options);
         }
 

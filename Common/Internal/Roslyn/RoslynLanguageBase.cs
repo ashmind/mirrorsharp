@@ -54,7 +54,7 @@ namespace MirrorSharp.Internal.Roslyn {
 
         public string Name { get; }
 
-        public ILanguageSessionInternal CreateSession(string text) {
+        public ILanguageSessionInternal CreateSession(string text, ILanguageSessionExtensions extensions) {
             var projectId = ProjectId.CreateNewId();
 
             var projectInfo = ProjectInfo.Create(
@@ -73,7 +73,8 @@ namespace MirrorSharp.Internal.Roslyn {
                 _hostServices,
                 _analyzers,
                 _codeFixProvidersIndexedByDiagnosticIds,
-                _defaultSignatureHelpProviders
+                _defaultSignatureHelpProviders,
+                extensions
             );
         }
 

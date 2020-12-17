@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using MirrorSharp.Advanced;
+using MirrorSharp.Advanced.EarlyAccess;
 using MirrorSharp.Internal;
 
 namespace MirrorSharp.AspNetCore.Internal {
@@ -13,11 +14,13 @@ namespace MirrorSharp.AspNetCore.Internal {
             MirrorSharpOptions options,
             ISetOptionsFromClientExtension? setOptionsFromClient = null,
             ISlowUpdateExtension? slowUpdate = null,
+            IRoslynGuard? roslynGuard = null,
             IExceptionLogger? exceptionLogger = null
         ) : base(options, new ImmutableExtensionServices(
             #pragma warning disable CS0618 // Type or member is obsolete
             setOptionsFromClient ?? options.SetOptionsFromClient,
             slowUpdate ?? options.SlowUpdate,
+            roslynGuard,
             exceptionLogger ?? options.ExceptionLogger
             #pragma warning restore CS0618
         )) {

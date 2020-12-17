@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using MirrorSharp.AspNetCore.Internal;
+using MirrorSharp.Internal;
 
 namespace MirrorSharp.AspNetCore {
     /// <summary>MirrorSharp setup extensions.</summary>

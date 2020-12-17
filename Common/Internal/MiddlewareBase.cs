@@ -11,9 +11,7 @@ using MirrorSharp.Internal.Handlers.Shared;
 namespace MirrorSharp.Internal {
     internal abstract class MiddlewareBase {
         private readonly LanguageManager _languageManager;
-        #pragma warning disable CS0618 // Type or member is obsolete
         private readonly IMiddlewareOptions _options;
-        #pragma warning restore CS0618
         private readonly ImmutableExtensionServices _extensions;
         private readonly ImmutableArray<ICommandHandler> _handlers;
 
@@ -66,7 +64,7 @@ namespace MirrorSharp.Internal {
             WorkSession? session = null;
             Connection? connection = null;
             try {
-                session = new WorkSession(_languageManager.GetLanguage(LanguageNames.CSharp), _options);
+                session = new WorkSession(_languageManager.GetLanguage(LanguageNames.CSharp), _options, _extensions);
                 connection = new Connection(socket, session, _handlers, ArrayPool<byte>.Shared, _options, _extensions.ExceptionLogger);
 
                 while (connection.IsConnected) {

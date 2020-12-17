@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Text;
+using MirrorSharp.Internal;
 
 namespace MirrorSharp.Advanced {
     /// <summary>

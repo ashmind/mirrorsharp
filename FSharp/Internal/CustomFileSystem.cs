@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using FSharp.Compiler.AbstractIL.Internal;
 using MirrorSharp.FSharp.Advanced;
+using MirrorSharp.Internal;
 
 namespace MirrorSharp.FSharp.Internal {
     internal class CustomFileSystem : Library.Shim.IFileSystem {
