@@ -1,19 +1,20 @@
+using FSharp.Compiler;
+using FSharp.Compiler.SourceCodeServices;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Completion;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.FSharp.Collections;
+using Microsoft.FSharp.Control;
+using MirrorSharp.FSharp.Advanced;
+using MirrorSharp.Internal;
+using MirrorSharp.Internal.Abstraction;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Completion;
-using Microsoft.CodeAnalysis.Text;
-using Microsoft.FSharp.Collections;
-using FSharp.Compiler;
-using FSharp.Compiler.SourceCodeServices;
-using Microsoft.FSharp.Control;
-using MirrorSharp.FSharp.Advanced;
-using MirrorSharp.Internal.Abstraction;
+using range = FSharp.Compiler.Range;
 using SourceText = FSharp.Compiler.Text.SourceText;
-using MirrorSharp.Internal;
 
 namespace MirrorSharp.FSharp.Internal {
     internal class FSharpSession : ILanguageSessionInternal, IFSharpSession {
@@ -34,7 +35,8 @@ namespace MirrorSharp.FSharp.Internal {
                 legacyReferenceResolver: null,
                 tryGetMetadataSnapshot: null,
                 suggestNamesForErrors: true,
-                keepAllBackgroundSymbolUses: false
+                keepAllBackgroundSymbolUses: false,
+                enableBackgroundItemKeyStoreAndSemanticClassification: false
             );
             Checker.ImplicitlyStartBackgroundWork = false;
             AssemblyReferencePaths = options.AssemblyReferencePaths;
@@ -49,7 +51,7 @@ namespace MirrorSharp.FSharp.Internal {
                 useScriptResolutionRules: false,
                 loadTime: DateTime.Now,
                 unresolvedReferences: null,
-                originalLoadReferences: FSharpList<Tuple<Range.range, string, string>>.Empty,
+                originalLoadReferences: FSharpList<Tuple<range.range, string, string>>.Empty,
                 extraProjectInfo: null,
                 stamp: null
             );
@@ -146,16 +148,16 @@ namespace MirrorSharp.FSharp.Internal {
             var lineMap = GetLineMap();
             var severity = error.Severity.Tag == FSharpErrorSeverity.Tags.Error ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning;
 
-            var startOffset = lineMap.GetOffset(error.StartLineAlternate, error.StartColumn);
+            var startOffset = lineMap.GetOffset(error.Range.StartLine, error.Range.StartColumn);
             var location = Location.Create(
                 "",
                 new TextSpan(
                     startOffset,
-                    lineMap.GetOffset(error.EndLineAlternate, error.EndColumn) - startOffset
+                    lineMap.GetOffset(error.Range.EndLine, error.Range.EndColumn) - startOffset
                 ),
                 new LinePositionSpan(
-                    new LinePosition(error.StartLineAlternate, error.StartColumn),
-                    new LinePosition(error.EndLineAlternate, error.EndColumn)
+                    new LinePosition(error.Range.StartLine, error.Range.StartColumn),
+                    new LinePosition(error.Range.EndLine, error.Range.EndColumn)
                 )
             );
 
