@@ -38,6 +38,9 @@ namespace MirrorSharp {
         /// <summary>Defines whether the SelfDebug mode is enabled — might reduce performance.</summary>
         public bool SelfDebugEnabled { get; set; }
 
+        /// <summary>Defines the web socket url - e.g. /your_app_root/mirrorsharp (default behaviour: accepts any web socket request that ends with "/mirrorsharp").</summary>
+        public string? WebSocketUrl { get; set; }
+
         /// <summary>Disables C# — the language will not be available to the client.</summary>
         /// <returns>Current <see cref="MirrorSharpOptions" /> object, for convenience.</returns>
         public MirrorSharpOptions DisableCSharp() {

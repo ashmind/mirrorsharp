@@ -8,6 +8,7 @@ using MirrorSharp.Internal;
 namespace MirrorSharp.AspNetCore.Internal {
     internal class Middleware : MiddlewareBase {
         private readonly RequestDelegate _next;
+        private readonly MirrorSharpOptions _options;
 
         public Middleware(
             RequestDelegate next,
@@ -25,12 +26,25 @@ namespace MirrorSharp.AspNetCore.Internal {
             #pragma warning restore CS0618
         )) {
             _next = Argument.NotNull(nameof(next), next);
+            _options = Argument.NotNull(nameof(options), options);
         }
 
         public Task InvokeAsync(HttpContext context) {
-            if (!context.WebSockets.IsWebSocketRequest)
-                return _next(context);
 
+            if (!context.WebSockets.IsWebSocketRequest) {
+                return _next(context);
+            }
+
+            if (string.IsNullOrWhiteSpace(_options?.WebSocketUrl)) {
+                if (!context.Request.Path.Value.EndsWith("/mirrorsharp", StringComparison.OrdinalIgnoreCase)) {
+                    return _next(context);
+                }
+            } else {
+                if (!context.Request.Path.Value.Equals(_options?.WebSocketUrl?.Trim(), StringComparison.OrdinalIgnoreCase)) {
+                    return _next(context);
+                }
+            }   
+            
             return StartWebSocketLoopAsync(context);
         }
 
