@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0.3] - 2021-01-09
+
+### Fixed
+- Included missing TypeScript *.d.ts files (types) in the package
+
 ## [2.0.2] - 2020-09-12
 
 ### Added
