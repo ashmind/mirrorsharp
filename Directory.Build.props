@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsNotAsErrors>1591</WarningsNotAsErrors>
     <!-- Move to WarningsNotAsErrors after https://github.com/NuGet/Home/issues/5375 -->
@@ -10,9 +10,9 @@
   
   <PropertyGroup>
     <HasPublicApi Condition="
-      !$(MSBuildProjectName.EndsWith('.Demo'))
+      !$(MSBuildProjectName.Contains('Demo'))
       And
-      !$(MSBuildProjectName.Contains('Tests.'))
+      !$(MSBuildProjectName.Contains('Tests'))
       And
       '$(MSBuildProjectName)' != 'Benchmarks'
       And
@@ -21,7 +21,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Condition="'$(HasPublicApi)' == 'true' And '$(MSBuildProjectName)' != 'Common'" Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.0.0-beta2.final">
+    <PackageReference Condition="'$(HasPublicApi)' == 'true' And '$(MSBuildProjectName)' != 'Common'" Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
