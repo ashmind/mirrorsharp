@@ -1,3 +1,4 @@
+using MirrorSharp.Internal;
 using MirrorSharp.Internal.Abstraction;
 
 namespace MirrorSharp.Php.Internal {
@@ -10,7 +11,7 @@ namespace MirrorSharp.Php.Internal {
             _options = options;
         }
 
-        public ILanguageSessionInternal CreateSession(string text) {
+        public ILanguageSessionInternal CreateSession(string text, ILanguageSessionExtensions extensions) {
             return new PhpSession(text, _options);
         }
 

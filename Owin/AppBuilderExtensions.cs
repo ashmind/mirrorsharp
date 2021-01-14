@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using MirrorSharp.Internal;
 using MirrorSharp.Owin.Internal;
 using Owin;
 

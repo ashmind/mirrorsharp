@@ -26,7 +26,5 @@ namespace MirrorSharp.Internal {
 
             return lazy.Value;
         }
-
-
     }
 }

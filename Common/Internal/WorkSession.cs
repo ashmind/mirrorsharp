@@ -5,16 +5,16 @@ using MirrorSharp.Internal.Roslyn;
 
 namespace MirrorSharp.Internal {
     internal class WorkSession : IWorkSession {
-        private readonly IWorkSessionOptions? _options;
+        private readonly ILanguageSessionExtensions _extensions;
         private ILanguage _language;
         private ILanguageSessionInternal? _languageSession;
         private string _lastText = "";
 
-        public WorkSession(ILanguage language, IWorkSessionOptions? options = null) {
+        public WorkSession(ILanguage language, IWorkSessionOptions options, ILanguageSessionExtensions extensions) {
             _language = Argument.NotNull(nameof(language), language);
-            _options = options;
+            _extensions = extensions;
 
-            SelfDebug = (options?.SelfDebugEnabled ?? false) ? new SelfDebug() : null;
+            SelfDebug = options.SelfDebugEnabled ? new SelfDebug() : null;
         }
 
         public void ChangeLanguage(ILanguage language) {
@@ -31,10 +31,9 @@ namespace MirrorSharp.Internal {
         }
 
         private void Initialize() {
-            _languageSession = Language.CreateSession(_lastText);
+            _languageSession = Language.CreateSession(_lastText, _extensions);
         }
 
-        public IWorkSessionOptions? Options => _options;
         public ILanguage Language => _language;
         string IWorkSession.LanguageName => Language.Name;
         

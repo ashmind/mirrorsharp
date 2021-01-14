@@ -1,5 +1,6 @@
 using System;
 using Microsoft.CodeAnalysis;
+using MirrorSharp.Internal;
 using MirrorSharp.VisualBasic;
 using MirrorSharp.VisualBasic.Internal;
 

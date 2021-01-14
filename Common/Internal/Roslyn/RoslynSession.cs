@@ -9,10 +9,10 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Host.Mef;
-using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.QuickInfo;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Advanced;
+using MirrorSharp.Advanced.EarlyAccess;
 using MirrorSharp.Internal.Abstraction;
 using MirrorSharp.Internal.Reflection;
 
@@ -28,11 +28,11 @@ namespace MirrorSharp.Internal.Roslyn {
         private bool _documentOutOfDate;
         private Document _document;
         private SourceText _sourceText;
-
         private Solution? _lastWorkspaceAnalyzerOptionsSolution;
         private AnalyzerOptions? _workspaceAnalyzerOptions;
 
         private readonly CompletionService _completionService;
+        private readonly ILanguageSessionExtensions _extensions;
 
         public RoslynSession(
             SourceText sourceText,
@@ -40,7 +40,8 @@ namespace MirrorSharp.Internal.Roslyn {
             MefHostServices hostServices,
             ImmutableArray<DiagnosticAnalyzer> analyzers,
             ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> codeFixProviders,
-            ImmutableArray<ISignatureHelpProviderWrapper> signatureHelpProviders
+            ImmutableArray<ISignatureHelpProviderWrapper> signatureHelpProviders,
+            ILanguageSessionExtensions extensions
         ) {
             _workspace = new CustomWorkspace(hostServices);
             _sourceText = sourceText;
@@ -51,6 +52,8 @@ namespace MirrorSharp.Internal.Roslyn {
             Analyzers = analyzers;
             SignatureHelpProviders = signatureHelpProviders;
             CodeFixProviders = codeFixProviders;
+
+            _extensions = extensions;
         }
 
         private Document CreateProjectAndOpenNewDocument(Workspace workspace, ProjectInfo projectInfo, SourceText sourceText) {
@@ -71,7 +74,10 @@ namespace MirrorSharp.Internal.Roslyn {
         }
 
         public async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(CancellationToken cancellationToken) {
-            var compilation = await Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
+            // TODO: Revisit ! after https://github.com/dotnet/docs/issues/14784
+            var compilation = (await Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false))!;
+            _extensions.RoslynGuard?.ValidateCompilation(compilation, this);
+
             var solution = Project.Solution;
             if (_lastWorkspaceAnalyzerOptionsSolution != solution) {
                 _workspaceAnalyzerOptions = RoslynReflection.NewWorkspaceAnalyzerOptions(EmptyAnalyzerOptions, solution);

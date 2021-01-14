@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FSharp.Compiler.SourceCodeServices;
+using MirrorSharp.Internal;
 
 namespace MirrorSharp.FSharp.Advanced {
     /// <summary>Provides Roslyn-like extensions that allow simple updates to <see cref="FSharpProjectOptions" />.</summary>

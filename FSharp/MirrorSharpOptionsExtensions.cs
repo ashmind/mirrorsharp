@@ -1,6 +1,7 @@
 using System;
 using MirrorSharp.FSharp;
 using MirrorSharp.FSharp.Internal;
+using MirrorSharp.Internal;
 
 // This is run only once, on startup, so:
 // ReSharper disable HeapView.ClosureAllocation

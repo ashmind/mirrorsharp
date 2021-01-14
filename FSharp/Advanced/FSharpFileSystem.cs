@@ -1,5 +1,6 @@
 using System.IO;
 using MirrorSharp.FSharp.Internal;
+using MirrorSharp.Internal;
 
 namespace MirrorSharp.FSharp.Advanced {
     /// <summary>Represents a configuration endpoint for F# virtual filesystem.</summary>

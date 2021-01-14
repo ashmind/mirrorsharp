@@ -15,6 +15,10 @@ const tsTsc = task('ts:tsc',
     { watch: () => exec(`tsc --watch ${tscArgs}`) }
 );
 
+const tsCopyDeclarations = task('ts:copy-declarations',
+    () => jetpack.copyAsync('./.temp', './dist', { matching: '*.d.ts', overwrite: true })
+);
+
 const tsTransform = task('ts:transform', async () => {
     await Promise.all((await fg(['.temp/**/*.js'])).map(async path => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -40,7 +44,10 @@ const tsTransform = task('ts:transform', async () => {
 const ts = task('ts', async () => {
     await exec('eslint ./ts --max-warnings 0 --ext .js,.jsx,.ts,.tsx');
     await tsTsc();
-    await tsTransform();
+    await Promise.all([
+        tsTransform(),
+        tsCopyDeclarations()
+    ]);
 });
 
 const css = task('css', () => jetpack.copyAsync('css', 'dist', { overwrite: true }), { watch: ['css/*.*'] });

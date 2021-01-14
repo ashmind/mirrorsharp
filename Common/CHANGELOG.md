@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.2.2] - 2020-12-17
+
+### Changed
+- Internal prototype of a new extension (not exposed)
+
 ## [2.2.1] - 2020-09-12
 
 ### Added

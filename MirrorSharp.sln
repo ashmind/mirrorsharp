@@ -25,6 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisualBasic", "VisualBasic\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "[Includes]", "[Includes]", "{9EC6CF09-4D36-4723-9548-060215C88E50}"
 	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
 		NuGet.Common.props = NuGet.Common.props
 	EndProjectSection
 EndProject
@@ -44,7 +45,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Demo", "AspNetCo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.RoslynLatest", "Tests.RoslynLatest\Tests.RoslynLatest.csproj", "{72B44FAA-5B8E-470D-B20E-AC6017B5A1D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Demo.Library", "AspNetCore.Demo.Library\AspNetCore.Demo.Library.csproj", "{2FD91F17-E789-4789-A1F6-5D794E6B6DA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Demo.Library", "AspNetCore.Demo.Library\AspNetCore.Demo.Library.csproj", "{2FD91F17-E789-4789-A1F6-5D794E6B6DA7}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
