@@ -4,57 +4,61 @@ import loadModuleByUrl from './render/load-module-by-url';
 import loadCSS from './render/load-css';
 import type { TestDriver } from '../test-driver';
 
-async function setupRequestInterception(page: Page, html: string) {
-    await page.setRequestInterception(true);
+async function processRequest(request: puppeteer.Request, html: string) {
+    const method = request.method();
+    const url = new URL(request.url());
+    if (method !== 'GET') {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        await request.abort();
+        return;
+    }
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    page.on('request', async request => {
-        const method = request.method();
-        const url = new URL(request.url());
-        if (method !== 'GET') {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            await request.abort();
-            return;
-        }
+    if (url.protocol === 'data:') {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        await request.continue();
+        return;
+    }
 
-        if (url.protocol === 'data') {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            await request.continue();
-            return;
-        }
-
-        if (url.pathname === '/') {
-            await request.respond({
-                headers: {
-                    'Content-Type': 'text/html'
-                },
-                body: html
-            });
-            return;
-        }
-
-        if (url.pathname === '/favicon.ico') {
-            await request.respond({ status: 404 });
-            return;
-        }
-
-        if (url.pathname.endsWith('.css')) {
-            await request.respond({
-                headers: {
-                    'Content-Type': 'text/css'
-                },
-                body: await loadCSS(url)
-            });
-            return;
-        }
-
-        const content = await loadModuleByUrl(url);
+    if (url.pathname === '/') {
         await request.respond({
             headers: {
-                'Content-Type': 'application/javascript'
+                'Content-Type': 'text/html'
             },
-            body: content
+            body: html
         });
+        return;
+    }
+
+    if (url.pathname === '/favicon.ico') {
+        await request.respond({ status: 404 });
+        return;
+    }
+
+    if (url.pathname.endsWith('.css')) {
+        await request.respond({
+            headers: {
+                'Content-Type': 'text/css'
+            },
+            body: await loadCSS(url)
+        });
+        return;
+    }
+
+    const content = await loadModuleByUrl(url);
+    await request.respond({
+        headers: {
+            'Content-Type': 'application/javascript'
+        },
+        body: content
+    });
+}
+
+async function setupRequestInterception(page: Page, html: string, onRequestError: (e: unknown) => void) {
+    await page.setRequestInterception(true);
+
+    page.on('request', request => {
+        processRequest(request, html)
+            .catch(onRequestError);
     });
 }
 
@@ -90,11 +94,16 @@ export default async function render(
     const [page] = await browser.pages();
     await page.setViewport(size);
 
-    await setupRequestInterception(page, content);
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    const loadPromise = new Promise((resolve, reject) => page.exposeFunction(
-        'notifyLoaded', (e?: Error) => e ? reject(e) : resolve())
-    );
+    const requestErrors = [] as Array<unknown>;
+    await setupRequestInterception(page, content, e => {
+        console.error('Error during request', e);
+        requestErrors.push(e);
+    });
+
+    let load: { resolve: () => void; reject: ((e: unknown) => void) } | undefined;
+    const loadPromise = new Promise((resolve, reject) => { load = { resolve, reject }; });
+    await page.exposeFunction('notifyLoaded', (e?: Error) => e ? load!.reject(e) : load!.resolve());
     if (debug)
         debugger; // eslint-disable-line no-debugger
 
@@ -105,6 +114,8 @@ export default async function render(
         debugger; // eslint-disable-line no-debugger
 
     await loadPromise;
+    if (requestErrors.length > 0)
+        throw requestErrors[0];
     const screenshot = await page.screenshot();
 
     await browser.close();

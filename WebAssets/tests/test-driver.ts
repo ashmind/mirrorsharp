@@ -17,7 +17,8 @@ const renderSize = { width: 320, height: 200 };
 //const spliceString = (string: string, start: number, length: number, newString = '') =>
 //    string.substring(0, start) + newString + string.substring(start + length);
 
-Range.prototype.getClientRects = () => { return [] as unknown as DOMRectList; };
+Range.prototype.getBoundingClientRect = () => ({}) as unknown as DOMRect;
+Range.prototype.getClientRects = () => [] as unknown as DOMRectList;
 
 /*
 class TestKeys {
