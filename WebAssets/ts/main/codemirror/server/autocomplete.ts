@@ -31,9 +31,13 @@ export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => {
         const all = context.state.field(lastCompletionsFromServer).map((completion, index) => ({ completion, index }));
         const prefix = context.matchBefore(/[\w\d]+/);
 
-        const filtered = prefix
-            ? all.filter(({ completion: c }) => (c.filterText ?? c.displayText).startsWith(prefix.text))
-            : all;
+        let filtered = all;
+        if (prefix) {
+            const prefixTextLowerCase = prefix.text.toLowerCase();
+            filtered = all.filter(
+                ({ completion: c }) => (c.filterText ?? c.displayText).toLowerCase().startsWith(prefixTextLowerCase)
+            );
+        }
 
         return {
             from: prefix?.from ?? context.pos,

@@ -43,12 +43,12 @@ test('completion list is filtered based on initial text', async () => {
     driver.receive.completions([
         { displayText: 'ab', kinds: [] },
         { displayText: 'bb', kinds: [] },
-        { displayText: 'bc', kinds: [] }
+        { displayText: 'BC', kinds: [] }
     ]);
     await driver.completeBackgroundWork();
 
     const state = driver.getCodeMirrorView().state;
-    expect(currentCompletions(state).map(c => c.label)).toEqual(['bb', 'bc']);
+    expect(currentCompletions(state).map(c => c.label)).toEqual(['bb', 'BC']);
 });
 
 test('completion list is filtered based on new typed text', async () => {
@@ -57,14 +57,14 @@ test('completion list is filtered based on new typed text', async () => {
     driver.receive.completions([
         { displayText: 'aaa', kinds: [] },
         { displayText: 'aba', kinds: [] },
-        { displayText: 'abb', kinds: [] }
+        { displayText: 'ABB', kinds: [] }
     ]);
     await driver.completeBackgroundWork();
     driver.text.type('b');
     await driver.completeBackgroundWork();
 
     const state = driver.getCodeMirrorView().state;
-    expect(currentCompletions(state).map(c => c.label)).toEqual(['aba', 'abb']);
+    expect(currentCompletions(state).map(c => c.label)).toEqual(['aba', 'ABB']);
 });
 
 test.each([
