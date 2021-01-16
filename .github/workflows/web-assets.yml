@@ -31,7 +31,7 @@ jobs:
       if: failure()
       with:
         name: tests-__diff_output__
-        path: source/WebAssets/tests/__image_snapshots__/__diff_output__
+        path: WebAssets/tests/__image_snapshots__/__diff_output__
         if-no-files-found: ignore
 
 
