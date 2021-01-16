@@ -59,6 +59,7 @@ export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => {
                 if (message.type === 'changes' && message.reason === 'completion') {
                     applyChangesFromServer(view, message.changes);
                     closeCompletion(view);
+                    dispatchLastCompletionsFromServerChanged(view, null);
                 }
             }
         });
