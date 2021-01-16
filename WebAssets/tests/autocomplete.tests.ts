@@ -41,6 +41,15 @@ test('applying completion sends expected message', async () => {
     expect(driver.socket.sent.slice(-1)[0]).toBe('S0');
 });
 
+test('Ctrl+Space requests completion list', async () => {
+    const driver = await TestDriver.new({ text: '' });
+
+    driver.keys.keydown(' ', { ctrlKey: true });
+    await driver.completeBackgroundWork();
+
+    expect(driver.socket.sent.slice(-1)[0]).toBe('SF');
+});
+
 test('completion change is applied correctly', async () => {
     const driver = await TestDriver.new({ textWithCursor: 'x.|' });
 

@@ -97,15 +97,19 @@ export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => {
         }
     });
 
-    const acceptCompletionOnTab = keymap([
-        { key: 'Tab', run: view => {
-            if (completionStatus(view.state) !== 'active')
-                return false;
+    const forceCompletionOnCtrlSpace = keymap([{ key: 'Ctrl-Space', run: () => {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        connection.sendCompletionState('force');
+        return true;
+    } }]);
 
-            acceptCompletion(view);
-            return true;
-        } }
-    ]);
+    const acceptCompletionOnTab = keymap([{ key: 'Tab', run: view => {
+        if (completionStatus(view.state) !== 'active')
+            return false;
+
+        acceptCompletion(view);
+        return true;
+    } }]);
 
     return [
         lastCompletionsFromServer,
@@ -113,6 +117,7 @@ export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => {
             activateOnTyping: true,
             override: [getAndFilterCompletions]
         }),
+        forceCompletionOnCtrlSpace,
         receiveCompletionMessagesFromServer,
         sendCancelCompletionToServer,
         acceptCompletionOnCommitChar,
