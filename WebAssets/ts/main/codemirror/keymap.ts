@@ -1,25 +1,24 @@
 
 import { defaultKeymap, indentMore, indentLess } from '@codemirror/next/commands';
 import { historyKeymap } from '@codemirror/next/history/dist';
-import { keymap, ViewPlugin, EditorView } from '@codemirror/next/view';
+import { keymap, ViewPlugin } from '@codemirror/next/view';
+import { defineEffectField } from '../../helpers/define-effect-field';
 
-const tabTrapped = new WeakMap<EditorView, boolean>();
-const tabTrapPlugin = ViewPlugin.define(view => {
-    return ({
-        update() {
-            if (view.hasFocus)
-                tabTrapped.set(view, true);
-        }
-    });
-});
+const [tabTrapped, dispatchTabTrappedChanged] = defineEffectField<boolean>(true);
+const tabTrapPlugin = ViewPlugin.define(() => ({
+    update({ view, focusChanged }) {
+        if (focusChanged && view.hasFocus)
+            dispatchTabTrappedChanged(view, true);
+    }
+}));
 
-export default [tabTrapPlugin, keymap([
+export default [tabTrapped, tabTrapPlugin, keymap([
     ...defaultKeymap,
     ...historyKeymap,
-    { key: 'Tab', run: view => tabTrapped.get(view) ? indentMore(view) : false },
-    { key: 'Shift-Tab', run: view => tabTrapped.get(view) ? indentLess(view) : false },
+    { key: 'Tab', run: view => view.state.field(tabTrapped) ? indentMore(view) : false },
+    { key: 'Shift-Tab', run: view => view.state.field(tabTrapped) ? indentLess(view) : false },
     { key: 'Escape', run: view => {
-        tabTrapped.set(view, false);
+        dispatchTabTrappedChanged(view, false);
         return true;
     } }
 ])];

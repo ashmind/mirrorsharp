@@ -3,10 +3,11 @@ import { dispatchMutation } from './helpers/mutation-observer-workaround';
 import { completionStatus, currentCompletions, acceptCompletion } from '@codemirror/next/autocomplete';
 
 const ensureCompletionIsReadyForInteraction = () => jest.advanceTimersByTime(100);
+
 const typeCharacterUsingDOM = (driver: TestDriver, character: string) => {
-    const { contentDOM } = driver.getCodeMirrorView();
-    contentDOM.dispatchEvent(new KeyboardEvent('keydown', { key: character }));
+    driver.keys.keydown(character);
     const characterText = document.createTextNode(character);
+    const { contentDOM } = driver.getCodeMirrorView();
     contentDOM.querySelector<HTMLElement>('.cm-line')!.appendChild(characterText);
     dispatchMutation(contentDOM, {
         type: 'characterData' as MutationRecordType,
@@ -98,10 +99,25 @@ test.each([
     expect(rendered).toMatchImageSnapshot();
 });
 
-test('completion change is applied on (', async () => {
+test('completion is applied on Tab', async () => {
     const driver = await TestDriver.new({ text: '' });
 
-    driver.receive.completions([{ displayText: 'Test', kinds: ['method'] }], {
+    driver.receive.completions([{ displayText: 'ToString', kinds: ['method'] }]);
+    await driver.completeBackgroundWork();
+    ensureCompletionIsReadyForInteraction();
+
+    driver.keys.keydown('Tab');
+    await driver.completeBackgroundWork();
+
+    const text = driver.mirrorsharp.getText();
+    expect(text).toBe(''); // completion response not received, so text not changed yet
+    expect(driver.socket.sent.slice(-1)[0]).toBe('S0');
+});
+
+test('completion is applied on (', async () => {
+    const driver = await TestDriver.new({ text: '' });
+
+    driver.receive.completions([{ displayText: 'ToString', kinds: ['method'] }], {
         commitChars: '(;'
     });
     await driver.completeBackgroundWork();

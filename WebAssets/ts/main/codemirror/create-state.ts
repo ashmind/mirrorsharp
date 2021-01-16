@@ -27,14 +27,17 @@ export function createState<O, U>(
             EditorState.lineSeparator.of(lineSeparator),
 
             history(),
-            keymap,
             csharp(),
             highlighter(highlighterSpec),
 
             connectionState(connection),
             sendChangesToServer(connection),
             slowUpdateLinter(connection, options),
-            autocompleteFromServer(connection)
+            autocompleteFromServer(connection),
+
+            // has to go last so that more specific keymaps
+            // in e.g. autocomplete have more priority
+            keymap
         ]
     });
 }

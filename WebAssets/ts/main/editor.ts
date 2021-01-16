@@ -561,7 +561,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     }
 
     getText() {
-        return this.#cmView.state.doc.toString();
+        return this.#cmView.state.sliceDoc();
     }
 
     getLanguage() {

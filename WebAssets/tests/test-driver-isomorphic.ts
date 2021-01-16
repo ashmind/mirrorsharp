@@ -132,6 +132,20 @@ class TestText {
     }
 }
 
+class TestKeys {
+    readonly #cmView: EditorView;
+
+    constructor(cmView: EditorView) {
+        this.#cmView = cmView;
+    }
+
+    keydown(key: string, other: Omit<KeyboardEventInit, 'key'> = {}) {
+        this.#cmView
+            .contentDOM
+            .dispatchEvent(new KeyboardEvent('keydown', { key, ...other }));
+    }
+}
+
 class TestReceiver {
     private readonly socket: MockSocket;
 
@@ -191,6 +205,7 @@ class TestDriver<TExtensionServerOptions = never> {
     public readonly socket: MockSocket;
     public readonly mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>;
     public readonly text: TestText;
+    public readonly keys: TestKeys;
     public readonly receive: TestReceiver;
     public readonly recorder: TestRecorder;
 
@@ -208,6 +223,7 @@ class TestDriver<TExtensionServerOptions = never> {
         this.#cmView = cmView;
         this.mirrorsharp = mirrorsharp;
         this.text = new TestText(cmView);
+        this.keys = new TestKeys(cmView);
         this.receive = new TestReceiver(socket);
         this.recorder = new TestRecorder([
             /*this.keys, */this.text, this.receive, this

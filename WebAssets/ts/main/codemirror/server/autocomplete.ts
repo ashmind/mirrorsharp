@@ -1,6 +1,6 @@
 import type { Connection } from '../../connection';
 import type { CompletionItemData, CompletionsMessage } from '../../../interfaces/protocol';
-import { ViewPlugin, EditorView } from '@codemirror/next/view';
+import { ViewPlugin, EditorView, keymap } from '@codemirror/next/view';
 import { startCompletion, acceptCompletion, closeCompletion, completionStatus, autocompletion, CompletionSource, Completion } from '@codemirror/next/autocomplete';
 import { addEvents } from '../../../helpers/add-events';
 import { defineEffectField } from '../../../helpers/define-effect-field';
@@ -96,6 +96,16 @@ export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => {
         }
     });
 
+    const acceptCompletionOnTab = keymap([
+        { key: 'Tab', run: view => {
+            if (completionStatus(view.state) !== 'active')
+                return false;
+
+            acceptCompletion(view);
+            return true;
+        } }
+    ]);
+
     return [
         lastCompletionsFromServer,
         autocompletion({
@@ -104,6 +114,7 @@ export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => {
         }),
         receiveCompletionMessagesFromServer,
         sendCancelCompletionToServer,
-        acceptCompletionOnCommitChar
+        acceptCompletionOnCommitChar,
+        acceptCompletionOnTab
     ];
 };
