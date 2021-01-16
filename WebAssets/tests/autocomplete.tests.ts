@@ -1,5 +1,18 @@
 import { TestDriver } from './test-driver';
+import { dispatchMutation } from './helpers/mutation-observer-workaround';
 import { completionStatus, currentCompletions, acceptCompletion } from '@codemirror/next/autocomplete';
+
+const ensureCompletionIsReadyForInteraction = () => jest.advanceTimersByTime(100);
+const typeCharacterUsingDOM = (driver: TestDriver, character: string) => {
+    const { contentDOM } = driver.getCodeMirrorView();
+    contentDOM.dispatchEvent(new KeyboardEvent('keydown', { key: character }));
+    const characterText = document.createTextNode(character);
+    contentDOM.querySelector<HTMLElement>('.cm-line')!.appendChild(characterText);
+    dispatchMutation(contentDOM, {
+        type: 'characterData' as MutationRecordType,
+        target: characterText
+    });
+};
 
 test('completions message shows completion list', async () => {
     const driver = await TestDriver.new({ text: '' });
@@ -20,7 +33,7 @@ test('applying completion sends expected message', async () => {
 
     driver.receive.completions([{ displayText: 'Test', kinds: ['method'] }]);
     await driver.completeBackgroundWork();
-    jest.advanceTimersByTime(100);
+    ensureCompletionIsReadyForInteraction();
     acceptCompletion(driver.getCodeMirrorView());
     await driver.completeBackgroundWork();
 
@@ -83,4 +96,24 @@ test.each([
     const rendered = await driver.render();
 
     expect(rendered).toMatchImageSnapshot();
+});
+
+test('completion change is applied on (', async () => {
+    const driver = await TestDriver.new({ text: '' });
+
+    driver.receive.completions([{ displayText: 'Test', kinds: ['method'] }], {
+        commitChars: '(;'
+    });
+    await driver.completeBackgroundWork();
+    ensureCompletionIsReadyForInteraction();
+
+    typeCharacterUsingDOM(driver, '(');
+    await driver.completeBackgroundWork();
+
+    driver.receive.changes('completion', [{ start: 0, length: 0, text: 'ToString' }]);
+    await driver.completeBackgroundWork();
+
+    const updated = driver.mirrorsharp.getText();
+    expect(driver.socket.sent).toContain('S0');
+    expect(updated).toBe('ToString(');
 });

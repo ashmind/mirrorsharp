@@ -27,7 +27,7 @@ export interface CompletionsMessage {
     readonly type: 'completions';
     readonly span: SpanData;
     readonly completions: ReadonlyArray<CompletionItemData>;
-    readonly commitChars: ReadonlyArray<string>;
+    readonly commitChars: string;
     readonly suggestion?: CompletionSuggestionData;
 }
 

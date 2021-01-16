@@ -1,6 +1,6 @@
 import type { EditorView } from '@codemirror/next/view';
 import { TransactionSpec, Transaction } from '@codemirror/next/state';
-import type { PartData, CompletionItemData, ChangeData, ChangesMessage } from '../ts/interfaces/protocol';
+import type { PartData, CompletionItemData, ChangeData, ChangesMessage, CompletionsMessage } from '../ts/interfaces/protocol';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../ts/mirrorsharp';
 
 type TestRecorderOptions = { exclude?: (object: object, action: string) => boolean };
@@ -111,33 +111,6 @@ class MockSocket {
     }
 }
 
-/*
-class TestKeys {
-    readonly #cmView: EditorView;
-
-    constructor(cmView: EditorView) {
-        this.#cmView = cmView;
-    }
-
-    backspace(count: number) {
-        const { node, offset } = this.getCursorInfo();
-        for (let i = 0; i < count; i++) {
-            node.textContent = spliceString(node.textContent!, offset, 1);
-            keyboard.dispatchEventsForAction('backspace', this.#cmView.contentDOM);
-        }
-    }
-
-    press(keys: string) {
-        keyboard.dispatchEventsForAction(keys, this.#cmView.contentDOM);
-    }
-
-    private getCursorInfo() {
-        const index = this.#cmView.state.selection.primary.from;
-        return this.#cmView.domAtPos(index);
-    }
-}
-*/
-
 class TestText {
     readonly #cmView: EditorView;
 
@@ -174,8 +147,11 @@ class TestReceiver {
         this.socket.trigger('message', { data: JSON.stringify({ type: 'optionsEcho', options }) });
     }
 
-    completions(completions: ReadonlyArray<CompletionItemData> = [], { span = {}, commitChars = null, suggestion = null } = {}) {
-        this.socket.trigger('message', { data: JSON.stringify({ type: 'completions', completions, span, commitChars, suggestion }) });
+    completions(
+        completions: ReadonlyArray<CompletionItemData> = [],
+        other: Partial<Omit<CompletionsMessage, 'completions'|'type'>> = {}
+    ) {
+        this.socket.trigger('message', { data: JSON.stringify({ type: 'completions', completions, ...other }) });
     }
 
     completionInfo(index: number, parts: ReadonlyArray<PartData>) {
@@ -214,7 +190,6 @@ function setTimers(implementation: typeof timers) {
 class TestDriver<TExtensionServerOptions = never> {
     public readonly socket: MockSocket;
     public readonly mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>;
-    //public readonly keys: TestKeys;
     public readonly text: TestText;
     public readonly receive: TestReceiver;
     public readonly recorder: TestRecorder;
@@ -232,7 +207,6 @@ class TestDriver<TExtensionServerOptions = never> {
         this.socket = socket;
         this.#cmView = cmView;
         this.mirrorsharp = mirrorsharp;
-        //this.keys = new TestKeys(cmView);
         this.text = new TestText(cmView);
         this.receive = new TestReceiver(socket);
         this.recorder = new TestRecorder([
