@@ -1,7 +1,7 @@
-import { TestDriver as IsomorphicTestDriver, TestDriverConstructorArguments, setTimers, TestDriverOptions } from './test-driver-isomorphic';
+import { TestDriver as IsomorphicTestDriver, TestDriverConstructorArguments, TestDriverOptions } from './test-driver-isomorphic';
 import render from './helpers/render';
 
-setTimers(jest);
+IsomorphicTestDriver.timers = jest;
 
 const renderSize = { width: 320, height: 200 };
 

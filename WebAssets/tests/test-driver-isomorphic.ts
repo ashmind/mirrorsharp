@@ -182,26 +182,15 @@ type TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = ({}|
     };
 };
 
-const timers = {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    runOnlyPendingTimers() {
-        console.log('runOnlyPendingTimers');
-    },
-
-    advanceTimersByTime(ms: number) {
-        console.log('advanceTimersByTime', ms);
-    },
-
-    advanceTimersToNextTimer() {
-        console.log('advanceTimersToNextTimer');
-    }
+type TestDriverTimers = {
+    runOnlyPendingTimers(): void;
+    advanceTimersByTime(ms: number): void;
+    advanceTimersToNextTimer(): void;
 };
 
-function setTimers(implementation: typeof timers) {
-    Object.assign(timers, implementation);
-}
-
 class TestDriver<TExtensionServerOptions = never> {
+    public static timers: TestDriverTimers;
+
     public readonly socket: MockSocket;
     public readonly mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>;
     public readonly text: TestText;
@@ -243,9 +232,9 @@ class TestDriver<TExtensionServerOptions = never> {
     }
 
     async completeBackgroundWork() {
-        timers.runOnlyPendingTimers();
+        TestDriver.timers.runOnlyPendingTimers();
         await new Promise(resolve => resolve());
-        timers.runOnlyPendingTimers();
+        TestDriver.timers.runOnlyPendingTimers();
     }
 
     async completeBackgroundWorkAfterEach(...actions: ReadonlyArray<() => void>) {
@@ -256,8 +245,8 @@ class TestDriver<TExtensionServerOptions = never> {
     }
 
     async advanceTimeAndCompleteNextLinting() {
-        timers.advanceTimersByTime(1000);
-        timers.advanceTimersToNextTimer();
+        TestDriver.timers.advanceTimersByTime(1000);
+        TestDriver.timers.advanceTimersToNextTimer();
         await this.completeBackgroundWork();
     }
 
@@ -271,6 +260,10 @@ class TestDriver<TExtensionServerOptions = never> {
     static async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
         options: TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
     ) {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (!TestDriver.timers)
+            throw new Error('TestDriver.timers must be set before TestDriver instances can be created.');
+
         const initial = getInitialState(options);
 
         const container = document.createElement('div');
@@ -300,7 +293,7 @@ class TestDriver<TExtensionServerOptions = never> {
         driver.socket.trigger('open');
         await driver.completeBackgroundWork();
 
-        timers.runOnlyPendingTimers();
+        TestDriver.timers.runOnlyPendingTimers();
         driver.socket.sent = [];
         return driver;
     }
@@ -327,4 +320,4 @@ type TestDriverConstructorArguments<TExtensionServerOptions> = [
     TestDriverOptions<TExtensionServerOptions, unknown>
 ];
 
-export { TestDriver, TestDriverOptions, TestDriverConstructorArguments, setTimers };
+export { TestDriver, TestDriverOptions, TestDriverConstructorArguments, TestDriverTimers };

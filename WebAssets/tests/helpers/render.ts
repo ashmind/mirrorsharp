@@ -1,8 +1,9 @@
 import inspector from 'inspector';
 import puppeteer, { Page } from 'puppeteer';
-import loadModuleByUrl from './render/load-module-by-url';
 import loadCSS from './render/load-css';
+import loadJSOrTS from './render/load-js-or-ts';
 import type { TestDriver } from '../test-driver';
+import port from './render/docker/port';
 
 async function processRequest(request: puppeteer.Request, html: string) {
     const method = request.method();
@@ -39,18 +40,23 @@ async function processRequest(request: puppeteer.Request, html: string) {
             headers: {
                 'Content-Type': 'text/css'
             },
-            body: await loadCSS(url)
+            body: await loadCSS(url.pathname)
         });
         return;
     }
 
-    const content = await loadModuleByUrl(url);
-    await request.respond({
-        headers: {
-            'Content-Type': 'application/javascript'
-        },
-        body: content
-    });
+    if (/\.(js|cjs|mjs|ts)$/.test(url.pathname)) {
+        await request.respond({
+            headers: {
+                'Content-Type': 'application/javascript'
+            },
+            body: await loadJSOrTS(url.pathname)
+        });
+        return;
+    }
+
+    console.warn(`Could not find ${url.toString()} - returning 404.`);
+    await request.respond({ status: 404 });
 }
 
 async function setupRequestInterception(page: Page, html: string, onRequestError: (e: unknown) => void) {
@@ -62,6 +68,10 @@ async function setupRequestInterception(page: Page, html: string, onRequestError
     });
 }
 
+const timeout = (ms: number, message: string) => new Promise(
+    (_, reject) => setTimeout(() => reject(new Error(message)), ms)
+);
+
 export default async function render(
     driver: TestDriver<unknown>,
     size: { width: number; height: number },
@@ -71,12 +81,14 @@ export default async function render(
         <html>
           <head>
             <title>mirrorsharp render test page</title>
-            <link rel="stylesheet" href="./css/mirrorsharp.css">
+            <link rel="stylesheet" href="css/mirrorsharp.css">
           </head>
           <body>
             <script type="module">
-                import { TestDriver } from './tests/test-driver-isomorphic';
+                import { timers } from './tests/helpers/render/browser-fake-timers.ts';
+                import { TestDriver } from './tests/test-driver-isomorphic.ts';
 
+                TestDriver.timers = timers;
                 TestDriver
                     .fromJSON(${JSON.stringify(driver.toJSON())})
                     .then(() => notifyLoaded(), e => {
@@ -87,38 +99,27 @@ export default async function render(
           </body>
         </html>`;
 
-    const browser = await puppeteer.launch({
-        headless: !debug,
-        devtools: debug
-    });
-    const [page] = await browser.pages();
+    const browser = await puppeteer.connect({ browserURL: `http://localhost:${port}` });
+    const page = await browser.newPage();
     await page.setViewport(size);
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    const requestErrors = [] as Array<unknown>;
-    await setupRequestInterception(page, content, e => {
-        console.error('Error during request', e);
-        requestErrors.push(e);
-    });
-
     let load: { resolve: () => void; reject: ((e: unknown) => void) } | undefined;
     const loadPromise = new Promise((resolve, reject) => { load = { resolve, reject }; });
+    await setupRequestInterception(page, content, e => load!.reject(e));
     await page.exposeFunction('notifyLoaded', (e?: Error) => e ? load!.reject(e) : load!.resolve());
-    if (debug)
-        debugger; // eslint-disable-line no-debugger
 
     // does not exist -- required for module relative references
     await page.goto('http://mirrorsharp.test');
 
-    if (debug)
-        debugger; // eslint-disable-line no-debugger
-
-    await loadPromise;
-    if (requestErrors.length > 0)
-        throw requestErrors[0];
+    await Promise.race(!debug ? [
+        loadPromise,
+        timeout(30000, 'Page did not call notifyLoaded() within the time limit.')
+    ] : [loadPromise]);
     const screenshot = await page.screenshot();
 
-    await browser.close();
+    await page.close();
+    browser.disconnect();
 
     return screenshot;
 }
