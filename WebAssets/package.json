@@ -1,6 +1,6 @@
 {
     "name": "mirrorsharp-codemirror-6-preview",
-    "version": "0.0.9",
+    "version": "0.0.10",
     "engines": {
         "node": ">=12.6.1"
     },
