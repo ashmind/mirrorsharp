@@ -13,7 +13,13 @@ export class FSCache {
 
     async set(sourcePath: string, value: string) {
         if (!this.#basePathConfirmed && !(await promisify(fs.exists)(this.#basePath))) {
-            await promisify(fs.mkdir)(this.#basePath);
+            try {
+                await promisify(fs.mkdir)(this.#basePath);
+            }
+            catch (e) {
+                if ((e as { code?: string }).code !== 'EEXIST')
+                    throw e;
+            }
             this.#basePathConfirmed = true;
         }
 
