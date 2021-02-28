@@ -1,5 +1,5 @@
 import CodeMirror from 'codemirror';
-import 'codemirror/mode/clike/clike';
+import 'codemirror/mode/clike/clike.js';
 import 'codemirror-addon-infotip';
 import 'codemirror-addon-lint-fix';
 import type {

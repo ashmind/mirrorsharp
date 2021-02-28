@@ -1,5 +1,5 @@
 import CodeMirror from 'codemirror';
-import 'codemirror/addon/hint/show-hint';
+import 'codemirror/addon/hint/show-hint.js';
 import type { PartData, CompletionItemData, SpanData, CompletionSuggestionData } from '../interfaces/protocol';
 import type { Connection } from './connection';
 import { addEvents } from '../helpers/add-events';

@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0.4] - 2021-02-28
+
+### Fixed
+- Fixed incorrect imports that caused failures in Webpack 5 ([#142](https://github.com/ashmind/mirrorsharp/issues/142))
+
 ## [2.0.3] - 2021-01-09
 
 ### Fixed
