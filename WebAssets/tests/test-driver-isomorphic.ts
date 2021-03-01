@@ -227,8 +227,26 @@ class TestDriver<TExtensionServerOptions = never> {
         return this.#cmView;
     }
 
+    getTextWithCursor() {
+        const text = this.mirrorsharp.getText();
+        const cursor = this.mirrorsharp.getCursorOffset();
+        return text.slice(0, cursor) + '|' + text.slice(cursor);
+    }
+
+    setTextWithCursor(value: string) {
+        const { text, cursor } = parseTextWithCursor(value);
+        this.dispatchCodeMirrorTransaction({
+            changes: [{
+                from: 0,
+                to: this.#cmView.state.doc.length,
+                insert: text
+            }],
+            selection: { anchor: cursor }
+        });
+    }
+
     dispatchCodeMirrorTransaction(...specs: ReadonlyArray<TransactionSpec>) {
-        this.#cmView.dispatch(this.#cmView.state.update(...specs));
+        this.#cmView.dispatch(...specs);
     }
 
     async completeBackgroundWork() {
@@ -307,11 +325,16 @@ class TestDriver<TExtensionServerOptions = never> {
 
 function getInitialState(options: {}|{ text: string; cursor?: number }|{ textWithCursor: string }) {
     let { text, cursor } = options as { text?: string; cursor?: number };
-    if ('textWithCursor' in options) {
-        text = options.textWithCursor.replace('|', '');
-        cursor = options.textWithCursor.indexOf('|');
-    }
+    if ('textWithCursor' in options)
+        ({ text, cursor } = parseTextWithCursor(options.textWithCursor));
     return { text, cursor };
+}
+
+function parseTextWithCursor(value: string) {
+    return {
+        text: value.replace('|', ''),
+        cursor: value.indexOf('|')
+    };
 }
 
 type TestDriverConstructorArguments<TExtensionServerOptions> = [

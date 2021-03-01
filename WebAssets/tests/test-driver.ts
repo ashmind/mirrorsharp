@@ -1,5 +1,5 @@
 import { TestDriver as IsomorphicTestDriver, TestDriverConstructorArguments, TestDriverOptions } from './test-driver-isomorphic';
-import render from './helpers/render';
+import render, { shouldSkipRender } from './helpers/render';
 
 IsomorphicTestDriver.timers = jest;
 
@@ -15,6 +15,8 @@ Range.prototype.getBoundingClientRect = () => ({}) as unknown as DOMRect;
 Range.prototype.getClientRects = () => [] as unknown as DOMRectList;
 
 class TestDriver<TExtensionServerOptions = never> extends IsomorphicTestDriver<TExtensionServerOptions> {
+    static readonly shouldSkipRender = shouldSkipRender;
+
     private constructor(...args: TestDriverConstructorArguments<TExtensionServerOptions>) {
         super(...args);
     }

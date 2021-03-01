@@ -1,5 +1,14 @@
 /* New */
 
+.mirrorsharp {
+    font-family: monospace;
+}
+
+.mirrorsharp .cm-scroller.cm-scroller,
+.mirrorsharp .cm-tooltip.cm-tooltip.cm-tooltip-autocomplete > ul {
+    font-family: inherit;
+}
+
 .mirrorsharp .cm-lintRange-hidden {
     opacity: 0.5;
 }

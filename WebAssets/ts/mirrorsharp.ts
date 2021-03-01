@@ -47,6 +47,7 @@ export interface MirrorSharpOptions<TExtensionServerOptions = never, TSlowUpdate
 export interface MirrorSharpInstance<TExtensionServerOptions> {
     getCodeMirrorView(): EditorView;
     getText(): string;
+    getCursorOffset(): number;
     // setText(text: string): void;
     getLanguage(): MirrorSharpLanguage;
     setLanguage(value: MirrorSharpLanguage): void;
@@ -65,6 +66,7 @@ export default function mirrorsharp<TExtensionServerOptions = never, TSlowUpdate
     return Object.freeze({
         getCodeMirrorView: () => editor.getCodeMirrorView(),
         getText: () => editor.getText(),
+        getCursorOffset: () => editor.getCursorOffset(),
         // setText: (text: string) => editor.setText(text),
         getLanguage: () => editor.getLanguage(),
         setLanguage: (value: Language) => editor.setLanguage(value),

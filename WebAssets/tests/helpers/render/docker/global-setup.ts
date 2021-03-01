@@ -1,12 +1,16 @@
 import execa from 'execa';
 import fetch from 'node-fetch';
 import { setPortFromGlobalSetup } from './port';
+import { shouldSkipRender } from '../should-skip';
 
 const typedGlobal = global as unknown as {
     chromeContainerId: string;
 };
 
 export default async () => {
+    if (shouldSkipRender)
+        return;
+
     const chromeContainerId = (await execa('docker', [
         'container',
         'run',

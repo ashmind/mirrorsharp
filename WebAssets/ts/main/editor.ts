@@ -16,8 +16,8 @@ import type { Connection } from './connection';
 // import type { SelfDebug } from './self-debug';
 import { createState } from './codemirror/create-state';
 // import { renderInfotip } from './render-infotip';
-import { Hinter } from './hinter';
-import { SignatureTip } from './signature-tip';
+// import { Hinter } from './hinter';
+// import { SignatureTip } from './signature-tip';
 import { addEvents } from '../helpers/add-events';
 
 /*const indexKey = '$mirrorsharp-index';
@@ -69,8 +69,8 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     // readonly #cm: CodeMirror.EditorFromTextArea;
     readonly #wrapper: HTMLElement;
     readonly #cmView: EditorView;
-    readonly #hinter: Hinter<TExtensionServerOptions, TSlowUpdateExtensionData>;
-    readonly #signatureTip: InstanceType<typeof SignatureTip>;
+    // readonly #hinter: Hinter<TExtensionServerOptions, TSlowUpdateExtensionData>;
+    // readonly #signatureTip: InstanceType<typeof SignatureTip>;
 
     // readonly #keyMap: CodeMirror.KeyMap;
     // readonly #removeCodeMirrorEvents: () => void;
@@ -85,9 +85,9 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     #hadChangesSinceLastLinting = false;
     // #capturedUpdateLinting: CodeMirror.UpdateLintingCallback|null|undefined;
 
-    #changePending = false;
-    #changeReason: string|null = null;
-    #changesAreFromServer = false;
+    // #changePending = false;
+    // #changeReason: string|null = null;
+    // #changesAreFromServer = false;
 
     constructor(
         container: HTMLElement,
@@ -201,8 +201,8 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         // const cmWrapper = this.#cm.getWrapperElement();
         // cmWrapper.classList.add('mirrorsharp', 'mirrorsharp-theme');
 
-        this.#hinter = new Hinter(/*this.#cm, connection*/);
-        this.#signatureTip = new SignatureTip(/* this.#cm */);
+        // this.#hinter = new Hinter(/*this.#cm, connection*/);
+        // this.#signatureTip = new SignatureTip(/* this.#cm */);
         this.#removeConnectionEvents = addEvents(connection, {
             open: this.#onConnectionOpen,
             message: this.#onConnectionMessage,
@@ -406,11 +406,9 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     //     this.#requestSlowUpdate();
     // };
 
-    #getCursorIndex = () => this.#cmView.state.selection.primary.from;
-
     #receiveServerChanges = (changes: ReadonlyArray<ChangeData>, reason: string|null) => {
-        this.#changesAreFromServer = true;
-        this.#changeReason = reason ?? 'server';
+        // this.#changesAreFromServer = true;
+        // this.#changeReason = reason ?? 'server';
         /*this.#cm.operation(() => {
             let offset = 0;
             for (const change of changes) {
@@ -420,8 +418,8 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
                 offset += change.text.length - change.length;
             }
         });*/
-        this.#changeReason = null;
-        this.#changesAreFromServer = false;
+        // this.#changeReason = null;
+        // this.#changesAreFromServer = false;
     };
 
     // #getLintFixes = (cm: CodeMirror.Editor, line: number, annotations: ReadonlyArray<CodeMirror.Annotation>) => {
@@ -562,6 +560,10 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
     getText() {
         return this.#cmView.state.sliceDoc();
+    }
+
+    getCursorOffset() {
+        return this.#cmView.state.selection.primary.from;
     }
 
     getLanguage() {

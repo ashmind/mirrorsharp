@@ -72,6 +72,7 @@ const timeout = (ms: number, message: string) => new Promise(
     (_, reject) => setTimeout(() => reject(new Error(message)), ms)
 );
 
+export { shouldSkipRender } from './render/should-skip';
 export default async function render(
     driver: TestDriver<unknown>,
     size: { width: number; height: number },

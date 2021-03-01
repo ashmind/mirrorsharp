@@ -60,6 +60,31 @@ test('completion change is applied correctly', async () => {
     expect(updated).toBe('x.ToString();');
 });
 
+test.each([
+    ['x.|', 'x.|', 'a', 'x.a|'],
+    ['x.|', 'x.|', 'ab', 'x.ab|'],
+    ['x.|', '|x.', 'a', '|x.a'],
+    ['x.|', 'x.y|', 'a', 'x.ay|']
+])('completion change adjust selection (initial: %p, while waiting: %p, change: %p, expected: %p)', async (
+    initialText,
+    textWhileWaiting,
+    completionText,
+    expectedText
+) => {
+    const driver = await TestDriver.new({ textWithCursor: initialText });
+    const initialCursorOffset = driver.mirrorsharp.getCursorOffset();
+    driver.setTextWithCursor(textWhileWaiting);
+
+    driver.receive.changes('completion', [{
+        start: initialCursorOffset,
+        length: 0,
+        text: completionText
+    }]);
+    await driver.completeBackgroundWork();
+
+    expect(driver.getTextWithCursor()).toBe(expectedText);
+});
+
 test('completion list is filtered based on initial text', async () => {
     const driver = await TestDriver.new({ textWithCursor: 'b|' });
 
@@ -95,6 +120,8 @@ test.each([
     [2, ['field', 'interface', 'keyword', 'local', 'method', 'module', 'namespace']],
     [3, ['parameter', 'property', 'structure', 'typeparameter', 'union']]
 ])('completion list is rendered correctly (%p)', async (_, kinds) => {
+    if (TestDriver.shouldSkipRender)
+        return;
     const driver = await TestDriver.new({ textWithCursor: '|' });
 
     driver.receive.completions(kinds.map(k => ({
