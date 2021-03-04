@@ -4,7 +4,7 @@ import { EditorView } from '@codemirror/next/view';
 //import 'codemirror-addon-lint-fix';
 import type {
     Message,
-    ChangeData,
+    // ChangeData,
     SlowUpdateMessage,
     DiagnosticSeverity,
     ServerOptions,
@@ -248,7 +248,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     #onConnectionMessage = (message: Message<TExtensionServerOptions, TSlowUpdateExtensionData>) => {
         switch (message.type) {
             case 'changes':
-                this.#receiveServerChanges(message.changes, message.reason);
+                //this.#receiveServerChanges(message.changes, message.reason);
                 break;
 
             case 'completions':
@@ -406,21 +406,21 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     //     this.#requestSlowUpdate();
     // };
 
-    #receiveServerChanges = (changes: ReadonlyArray<ChangeData>, reason: string|null) => {
-        // this.#changesAreFromServer = true;
-        // this.#changeReason = reason ?? 'server';
-        /*this.#cm.operation(() => {
-            let offset = 0;
-            for (const change of changes) {
-                const from = this.#cm.posFromIndex(change.start + offset);
-                const to = change.length > 0 ? this.#cm.posFromIndex(change.start + offset + change.length) : from;
-                this.#cm.replaceRange(change.text, from, to, '+server');
-                offset += change.text.length - change.length;
-            }
-        });*/
-        // this.#changeReason = null;
-        // this.#changesAreFromServer = false;
-    };
+    // #receiveServerChanges = (changes: ReadonlyArray<ChangeData>, reason: string|null) => {
+    //     this.#changesAreFromServer = true;
+    //     this.#changeReason = reason ?? 'server';
+    //     /*this.#cm.operation(() => {
+    //         let offset = 0;
+    //         for (const change of changes) {
+    //             const from = this.#cm.posFromIndex(change.start + offset);
+    //             const to = change.length > 0 ? this.#cm.posFromIndex(change.start + offset + change.length) : from;
+    //             this.#cm.replaceRange(change.text, from, to, '+server');
+    //             offset += change.text.length - change.length;
+    //         }
+    //     });*/
+    //     this.#changeReason = null;
+    //     this.#changesAreFromServer = false;
+    // };
 
     // #getLintFixes = (cm: CodeMirror.Editor, line: number, annotations: ReadonlyArray<CodeMirror.Annotation>) => {
     //     const requestApplyFix = (cm: CodeMirror.Editor, line: number, fix: AnnotationFixWithId) => {
