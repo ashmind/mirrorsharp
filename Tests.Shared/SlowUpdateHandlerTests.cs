@@ -97,7 +97,9 @@ namespace MirrorSharp.Tests {
 
         [DiagnosticAnalyzer(LanguageNames.CSharp)]
         private class TestAnalyzer : DiagnosticAnalyzer {
+            #pragma warning disable RS2008 // Enable analyzer release tracking
             private static readonly DiagnosticDescriptor Descriptor = new DiagnosticDescriptor("T01", "Test", "Test", "Test", DiagnosticSeverity.Warning, isEnabledByDefault: true);
+            #pragma warning restore RS2008
 
             public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(Descriptor);
 
