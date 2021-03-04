@@ -9,6 +9,7 @@ on:
 
 jobs:
   build-and-publish:
+    name: 'Build and Publish'
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
@@ -19,9 +20,10 @@ jobs:
       with:
           dotnet-version: 3.1.x
 
+    # https://github.com/actions/setup-dotnet/issues/155#issuecomment-748452076
+    - run: dotnet nuget locals all --clear
     - run: dotnet build --configuration Release
-    - run: dotnet test --no-build --configuration Release
-    - run: dotnet pack --no-build --output . --configuration Release
+    - run: dotnet test --no-build --configuration Release    - run: dotnet pack --no-build --output . --configuration Release
 
     - if: github.ref == 'refs/heads/master'
       run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_TOKEN}} --skip-duplicate

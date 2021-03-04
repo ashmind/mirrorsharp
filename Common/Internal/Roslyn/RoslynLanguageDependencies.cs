@@ -2,10 +2,10 @@ using MirrorSharp.Advanced.EarlyAccess;
 
 namespace MirrorSharp.Internal.Roslyn {
     internal class RoslynLanguageDependencies {
-        public RoslynLanguageDependencies(IRoslynGuard? guard) {
+        public RoslynLanguageDependencies(IRoslynCompilationGuard? guard) {
             Guard = guard;
         }
 
-        public IRoslynGuard? Guard { get; }
+        public IRoslynCompilationGuard? Guard { get; }
     }
 }

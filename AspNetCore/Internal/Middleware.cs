@@ -17,13 +17,15 @@ namespace MirrorSharp.AspNetCore.Internal {
             MirrorSharpOptions options,
             ISetOptionsFromClientExtension? setOptionsFromClient = null,
             ISlowUpdateExtension? slowUpdate = null,
-            IRoslynGuard? roslynGuard = null,
+            IRoslynSourceTextGuard? roslynSourceTextGuard = null,
+            IRoslynCompilationGuard? roslynCompilationGuard = null,
             IExceptionLogger? exceptionLogger = null
         ) : base(options, new ImmutableExtensionServices(
             #pragma warning disable CS0618 // Type or member is obsolete
             setOptionsFromClient ?? options.SetOptionsFromClient,
             slowUpdate ?? options.SlowUpdate,
-            roslynGuard,
+            roslynSourceTextGuard,
+            roslynCompilationGuard,
             exceptionLogger ?? options.ExceptionLogger
             #pragma warning restore CS0618
         )) {
