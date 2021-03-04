@@ -11,13 +11,14 @@ namespace MirrorSharp.Testing {
         /// <summary>Defines a <see cref="ISlowUpdateExtension" /> used to extend periodic processing.</summary>
         public ISlowUpdateExtension? SlowUpdate { get; set; }
 
-        internal IRoslynGuard? RoslynGuard { get; set; }
+        internal IRoslynSourceTextGuard? RoslynSourceTextGuard { get; set; }
+        internal IRoslynCompilationGuard? RoslynCompilationGuard { get; set; }
 
         /// <summary>Defines a <see cref="IExceptionLogger" /> called for any unhandled exception.</summary>
         public IExceptionLogger? ExceptionLogger { get; set; }
 
         internal ImmutableExtensionServices ToImmutable() {
-            return new ImmutableExtensionServices(SetOptionsFromClient, SlowUpdate, RoslynGuard, ExceptionLogger);
+            return new ImmutableExtensionServices(SetOptionsFromClient, SlowUpdate, RoslynSourceTextGuard, RoslynCompilationGuard, ExceptionLogger);
         }
     }
 }

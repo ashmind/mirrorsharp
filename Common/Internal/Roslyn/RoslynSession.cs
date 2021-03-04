@@ -43,9 +43,19 @@ namespace MirrorSharp.Internal.Roslyn {
             ImmutableArray<ISignatureHelpProviderWrapper> signatureHelpProviders,
             ILanguageSessionExtensions extensions
         ) {
-            _workspace = new CustomWorkspace(hostServices);
             _sourceText = sourceText;
-            _document = CreateProjectAndOpenNewDocument(_workspace, projectInfo, sourceText);
+            var safeSourceTextForDocument = sourceText;
+            try {
+                extensions.RoslynSourceTextGuard?.ValidateSourceText(sourceText);
+            }
+            catch (RoslynSourceTextGuardException) {
+                // source text is not currenty valid -- however we do not have to fail the whole session
+                // we'll report it when the document is accessed
+                safeSourceTextForDocument = SourceText.From("");
+                _documentOutOfDate = true;
+            }
+            _workspace = new CustomWorkspace(hostServices);
+            _document = CreateProjectAndOpenNewDocument(_workspace, projectInfo, safeSourceTextForDocument);
             QuickInfoService = QuickInfoService.GetService(_document);
             _completionService = CompletionService.GetService(_document);
 
@@ -76,7 +86,7 @@ namespace MirrorSharp.Internal.Roslyn {
         public async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(CancellationToken cancellationToken) {
             // TODO: Revisit ! after https://github.com/dotnet/docs/issues/14784
             var compilation = (await Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false))!;
-            _extensions.RoslynGuard?.ValidateCompilation(compilation, this);
+            _extensions.RoslynCompilationGuard?.ValidateCompilation(compilation, this);
 
             var solution = Project.Solution;
             if (_lastWorkspaceAnalyzerOptionsSolution != solution) {
@@ -201,6 +211,7 @@ namespace MirrorSharp.Internal.Roslyn {
             if (!_documentOutOfDate)
                 return;
 
+            _extensions.RoslynSourceTextGuard?.ValidateSourceText(_sourceText);
             var document = _document.WithText(_sourceText);
             ApplySolutionChange(document.Project.Solution);
         }

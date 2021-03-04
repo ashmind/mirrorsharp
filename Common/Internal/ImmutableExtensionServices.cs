@@ -6,18 +6,21 @@ namespace MirrorSharp.Internal {
         public ImmutableExtensionServices(
             ISetOptionsFromClientExtension? setOptionsFromClient,
             ISlowUpdateExtension? slowUpdate,
-            IRoslynGuard? roslynGuard,
+            IRoslynSourceTextGuard? roslynSourceTextGuard,
+            IRoslynCompilationGuard? roslynCompilationGuard,
             IExceptionLogger? exceptionLogger
         ) {
             SetOptionsFromClient = setOptionsFromClient;
             SlowUpdate = slowUpdate;
+            RoslynSourceTextGuard = roslynSourceTextGuard;
+            RoslynCompilationGuard = roslynCompilationGuard;
             ExceptionLogger = exceptionLogger;
-            RoslynGuard = roslynGuard;
         }
 
         public ISetOptionsFromClientExtension? SetOptionsFromClient { get; }
         public ISlowUpdateExtension? SlowUpdate { get; }
+        public IRoslynSourceTextGuard? RoslynSourceTextGuard { get; }
+        public IRoslynCompilationGuard? RoslynCompilationGuard { get; }
         public IExceptionLogger? ExceptionLogger { get; }
-        public IRoslynGuard? RoslynGuard { get; }
     }
 }

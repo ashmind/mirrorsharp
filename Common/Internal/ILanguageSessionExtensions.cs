@@ -3,6 +3,7 @@ using MirrorSharp.Advanced.EarlyAccess;
 
 namespace MirrorSharp.Internal {
     internal interface ILanguageSessionExtensions {
-        IRoslynGuard? RoslynGuard { get; }
+        IRoslynSourceTextGuard? RoslynSourceTextGuard { get; }
+        IRoslynCompilationGuard? RoslynCompilationGuard { get; }
     }
 }
