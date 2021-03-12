@@ -53,8 +53,8 @@
         ]
     },
     "dependencies": {
-        "@codemirror/next": "^0.13.1",
-        "lezer-csharp-simple": "^0.0.5"
+        "@codemirror/next": "^0.14.0",
+        "lezer-csharp-simple": "^0.6.0"
     },
     "devDependencies": {
         "@babel/core": "^7.9.0",

@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 import { resolve as pathResolve } from 'path';
 
-const testRoot = pathResolve(`${__dirname}/../../`);
+const testRoot = pathResolve(`${__dirname}/../../../`);
 
 const compiled = new Map<string, string>();
 
@@ -14,14 +14,14 @@ export default function compile(path: string): string {
     const { config: { compilerOptions } } = ts.readConfigFile(`${testRoot}/tsconfig.json`, ts.sys.readFile);
     const { options, errors } = ts.convertCompilerOptionsFromJson(compilerOptions as unknown, testRoot);
 
-    ensureNoErrors(errors);
+    ensureNoErrors(errors, path);
     Object.assign(options, {
         noEmit: false,
         module: ts.ModuleKind.ESNext
     });
 
     const program = ts.createProgram([path], options);
-    ensureNoErrors(ts.getPreEmitDiagnostics(program));
+    ensureNoErrors(ts.getPreEmitDiagnostics(program), path);
 
     // eslint-disable-next-line no-undefined
     const emitResult = program.emit(undefined, (path: string, data: string) => {
@@ -29,7 +29,7 @@ export default function compile(path: string): string {
         console.log(`Compiled ${tsPath}`);
         compiled.set(tsPath, data);
     });
-    ensureNoErrors(emitResult.diagnostics);
+    ensureNoErrors(emitResult.diagnostics, path);
 
     if (!compiled.has(path))
         throw new Error(`TypeScript compiler produced no outputs for ${path}.`);
@@ -37,7 +37,7 @@ export default function compile(path: string): string {
     return compiled.get(path)!;
 }
 
-function ensureNoErrors(diagnostics: ReadonlyArray<ts.Diagnostic>) {
+function ensureNoErrors(diagnostics: ReadonlyArray<ts.Diagnostic>, path: string) {
     if (diagnostics.length === 0)
         return;
 
@@ -52,5 +52,5 @@ function ensureNoErrors(diagnostics: ReadonlyArray<ts.Diagnostic>) {
         }
     }).join('\n');
 
-    throw new Error(`Failed to compile TypeScript:\n${errorsString}`);
+    throw new Error(`Failed to compile TypeScript file ${path}:\n${errorsString}`);
 }
