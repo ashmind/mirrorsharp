@@ -1,6 +1,6 @@
 
 import { defaultKeymap, indentMore, indentLess } from '@codemirror/next/commands';
-import { historyKeymap } from '@codemirror/next/history/dist';
+import { historyKeymap } from '@codemirror/next/history';
 import { keymap, ViewPlugin } from '@codemirror/next/view';
 import { defineEffectField } from '../../helpers/define-effect-field';
 

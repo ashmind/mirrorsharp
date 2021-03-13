@@ -12,7 +12,7 @@ const renderSize = { width: 320, height: 200 };
 })();
 
 Range.prototype.getBoundingClientRect = () => ({}) as unknown as DOMRect;
-Range.prototype.getClientRects = () => [] as unknown as DOMRectList;
+Range.prototype.getClientRects = () => [{}] as unknown as DOMRectList;
 
 class TestDriver<TExtensionServerOptions = never> extends IsomorphicTestDriver<TExtensionServerOptions> {
     static readonly shouldSkipRender = shouldSkipRender;

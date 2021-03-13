@@ -1,10 +1,11 @@
 import { EditorState, EditorSelection } from '@codemirror/next/state';
-import { highlighter } from '@codemirror/next/highlight';
-import { history } from '@codemirror/next/history/dist';
+import { indentUnit } from '@codemirror/next/language';
+import { highlightStyle } from '@codemirror/next/highlight';
+import { history } from '@codemirror/next/history';
 import type { Connection } from '../connection';
 import type { SlowUpdateOptions } from '../../interfaces/slow-update';
 import { csharp } from './lang-csharp';
-import highlighterSpec from './highlighter-spec';
+import highlighterSpecs from './highlighter-specs';
 import lineSeparator from './line-separator';
 import keymap from './keymap';
 import { sendChangesToServer } from './server/send-changes';
@@ -23,12 +24,12 @@ export function createState<O, U>(
         ...(options.initialText ? { doc: options.initialText } : {}),
         ...(options.initialCursorOffset ? { selection: EditorSelection.single(options.initialCursorOffset) } : {}),
         extensions: [
-            EditorState.indentUnit.of('    '),
+            indentUnit.of('    '),
             EditorState.lineSeparator.of(lineSeparator),
 
             history(),
             csharp(),
-            highlighter(highlighterSpec),
+            highlightStyle(...highlighterSpecs),
 
             connectionState(connection),
             sendChangesToServer(connection),

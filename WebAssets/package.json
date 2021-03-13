@@ -26,7 +26,8 @@
         "build": "ts-node-script ./build.ts",
         "watch": "ts-node-script ./build.ts --watch",
         "test:skip-render": "cross-env TEST_SKIP_RENDER=true jest",
-        "test": "jest"
+        "test": "jest",
+        "postinstall": "rimraf ./node_modules/@codemirror/next/history/src/history.ts"
     },
     "jest": {
         "preset": "ts-jest/presets/js-with-ts",
@@ -53,8 +54,8 @@
         ]
     },
     "dependencies": {
-        "@codemirror/next": "^0.14.0",
-        "lezer-csharp-simple": "^0.6.0"
+        "@codemirror/next": "^0.15.0",
+        "lezer-csharp-simple": "^0.7.0"
     },
     "devDependencies": {
         "@babel/core": "^7.9.0",
@@ -83,6 +84,7 @@
         "node-fetch": "^2.6.1",
         "oldowan": "^1.0.0-preview-6",
         "puppeteer": "^3.3.0",
+        "rimraf": "^3.0.2",
         "ts-jest": "^25.2.1",
         "ts-node": "^8.9.0",
         "typescript": "^3.8.3"
