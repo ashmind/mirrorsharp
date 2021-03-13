@@ -14,4 +14,4 @@ obj/
 /WebAssets/coverage
 /Owin.Demo/wwwroot
 /AspNetCore.Demo/wwwroot
-/WebAssets/tests/__render_cache__
+/WebAssets/tests/.render-cache

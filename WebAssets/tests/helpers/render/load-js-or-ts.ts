@@ -7,7 +7,7 @@ import { FSCache } from './fs-cache';
 const sourceRootPath = dirname(dirname(require.resolve('../../../ts/mirrorsharp.ts')));
 const testsRootPath = pathJoin(sourceRootPath, 'tests');
 
-const cache = new FSCache(pathJoin(testsRootPath, '__render_cache__'));
+const cache = new FSCache(pathJoin(testsRootPath, '.render-cache'));
 
 export default async function loadJSOrTS(path: string): Promise<string> {
     const fullPath = pathResolve(sourceRootPath, path.replace(/^\//, ''));
