@@ -1,13 +1,13 @@
 import type { InfotipMessage, InfotipSectionData } from '../interfaces/protocol';
 import { kindsToClassName } from '../helpers/kinds-to-class-name';
-import { renderParts } from '../helpers/render-parts';
+import { renderPartsTo } from '../helpers/render-parts';
 
 function renderSection(mainElement: HTMLElement, section: InfotipSectionData, index: number, info: InfotipMessage) {
     const element = document.createElement('div');
     element.className = 'mirrorsharp-tip-' + section.kind;
     if (index === 0)
         element.className += ' ' + kindsToClassName(info.kinds);
-    renderParts(element, section.parts);
+    renderPartsTo(element, section.parts);
     mainElement.appendChild(element);
 }
 

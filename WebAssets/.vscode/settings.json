@@ -46,6 +46,7 @@
         "jsparts",
         "keysim",
         "lezer",
+        "linebreak",
         "lintfix",
         "mirrorsharp",
         "nocheck",

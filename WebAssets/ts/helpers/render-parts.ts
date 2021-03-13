@@ -8,15 +8,34 @@ import type { PartData } from '../interfaces/protocol';
     };
 */
 
-export function renderPart(parent: HTMLElement, part: PartData) {
+function createLine() {
+    const line = document.createElement('div');
+    line.className = 'mirrorsharp-parts-line';
+    return line;
+}
+
+export function renderPartTo(parent: HTMLElement, part: PartData) {
     const span = document.createElement('span');
-    span.className = 'cm-' + part.kind;
+    span.className = 'cmt-' + part.kind;
     span.textContent = part.text;
     parent.appendChild(span);
 }
 
-export function renderParts(parent: HTMLElement, parts: ReadonlyArray<PartData>) {
+export function renderPartsTo(parent: HTMLElement, parts: ReadonlyArray<PartData>) {
+    let currentLine = createLine();
     for (const part of parts) {
-        renderPart(parent, part);
+        if (part.kind === 'linebreak') {
+            parent.appendChild(currentLine);
+            currentLine = createLine();
+            continue;
+        }
+        renderPartTo(currentLine, part);
     }
+    parent.appendChild(currentLine);
+}
+
+export function renderParts(parts: ReadonlyArray<PartData>): HTMLElement {
+    const container = document.createElement('div');
+    renderPartsTo(container, parts);
+    return container;
 }

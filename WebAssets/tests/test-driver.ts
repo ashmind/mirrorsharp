@@ -3,7 +3,7 @@ import render, { shouldSkipRender } from './helpers/render';
 
 IsomorphicTestDriver.timers = jest;
 
-const renderSize = { width: 320, height: 200 };
+const renderSize = { width: 640, height: 200 };
 
 (() => {
     // clean JSDOM between tests

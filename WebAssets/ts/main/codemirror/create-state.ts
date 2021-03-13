@@ -1,11 +1,10 @@
 import { EditorState, EditorSelection } from '@codemirror/state';
 import { indentUnit } from '@codemirror/language';
-import { HighlightStyle } from '@codemirror/highlight';
+import { classHighlightStyle } from '@codemirror/highlight';
 import { history } from '@codemirror/history';
 import type { Connection } from '../connection';
 import type { SlowUpdateOptions } from '../../interfaces/slow-update';
 import { csharp } from './lang-csharp';
-import highlighterSpecs from './highlighter-specs';
 import lineSeparator from './line-separator';
 import keymap from './keymap';
 import { sendChangesToServer } from './server/send-changes';
@@ -29,7 +28,7 @@ export function createState<O, U>(
 
             history(),
             csharp(),
-            HighlightStyle.define(highlighterSpecs),
+            classHighlightStyle,
 
             connectionState(connection),
             sendChangesToServer(connection),

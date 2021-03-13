@@ -40,6 +40,8 @@
         "space-infix-ops": "warn",
         "comma-spacing": "warn",
         "no-path-concat": "warn",
+        "quote-props": ["warn", "as-needed"],
+        "key-spacing": "warn",
 
         "@typescript-eslint/promise-function-async": "off",
         "@typescript-eslint/no-use-before-define": "off",

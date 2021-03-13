@@ -1,8 +1,11 @@
 import { TestDriver } from './test-driver';
 import { dispatchMutation } from './helpers/mutation-observer-workaround';
-import { completionStatus, currentCompletions, acceptCompletion } from '@codemirror/autocomplete';
+import { completionStatus, currentCompletions, acceptCompletion, moveCompletionSelection } from '@codemirror/autocomplete';
 
-const ensureCompletionIsReadyForInteraction = () => jest.advanceTimersByTime(100);
+const ensureCompletionIsReadyForInteraction = async (driver: TestDriver) => {
+    await driver.completeBackgroundWork();
+    jest.advanceTimersByTime(100);
+};
 
 const typeCharacterUsingDOM = (driver: TestDriver, character: string) => {
     driver.keys.keydown(character);
@@ -33,8 +36,7 @@ test('applying completion sends expected message', async () => {
     const driver = await TestDriver.new({ text: '' });
 
     driver.receive.completions([{ displayText: 'Test', kinds: ['method'] }]);
-    await driver.completeBackgroundWork();
-    ensureCompletionIsReadyForInteraction();
+    await ensureCompletionIsReadyForInteraction(driver);
     acceptCompletion(driver.getCodeMirrorView());
     await driver.completeBackgroundWork();
 
@@ -139,8 +141,7 @@ test('completion is applied on Tab', async () => {
     const driver = await TestDriver.new({ text: '' });
 
     driver.receive.completions([{ displayText: 'ToString', kinds: ['method'] }]);
-    await driver.completeBackgroundWork();
-    ensureCompletionIsReadyForInteraction();
+    await ensureCompletionIsReadyForInteraction(driver);
 
     driver.keys.keydown('Tab');
     await driver.completeBackgroundWork();
@@ -156,8 +157,7 @@ test('completion is applied on (', async () => {
     driver.receive.completions([{ displayText: 'ToString', kinds: ['method'] }], {
         commitChars: '(;'
     });
-    await driver.completeBackgroundWork();
-    ensureCompletionIsReadyForInteraction();
+    await ensureCompletionIsReadyForInteraction(driver);
 
     typeCharacterUsingDOM(driver, '(');
     await driver.completeBackgroundWork();
@@ -168,4 +168,105 @@ test('completion is applied on (', async () => {
     const updated = driver.mirrorsharp.getText();
     expect(driver.socket.sent).toContain('S0');
     expect(updated).toBe('ToString(');
+});
+
+test('completion requests info when open', async () => {
+    const driver = await TestDriver.new({ text: '' });
+
+    driver.receive.completions([{ displayText: 'ToString', kinds: ['method'] }]);
+    await ensureCompletionIsReadyForInteraction(driver);
+
+    expect(driver.socket.sent).toContain('SI0');
+});
+
+test('completion requests info when selected', async () => {
+    const driver = await TestDriver.new({ text: '' });
+
+    driver.receive.completions([
+        { displayText: 'Method0', kinds: ['method'] },
+        { displayText: 'Method1', kinds: ['method'] }
+    ]);
+    await ensureCompletionIsReadyForInteraction(driver);
+
+    moveCompletionSelection(true, 'option')(driver.getCodeMirrorView());
+    await driver.completeBackgroundWork();
+
+    expect(driver.socket.sent[driver.socket.sent.length - 1]).toBe('SI1');
+});
+
+
+test('completion does not request same info twice', async () => {
+    const driver = await TestDriver.new({ text: '' });
+
+    driver.receive.completions([
+        { displayText: 'Method0', kinds: ['method'] },
+        { displayText: 'Method1', kinds: ['method'] }
+    ]);
+    await ensureCompletionIsReadyForInteraction(driver);
+
+    // -> 0
+    moveCompletionSelection(true, 'option')(driver.getCodeMirrorView());
+    await driver.completeBackgroundWork();
+    // 0 -> 1
+    moveCompletionSelection(true, 'option')(driver.getCodeMirrorView());
+    await driver.completeBackgroundWork();
+    // 1 -> 0
+    moveCompletionSelection(false, 'option')(driver.getCodeMirrorView());
+    await driver.completeBackgroundWork();
+
+    expect(driver.socket.sent).toMatchObject([
+        'SI0',
+        'SI1'
+    ]);
+});
+
+test('completion applies requested info', async () => {
+    const driver = await TestDriver.new({ text: '' });
+
+    driver.receive.completions([{ displayText: 'ToString', kinds: ['method'] }]);
+    await ensureCompletionIsReadyForInteraction(driver);
+
+    driver.receive.completionInfo(0, [
+        { text: 'ToString', kind: 'method' },
+        { text: '\r\n', kind: 'linebreak' },
+        { text: 'Converts the value of this instance to its equivalent string representation.', kind: 'text' }
+    ]);
+    await driver.completeBackgroundWork();
+
+    const tooltip = driver.getCodeMirrorView().dom.querySelector('.cm-completionInfo');
+    expect(tooltip).not.toBeNull();
+    expect(tooltip?.innerHTML).toMatchSnapshot();
+});
+
+test('completion info renders correctly', async () => {
+    const driver = await TestDriver.new({ text: '' });
+
+    driver.receive.completions([{ displayText: 'CompareTo', kinds: ['method'] }]);
+    await ensureCompletionIsReadyForInteraction(driver);
+
+    driver.receive.completionInfo(0, [
+        { text: 'int', kind: 'keyword' },
+        { text: ' ', kind: 'space' },
+        { text: 'int', kind: 'keyword' },
+        { text: '.', kind: 'punctuation' },
+        { text: 'CompareTo', kind: 'method' },
+        { text: '(', kind: 'punctuation' },
+        { text: 'int', kind: 'keyword' },
+        { text: ' ', kind: 'space' },
+        { text: 'value', kind: 'parameter' },
+        { text: ')', kind: 'punctuation' },
+        { text: ' ', kind: 'space' },
+        { text: '(', kind: 'punctuation' },
+        { text: '+', kind: 'punctuation' },
+        { text: ' 1', kind: 'text' },
+        { text: ' overload', kind: 'text' },
+        { text: ')', kind: 'punctuation' },
+        { text: '\r\n', kind: 'linebreak' },
+        { text: 'Compares this instance to a specified 32-bit signed integer and returns an indication of their relative values.', kind: 'text' }
+    ]);
+    await driver.completeBackgroundWork();
+
+    const rendered = await driver.render();
+
+    expect(rendered).toMatchImageSnapshot();
 });
