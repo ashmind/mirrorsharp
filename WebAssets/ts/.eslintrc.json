@@ -41,7 +41,7 @@
         "comma-spacing": "warn",
         "no-path-concat": "warn",
         "quote-props": ["warn", "as-needed"],
-        "key-spacing": "warn",
+        "key-spacing": ["warn", { "mode": "minimum" }],
 
         "@typescript-eslint/promise-function-async": "off",
         "@typescript-eslint/no-use-before-define": "off",
