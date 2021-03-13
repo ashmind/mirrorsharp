@@ -8,7 +8,7 @@ const ensureCompletionIsReadyForInteraction = async (driver: TestDriver) => {
 };
 
 const typeCharacterUsingDOM = (driver: TestDriver, character: string) => {
-    driver.keys.keydown(character);
+    driver.domEvents.keydown(character);
     const characterText = document.createTextNode(character);
     const { contentDOM } = driver.getCodeMirrorView();
     contentDOM.querySelector<HTMLElement>('.cm-line')!.appendChild(characterText);
@@ -46,7 +46,7 @@ test('applying completion sends expected message', async () => {
 test('Ctrl+Space requests completion list', async () => {
     const driver = await TestDriver.new({ text: '' });
 
-    driver.keys.keydown(' ', { ctrlKey: true });
+    driver.domEvents.keydown(' ', { ctrlKey: true });
     await driver.completeBackgroundWork();
 
     expect(driver.socket.sent.slice(-1)[0]).toBe('SF');
@@ -143,7 +143,7 @@ test('completion is applied on Tab', async () => {
     driver.receive.completions([{ displayText: 'ToString', kinds: ['method'] }]);
     await ensureCompletionIsReadyForInteraction(driver);
 
-    driver.keys.keydown('Tab');
+    driver.domEvents.keydown('Tab');
     await driver.completeBackgroundWork();
 
     const text = driver.mirrorsharp.getText();
@@ -194,7 +194,6 @@ test('completion requests info when selected', async () => {
     expect(driver.socket.sent[driver.socket.sent.length - 1]).toBe('SI1');
 });
 
-
 test('completion does not request same info twice', async () => {
     const driver = await TestDriver.new({ text: '' });
 
@@ -239,6 +238,8 @@ test('completion applies requested info', async () => {
 });
 
 test('completion info renders correctly', async () => {
+    if (TestDriver.shouldSkipRender)
+        return;
     const driver = await TestDriver.new({ text: '' });
 
     driver.receive.completions([{ displayText: 'CompareTo', kinds: ['method'] }]);

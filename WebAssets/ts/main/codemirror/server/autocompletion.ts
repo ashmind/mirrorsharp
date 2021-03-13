@@ -7,6 +7,7 @@ import { addEvents } from '../../../helpers/add-events';
 import { defineEffectField } from '../../../helpers/define-effect-field';
 import { applyChangesFromServer } from '../../../helpers/apply-changes-from-server';
 import { renderParts } from '../../../helpers/render-parts';
+import controlledPromise from '../../../helpers/controlled-promise';
 
 const [lastCompletionsFromServer, dispatchLastCompletionsFromServerChanged] = defineEffectField<CompletionsMessage|null>(null);
 const completionIndexKey = Symbol('completionIndex');
@@ -23,7 +24,7 @@ type CompletionWithIndex = Omit<Completion, 'apply'> & {
     info: (completion: CompletionWithIndex) => Promise<Node>;
 };
 
-export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => {
+export const autocompletionFromServer = <O, U>(connection: Connection<O, U>) => {
     const applyCompletion = ((_, c: CompletionWithIndex) => {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         connection.sendCompletionState(c[completionIndexKey]);
@@ -32,10 +33,7 @@ export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => {
     const requestCompletionInfo = (completion: CompletionWithIndex) => {
         let info = completion[completionInfoNodeKey];
         if (!info) {
-            let resolve: ((node: Node) => void)|null = null;
-            const promise = new Promise<Node>(r => resolve = r);
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            info = { promise, resolve: resolve! };
+            info = controlledPromise<Node>();
             completion[completionInfoNodeKey] = info;
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             connection.sendCompletionState('info', completion[completionIndexKey]);
@@ -48,7 +46,7 @@ export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => {
         const { resolve } = completion[completionInfoNodeKey] ?? {};
         if (!resolve)
             return;
-        resolve(renderParts(message.parts));
+        resolve(renderParts(message.parts, { splitLinesToSections: true }));
     };
 
     const mapCompletionFromServer = ({ completion: { displayText, kinds }, index }: { completion: CompletionItemData; index: number }) => ({

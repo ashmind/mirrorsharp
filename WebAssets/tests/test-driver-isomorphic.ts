@@ -132,7 +132,7 @@ class TestText {
     }
 }
 
-class TestKeys {
+class TestDomEvents {
     readonly #cmView: EditorView;
 
     constructor(cmView: EditorView) {
@@ -143,6 +143,13 @@ class TestKeys {
         this.#cmView
             .contentDOM
             .dispatchEvent(new KeyboardEvent('keydown', { key, ...other }));
+    }
+
+    mousemove(target: Node) {
+        const event = new MouseEvent('mousemove', { bubbles: true });
+        // default does not apply fake timers due to global object differences
+        Object.defineProperty(event, 'timeStamp', { value: Date.now() });
+        target.dispatchEvent(event);
     }
 }
 
@@ -173,7 +180,7 @@ class TestReceiver {
     }
 }
 
-type TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = ({}|{ text: string; cursor?: number }|{ textWithCursor: string }) & {
+export type TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = ({}|{ text: string; cursor?: number }|{ textWithCursor: string }) & {
     keepSocketClosed?: boolean;
     options?: Partial<MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>> & {
         initialText?: never;
@@ -182,19 +189,21 @@ type TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = ({}|
     };
 };
 
-type TestDriverTimers = {
+export type TestDriverTimers = {
     runOnlyPendingTimers(): void;
     advanceTimersByTime(ms: number): void;
     advanceTimersToNextTimer(): void;
+    setSystemTime(now?: number | Date): void;
 };
 
-class TestDriver<TExtensionServerOptions = never> {
-    public static timers: TestDriverTimers;
+let timers: TestDriverTimers;
+export const setTimers = (value: TestDriverTimers) => timers = value;
 
+export class TestDriver<TExtensionServerOptions = never> {
     public readonly socket: MockSocket;
     public readonly mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>;
     public readonly text: TestText;
-    public readonly keys: TestKeys;
+    public readonly domEvents: TestDomEvents;
     public readonly receive: TestReceiver;
     public readonly recorder: TestRecorder;
 
@@ -212,7 +221,7 @@ class TestDriver<TExtensionServerOptions = never> {
         this.#cmView = cmView;
         this.mirrorsharp = mirrorsharp;
         this.text = new TestText(cmView);
-        this.keys = new TestKeys(cmView);
+        this.domEvents = new TestDomEvents(cmView);
         this.receive = new TestReceiver(socket);
         this.recorder = new TestRecorder([
             /*this.keys, */this.text, this.receive, this
@@ -250,9 +259,9 @@ class TestDriver<TExtensionServerOptions = never> {
     }
 
     async completeBackgroundWork() {
-        TestDriver.timers.runOnlyPendingTimers();
+        timers.runOnlyPendingTimers();
         await new Promise(resolve => resolve());
-        TestDriver.timers.runOnlyPendingTimers();
+        timers.runOnlyPendingTimers();
     }
 
     async completeBackgroundWorkAfterEach(...actions: ReadonlyArray<() => void>) {
@@ -263,8 +272,8 @@ class TestDriver<TExtensionServerOptions = never> {
     }
 
     async advanceTimeAndCompleteNextLinting() {
-        TestDriver.timers.advanceTimersByTime(1000);
-        TestDriver.timers.advanceTimersToNextTimer();
+        timers.advanceTimersByTime(1000);
+        timers.advanceTimersToNextTimer();
         await this.completeBackgroundWork();
     }
 
@@ -279,8 +288,8 @@ class TestDriver<TExtensionServerOptions = never> {
         options: TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
     ) {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (!TestDriver.timers)
-            throw new Error('TestDriver.timers must be set before TestDriver instances can be created.');
+        if (!timers)
+            throw new Error('setTimers must be called before TestDriver instances can be created.');
 
         const initial = getInitialState(options);
 
@@ -311,7 +320,7 @@ class TestDriver<TExtensionServerOptions = never> {
         driver.socket.trigger('open');
         await driver.completeBackgroundWork();
 
-        TestDriver.timers.runOnlyPendingTimers();
+        timers.runOnlyPendingTimers();
         driver.socket.sent = [];
         return driver;
     }
@@ -337,10 +346,8 @@ function parseTextWithCursor(value: string) {
     };
 }
 
-type TestDriverConstructorArguments<TExtensionServerOptions> = [
+export type TestDriverConstructorArguments<TExtensionServerOptions> = [
     MockSocket,
     MirrorSharpInstance<TExtensionServerOptions>,
     TestDriverOptions<TExtensionServerOptions, unknown>
 ];
-
-export { TestDriver, TestDriverOptions, TestDriverConstructorArguments, TestDriverTimers };

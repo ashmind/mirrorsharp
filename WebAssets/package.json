@@ -41,7 +41,6 @@
         "setupFilesAfterEnv": [
             "<rootDir>/tests/helpers/setup-jest.ts"
         ],
-        "globalSetup": "<rootDir>/tests/helpers/render/docker/global-setup.ts",
         "globalTeardown": "<rootDir>/tests/helpers/render/docker/global-teardown.ts",
         "testMatch": [
             "<rootDir>/tests/**/*.tests.ts"
@@ -60,6 +59,7 @@
         "@codemirror/language": "^0.18.0",
         "@codemirror/lint": "^0.18.0",
         "@codemirror/state": "^0.18.1",
+        "@codemirror/tooltip": "^0.18.1",
         "@codemirror/view": "^0.18.1",
         "lezer-csharp-simple": "^0.7.0"
     },

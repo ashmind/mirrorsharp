@@ -10,7 +10,8 @@ import keymap from './keymap';
 import { sendChangesToServer } from './server/send-changes';
 import { slowUpdateLinter } from './server/slow-update-linter';
 import { connectionState } from './server/connection-state';
-import { autocompleteFromServer } from './server/autocomplete';
+import { infotipsFromServer } from './server/infotips';
+import { autocompletionFromServer } from './server/autocompletion';
 
 export function createState<O, U>(
     connection: Connection<O, U>,
@@ -33,7 +34,8 @@ export function createState<O, U>(
             connectionState(connection),
             sendChangesToServer(connection),
             slowUpdateLinter(connection, options),
-            autocompleteFromServer(connection),
+            infotipsFromServer(connection),
+            autocompletionFromServer(connection),
 
             // has to go last so that more specific keymaps
             // in e.g. autocomplete have more priority

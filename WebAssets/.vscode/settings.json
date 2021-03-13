@@ -42,6 +42,7 @@
         "extensionmethod",
         "httpd",
         "infotip",
+        "infotips",
         "jetpack",
         "jsparts",
         "keysim",
@@ -53,6 +54,7 @@
         "oldowan",
         "outdent",
         "sharplab",
+        "sinonjs",
         "struct",
         "typeparameter",
         "xmlns"

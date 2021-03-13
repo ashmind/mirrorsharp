@@ -1,7 +1,5 @@
-import { TestDriver as IsomorphicTestDriver, TestDriverConstructorArguments, TestDriverOptions } from './test-driver-isomorphic';
+import { TestDriver as IsomorphicTestDriver, TestDriverConstructorArguments, TestDriverOptions, setTimers } from './test-driver-isomorphic';
 import render, { shouldSkipRender } from './helpers/render';
-
-IsomorphicTestDriver.timers = jest;
 
 const renderSize = { width: 640, height: 200 };
 
@@ -14,7 +12,9 @@ const renderSize = { width: 640, height: 200 };
 Range.prototype.getBoundingClientRect = () => ({}) as unknown as DOMRect;
 Range.prototype.getClientRects = () => [{}] as unknown as DOMRectList;
 
-class TestDriver<TExtensionServerOptions = never> extends IsomorphicTestDriver<TExtensionServerOptions> {
+export const timers = setTimers(jest);
+
+export class TestDriver<TExtensionServerOptions = never> extends IsomorphicTestDriver<TExtensionServerOptions> {
     static readonly shouldSkipRender = shouldSkipRender;
 
     private constructor(...args: TestDriverConstructorArguments<TExtensionServerOptions>) {
@@ -40,5 +40,3 @@ beforeEach(() => {
 afterEach(() => {
     globalThis.WebSocket = savedWebSocket!;
 });
-
-export { TestDriver };

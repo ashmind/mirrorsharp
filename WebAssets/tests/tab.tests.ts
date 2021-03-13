@@ -6,7 +6,7 @@ test('Tab indents selected block', async () => {
     const driver = await TestDriver.new({ text });
 
     selectAll(driver.getCodeMirrorView());
-    driver.keys.keydown('Tab');
+    driver.domEvents.keydown('Tab');
 
     await driver.completeBackgroundWork();
 
@@ -18,7 +18,7 @@ test('Shift+Tab indents selected block', async () => {
     const driver = await TestDriver.new({ text });
 
     selectAll(driver.getCodeMirrorView());
-    driver.keys.keydown('Tab', { shiftKey: true });
+    driver.domEvents.keydown('Tab', { shiftKey: true });
 
     await driver.completeBackgroundWork();
 

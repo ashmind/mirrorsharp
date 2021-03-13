@@ -3,7 +3,8 @@ import puppeteer, { Page } from 'puppeteer';
 import loadCSS from './render/load-css';
 import loadJSOrTS from './render/load-js-or-ts';
 import type { TestDriver } from '../test-driver';
-import port from './render/docker/port';
+import lazyRenderSetup from './render/docker/lazy-setup';
+import controlledPromise from '../../ts/helpers/controlled-promise';
 
 async function processRequest(request: puppeteer.Request, html: string) {
     const method = request.method();
@@ -78,6 +79,8 @@ export default async function render(
     size: { width: number; height: number },
     { debug = !!inspector.url() }: { debug?: boolean } = {}
 ) {
+    const { port } = await lazyRenderSetup();
+
     const content = `<!DOCTYPE html>
         <html>
           <head>
@@ -87,9 +90,9 @@ export default async function render(
           <body>
             <script type="module">
                 import { timers } from './tests/helpers/render/browser-fake-timers.ts';
-                import { TestDriver } from './tests/test-driver-isomorphic.ts';
+                import { TestDriver, setTimers } from './tests/test-driver-isomorphic.ts';
 
-                TestDriver.timers = timers;
+                setTimers(timers);
                 TestDriver
                     .fromJSON(${JSON.stringify(driver.toJSON())})
                     .then(() => notifyLoaded(), e => {
@@ -104,19 +107,17 @@ export default async function render(
     const page = await browser.newPage();
     await page.setViewport(size);
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    let load: { resolve: () => void; reject: ((e: unknown) => void) } | undefined;
-    const loadPromise = new Promise((resolve, reject) => { load = { resolve, reject }; });
-    await setupRequestInterception(page, content, e => load!.reject(e));
-    await page.exposeFunction('notifyLoaded', (e?: Error) => e ? load!.reject(e) : load!.resolve());
+    const load = controlledPromise();
+    await setupRequestInterception(page, content, e => load.reject(e));
+    await page.exposeFunction('notifyLoaded', (e?: Error) => e ? load.reject(e) : load.resolve());
 
     // does not exist -- required for module relative references
     await page.goto('http://mirrorsharp.test');
 
     await Promise.race(!debug ? [
-        loadPromise,
+        load.promise,
         timeout(30000, 'Page did not call notifyLoaded() within the time limit.')
-    ] : [loadPromise]);
+    ] : [load.promise]);
     const screenshot = await page.screenshot();
 
     await page.close();

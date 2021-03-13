@@ -8,10 +8,14 @@ import type { PartData } from '../interfaces/protocol';
     };
 */
 
-function createLine() {
-    const line = document.createElement('div');
-    line.className = 'mirrorsharp-parts-line';
-    return line;
+type Options = {
+    splitLinesToSections?: boolean;
+};
+
+function createSection() {
+    const section = document.createElement('div');
+    section.className = 'mirrorsharp-parts-section';
+    return section;
 }
 
 export function renderPartTo(parent: HTMLElement, part: PartData) {
@@ -21,21 +25,22 @@ export function renderPartTo(parent: HTMLElement, part: PartData) {
     parent.appendChild(span);
 }
 
-export function renderPartsTo(parent: HTMLElement, parts: ReadonlyArray<PartData>) {
-    let currentLine = createLine();
+export function renderPartsTo(parent: HTMLElement, parts: ReadonlyArray<PartData>, { splitLinesToSections }: Options = {}) {
+    let section = splitLinesToSections ? createSection() : parent;
     for (const part of parts) {
-        if (part.kind === 'linebreak') {
-            parent.appendChild(currentLine);
-            currentLine = createLine();
+        if (part.kind === 'linebreak' && splitLinesToSections) {
+            parent.appendChild(section);
+            section = createSection();
             continue;
         }
-        renderPartTo(currentLine, part);
+        renderPartTo(section, part);
     }
-    parent.appendChild(currentLine);
+    if (splitLinesToSections)
+        parent.appendChild(section);
 }
 
-export function renderParts(parts: ReadonlyArray<PartData>): HTMLElement {
+export function renderParts(parts: ReadonlyArray<PartData>, options: Options = {}): HTMLElement {
     const container = document.createElement('div');
-    renderPartsTo(container, parts);
+    renderPartsTo(container, parts, options);
     return container;
 }

@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`completion applies requested info 1`] = `"<div><div class=\\"mirrorsharp-parts-section\\"><span class=\\"cmt-method\\">ToString</span></div><div class=\\"mirrorsharp-parts-section\\"><span class=\\"cmt-text\\">Converts the value of this instance to its equivalent string representation.</span></div></div>"`;
