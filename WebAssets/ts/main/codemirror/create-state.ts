@@ -29,7 +29,7 @@ export function createState<O, U>(
 
             history(),
             csharp(),
-            HighlightStyle.define(...highlighterSpecs),
+            HighlightStyle.define(highlighterSpecs),
 
             connectionState(connection),
             sendChangesToServer(connection),

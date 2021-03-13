@@ -2,7 +2,7 @@
     "name": "mirrorsharp-codemirror-6-preview",
     "version": "0.0.11",
     "engines": {
-        "node": ">=12.6.1"
+        "node": ">=14.16.0"
     },
     "description": "Experimental version of mirrorsharp based on CodeMirror 6 preview.",
     "authors": [
@@ -53,14 +53,14 @@
         ]
     },
     "dependencies": {
-        "@codemirror/autocomplete": "^0.17.0",
-        "@codemirror/commands": "^0.17.0",
-        "@codemirror/highlight": "^0.17.0",
-        "@codemirror/history": "^0.17.0",
-        "@codemirror/language": "^0.17.0",
-        "@codemirror/lint": "^0.17.0",
-        "@codemirror/state": "^0.17.0",
-        "@codemirror/view": "^0.17.0",
+        "@codemirror/autocomplete": "^0.18.1",
+        "@codemirror/commands": "^0.18.0",
+        "@codemirror/highlight": "^0.18.3",
+        "@codemirror/history": "^0.18.0",
+        "@codemirror/language": "^0.18.0",
+        "@codemirror/lint": "^0.18.0",
+        "@codemirror/state": "^0.18.1",
+        "@codemirror/view": "^0.18.1",
         "lezer-csharp-simple": "^0.7.0"
     },
     "devDependencies": {

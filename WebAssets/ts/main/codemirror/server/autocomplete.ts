@@ -73,7 +73,7 @@ export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => {
     const sendCancelCompletionToServer = ViewPlugin.define(() => ({
         update: u => {
             const previousStatus = completionStatus(u.startState);
-            if (previousStatus === null)
+            if (previousStatus !== 'active')
                 return;
 
             const currentStatus = completionStatus(u.state);
@@ -98,7 +98,7 @@ export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => {
         }
     });
 
-    const forceCompletionOnCtrlSpace = Prec.override(keymap.of([{ key: 'Mod-Space', run: () => {
+    const forceCompletionOnCtrlSpace = Prec.override(keymap.of([{ key: 'Ctrl-Space', run: () => {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         connection.sendCompletionState('force');
         return true;
