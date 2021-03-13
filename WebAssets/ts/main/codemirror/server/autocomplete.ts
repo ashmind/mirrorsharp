@@ -1,5 +1,6 @@
 import type { Connection } from '../../connection';
 import type { CompletionItemData, CompletionsMessage } from '../../../interfaces/protocol';
+import { Prec } from '@codemirror/next/state';
 import { ViewPlugin, EditorView, keymap } from '@codemirror/next/view';
 import { startCompletion, acceptCompletion, closeCompletion, completionStatus, autocompletion, CompletionSource, Completion } from '@codemirror/next/autocomplete';
 import { addEvents } from '../../../helpers/add-events';
@@ -71,7 +72,7 @@ export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => {
 
     const sendCancelCompletionToServer = ViewPlugin.define(() => ({
         update: u => {
-            const previousStatus = completionStatus(u.prevState);
+            const previousStatus = completionStatus(u.startState);
             if (previousStatus === null)
                 return;
 
@@ -97,13 +98,13 @@ export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => {
         }
     });
 
-    const forceCompletionOnCtrlSpace = keymap([{ key: 'Ctrl-Space', run: () => {
+    const forceCompletionOnCtrlSpace = Prec.override(keymap.of([{ key: 'Mod-Space', run: () => {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         connection.sendCompletionState('force');
         return true;
-    } }]);
+    } }]));
 
-    const acceptCompletionOnTab = keymap([{ key: 'Tab', run: view => {
+    const acceptCompletionOnTab = keymap.of([{ key: 'Tab', run: view => {
         if (completionStatus(view.state) !== 'active')
             return false;
 
@@ -113,11 +114,12 @@ export const autocompleteFromServer = <O, U>(connection: Connection<O, U>) => {
 
     return [
         lastCompletionsFromServer,
+        // overrides default autocompletion binding
+        forceCompletionOnCtrlSpace,
         autocompletion({
             activateOnTyping: true,
             override: [getAndFilterCompletions]
         }),
-        forceCompletionOnCtrlSpace,
         receiveCompletionMessagesFromServer,
         sendCancelCompletionToServer,
         acceptCompletionOnCommitChar,

@@ -1,6 +1,6 @@
 import { EditorState, EditorSelection } from '@codemirror/next/state';
 import { indentUnit } from '@codemirror/next/language';
-import { highlightStyle } from '@codemirror/next/highlight';
+import { HighlightStyle } from '@codemirror/next/highlight';
 import { history } from '@codemirror/next/history';
 import type { Connection } from '../connection';
 import type { SlowUpdateOptions } from '../../interfaces/slow-update';
@@ -29,7 +29,7 @@ export function createState<O, U>(
 
             history(),
             csharp(),
-            highlightStyle(...highlighterSpecs),
+            HighlightStyle.define(...highlighterSpecs),
 
             connectionState(connection),
             sendChangesToServer(connection),

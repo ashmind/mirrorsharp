@@ -33,7 +33,7 @@ function sendChanges<O, U>(connection: Connection<O, U>, changes: ChangeSet, pre
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         if (firstFrom === prevCursorOffset && firstTo === firstFrom && firstText!.length === 1) {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises, @typescript-eslint/no-non-null-assertion
-            connection.sendTypeChar(firstText!.line(1).slice(0, 1));
+            connection.sendTypeChar(firstText!.line(1).text.charAt(0));
             return true;
         }
 
@@ -44,12 +44,12 @@ function sendChanges<O, U>(connection: Connection<O, U>, changes: ChangeSet, pre
 
 export const sendChangesToServer = <O, U>(connection: Connection<O, U>) => ViewPlugin.define(view => {
     if (view.state.doc.length !== 0)
-        sendReplace(connection, 0, 0, view.state.doc, view.state.selection.primary.from);
+        sendReplace(connection, 0, 0, view.state.doc, view.state.selection.main.from);
 
     return {
-        update({ docChanged, selectionSet, changes, state, prevState }) {
-            const prevCursorOffset = prevState.selection.primary.from;
-            const cursorOffset = state.selection.primary.from;
+        update({ docChanged, selectionSet, changes, state, startState }) {
+            const prevCursorOffset = startState.selection.main.from;
+            const cursorOffset = state.selection.main.from;
 
             if (docChanged) {
                 sendChanges(connection, changes, prevCursorOffset, cursorOffset);

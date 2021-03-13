@@ -119,7 +119,7 @@ class TestText {
     }
 
     type(text: string) {
-        let cursorOffset = this.#cmView.state.selection.primary.anchor;
+        let cursorOffset = this.#cmView.state.selection.main.anchor;
         for (const char of text) {
             const newCursorOffset = cursorOffset + 1;
             this.#cmView.dispatch(this.#cmView.state.update({

@@ -12,7 +12,7 @@ const tabTrapPlugin = ViewPlugin.define(() => ({
     }
 }));
 
-export default [tabTrapped, tabTrapPlugin, keymap([
+export default [tabTrapped, tabTrapPlugin, keymap.of([
     ...defaultKeymap,
     ...historyKeymap,
     { key: 'Tab', run: view => view.state.field(tabTrapped) ? indentMore(view) : false },

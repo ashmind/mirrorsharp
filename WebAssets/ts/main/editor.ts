@@ -563,7 +563,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     }
 
     getCursorOffset() {
-        return this.#cmView.state.selection.primary.from;
+        return this.#cmView.state.selection.main.from;
     }
 
     getLanguage() {
