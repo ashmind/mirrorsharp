@@ -1,5 +1,5 @@
-import type { Text, ChangeSet } from '@codemirror/next/state';
-import { ViewPlugin, PluginValue } from '@codemirror/next/view';
+import type { Text, ChangeSet } from '@codemirror/state';
+import { ViewPlugin, PluginValue } from '@codemirror/view';
 import type { Connection } from '../../connection';
 
 function sendReplace<O, U>(connection: Connection<O, U>, from: number, to: number, text: Text, cursorOffset: number) {

@@ -1,5 +1,5 @@
 import { TestDriver } from './test-driver';
-import { selectAll } from '@codemirror/next/commands';
+import { selectAll } from '@codemirror/commands';
 
 test('Tab indents selected block', async () => {
     const text = `abc\r\ndef`;

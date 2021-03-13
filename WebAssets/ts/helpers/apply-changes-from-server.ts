@@ -1,6 +1,6 @@
-import type { EditorView } from '@codemirror/next/view';
+import type { EditorView } from '@codemirror/view';
 import type { ChangeData } from '../interfaces/protocol';
-import type { ChangeSpec, TransactionSpec } from '@codemirror/next/state/src';
+import type { ChangeSpec, TransactionSpec } from '@codemirror/state';
 
 export function applyChangesFromServer(view: EditorView, changesFromServer: ReadonlyArray<ChangeData>) {
     const [selection] = view.state.selection.ranges;

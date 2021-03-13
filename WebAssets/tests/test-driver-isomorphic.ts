@@ -1,5 +1,5 @@
-import type { EditorView } from '@codemirror/next/view';
-import { TransactionSpec, Transaction } from '@codemirror/next/state';
+import type { EditorView } from '@codemirror/view';
+import { TransactionSpec, Transaction } from '@codemirror/state';
 import type { PartData, CompletionItemData, ChangeData, ChangesMessage, CompletionsMessage } from '../ts/interfaces/protocol';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../ts/mirrorsharp';
 

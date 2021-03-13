@@ -1,5 +1,5 @@
-import { ViewPlugin, EditorView, PluginValue } from '@codemirror/next/view';
-import { Diagnostic, setDiagnostics } from '@codemirror/next/lint';
+import { ViewPlugin, EditorView, PluginValue } from '@codemirror/view';
+import { Diagnostic, setDiagnostics } from '@codemirror/lint';
 import type { Connection } from '../../connection';
 import type { SlowUpdateOptions } from '../../../interfaces/slow-update';
 import type { DiagnosticData } from '../../../interfaces/protocol';

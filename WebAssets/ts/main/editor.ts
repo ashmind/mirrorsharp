@@ -1,4 +1,4 @@
-import { EditorView } from '@codemirror/next/view';
+import { EditorView } from '@codemirror/view';
 //import 'codemirror/mode/clike/clike';
 //import 'codemirror-addon-infotip';
 //import 'codemirror-addon-lint-fix';

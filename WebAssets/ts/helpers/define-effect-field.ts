@@ -1,5 +1,5 @@
-import { StateEffect, StateField } from '@codemirror/next/state';
-import type { EditorView } from '@codemirror/next/view';
+import { StateEffect, StateField } from '@codemirror/state';
+import type { EditorView } from '@codemirror/view';
 
 export function defineEffectField<T>(initialValue: T) {
     const effectType = StateEffect.define<T>();

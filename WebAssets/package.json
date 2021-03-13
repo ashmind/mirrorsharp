@@ -26,8 +26,7 @@
         "build": "ts-node-script ./build.ts",
         "watch": "ts-node-script ./build.ts --watch",
         "test:skip-render": "cross-env TEST_SKIP_RENDER=true jest",
-        "test": "jest",
-        "postinstall": "rimraf ./node_modules/@codemirror/next/history/src/history.ts"
+        "test": "jest"
     },
     "jest": {
         "preset": "ts-jest/presets/js-with-ts",
@@ -54,7 +53,14 @@
         ]
     },
     "dependencies": {
-        "@codemirror/next": "^0.16.0",
+        "@codemirror/autocomplete": "^0.17.0",
+        "@codemirror/commands": "^0.17.0",
+        "@codemirror/highlight": "^0.17.0",
+        "@codemirror/history": "^0.17.0",
+        "@codemirror/language": "^0.17.0",
+        "@codemirror/lint": "^0.17.0",
+        "@codemirror/state": "^0.17.0",
+        "@codemirror/view": "^0.17.0",
         "lezer-csharp-simple": "^0.7.0"
     },
     "devDependencies": {

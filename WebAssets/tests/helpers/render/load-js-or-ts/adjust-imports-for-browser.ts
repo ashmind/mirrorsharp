@@ -1,5 +1,6 @@
 import * as babel from '@babel/core';
-import { dirname, relative } from 'path';
+import * as fs from 'fs';
+import { dirname, relative, join as pathJoin } from 'path';
 
 function rewriteImportPath(path: string, scriptFullPath: string) {
     let pathWithExtension = path;
@@ -15,11 +16,29 @@ function rewriteImportPath(path: string, scriptFullPath: string) {
         return `./unresolved-imports/${pathWithExtension}`;
     }
 
+    resolvedFullPath = rewriteMainToModule(resolvedFullPath, pathWithExtension);
+
     const resolvedPath = relative(dirname(scriptFullPath), resolvedFullPath);
     const url = (resolvedPath.startsWith('.') ? '' : './') + resolvedPath.replace(/\\/g, '/');
 
     console.log(`Rewriting ${path} to ${url} (imported in ${scriptFullPath}).`);
     return url;
+}
+
+function rewriteMainToModule(finalPath: string, initialPath: string) {
+    const packageRootPath = finalPath.substring(0, finalPath.replace(/\\/g, '/').indexOf(initialPath) + initialPath.length);
+    const packageJsonPath = pathJoin(packageRootPath, 'package.json');
+    // eslint-disable-next-line no-sync
+    if (!fs.existsSync(packageJsonPath))
+        return finalPath;
+
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const packageJson = require(packageJsonPath) as { main: string; module?: string };
+    const relativePath = relative(packageRootPath, finalPath).replace(/\\/g, '/');
+    if (packageJson.main !== relativePath || !packageJson.module)
+        return finalPath;
+
+    return pathJoin(packageRootPath, packageJson.module);
 }
 
 export default function adjustImportsForBrowser(code: string, scriptFullPath: string) {

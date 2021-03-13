@@ -1,6 +1,6 @@
 import { TestDriver } from './test-driver';
 import { dispatchMutation } from './helpers/mutation-observer-workaround';
-import { completionStatus, currentCompletions, acceptCompletion } from '@codemirror/next/autocomplete';
+import { completionStatus, currentCompletions, acceptCompletion } from '@codemirror/autocomplete';
 
 const ensureCompletionIsReadyForInteraction = () => jest.advanceTimersByTime(100);
 

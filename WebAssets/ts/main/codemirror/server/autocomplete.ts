@@ -1,8 +1,8 @@
 import type { Connection } from '../../connection';
 import type { CompletionItemData, CompletionsMessage } from '../../../interfaces/protocol';
-import { Prec } from '@codemirror/next/state';
-import { ViewPlugin, EditorView, keymap } from '@codemirror/next/view';
-import { startCompletion, acceptCompletion, closeCompletion, completionStatus, autocompletion, CompletionSource, Completion } from '@codemirror/next/autocomplete';
+import { Prec } from '@codemirror/state';
+import { ViewPlugin, EditorView, keymap } from '@codemirror/view';
+import { startCompletion, acceptCompletion, closeCompletion, completionStatus, autocompletion, CompletionSource, Completion } from '@codemirror/autocomplete';
 import { addEvents } from '../../../helpers/add-events';
 import { defineEffectField } from '../../../helpers/define-effect-field';
 import { applyChangesFromServer } from '../../../helpers/apply-changes-from-server';

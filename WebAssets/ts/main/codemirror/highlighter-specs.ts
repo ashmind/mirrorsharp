@@ -1,4 +1,4 @@
-import { tags } from '@codemirror/next/highlight';
+import { tags } from '@codemirror/highlight';
 
 // temporary, until CodeMirror 6 implements CSS classes in highlighter
 export default [

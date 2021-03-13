@@ -1,6 +1,6 @@
 import { parser } from 'lezer-csharp-simple';
-import { LezerLanguage } from '@codemirror/next/language';
-import { styleTags, tags } from '@codemirror/next/highlight';
+import { LezerLanguage } from '@codemirror/language';
+import { styleTags, tags } from '@codemirror/highlight';
 
 export const csharpSyntax = LezerLanguage.define({
     parser: parser.configure({

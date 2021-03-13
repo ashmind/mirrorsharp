@@ -1,7 +1,7 @@
 
-import { defaultKeymap, indentMore, indentLess } from '@codemirror/next/commands';
-import { historyKeymap } from '@codemirror/next/history';
-import { keymap, ViewPlugin } from '@codemirror/next/view';
+import { defaultKeymap, indentMore, indentLess } from '@codemirror/commands';
+import { historyKeymap } from '@codemirror/history';
+import { keymap, ViewPlugin } from '@codemirror/view';
 import { defineEffectField } from '../../helpers/define-effect-field';
 
 const [tabTrapped, dispatchTabTrappedChanged] = defineEffectField<boolean>(true);

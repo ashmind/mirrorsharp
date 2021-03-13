@@ -1,5 +1,5 @@
 import type { Connection } from '../../connection';
-import { ViewPlugin } from '@codemirror/next/view';
+import { ViewPlugin } from '@codemirror/view';
 import { addEvents } from '../../../helpers/add-events';
 import { defineEffectField } from '../../../helpers/define-effect-field';
 

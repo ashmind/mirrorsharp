@@ -1,7 +1,7 @@
-import { EditorState, EditorSelection } from '@codemirror/next/state';
-import { indentUnit } from '@codemirror/next/language';
-import { HighlightStyle } from '@codemirror/next/highlight';
-import { history } from '@codemirror/next/history';
+import { EditorState, EditorSelection } from '@codemirror/state';
+import { indentUnit } from '@codemirror/language';
+import { HighlightStyle } from '@codemirror/highlight';
+import { history } from '@codemirror/history';
 import type { Connection } from '../connection';
 import type { SlowUpdateOptions } from '../../interfaces/slow-update';
 import { csharp } from './lang-csharp';

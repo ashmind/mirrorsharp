@@ -1,4 +1,4 @@
-import type { EditorView } from '@codemirror/next/view';
+import type { EditorView } from '@codemirror/view';
 import type { Language, DiagnosticSeverity } from './interfaces/protocol';
 // import { SelfDebug } from './main/self-debug';
 import { Connection } from './main/connection';
