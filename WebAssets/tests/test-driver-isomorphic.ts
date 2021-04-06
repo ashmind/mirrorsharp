@@ -1,6 +1,6 @@
 import type { EditorView } from '@codemirror/view';
 import { TransactionSpec, Transaction } from '@codemirror/state';
-import type { PartData, CompletionItemData, ChangeData, ChangesMessage, CompletionsMessage } from '../ts/interfaces/protocol';
+import type { PartData, CompletionItemData, ChangeData, ChangesMessage, CompletionsMessage, Message, SpanData, InfotipMessage } from '../ts/interfaces/protocol';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../ts/mirrorsharp';
 
 type TestRecorderOptions = { exclude?: (object: object, action: string) => boolean };
@@ -154,30 +154,44 @@ class TestDomEvents {
 }
 
 class TestReceiver {
-    private readonly socket: MockSocket;
+    readonly #socket: MockSocket;
 
     constructor(socket: MockSocket) {
-        this.socket = socket;
+        this.#socket = socket;
     }
 
     changes(reason: ChangesMessage['reason'], changes: ReadonlyArray<ChangeData> = []) {
-        this.socket.trigger('message', { data: JSON.stringify({ type: 'changes', changes, reason }) });
+        this.#message({ type: 'changes', changes, reason });
     }
 
     optionsEcho(options = {}) {
-        this.socket.trigger('message', { data: JSON.stringify({ type: 'optionsEcho', options }) });
+        this.#message({ type: 'optionsEcho', options });
+    }
+
+    /**
+     *
+    readonly span: SpanData;
+    readonly kinds: ReadonlyArray<string>;
+    readonly sections: ReadonlyArray<InfotipSectionData>;
+     */
+    infotip(args: Omit<InfotipMessage, 'type'>) {
+        this.#message({ type: 'infotip', ...args });
     }
 
     completions(
         completions: ReadonlyArray<CompletionItemData> = [],
         other: Partial<Omit<CompletionsMessage, 'completions'|'type'>> = {}
     ) {
-        this.socket.trigger('message', { data: JSON.stringify({ type: 'completions', completions, ...other }) });
+        this.#message({ type: 'completions', completions, ...other });
     }
 
     completionInfo(index: number, parts: ReadonlyArray<PartData>) {
-        this.socket.trigger('message', { data: JSON.stringify({ type: 'completionInfo', index, parts }) });
+        this.#message({ type: 'completionInfo', index, parts });
     }
+
+    #message = (message: Partial<Message<unknown, unknown>>) => {
+        this.#socket.trigger('message', { data: JSON.stringify(message) });
+    };
 }
 
 export type TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = ({}|{ text: string; cursor?: number }|{ textWithCursor: string }) & {
