@@ -4,8 +4,8 @@
   <PropertyGroup>
     <AssemblyName>MirrorSharp.Common</AssemblyName>
     <RootNamespace>MirrorSharp</RootNamespace>
-    <TargetFrameworks>netstandard2.0; netcoreapp2.1</TargetFrameworks>
-    <VersionPrefix>2.2.3</VersionPrefix>
+    <TargetFrameworks>netstandard2.0; netcoreapp3.0</TargetFrameworks>
+    <VersionPrefix>2.2.4</VersionPrefix>
     <Description>MirrorSharp shared server library. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;CodeMirror</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
