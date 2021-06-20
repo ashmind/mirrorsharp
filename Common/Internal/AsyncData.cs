@@ -2,22 +2,22 @@ using System;
 using System.Threading.Tasks;
 
 namespace MirrorSharp.Internal {
-    internal struct AsyncData {
-        private static readonly Task<ArraySegment<byte>?> NullSegmentTask = Task.FromResult<ArraySegment<byte>?>(null);
-        public static readonly AsyncData Empty = new AsyncData(new ArraySegment<byte>(new byte[0]), false, () => NullSegmentTask);
+    internal readonly struct AsyncData {
+        private static readonly Task<ReadOnlyMemory<byte>?> NullSegmentTask = Task.FromResult<ReadOnlyMemory<byte>?>(null);
+        public static readonly AsyncData Empty = new(ReadOnlyMemory<byte>.Empty, false, static () => NullSegmentTask);
 
-        private readonly ArraySegment<byte> _first;
-        private readonly Func<Task<ArraySegment<byte>?>> _getNextAsync;
+        private readonly ReadOnlyMemory<byte> _first;
+        private readonly Func<Task<ReadOnlyMemory<byte>?>> _getNextAsync;
         private readonly bool _getNextCalled;
 
-        public AsyncData(ArraySegment<byte> first, bool mightHaveNext, Func<Task<ArraySegment<byte>?>> getNextAsync) {
+        public AsyncData(ReadOnlyMemory<byte> first, bool mightHaveNext, Func<Task<ReadOnlyMemory<byte>?>> getNextAsync) {
             _first = first;
             MightHaveNext = mightHaveNext;
             _getNextAsync = Argument.NotNull(nameof(getNextAsync), getNextAsync);
             _getNextCalled = false;
         }
 
-        public ArraySegment<byte> GetFirst() {
+        public ReadOnlyMemory<byte> GetFirst() {
             if (_getNextCalled)
                 throw new InvalidOperationException();
             return _first;
@@ -25,6 +25,6 @@ namespace MirrorSharp.Internal {
 
         public bool MightHaveNext { get; }
 
-        public Task<ArraySegment<byte>?> GetNextAsync() => _getNextAsync();
+        public Task<ReadOnlyMemory<byte>?> GetNextAsync() => _getNextAsync();
     }
 }

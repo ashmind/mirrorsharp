@@ -13,7 +13,7 @@ namespace MirrorSharp.Internal.Handlers {
             if (!session.IsRoslyn)
                 return Task.CompletedTask;
 
-            var cursorPosition = FastConvert.Utf8ByteArrayToInt32(data.GetFirst());
+            var cursorPosition = FastConvert.Utf8BytesToInt32(data.GetFirst().Span);
             return ExecuteForRoslynAsync(cursorPosition, session, sender, cancellationToken);
         }
 

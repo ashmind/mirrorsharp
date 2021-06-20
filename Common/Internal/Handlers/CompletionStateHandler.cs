@@ -14,10 +14,10 @@ namespace MirrorSharp.Internal.Handlers {
 
         public Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var first = data.GetFirst();
-            var firstByte = first.Array[first.Offset];
+            var firstByte = first.Span[0];
 
             if (firstByte == (byte)'I') {
-                var infoItemIndex = FastConvert.Utf8ByteArrayToInt32(first.Skip(1));
+                var infoItemIndex = FastConvert.Utf8BytesToInt32(first.Span.Slice(1));
                 return _completion.SendItemInfoAsync(infoItemIndex, session, sender, cancellationToken);
             }
 
@@ -27,7 +27,7 @@ namespace MirrorSharp.Internal.Handlers {
             if (firstByte == (byte)'F')
                 return _completion.ForceCompletionAsync(session, sender, cancellationToken);
 
-            var itemIndex = FastConvert.Utf8ByteArrayToInt32(first);
+            var itemIndex = FastConvert.Utf8BytesToInt32(first.Span);
             return _completion.SelectCompletionAsync(itemIndex, session, sender, cancellationToken);
         }
     }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 
 namespace MirrorSharp.Internal {
@@ -7,8 +7,40 @@ namespace MirrorSharp.Internal {
             return encoding.GetString(segment.Array, segment.Offset, segment.Count);
         }
 
-        public static void Convert(this Decoder decoder, ArraySegment<byte> bytes, char[] chars, int charIndex, int charCount, bool flush, out int bytesUsed, out int charsUsed, out bool completed) {
-            decoder.Convert(bytes.Array, bytes.Offset, bytes.Count, chars, charIndex, charCount, flush, out bytesUsed, out charsUsed, out completed);
+        #if NETSTANDARD2_0
+        public static unsafe int GetChars(this Encoding encoding, ReadOnlySpan<byte> bytes, Span<char> chars) {
+            if (bytes.IsEmpty)
+                return 0;
+
+            fixed (byte* bytePointer = bytes)
+            fixed (char* charPointer = chars) {
+                return Encoding.UTF8.GetChars(bytePointer, bytes.Length, charPointer, chars.Length);
+            }
         }
+
+        public static unsafe string GetString(this Encoding encoding, ReadOnlySpan<byte> bytes) {
+            if (bytes.IsEmpty)
+                return string.Empty;
+
+            fixed (byte* bytePointer = bytes)
+                return Encoding.UTF8.GetString(bytePointer, bytes.Length);
+        }
+
+        public static unsafe void Convert(this Decoder decoder, ReadOnlySpan<byte> bytes, Span<char> chars, bool flush, out int bytesUsed, out int charsUsed, out bool completed) {
+            if (bytes.IsEmpty) {
+                // Cannot just return, we might still need to flush
+                fixed (byte* bytePointer = Array.Empty<byte>())
+                fixed (char* charPointer = chars) {
+                    decoder.Convert(bytePointer, 0, charPointer, chars.Length, flush, out bytesUsed, out charsUsed, out completed);
+                }
+                return;
+            }
+
+            fixed (byte* bytePointer = bytes)
+            fixed (char* charPointer = chars) {
+                decoder.Convert(bytePointer, bytes.Length, charPointer, chars.Length, flush, out bytesUsed, out charsUsed, out completed);
+            }
+        }
+        #endif
     }
 }

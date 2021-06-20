@@ -28,45 +28,44 @@ namespace MirrorSharp.Internal.Handlers {
 
         public async Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
             var first = data.GetFirst();
-            var endOffset = first.Offset + first.Count - 1;
-            var partStart = first.Offset;
+            var partStart = 0;
 
             int? start = null;
             int? length = null;
             int? cursorPosition = null;
             string? reason = null;
 
-            for (var i = first.Offset; i <= endOffset; i++) {
-                if (first.Array[i] != (byte)':')
+            for (var i = 0; i < first.Length; i++) {
+                if (first.Span[i] != (byte)':')
                     continue;
 
-                var part = new ArraySegment<byte>(first.Array, partStart, i - partStart);
+                var part = first.Slice(partStart, i - partStart);
                 if (start == null) {
-                    start = FastConvert.Utf8ByteArrayToInt32(part);
+                    start = FastConvert.Utf8BytesToInt32(part.Span);
                     partStart = i + 1;
                     continue;
                 }
 
                 if (length == null) {
-                    length = FastConvert.Utf8ByteArrayToInt32(part);
+                    length = FastConvert.Utf8BytesToInt32(part.Span);
                     partStart = i + 1;
                     continue;
                 }
 
                 if (cursorPosition == null) {
-                    cursorPosition = FastConvert.Utf8ByteArrayToInt32(part);
+                    cursorPosition = FastConvert.Utf8BytesToInt32(part.Span);
                     partStart = i + 1;
                     continue;
                 }
 
-                reason = part.Count > 0 ? Encoding.UTF8.GetString(part) : string.Empty;
+                reason = part.Length > 0 ? Encoding.UTF8.GetString(part.Span) : string.Empty;
                 partStart = i + 1;
                 break;
             }
             if (start == null || length == null || cursorPosition == null || reason == null)
                 throw new FormatException("Command arguments must be 'start:length:cursor:reason:text'.");
 
-            var text = await AsyncDataConvert.ToUtf8StringAsync(data, partStart - first.Offset, _charArrayPool).ConfigureAwait(false);
+            var text = await AsyncDataConvert.ToUtf8StringAsync(data, partStart, _charArrayPool).ConfigureAwait(false);
 
             session.ReplaceText(text, start.Value, length.Value);
             session.CursorPosition = cursorPosition.Value;

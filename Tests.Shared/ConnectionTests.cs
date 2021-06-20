@@ -38,7 +38,7 @@ namespace MirrorSharp.Tests {
             var socketMock = MockWebSocketToReceive("X" + longArgument);
             var session = MirrorSharpTestDriver.New().Session;
 
-            var segments = new List<ArraySegment<byte>>();
+            var segments = new List<ReadOnlyMemory<byte>>();
             var handler = MockCommandHandler('X', async data => {
                 segments.Add(Copy(data.GetFirst()));
                 var next = await data.GetNextAsync();
@@ -50,13 +50,13 @@ namespace MirrorSharp.Tests {
             var connection = new Connection(socketMock, session, CreateCommandHandlers(handler), ArrayPool<byte>.Shared);
 
             await connection.ReceiveAndProcessAsync(CancellationToken.None);
-            Assert.Equal(longArgument, string.Join("", segments.Select(s => Encoding.UTF8.GetString(s))));
+            Assert.Equal(longArgument, string.Join("", segments.Select(s => Encoding.UTF8.GetString(s.ToArray()))));
         }
 
-        private ArraySegment<T> Copy<T>(ArraySegment<T> segment) {
-            var newArray = new T[segment.Array!.Length];
-            Buffer.BlockCopy(segment.Array, 0, newArray, 0, segment.Array.Length);
-            return new ArraySegment<T>(newArray, segment.Offset, segment.Count);
+        private ReadOnlyMemory<T> Copy<T>(ReadOnlyMemory<T> segment) {
+            var newArray = new T[segment.Length];
+            segment.CopyTo(newArray);
+            return newArray;
         }
 
         private string GenerateLongString(int length) {

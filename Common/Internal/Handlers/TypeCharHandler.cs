@@ -13,7 +13,7 @@ namespace MirrorSharp.Internal.Handlers {
         }
 
         public Task ExecuteAsync(AsyncData data, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
-            var @char = FastConvert.Utf8ByteArrayToChar(data.GetFirst());
+            var @char = FastConvert.Utf8BytesToChar(data.GetFirst().Span);
             session.ReplaceText(FastConvert.CharToString(@char), session.CursorPosition, 0);
             session.CursorPosition += 1;
 

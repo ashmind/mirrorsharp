@@ -89,14 +89,14 @@ namespace MirrorSharp.Internal {
             var last = first;
             await handler.ExecuteAsync(
                 new AsyncData(
-                    new ArraySegment<byte>(_inputBuffer, 1, first.Count - 1),
+                    _inputBuffer.AsMemory(1),
                     !first.EndOfMessage,
                     // Can we avoid this allocation?
                     async () => {
                         if (last.EndOfMessage)
                             return null;
                         last = await _socket.ReceiveAsync(new ArraySegment<byte>(_inputBuffer), cancellationToken).ConfigureAwait(false);
-                        return new ArraySegment<byte>(_inputBuffer, 0, last.Count);
+                        return _inputBuffer.AsMemory(0, last.Count);
                     }
                 ),
                 _session, this, cancellationToken
