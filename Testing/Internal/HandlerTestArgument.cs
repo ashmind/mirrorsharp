@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Text;
 using MirrorSharp.Internal;
@@ -49,7 +49,7 @@ namespace MirrorSharp.Testing.Internal {
             firstDataWithCommand[0] = (byte)commandId;
 
             return new AsyncData(
-                new ArraySegment<byte>(firstDataWithCommand, 1, firstDataWithCommand.Length - 1),
+                firstDataWithCommand.AsMemory(1),
                 _data.Length > 1,
                 #pragma warning disable 1998
                 async () => {
@@ -58,7 +58,7 @@ namespace MirrorSharp.Testing.Internal {
                     if (next == null)
                         return null;
                     nextIndex += 1;
-                    return new ArraySegment<byte>(next);
+                    return next;
                 }
             );
         }
