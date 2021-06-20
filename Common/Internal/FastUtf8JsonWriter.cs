@@ -104,7 +104,7 @@ namespace MirrorSharp.Internal {
             WriteStartValue();
             WriteRawByte(Utf8.Quote);
             for (var i = 0; i < value.Count; i++) {
-                WriteUnquotedChar(value.Array[value.Offset + i]);
+                WriteUnquotedChar(value.Array![value.Offset + i]);
             }
             WriteRawByte(Utf8.Quote);
             WriteEndValue();
@@ -120,7 +120,9 @@ namespace MirrorSharp.Internal {
             WriteEndValue();
         }
 
-        private void WriteUnquotedString(string value) {
+        private void WriteUnquotedString(string? value) {
+            if (value == null)
+                return;
             foreach (var @char in value) {
                 WriteUnquotedChar(@char);
             }
@@ -338,7 +340,7 @@ namespace MirrorSharp.Internal {
 
             public override void Write(char value) => _owner.WriteUnquotedChar(value);
             public override void Write(int value) => _owner.WriteValue(value);
-            public override void Write(string value) => _owner.WriteUnquotedString(value);
+            public override void Write(string? value) => _owner.WriteUnquotedString(value);
 
             protected override void Dispose(bool disposing) {
                 _owner.CloseString();

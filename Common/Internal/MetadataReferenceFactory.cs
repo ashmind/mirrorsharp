@@ -12,7 +12,7 @@ namespace MirrorSharp.Internal {
         }
 
         private static MetadataReference CreateMetadataReferenceWithXmlDocumentationSlow(string path) {
-            var xmlPath = Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path) + ".xml");
+            var xmlPath = Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileNameWithoutExtension(path) + ".xml");
             return MetadataReference.CreateFromFile(path, documentation: FindXmlDocumentationSlow(xmlPath));
         }
 

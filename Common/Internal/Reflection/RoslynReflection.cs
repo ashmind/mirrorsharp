@@ -18,14 +18,12 @@ namespace MirrorSharp.Internal.Reflection {
         private static readonly BindingFlags DefaultInstanceBindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
 
         private static readonly Func<CodeAction, bool> _getIsInlinable =
-            RoslynTypes.CodeAction
-                .GetProperty("IsInlinable", DefaultInstanceBindingFlags)
-                .GetMethod.CreateDelegate<Func<CodeAction, bool>>();
+            EnsureFound(RoslynTypes.CodeAction, "IsInlinable", static (t, name) => t.GetProperty(name, DefaultInstanceBindingFlags))
+                .GetMethod!.CreateDelegate<Func<CodeAction, bool>>();
 
         private static readonly Func<CodeAction, ImmutableArray<CodeAction>> _getNestedCodeActions =
-            RoslynTypes.CodeAction
-                .GetProperty("NestedCodeActions", DefaultInstanceBindingFlags)
-                .GetMethod.CreateDelegate<Func<CodeAction, ImmutableArray<CodeAction>>>();
+            EnsureFound(RoslynTypes.CodeAction, "NestedCodeActions", static (t, name) => t.GetProperty(name, DefaultInstanceBindingFlags))
+                .GetMethod!.CreateDelegate<Func<CodeAction, ImmutableArray<CodeAction>>>();
 
         private static readonly Func<AnalyzerOptions, Solution, AnalyzerOptions> _newWorkspaceAnalyzerOptions
             = BuildDelegateForNewWorkspaceAnalyzerOptionsSlow();
@@ -53,25 +51,25 @@ namespace MirrorSharp.Internal.Reflection {
                     .FirstOrDefault(m => m.Name == n && m.GetGenericArguments().Length == 2)
             );
 
-            var metadataType = mefHostServicesType.Assembly.GetType("Microsoft.CodeAnalysis.Host.Mef.OrderableLanguageMetadata", true).GetTypeInfo();
+            var metadataType = mefHostServicesType.Assembly.GetType("Microsoft.CodeAnalysis.Host.Mef.OrderableLanguageMetadata", true)!.GetTypeInfo();
             var getExportsOfProvider = getExports.MakeGenericMethod(extensionType.AsType(), metadataType.AsType());
-            var exports = (IEnumerable)getExportsOfProvider.Invoke(hostServices, null);
+            var exports = (IEnumerable)getExportsOfProvider.Invoke(hostServices, null)!;
 
-            var metadataLanguagePropery = EnsureFound(metadataType, "Language", (t, n) => t.GetProperty(n));
+            var metadataLanguageProperty = EnsureFound(metadataType, "Language", (t, n) => t.GetProperty(n));
             TypeInfo? lazyType = null;
             PropertyInfo? metadataProperty = null;
             PropertyInfo? valueProperty = null;
             foreach (var export in exports) {
                 if (lazyType == null) {
-                    lazyType = export.GetType().GetTypeInfo();
-                    metadataProperty = EnsureFound(lazyType, "Metadata", (t, n) => t.GetProperty(n));
-                    valueProperty = EnsureFound(lazyType, "Value", (t, n) => t.GetProperty(n));
+                    lazyType = export!.GetType().GetTypeInfo();
+                    metadataProperty = EnsureFound(lazyType, "Metadata", static (t, n) => t.GetProperty(n));
+                    valueProperty = EnsureFound(lazyType, "Value", static (t, n) => t.GetProperty(n));
                 }
                 var metadata = metadataProperty!.GetValue(export);
-                var language = (string)metadataLanguagePropery.GetValue(metadata);
+                var language = (string)metadataLanguageProperty.GetValue(metadata)!;
                 yield return new Lazy<TExtensionWrapper, OrderableLanguageMetadataData>(
                     // ReSharper disable once AccessToModifiedClosure
-                    () => createWrapper(valueProperty!.GetValue(export)),
+                    () => createWrapper(valueProperty!.GetValue(export)!),
                     new OrderableLanguageMetadataData(language)
                 );
             }
@@ -80,7 +78,7 @@ namespace MirrorSharp.Internal.Reflection {
         public static AnalyzerOptions NewWorkspaceAnalyzerOptions(AnalyzerOptions options, Solution solution) =>
             _newWorkspaceAnalyzerOptions(options, solution);
 
-        public static TMemberInfo EnsureFound<TMemberInfo>(TypeInfo type, string name, Func<TypeInfo, string, TMemberInfo> getMember) {
+        public static TMemberInfo EnsureFound<TMemberInfo>(TypeInfo type, string name, Func<TypeInfo, string, TMemberInfo?> getMember) {
             var member = getMember(type, name);
             if (member == null)
                 throw new MissingMemberException($"Member '{name}' was not found on {type}.");

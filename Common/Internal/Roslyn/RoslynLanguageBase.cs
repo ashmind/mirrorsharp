@@ -96,11 +96,10 @@ namespace MirrorSharp.Internal.Roslyn {
 
             var providersByDiagnosticIds = new Dictionary<string, IList<CodeFixProvider>>();
             foreach (var type in codeFixProviderTypes) {
-                var provider = (CodeFixProvider)Activator.CreateInstance(type.AsType());
+                var provider = (CodeFixProvider)Activator.CreateInstance(type.AsType())!;
 
                 foreach (var id in provider.FixableDiagnosticIds) {
-                    IList<CodeFixProvider> list;
-                    if (!providersByDiagnosticIds.TryGetValue(id, out list)) {
+                    if (!providersByDiagnosticIds.TryGetValue(id, out var list)) {
                         list = new List<CodeFixProvider>();
                         providersByDiagnosticIds.Add(id, list);
                     }

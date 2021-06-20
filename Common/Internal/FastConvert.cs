@@ -47,7 +47,7 @@ namespace MirrorSharp.Internal {
         }
 
         public static string StringToLowerInvariantString(string value) {
-            if (LowerInvariantStrings.TryGetValue(value, out string result))
+            if (LowerInvariantStrings.TryGetValue(value, out var result))
                 return result;
 
             var lower = value.ToLowerInvariant();
