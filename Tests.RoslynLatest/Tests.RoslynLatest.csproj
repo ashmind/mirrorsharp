@@ -13,7 +13,7 @@
       https://dotnet.myget.org/F/roslyn/api/v3/index.json;
       https://dotnet.myget.org/F/roslyn-analyzers/api/v3/index.json
     </RestoreAdditionalProjectSources>
-  </PropertyGroup>
+  </PropertyGroup>  
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis" Version="3.10.0-1.final" />
@@ -32,8 +32,8 @@
     <ProjectReference Include="..\Testing\Testing.csproj" />
     <ProjectReference Include="..\VisualBasic\VisualBasic.csproj" />
   </ItemGroup>
-  
 
-  <Import Project="..\Tests.Shared\MirrorSharp.Tests.Shared.projitems" Label="Shared" />
-
+  <ItemGroup>
+    <Compile Include="../Tests/**/*.cs" Exclude="../Tests/obj/**; ../Tests/Php*.cs; ../Tests/FSharp*.cs" />
+  </ItemGroup>
 </Project>

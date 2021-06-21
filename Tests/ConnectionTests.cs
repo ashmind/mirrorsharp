@@ -31,7 +31,7 @@ namespace MirrorSharp.Tests {
             await connection.ReceiveAndProcessAsync(cancellationToken);
             Mock.Get(handler).Verify(s => s.ExecuteAsync(It.IsAny<AsyncData>(), session, connection, cancellationToken));
         }
-        
+
         [Fact]
         public async Task ReceiveAndProcessAsync_HandlesLongMessage() {
             var longArgument = GenerateLongString(10000);

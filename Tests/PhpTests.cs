@@ -1,9 +1,7 @@
+#if !NETFRAMEWORK
 using System.Linq;
-using Microsoft.CodeAnalysis;
 using MirrorSharp.Php.Internal;
-using MirrorSharp.Internal;
 using MirrorSharp.Testing;
-using MirrorSharp.Testing.Internal.Results;
 using Xunit;
 
 // ReSharper disable HeapView.ObjectAllocation
@@ -51,3 +49,4 @@ namespace MirrorSharp.Tests {
         }
     }
 }
+#endif

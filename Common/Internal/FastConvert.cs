@@ -17,7 +17,6 @@ namespace MirrorSharp.Internal {
 
         public static int Utf8BytesToInt32(ReadOnlySpan<byte> bytes) {
             var result = 0;
-            var length = bytes.Length;
             foreach (var @byte in bytes) {
                 if (@byte < Utf8Zero || @byte > Utf8Nine)
                     throw new FormatException($"String '{SlowUtf8BytesToString(bytes)}' is not a valid positive number.");
