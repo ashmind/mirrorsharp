@@ -8,14 +8,10 @@ namespace MirrorSharp.Tests {
         private static readonly string MscorlibReferenceAssemblyPath =
             Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)
                 + @"\dotnet\packs\Microsoft.NETCore.App.Ref\3.0.0\ref\netcoreapp3.0\System.Runtime.dll";
-        #elif NETCOREAPP2_1
-        private static readonly string MscorlibReferenceAssemblyPath =
-            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)
-                + @"\dotnet\sdk\NuGetFallbackFolder\microsoft.netcore.app\2.1.0\ref\netcoreapp2.1\System.Runtime.dll";
-        #elif NET461
+        #elif NET471
         private static readonly string MscorlibReferenceAssemblyPath =
             Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)
-                + @"\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6\mscorlib.dll";
+                + @"\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.1\mscorlib.dll";
         #endif
 
         public static MirrorSharpOptions Instance { get; } = new MirrorSharpOptions().SetupCSharp(c => {

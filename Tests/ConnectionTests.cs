@@ -4,16 +4,17 @@ using System.Collections.Immutable;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
+using System.Net.WebSockets.Mocks;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Handlers;
-using MirrorSharp.Internal.Results;
+using MirrorSharp.Internal.Handlers.Mocks;
 using MirrorSharp.Testing;
-using Moq;
 using Xunit;
 using System.IO;
+using SourceMock.Internal;
 
 // ReSharper disable HeapView.ClosureAllocation
 
@@ -29,7 +30,11 @@ namespace MirrorSharp.Tests {
             var cancellationToken = new CancellationTokenSource().Token;
 
             await connection.ReceiveAndProcessAsync(cancellationToken);
-            Mock.Get(handler).Verify(s => s.ExecuteAsync(It.IsAny<AsyncData>(), session, connection, cancellationToken));
+
+            var call = Assert.Single(handler.Calls.ExecuteAsync());
+            Assert.Equal(session, call.session);
+            Assert.Equal(connection, call.sender);
+            Assert.Equal(cancellationToken, call.cancellationToken);
         }
 
         [Fact]
@@ -67,11 +72,10 @@ namespace MirrorSharp.Tests {
             return new string(chars);
         }
 
-        private ICommandHandler MockCommandHandler(char commandId, Func<AsyncData, Task>? execute = null) {
-            var handler = Mock.Of<ICommandHandler>(h => h.CommandId == commandId);
-            Mock.Get(handler)
-                .Setup(h => h.ExecuteAsync(It.IsAny<AsyncData>(), It.IsAny<WorkSession>(), It.IsAny<ICommandResultSender>(), It.IsAny<CancellationToken>()))
-                .Returns((AsyncData data, WorkSession s, ICommandResultSender sender, CancellationToken token) => execute?.Invoke(data) ?? Task.CompletedTask);
+        private CommandHandlerMock MockCommandHandler(char commandId, Func<AsyncData, Task>? execute = null) {
+            var handler = new CommandHandlerMock();
+            handler.Setup.CommandId.Returns(commandId);
+            handler.Setup.ExecuteAsync().Runs((data, ss, sn, t) => execute?.Invoke(data) ?? Task.CompletedTask);
             return handler;
         }
 
@@ -82,14 +86,13 @@ namespace MirrorSharp.Tests {
         }
 
         private static WebSocket MockWebSocketToReceive(string command) {
-            var mock = new Mock<WebSocket>();
+            var mock = new WebSocketMock();
             var dataStream = new MemoryStream(Encoding.UTF8.GetBytes(command));
-            mock.Setup(m => m.ReceiveAsync(It.IsAny<ArraySegment<byte>>(), It.IsAny<CancellationToken>()))
-                .Returns((ArraySegment<byte> data, CancellationToken _) => {
-                    var count = dataStream.Read(data.Array!, data.Offset, data.Count);
-                    return Task.FromResult(new WebSocketReceiveResult(count, WebSocketMessageType.Text, dataStream.Position == dataStream.Length));
-                });
-            return mock.Object;
+            mock.Setup.ReceiveAsync(default(MockArgumentMatcher<ArraySegment<byte>>)).Runs((ArraySegment<byte> data, CancellationToken _) => {
+                var count = dataStream.Read(data.Array!, data.Offset, data.Count);
+                return Task.FromResult(new WebSocketReceiveResult(count, WebSocketMessageType.Text, dataStream.Position == dataStream.Length));
+            });
+            return mock;
         }
     }
 }

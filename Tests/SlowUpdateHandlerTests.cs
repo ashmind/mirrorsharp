@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Mocks;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Moq;
 using Xunit;
 using MirrorSharp.Advanced;
+using MirrorSharp.Advanced.Mocks;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing;
 using MirrorSharp.Testing.Results;
@@ -69,15 +70,15 @@ namespace MirrorSharp.Tests {
 
         [Fact]
         public async Task SlowUpdate_DisposesExtensionResult_IfDisposable() {
-            var disposable = Mock.Of<IDisposable>();
+            var disposable = new DisposableMock();
+            var slowUpdate = new SlowUpdateExtensionMock();
+            slowUpdate.Setup.ProcessAsync().ReturnsAsync(disposable);
             var driver = MirrorSharpTestDriver.New(new MirrorSharpServices {
-                SlowUpdate = Mock.Of<ISlowUpdateExtension>(
-                    x => x.ProcessAsync(It.IsAny<IWorkSession>(), It.IsAny<IList<Diagnostic>>(), It.IsAny<CancellationToken>()) == Task.FromResult<object>(disposable)
-                )
+                SlowUpdate = slowUpdate
             });
             await driver.SendAsync(SlowUpdate);
 
-            Mock.Get(disposable).Verify(x => x.Dispose());
+            Assert.Single(disposable.Calls.Dispose());
         }
 
         [Fact]
