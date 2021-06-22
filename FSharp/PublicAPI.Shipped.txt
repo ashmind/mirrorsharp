@@ -13,7 +13,7 @@ MirrorSharp.FSharp.Advanced.IFSharpSession
 MirrorSharp.FSharp.Advanced.IFSharpSession.AssemblyReferencePaths.get -> System.Collections.Immutable.ImmutableArray<string!>
 MirrorSharp.FSharp.Advanced.IFSharpSession.AssemblyReferencePathsAsFSharpList.get -> Microsoft.FSharp.Collections.FSharpList<string!>!
 MirrorSharp.FSharp.Advanced.IFSharpSession.Checker.get -> FSharp.Compiler.SourceCodeServices.FSharpChecker!
-MirrorSharp.FSharp.Advanced.IFSharpSession.ConvertToDiagnostic(FSharp.Compiler.SourceCodeServices.FSharpErrorInfo! error) -> Microsoft.CodeAnalysis.Diagnostic!
+MirrorSharp.FSharp.Advanced.IFSharpSession.ConvertToDiagnostic(FSharp.Compiler.SourceCodeServices.FSharpDiagnostic! diagnostic) -> Microsoft.CodeAnalysis.Diagnostic!
 MirrorSharp.FSharp.Advanced.IFSharpSession.ConvertToOffset(int line, int column) -> int
 MirrorSharp.FSharp.Advanced.IFSharpSession.GetLastCheckAnswer() -> FSharp.Compiler.SourceCodeServices.FSharpCheckFileAnswer?
 MirrorSharp.FSharp.Advanced.IFSharpSession.GetLastParseResults() -> FSharp.Compiler.SourceCodeServices.FSharpParseFileResults?

@@ -1,9 +1,9 @@
 using System;
 using Microsoft.FSharp.Collections;
-using FSharp.Compiler;
 using FSharp.Compiler.SourceCodeServices;
 using MirrorSharp.FSharp.Advanced;
 using Xunit;
+using range = FSharp.Compiler.Text.Range;
 
 namespace MirrorSharp.Tests {
     public class FSharpProjectOptionsExtensionsTests {
@@ -104,7 +104,7 @@ namespace MirrorSharp.Tests {
                 false,
                 DateTime.MinValue,
                 null,
-                FSharpList<Tuple<global::FSharp.Compiler.Range.range, string, string>>.Empty,
+                FSharpList<Tuple<range, string, string>>.Empty,
                 null,
                 null
             );

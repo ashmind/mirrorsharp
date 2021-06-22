@@ -1,4 +1,4 @@
-using FSharp.Compiler.AbstractIL.Internal;
+using FSharp.Compiler.SourceCodeServices;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Abstraction;
 
@@ -9,7 +9,7 @@ namespace MirrorSharp.FSharp.Internal {
         private readonly MirrorSharpFSharpOptions _options;
 
         static FSharpLanguage() {
-            Library.Shim.FileSystem = CustomFileSystem.Instance;
+            FileSystemAutoOpens.FileSystem = CustomFileSystem.Instance;
         }
 
         public FSharpLanguage(MirrorSharpFSharpOptions options) {

@@ -2,18 +2,18 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
-using FSharp.Compiler.AbstractIL.Internal;
+using FSharp.Compiler.SourceCodeServices;
 using MirrorSharp.FSharp.Advanced;
 using MirrorSharp.Internal;
 
 namespace MirrorSharp.FSharp.Internal {
-    internal class CustomFileSystem : Library.Shim.IFileSystem {
+    internal class CustomFileSystem : IFileSystem {
         private const string VirtualTempPath = @"V:\virtualfs#temp\";
 
         private readonly ConcurrentDictionary<string, FSharpVirtualFile> _virtualFiles = new ConcurrentDictionary<string, FSharpVirtualFile>();
         private readonly ConcurrentDictionary<string, byte[]> _fileBytesCache = new ConcurrentDictionary<string, byte[]>();
         private readonly ConcurrentDictionary<string, bool> _fileExistsCache = new ConcurrentDictionary<string, bool>();
-        
+
         public static CustomFileSystem Instance { get; } = new CustomFileSystem();
 
         private CustomFileSystem() {
