@@ -89,7 +89,7 @@ namespace MirrorSharp.Internal {
             var last = first;
             await handler.ExecuteAsync(
                 new AsyncData(
-                    _inputBuffer.AsMemory(1),
+                    _inputBuffer.AsMemory(1, first.Count - 1),
                     !first.EndOfMessage,
                     // Can we avoid this allocation?
                     async () => {

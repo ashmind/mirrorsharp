@@ -22,7 +22,7 @@ namespace MirrorSharp.Tests {
     public class ConnectionTests {
         [Fact]
         public async Task ReceiveAndProcessAsync_CallsMatchingCommand() {
-            var socketMock = MockWebSocketToReceive("X");
+            var socketMock = MockWebSocketToReceive("X123");
 
             var session = MirrorSharpTestDriver.New().Session;
             var handler = MockCommandHandler('X');
@@ -32,6 +32,7 @@ namespace MirrorSharp.Tests {
             await connection.ReceiveAndProcessAsync(cancellationToken);
 
             var call = Assert.Single(handler.Calls.ExecuteAsync());
+            Assert.Equal("123", Encoding.UTF8.GetString(call.data.GetFirst().Span));
             Assert.Equal(session, call.session);
             Assert.Equal(connection, call.sender);
             Assert.Equal(cancellationToken, call.cancellationToken);
