@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using FSharp.Compiler.SourceCodeServices;
+using FSharp.Compiler.CodeAnalysis;
 using Microsoft.FSharp.Core;
 using System.IO;
 

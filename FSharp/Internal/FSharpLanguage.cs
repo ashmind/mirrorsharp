@@ -1,4 +1,4 @@
-using FSharp.Compiler.SourceCodeServices;
+using FSharp.Compiler.IO;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Abstraction;
 

@@ -3,7 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.FSharp.Collections;
-using FSharp.Compiler.SourceCodeServices;
+using FSharp.Compiler.CodeAnalysis;
+using FSharp.Compiler.Diagnostics;
 
 namespace MirrorSharp.FSharp.Advanced {
     /// <summary>Represents a user session based on F# parser.</summary>

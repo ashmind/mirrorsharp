@@ -1,5 +1,6 @@
-using FSharp.Compiler;
-using FSharp.Compiler.SourceCodeServices;
+using FSharp.Compiler.CodeAnalysis;
+using FSharp.Compiler.Diagnostics;
+using FSharp.Compiler.EditorServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
@@ -18,7 +19,7 @@ using SourceText = FSharp.Compiler.Text.SourceText;
 
 namespace MirrorSharp.FSharp.Internal {
     internal class FSharpSession : ILanguageSessionInternal, IFSharpSession {
-        private static readonly Task<CompletionDescription?> NoCompletionDescriptiontTask = Task.FromResult<CompletionDescription?>(null);
+        private static readonly Task<CompletionDescription?> NoCompletionDescriptionTask = Task.FromResult<CompletionDescription?>(null);
 
         private string _text;
         private LineColumnMap? _lastLineMap;
@@ -48,13 +49,12 @@ namespace MirrorSharp.FSharp.Internal {
                 projectId: null,
                 sourceFiles: new[] { "_.fs" },
                 otherOptions: ConvertToOtherOptions(options),
-                referencedProjects: Array.Empty<Tuple<string, FSharpProjectOptions>>(),
+                referencedProjects: Array.Empty<FSharpReferencedProject>(),
                 isIncompleteTypeCheckEnvironment: true,
                 useScriptResolutionRules: false,
                 loadTime: DateTime.Now,
                 unresolvedReferences: null,
                 originalLoadReferences: FSharpList<Tuple<range, string, string>>.Empty,
-                extraProjectInfo: null,
                 stamp: null
             );
         }
@@ -105,15 +105,15 @@ namespace MirrorSharp.FSharp.Internal {
         public async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(CancellationToken cancellationToken) {
             var result = await ParseAndCheckAsync(cancellationToken).ConfigureAwait(false);
             var success = result.CheckAnswer as FSharpCheckFileAnswer.Succeeded;
-            var diagnosticCount = result.ParseResults.Errors.Length + (success?.Item.Errors.Length ?? 0);
+            var diagnosticCount = result.ParseResults.Diagnostics.Length + (success?.Item.Diagnostics.Length ?? 0);
             if (diagnosticCount == 0)
                 return ImmutableArray<Diagnostic>.Empty;
 
             var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>(diagnosticCount);
-            ConvertAndAddTo(diagnostics, result.ParseResults.Errors);
+            ConvertAndAddTo(diagnostics, result.ParseResults.Diagnostics);
 
             if (success != null)
-                ConvertAndAddTo(diagnostics, success.Item.Errors);
+                ConvertAndAddTo(diagnostics, success.Item.Diagnostics);
 
             return diagnostics.MoveToImmutable();
         }
@@ -227,7 +227,7 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public Task<CompletionDescription?> GetCompletionDescriptionAsync(CompletionItem item, CancellationToken cancellationToken) {
-            return NoCompletionDescriptiontTask;
+            return NoCompletionDescriptionTask;
         }
 
         public Task<CompletionChange> GetCompletionChangeAsync(TextSpan completionSpan, CompletionItem item, CancellationToken cancellationToken) {
