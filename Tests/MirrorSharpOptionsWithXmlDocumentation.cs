@@ -6,8 +6,8 @@ namespace MirrorSharp.Tests {
     public static partial class MirrorSharpOptionsWithXmlDocumentation {
         #if NETCOREAPP3_0
         private static readonly string MscorlibReferenceAssemblyPath =
-            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)
-                + @"\dotnet\packs\Microsoft.NETCore.App.Ref\3.0.0\ref\netcoreapp3.0\System.Runtime.dll";
+            AppDomain.CurrentDomain.BaseDirectory
+                + @"\ref-assemblies\System.Runtime.dll";
         #elif NET471
         private static readonly string MscorlibReferenceAssemblyPath =
             Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)

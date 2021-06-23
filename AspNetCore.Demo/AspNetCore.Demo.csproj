@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -22,7 +22,7 @@
     <ProjectReference Include="..\FSharp\FSharp.csproj" />
   </ItemGroup>
 
-  <Target Name="CopyFrameworkXmlDocumentation" AfterTargets="ResolveReferences">
+  <Target Name="CopySdkReferenceAssemblies" AfterTargets="ResolveReferences">
     <ItemGroup>
       <Content Include="@(Reference->'%(RootDir)%(Directory)%(Filename)%(Extension)')"
                Link="@(Reference->'ref-assemblies\%(Filename)%(Extension)')"
