@@ -1,5 +1,6 @@
-using FSharp.Compiler;
-using FSharp.Compiler.SourceCodeServices;
+using FSharp.Compiler.CodeAnalysis;
+using FSharp.Compiler.Diagnostics;
+using FSharp.Compiler.EditorServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
@@ -13,12 +14,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using range = FSharp.Compiler.Range;
+using range = FSharp.Compiler.Text.Range;
 using SourceText = FSharp.Compiler.Text.SourceText;
 
 namespace MirrorSharp.FSharp.Internal {
     internal class FSharpSession : ILanguageSessionInternal, IFSharpSession {
-        private static readonly Task<CompletionDescription?> NoCompletionDescriptiontTask = Task.FromResult<CompletionDescription?>(null);
+        private static readonly Task<CompletionDescription?> NoCompletionDescriptionTask = Task.FromResult<CompletionDescription?>(null);
 
         private string _text;
         private LineColumnMap? _lastLineMap;
@@ -36,7 +37,9 @@ namespace MirrorSharp.FSharp.Internal {
                 tryGetMetadataSnapshot: null,
                 suggestNamesForErrors: true,
                 keepAllBackgroundSymbolUses: false,
-                enableBackgroundItemKeyStoreAndSemanticClassification: false
+                enableBackgroundItemKeyStoreAndSemanticClassification: false,
+                // allows for using signature files to speed up compilation, but mutually exclusive with `keepAssemblyContents`
+                enablePartialTypeChecking: false
             );
             Checker.ImplicitlyStartBackgroundWork = false;
             AssemblyReferencePaths = options.AssemblyReferencePaths;
@@ -46,13 +49,12 @@ namespace MirrorSharp.FSharp.Internal {
                 projectId: null,
                 sourceFiles: new[] { "_.fs" },
                 otherOptions: ConvertToOtherOptions(options),
-                referencedProjects: Array.Empty<Tuple<string, FSharpProjectOptions>>(),
+                referencedProjects: Array.Empty<FSharpReferencedProject>(),
                 isIncompleteTypeCheckEnvironment: true,
                 useScriptResolutionRules: false,
                 loadTime: DateTime.Now,
                 unresolvedReferences: null,
-                originalLoadReferences: FSharpList<Tuple<range.range, string, string>>.Empty,
-                extraProjectInfo: null,
+                originalLoadReferences: FSharpList<Tuple<range, string, string>>.Empty,
                 stamp: null
             );
         }
@@ -103,15 +105,15 @@ namespace MirrorSharp.FSharp.Internal {
         public async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(CancellationToken cancellationToken) {
             var result = await ParseAndCheckAsync(cancellationToken).ConfigureAwait(false);
             var success = result.CheckAnswer as FSharpCheckFileAnswer.Succeeded;
-            var diagnosticCount = result.ParseResults.Errors.Length + (success?.Item.Errors.Length ?? 0);
+            var diagnosticCount = result.ParseResults.Diagnostics.Length + (success?.Item.Diagnostics.Length ?? 0);
             if (diagnosticCount == 0)
                 return ImmutableArray<Diagnostic>.Empty;
 
             var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>(diagnosticCount);
-            ConvertAndAddTo(diagnostics, result.ParseResults.Errors);
+            ConvertAndAddTo(diagnostics, result.ParseResults.Diagnostics);
 
             if (success != null)
-                ConvertAndAddTo(diagnostics, success.Item.Errors);
+                ConvertAndAddTo(diagnostics, success.Item.Diagnostics);
 
             return diagnostics.MoveToImmutable();
         }
@@ -121,7 +123,7 @@ namespace MirrorSharp.FSharp.Internal {
                 return _lastParseAndCheck;
             var sourceText = SourceText.ofString(_text);
             var tuple = await FSharpAsync.StartAsTask(
-                Checker.ParseAndCheckFileInProject("_.fs", 0, sourceText, ProjectOptions, null, null), null, cancellationToken
+                Checker.ParseAndCheckFileInProject("_.fs", 0, sourceText, ProjectOptions, Microsoft.FSharp.Core.FSharpOption<string>.None), null, cancellationToken
             ).ConfigureAwait(false);
 
             _lastParseAndCheck = new FSharpParseAndCheckResults(tuple.Item1, tuple.Item2);
@@ -136,34 +138,35 @@ namespace MirrorSharp.FSharp.Internal {
             return _lastParseAndCheck?.CheckAnswer;
         }
 
-        private void ConvertAndAddTo(ImmutableArray<Diagnostic>.Builder diagnostics, FSharpErrorInfo[] errors) {
-            foreach (var error in errors) {
-                diagnostics.Add(ConvertToDiagnostic(error));
+        private void ConvertAndAddTo(ImmutableArray<Diagnostic>.Builder diagnostics, FSharpDiagnostic[] fsharpDiagnostics) {
+            foreach (var fsharpDiagnostic in fsharpDiagnostics) {
+                diagnostics.Add(ConvertToDiagnostic(fsharpDiagnostic));
             }
         }
 
-        public Diagnostic ConvertToDiagnostic(FSharpErrorInfo error) {
-            Argument.NotNull(nameof(error), error);
+        public Diagnostic ConvertToDiagnostic(FSharpDiagnostic diagnostic) {
+            Argument.NotNull(nameof(diagnostic), diagnostic);
 
             var lineMap = GetLineMap();
-            var severity = error.Severity.Tag == FSharpErrorSeverity.Tags.Error ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning;
+            var severity = diagnostic.Severity.Tag == FSharpDiagnosticSeverity.Tags.Error ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning;
 
-            var startOffset = lineMap.GetOffset(error.Range.StartLine, error.Range.StartColumn);
+            var startOffset = lineMap.GetOffset(diagnostic.Range.StartLine, diagnostic.Range.StartColumn);
             var location = Location.Create(
                 "",
                 new TextSpan(
                     startOffset,
-                    lineMap.GetOffset(error.Range.EndLine, error.Range.EndColumn) - startOffset
+                    lineMap.GetOffset(diagnostic.Range.EndLine, diagnostic.Range.EndColumn) - startOffset
                 ),
                 new LinePositionSpan(
-                    new LinePosition(error.Range.StartLine, error.Range.StartColumn),
-                    new LinePosition(error.Range.EndLine, error.Range.EndColumn)
+                    new LinePosition(diagnostic.Range.StartLine, diagnostic.Range.StartColumn),
+                    new LinePosition(diagnostic.Range.EndLine, diagnostic.Range.EndColumn)
                 )
             );
 
             return Diagnostic.Create(
-                "FS" + error.ErrorNumber.ToString("0000"), "Compiler",
-                error.Message,
+                "FS" + diagnostic.ErrorNumber.ToString("0000"),
+                "Compiler",
+                diagnostic.Message,
                 severity, severity,
                 isEnabledByDefault: false,
                 warningLevel: severity == DiagnosticSeverity.Warning ? 1 : 0,
@@ -196,13 +199,12 @@ namespace MirrorSharp.FSharp.Internal {
                 return null;
 
             var info = GetLineMap().GetLineAndColumn(cursorPosition);
-
-            var symbols = await FSharpAsync.StartAsTask(success.Item.GetDeclarationListSymbols(
+            var symbols = success.Item.GetDeclarationListSymbols(
                 result.ParseResults, info.line.Number,
                 _text.Substring(info.line.Start, info.line.Length),
                 QuickParse.GetPartialLongNameEx(_text.Substring(info.line.Start, info.line.Length), info.column - 1),
-                null, null, null
-            ), null, cancellationToken);
+                Microsoft.FSharp.Core.FSharpOption<Microsoft.FSharp.Core.FSharpFunc<Microsoft.FSharp.Core.Unit, FSharpList<AssemblySymbol>>>.None
+            );
             if (symbols.IsEmpty)
                 return null;
 
@@ -225,7 +227,7 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public Task<CompletionDescription?> GetCompletionDescriptionAsync(CompletionItem item, CancellationToken cancellationToken) {
-            return NoCompletionDescriptiontTask;
+            return NoCompletionDescriptionTask;
         }
 
         public Task<CompletionChange> GetCompletionChangeAsync(TextSpan completionSpan, CompletionItem item, CancellationToken cancellationToken) {

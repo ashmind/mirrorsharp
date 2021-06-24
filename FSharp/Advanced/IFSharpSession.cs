@@ -3,7 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.FSharp.Collections;
-using FSharp.Compiler.SourceCodeServices;
+using FSharp.Compiler.CodeAnalysis;
+using FSharp.Compiler.Diagnostics;
 
 namespace MirrorSharp.FSharp.Advanced {
     /// <summary>Represents a user session based on F# parser.</summary>
@@ -21,10 +22,10 @@ namespace MirrorSharp.FSharp.Advanced {
         /// <returns>Last <see cref="FSharpCheckFileAnswer"/> if still valid, otherwise <c>null</c>.</returns>
         FSharpCheckFileAnswer? GetLastCheckAnswer();
 
-        /// <summary>Converts <see cref="FSharpErrorInfo" /> to a <see cref="Diagnostic" />.</summary>
-        /// <param name="error"><see cref="FSharpErrorInfo" /> value to convert.</param>
-        /// <returns><see cref="Diagnostic" /> value that corresponds to <paramref name="error" />.</returns>
-        Diagnostic ConvertToDiagnostic(FSharpErrorInfo error);
+        /// <summary>Converts <see cref="FSharpDiagnostic" /> to a <see cref="Diagnostic" />.</summary>
+        /// <param name="diagnostic"><see cref="FSharpDiagnostic" /> value to convert.</param>
+        /// <returns><see cref="Diagnostic" /> value that corresponds to <paramref name="diagnostic" />.</returns>
+        Diagnostic ConvertToDiagnostic(FSharpDiagnostic diagnostic);
 
         /// <summary>Converts line and column into a text offset.</summary>
         /// <param name="line">Line to convert (0-based).</param>

@@ -1,9 +1,10 @@
 using System;
 using Microsoft.FSharp.Collections;
-using FSharp.Compiler;
-using FSharp.Compiler.SourceCodeServices;
+using FSharp.Compiler.CodeAnalysis;
 using MirrorSharp.FSharp.Advanced;
 using Xunit;
+using range = FSharp.Compiler.Text.Range;
+using Microsoft.FSharp.Core;
 
 namespace MirrorSharp.Tests {
     public class FSharpProjectOptionsExtensionsTests {
@@ -96,17 +97,16 @@ namespace MirrorSharp.Tests {
         private FSharpProjectOptions NewOptions(string[]? otherOptions = null) {
             return new FSharpProjectOptions(
                 "_",
-                null,
+                FSharpOption<string>.None,
                 new string[0],
                 otherOptions,
-                null,
+                Array.Empty<FSharpReferencedProject>(),
                 false,
                 false,
                 DateTime.MinValue,
-                null,
-                FSharpList<Tuple<global::FSharp.Compiler.Range.range, string, string>>.Empty,
-                null,
-                null
+                FSharpOption<FSharpUnresolvedReferencesSet>.None,
+                FSharpList<Tuple<range, string, string>>.Empty,
+                FSharpOption<long>.None
             );
         }
     }

@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using FSharp.Compiler.SourceCodeServices;
+using FSharp.Compiler.Symbols;
 
 namespace MirrorSharp.FSharp.Internal {
     internal static class SymbolTags {
@@ -12,7 +12,7 @@ namespace MirrorSharp.FSharp.Internal {
         private static ImmutableArray<string> Class { get; } = ImmutableArray.Create("Class");
         private static ImmutableArray<string> Interface { get; } = ImmutableArray.Create("Interface");
         private static ImmutableArray<string> Module { get; } = ImmutableArray.Create("Module");
-            
+
         private static ImmutableArray<string> Property { get; } = ImmutableArray.Create("Property");
         private static ImmutableArray<string> Method { get; } = ImmutableArray.Create("Method");
         private static ImmutableArray<string> Field { get; } = ImmutableArray.Create("Field");

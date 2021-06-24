@@ -1,4 +1,4 @@
-using FSharp.Compiler.SourceCodeServices;
+using FSharp.Compiler.CodeAnalysis;
 
 namespace MirrorSharp.FSharp.Advanced {
     /// <summary>
