@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0.5-preview-2021-06-26-1] - 2021-06-26
+
+### Changed
+- Not user-facing — updated completion flow to fail earlier, before attempting to send incorrect data
+
 ## [2.0.4] - 2021-02-28
 
 ### Fixed

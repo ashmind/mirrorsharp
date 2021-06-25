@@ -1,6 +1,7 @@
 import type { Message, ServerOptions } from '../interfaces/protocol';
 import type { SelfDebug } from './self-debug';
 import { addEvents } from '../helpers/add-events';
+import { ensureDefined } from '../helpers/ensure-defined';
 
 const eventKeys = ['open', 'message', 'error', 'close'] as const;
 
@@ -150,9 +151,12 @@ export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
     }
 
     sendCompletionState(indexOrCommand: 'info'|'force'|number|'cancel', indexIfInfo?: number) {
+        // common bug -- the specific flow is not fully clear yet,
+        // but there is no reason to send null/undefined to server if it will fail anyway
+        ensureDefined(indexOrCommand, 'completion command');
         const argument = indexOrCommand !== 'info'
             ? (stateCommandMap[indexOrCommand] ?? indexOrCommand)
-            : 'I' + indexIfInfo;
+            : 'I' + ensureDefined(indexIfInfo, 'completion info index');
         return this.#sendWhenOpen('S' + argument);
     }
 
