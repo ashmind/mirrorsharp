@@ -16,6 +16,8 @@ namespace MirrorSharp.Internal {
         private static readonly ConcurrentDictionary<string, string> LowerInvariantStrings = new();
 
         public static int Utf8BytesToInt32(ReadOnlySpan<byte> bytes) {
+            Argument.NotEmpty(nameof(bytes), bytes);
+
             var result = 0;
             foreach (var @byte in bytes) {
                 if (@byte < Utf8Zero || @byte > Utf8Nine)
@@ -27,6 +29,8 @@ namespace MirrorSharp.Internal {
         }
 
         public static char Utf8BytesToChar(ReadOnlySpan<byte> bytes) {
+            Argument.NotEmpty(nameof(bytes), bytes);
+
             if (bytes.Length == 1)
                 return (char)bytes[0];
 

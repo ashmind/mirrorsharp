@@ -96,6 +96,17 @@ namespace MirrorSharp.Internal {
             return value;
         }
 
+        /// <summary>
+        /// Verifies that a given <see cref="ReadOnlySpan{T}"/> argument value is not empty and returns the value provided.
+        /// </summary>
+        /// <param name="name">Argument name.</param>
+        /// <param name="value">Argument value.</param>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="value"/> is empty.</exception>
+        /// <returns><paramref name="value"/> if it is not empty.</returns>
+        public static ReadOnlySpan<T> NotEmpty<T>(string name, ReadOnlySpan<T> value) {
+            return !value.IsEmpty ? value : throw NewArgumentEmptyException(name);
+        }
+
         private const string PotentialDoubleEnumeration = "Using NotNullOrEmpty with plain IEnumerable may cause double enumeration. Please use a collection instead.";
 
         /// <summary>

@@ -8,9 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="node_modules\**" />
-    <EmbeddedResource Remove="node_modules\**" />
-    <None Remove="node_modules\**" />
     <Compile Remove="dist\**" />
     <EmbeddedResource Remove="dist\**" />
     <None Remove="dist\**" />

@@ -1,11 +1,13 @@
 # Changelog
 
+## [2.2.7-preview-2021-07-08-1] - 2021-07-08-1
 ## [2.2.6] - 2021-06-22
 ## [2.2.5] - 2021-06-21
 ## [2.2.4] - 2021-06-20
 
 ### Changed
 - Internal refactoring (no API changes)
+- Internal diagnostics to investigate specific issues
 
 ## [2.2.3] - 2021-03-04
 ## [2.2.2] - 2020-12-17
