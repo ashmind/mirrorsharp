@@ -99,5 +99,16 @@ namespace MirrorSharp.Tests {
                 changes.Changes.Select(c => new { c.Start, c.Length, c.Text })
             );
         }
+
+        // Signature help is not supported, but should not crash either
+        [Fact]
+        public async void SignatureHelpState_ReturnsEmptySignatures_WhenForced() {
+            var driver = MirrorSharpTestDriver.New(Options, FSharpLanguage.Name);
+            driver.SetTextWithCursor("|");
+
+            var signatures = await driver.SendWithOptionalResultAsync<SignaturesResult>(CommandIds.SignatureHelpState, "F");
+
+            Assert.Null(signatures);
+        }
     }
 }

@@ -45,6 +45,9 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         }
 
         public Task ForceSignatureHelpAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            if (!session.IsRoslyn)
+                return Task.CompletedTask;
+
             var trigger = new SignatureHelpTriggerInfoData(SignatureHelpTriggerReason.InvokeSignatureHelpCommand);
             return TryApplySignatureHelpAsync(session, sender, cancellationToken, trigger);
         }

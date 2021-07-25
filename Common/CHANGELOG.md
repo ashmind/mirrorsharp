@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.2.7] - 2021-05-07
+
+### Fixed
+- Error when force-requesting signature help for F#
+
 ## [2.2.7-preview-2021-07-08-1] - 2021-07-08-1
 ## [2.2.6] - 2021-06-22
 ## [2.2.5] - 2021-06-21

@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Owin", "Owin\Owin.csproj", "{00CC1A50-B233-4045-9540-CB2316808C1B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAssets", "WebAssets\WebAssets.csproj", "{FF13139E-69D3-472E-B4FE-AC2623AD67B9}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{35D73C72-267B-4598-ABC0-F1E1BACDE451}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Testing", "Testing\Testing.csproj", "{0814C69A-E4A5-4FC9-BC57-415F8295B6B6}"
@@ -41,7 +39,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.RoslynLatest", "Tests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Demo.Library", "AspNetCore.Demo.Library\AspNetCore.Demo.Library.csproj", "{2FD91F17-E789-4789-A1F6-5D794E6B6DA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{7A8A4E1B-4BBF-4EB9-A84C-0EEAC9821461}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{7A8A4E1B-4BBF-4EB9-A84C-0EEAC9821461}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,8 +55,6 @@ Global
 		{00CC1A50-B233-4045-9540-CB2316808C1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00CC1A50-B233-4045-9540-CB2316808C1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00CC1A50-B233-4045-9540-CB2316808C1B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FF13139E-69D3-472E-B4FE-AC2623AD67B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FF13139E-69D3-472E-B4FE-AC2623AD67B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35D73C72-267B-4598-ABC0-F1E1BACDE451}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{35D73C72-267B-4598-ABC0-F1E1BACDE451}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35D73C72-267B-4598-ABC0-F1E1BACDE451}.Release|Any CPU.ActiveCfg = Release|Any CPU
