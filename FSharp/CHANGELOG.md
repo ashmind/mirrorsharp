@@ -1,6 +1,11 @@
 # Changelog
 
-## [0.21.0] - 2020-06-23
+## [0.22.0] - 2021-08-04
+
+### Fixed
+- Fixed WorkSessionExtensions.IsFSharp failing if session is a mock
+
+## [0.21.0] - 2021-06-23
 
 ### Added
 - Updated to support FSharp.Compiler.Service version 40 by @baronfel
