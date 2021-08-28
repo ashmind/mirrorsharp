@@ -15,6 +15,10 @@ if (language === 'F#') {
 else if (mode === 'script') {
     textarea.value = 'var messages = Context.Messages;';
 }
+else if (language === 'IL') {
+    textarea.value = '.class private auto ansi \'<Module>\'\r\n{\r\n}';
+}
+
 
 const ms = mirrorsharp(textarea, {
     serviceUrl: window.location.href.replace(/^http(s?:\/\/[^/]+).*$/i, 'ws$1/mirrorsharp'),

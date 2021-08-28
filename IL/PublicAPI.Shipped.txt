@@ -1,0 +1,8 @@
+#nullable enable
+MirrorSharp.IL.Advanced.IILSession
+MirrorSharp.IL.Advanced.WorkSessionExtensions
+MirrorSharp.IL.MirrorSharpILOptions
+MirrorSharp.MirrorSharpOptionsExtensions
+static MirrorSharp.MirrorSharpOptionsExtensions.EnableIL(this MirrorSharp.MirrorSharpOptions! options, System.Action<MirrorSharp.IL.MirrorSharpILOptions!>? setup = null) -> MirrorSharp.MirrorSharpOptions!
+static MirrorSharp.IL.Advanced.WorkSessionExtensions.IL(this MirrorSharp.Advanced.IWorkSession! session) -> MirrorSharp.IL.Advanced.IILSession!
+static MirrorSharp.IL.Advanced.WorkSessionExtensions.IsIL(this MirrorSharp.Advanced.IWorkSession! session) -> bool

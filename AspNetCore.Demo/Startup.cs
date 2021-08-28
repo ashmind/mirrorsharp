@@ -37,6 +37,7 @@ namespace MirrorSharp.AspNetCore.Demo {
                     o.MetadataReferences = GetAllReferences().ToImmutableList();
                 })
                 .EnableFSharp()
+                .EnableIL()
             ));
         }
 
