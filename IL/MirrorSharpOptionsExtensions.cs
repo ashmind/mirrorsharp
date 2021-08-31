@@ -5,8 +5,7 @@ using MirrorSharp.IL.Internal;
 using MirrorSharp.Internal;
 
 // ReSharper disable once CheckNamespace
-namespace MirrorSharp
-{
+namespace MirrorSharp {
     public static class MirrorSharpOptionsExtensions
     {
         // ReSharper disable once InconsistentNaming
