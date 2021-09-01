@@ -15,6 +15,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("MirrorSharp.FSharp")]
 [assembly: InternalsVisibleTo("MirrorSharp.VisualBasic")]
 [assembly: InternalsVisibleTo("MirrorSharp.Php")]
+[assembly: InternalsVisibleTo("MirrorSharp.IL")]
 [assembly: InternalsVisibleTo("MirrorSharp.Owin")]
 [assembly: InternalsVisibleTo("MirrorSharp.Testing")]
 [assembly: InternalsVisibleTo("MirrorSharp.Tests")]
