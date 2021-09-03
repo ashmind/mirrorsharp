@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.2.8] - 2021-09-03
+
+### Changed
+- Internal change to support MirrorSharp.IL 0.1
+
 ## [2.2.7] - 2021-05-07
 
 ### Fixed
