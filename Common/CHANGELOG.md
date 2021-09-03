@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.2.8] - 2021-09-03
+
+### Fixed
+- Internals visible for a new MirrorSharp.IL library
+
 ## [2.2.7] - 2021-05-07
 
 ### Fixed
