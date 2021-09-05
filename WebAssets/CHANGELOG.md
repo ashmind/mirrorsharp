@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0.5] - 2021-09-05
+
+### Added
+- Added IL language to the language list
+
 ## [2.0.5-preview-2021-06-26-1] - 2021-06-26
 
 ### Changed
