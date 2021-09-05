@@ -18,7 +18,7 @@ namespace MirrorSharp {
             options.Languages.Add(ILLanguage.Name, () => {
                 var ilOptions = new MirrorSharpILOptions();
                 setup?.Invoke(ilOptions);
-                return new ILLanguage(ilOptions);
+                return new ILLanguage();
             });
             return options;
         }

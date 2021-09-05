@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -11,22 +12,34 @@ using Mobius.ILasm.Core;
 
 namespace MirrorSharp.IL.Internal {
     // ReSharper disable once InconsistentNaming
-    internal class ILSession : ILanguageSessionInternal, IILSession {
-        private string _text;
+    internal class ILSession : ILanguageSessionInternal, IILSession, IILSessionInternal {
+        private readonly StringBuilder _textBuilder;
+        private string? _text;
 
         public ILSession(string text) {
+            _textBuilder = new StringBuilder(text);
             _text = text;
         }
 
         public Driver.Target Target { get; set; }
 
-        public string GetText() => _text;
+        public int TextLength => _textBuilder.Length;
+
+        public string GetText() {
+            _text ??= _textBuilder.ToString();
+            return _text;
+        }
+
+        public StringBuilder GetTextBuilderForReadsOnly() {
+            return _textBuilder;
+        }
 
         public void ReplaceText(string? newText, int start = 0, int? length = null) {
             if (length > 0)
-                _text = _text.Remove(start, length.Value);
+                _textBuilder.Remove(start, length.Value);
             if (newText?.Length > 0)
-                _text = _text.Insert(start, newText);
+                _textBuilder.Insert(start, newText);
+            _text = null;
         }
 
         public Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(CancellationToken cancellationToken) {
