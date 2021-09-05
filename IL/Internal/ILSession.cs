@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -9,17 +7,18 @@ using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.IL.Advanced;
 using MirrorSharp.Internal.Abstraction;
+using Mobius.ILasm.Core;
 
 namespace MirrorSharp.IL.Internal {
     // ReSharper disable once InconsistentNaming
     internal class ILSession : ILanguageSessionInternal, IILSession {
         private string _text;
-        private MirrorSharpILOptions _options;
 
-        public ILSession(string text, MirrorSharpILOptions options) {
+        public ILSession(string text) {
             _text = text;
-            _options = options;
         }
+
+        public Driver.Target Target { get; set; }
 
         public string GetText() => _text;
 

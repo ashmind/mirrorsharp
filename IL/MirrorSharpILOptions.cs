@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MirrorSharp.IL {
+    /// <summary>MirrorSharp options for IL</summary>
     // ReSharper disable once InconsistentNaming
     public class MirrorSharpILOptions {
 

@@ -11,7 +11,16 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>    
   </PropertyGroup>
 
+  <PropertyGroup>
+    <UseLocalILAsm Condition="Exists('..\..\Mobius.ILasm\Mobius.ILASM\Mobius.ILasm.csproj')">True</UseLocalILAsm>
+  </PropertyGroup>
+
   <ItemGroup>
+    <PackageReference Condition="'$(UseLocalILAsm)' != 'True'" Include="Mobius.ILasm" Version="0.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Condition="'$(UseLocalILAsm)' == 'True'" Include="..\..\Mobius.ILasm\Mobius.ILASM\Mobius.ILasm.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 

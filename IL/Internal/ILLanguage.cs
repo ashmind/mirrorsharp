@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Abstraction;
 
@@ -17,6 +14,6 @@ namespace MirrorSharp.IL.Internal {
         }
 
         public ILanguageSessionInternal CreateSession(string text, ILanguageSessionExtensions services)
-            => new ILSession(text, _options);
+            => new ILSession(text);
     }
 }
