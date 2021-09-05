@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Changed IL mode to "text/x-cil" (mode itself is not included yet)
+
 ## [2.0.5] - 2021-09-05
 
 ### Added

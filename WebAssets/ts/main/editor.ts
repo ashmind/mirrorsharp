@@ -53,7 +53,7 @@ const languageModes = {
     'C#': 'text/x-csharp',
     'Visual Basic': 'text/x-vb',
     'F#': 'text/x-fsharp',
-    'IL': 'text/x-il',
+    'IL': 'text/x-cil',
     'PHP': 'application/x-httpd-php'
 } as const;
 
