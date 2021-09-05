@@ -10,7 +10,7 @@ namespace MirrorSharp.IL.Advanced {
         // ReSharper disable once InconsistentNaming
         public static bool IsIL(this IWorkSession session) {
             Argument.NotNull(nameof(session), session);
-            return ((WorkSession)session).LanguageSession is IILSession;
+            return session is WorkSession { LanguageSession: IILSession };
         }
 
         /// <summary>Returns IL session associated with the <see cref="IWorkSession" />, if any; throws otherwise.</summary>
