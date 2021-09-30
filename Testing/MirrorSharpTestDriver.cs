@@ -103,6 +103,10 @@ namespace MirrorSharp.Testing {
             return SendWithOptionalResultAsync<CompletionsResult>(CommandIds.TypeChar, @char);
         }
 
+        internal Task SendBackspaceAsync() {
+            return SendReplaceTextAsync("", Session.CursorPosition - 1, 1, Session.CursorPosition - 1);
+        }
+
         internal async Task<TResult> SendWithRequiredResultAsync<TResult>(char commandId, HandlerTestArgument? argument = null)
             where TResult: class
         {
