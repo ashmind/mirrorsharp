@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+- Updated dependency on System.Buffers to 4.5.1
+
 ## [2.2.2] - 2020-03-04
 
 ### Changed

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+- Updated dependency on System.Memory to 4.5.4
+
 ## [2.2.8] - 2021-09-03
 
 ### Changed
