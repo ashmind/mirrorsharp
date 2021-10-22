@@ -1,5 +1,4 @@
 using System.Linq;
-using Microsoft.CodeAnalysis;
 using MirrorSharp.FSharp.Internal;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing;
@@ -72,6 +71,24 @@ namespace MirrorSharp.Tests {
                     new { DisplayText = "Method", Kind = "method" },
                     new { DisplayText = "ToString", Kind = "method" },
                 },
+                // https://github.com/xunit/assert.xunit/pull/36#issuecomment-578990557
+                result!.Completions.Select(c => new { c.DisplayText, Kind = c.Kinds.SingleOrDefault() })
+            );
+        }
+
+        [Fact]
+        public async void ForceCompletion_ProducesExpectedCompletion_ForDelegateTypeInScope() {
+            var driver = MirrorSharpTestDriver.New(Options, FSharpLanguage.Name);
+            driver.SetTextWithCursor(@"
+                type X = obj
+                type Y = obj -> obj|
+            ".Trim().Replace("                ", ""));
+
+            var result = await driver.SendWithRequiredResultAsync<CompletionsResult>(CommandIds.CompletionState, 'F');
+
+            Assert.NotNull(result);
+            Assert.Contains(
+                new { DisplayText = "Y", Kind = "delegate" },
                 // https://github.com/xunit/assert.xunit/pull/36#issuecomment-578990557
                 result!.Completions.Select(c => new { c.DisplayText, Kind = c.Kinds.SingleOrDefault() })
             );

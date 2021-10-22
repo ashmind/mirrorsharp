@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.23.0] - 2021-10-22
+
+### Fixed
+- Fixed InvalidOperationException in F# completion with function types in scope
+
+### Added
+- Added proper completion icon for local values
+
 ## [0.22.0] - 2021-08-04
 
 ### Fixed
