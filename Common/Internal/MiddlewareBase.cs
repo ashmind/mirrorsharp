@@ -65,7 +65,7 @@ namespace MirrorSharp.Internal {
             Connection? connection = null;
             try {
                 session = new WorkSession(_languageManager.GetLanguage(LanguageNames.CSharp), _options, _extensions);
-                connection = new Connection(socket, session, _handlers, ArrayPool<byte>.Shared, _options, _extensions.ExceptionLogger);
+                connection = new Connection(socket, session, _handlers, ArrayPool<byte>.Shared, _extensions.ConnectionSendViewer, _extensions.ExceptionLogger, _options);
 
                 while (connection.IsConnected) {
                     try {

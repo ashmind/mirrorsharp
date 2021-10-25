@@ -19,6 +19,7 @@ namespace MirrorSharp.AspNetCore.Internal {
             ISlowUpdateExtension? slowUpdate = null,
             IRoslynSourceTextGuard? roslynSourceTextGuard = null,
             IRoslynCompilationGuard? roslynCompilationGuard = null,
+            IConnectionSendViewer? connectionSendViewer = null,
             IExceptionLogger? exceptionLogger = null
         ) : base(options, new ImmutableExtensionServices(
             #pragma warning disable CS0618 // Type or member is obsolete
@@ -26,6 +27,7 @@ namespace MirrorSharp.AspNetCore.Internal {
             slowUpdate ?? options.SlowUpdate,
             roslynSourceTextGuard,
             roslynCompilationGuard,
+            connectionSendViewer,
             exceptionLogger ?? options.ExceptionLogger
             #pragma warning restore CS0618
         )) {

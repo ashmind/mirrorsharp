@@ -2,8 +2,12 @@
 
 ## Unreleased
 
+### Added
+- Prototype implementation for starting in disconnected mode
+
 ### Changed
 - Changed IL mode to "text/x-cil" (mode itself is not included yet)
+- Changed approach to handling of user actions in disconnected mode
 
 ## [2.0.5] - 2021-09-05
 

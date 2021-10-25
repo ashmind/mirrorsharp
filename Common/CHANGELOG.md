@@ -5,6 +5,9 @@
 ### Changed
 - Updated dependency on System.Memory to 4.5.4
 
+### Added
+- Internal prototypes of new extensions (not exposed)
+
 ## [2.2.8] - 2021-09-03
 
 ### Changed
@@ -27,7 +30,7 @@
 ## [2.2.3] - 2021-03-04
 ## [2.2.2] - 2020-12-17
 
-### Changed
+### Added
 - Internal prototypes of new extensions (not exposed)
 
 ## [2.2.1] - 2020-09-12

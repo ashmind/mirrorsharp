@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MirrorSharp.Advanced;
+using MirrorSharp.Advanced.EarlyAccess;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Internal.Results;
 
@@ -14,6 +15,7 @@ namespace MirrorSharp.Internal {
         public static int InputBufferSize => 4096;
 
         private readonly ArrayPool<byte> _bufferPool;
+        private readonly IConnectionSendViewer? _sendViewer;
         private readonly WebSocket _socket;
         private readonly WorkSession _session;
         private readonly ImmutableArray<ICommandHandler> _handlers;
@@ -23,19 +25,23 @@ namespace MirrorSharp.Internal {
         private readonly IConnectionOptions? _options;
         private readonly IExceptionLogger? _exceptionLogger;
 
+        private string? _currentMessageTypeName;
+
         public Connection(
             WebSocket socket,
             WorkSession session,
             ImmutableArray<ICommandHandler> handlers,
             ArrayPool<byte> bufferPool,
-            IConnectionOptions? options = null,
-            IExceptionLogger? exceptionLogger = null
+            IConnectionSendViewer? sendViewer,
+            IExceptionLogger? exceptionLogger,
+            IConnectionOptions? options
         ) {
             _socket = socket;
             _session = session;
             _handlers = handlers;
             _messageWriter = new FastUtf8JsonWriter(bufferPool);
             _options = options;
+            _sendViewer = sendViewer;
             _exceptionLogger = exceptionLogger;
             _bufferPool = bufferPool;
             _inputBuffer = bufferPool.Rent(InputBufferSize);
@@ -141,15 +147,28 @@ namespace MirrorSharp.Internal {
             _messageWriter.Reset();
             _messageWriter.WriteStartObject();
             _messageWriter.WriteProperty("type", messageTypeName);
+            _currentMessageTypeName = messageTypeName;
             return _messageWriter;
         }
 
         private Task SendJsonMessageAsync(CancellationToken cancellationToken) {
             _messageWriter.WriteEndObject();
-            return _socket.SendAsync(
+
+            var viewTask = _sendViewer?.ViewDuringSendAsync(_currentMessageTypeName!, _messageWriter.WrittenSegment, _session, cancellationToken);
+            var sendTask = _socket.SendAsync(
                 _messageWriter.WrittenSegment,
                 WebSocketMessageType.Text, true, cancellationToken
             );
+
+            if (viewTask is { IsCompleted: false })
+                return WhenAll(viewTask, sendTask);
+
+            return sendTask;
+        }
+
+        private async Task WhenAll(Task first, Task second) {
+            await first;
+            await second;
         }
 
         public void Dispose() {

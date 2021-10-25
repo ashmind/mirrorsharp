@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+- Internal changes to support latest MirrorSharp.Common
+
 ## [2.3.3] - 2020-03-04
 
 ### Changed
