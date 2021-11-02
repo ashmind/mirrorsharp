@@ -5,6 +5,9 @@
 ### Added
 - Prototype implementation for starting in disconnected mode
 
+### Fixed
+- Edge cases of option handling on reconnects
+
 ### Changed
 - Changed IL mode to "text/x-cil" (mode itself is not included yet)
 - Changed approach to handling of user actions in disconnected mode
