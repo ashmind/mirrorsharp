@@ -4,6 +4,7 @@
 
 ### Changed
 - Updated dependency on System.Memory to 4.5.4
+- Made WorkSession.Extensions values nullable
 
 ### Added
 - Internal prototypes of new extensions (not exposed)

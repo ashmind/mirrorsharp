@@ -56,7 +56,7 @@ namespace MirrorSharp.Internal {
 
         public IDictionary<string, string> RawOptionsFromClient { get; } = new Dictionary<string, string>();
         public SelfDebug? SelfDebug { get; }
-        public IDictionary<string, object> ExtensionData { get; } = new Dictionary<string, object>();
+        public IDictionary<string, object?> ExtensionData { get; } = new Dictionary<string, object?>();
 
         private void EnsureInitialized() {
             if (_languageSession != null)

@@ -26,7 +26,7 @@ namespace MirrorSharp.Tests {
 
             var session = MirrorSharpTestDriver.New().Session;
             var handler = MockCommandHandler('X');
-            var connection = new Connection(socketMock, session, CreateCommandHandlers(handler), ArrayPool<byte>.Shared);
+            var connection = CreateConnection(socketMock, session, handler);
             var cancellationToken = new CancellationTokenSource().Token;
 
             await connection.ReceiveAndProcessAsync(cancellationToken);
@@ -53,10 +53,18 @@ namespace MirrorSharp.Tests {
                     next = await data.GetNextAsync();
                 }
             });
-            var connection = new Connection(socketMock, session, CreateCommandHandlers(handler), ArrayPool<byte>.Shared);
+            var connection = CreateConnection(socketMock, session, handler);
 
             await connection.ReceiveAndProcessAsync(CancellationToken.None);
             Assert.Equal(longArgument, string.Join("", segments.Select(s => Encoding.UTF8.GetString(s.ToArray()))));
+        }
+
+        private Connection CreateConnection(WebSocket socketMock, WorkSession session, CommandHandlerMock handler) {
+            return new Connection(
+                socketMock, session, CreateCommandHandlers(handler),
+                ArrayPool<byte>.Shared,
+                sendViewer: null, exceptionLogger: null, options: null
+            );
         }
 
         private ReadOnlyMemory<T> Copy<T>(ReadOnlyMemory<T> segment) {
