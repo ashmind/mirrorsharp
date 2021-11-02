@@ -74,11 +74,12 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly #removeConnectionEvents: () => void;
 
     #language: Language;
-    #serverOptions: ServerOptions&TExtensionServerOptions;
+    #serverOptions: ServerOptions & TExtensionServerOptions;
+    #pendingServerOptions: (ServerOptions & TExtensionServerOptions) | null | undefined;
 
     #lintingSuspended = true;
     #hadChangesSinceLastLinting = false;
-    #capturedUpdateLinting: CodeMirror.UpdateLintingCallback|null|undefined;
+    #capturedUpdateLinting: CodeMirror.UpdateLintingCallback | null | undefined;
 
     #changePending = false;
     #changeReason: string|null = null;
@@ -194,7 +195,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         this.#hideConnectionLoss();
         if (!this.#hasDefaultServerOptions()) {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.#connection.sendSetOptions(this.#serverOptions);
+            this.#connection.sendSetOptions(this.#pendingServerOptions ?? this.#serverOptions);
         }
 
         const text = this.#cm.getValue();
@@ -492,18 +493,20 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     };
 
     #hasDefaultServerOptions = () => {
-        const keys = Object.keys(this.#serverOptions);
+        const keys = Object.keys(this.#pendingServerOptions ?? this.#serverOptions);
         return keys.length === 1
             && keys[0] === 'language'
             && this.#serverOptions.language === defaultLanguage;
     };
 
-    #sendServerOptions = async (value: ServerOptions|Partial<ServerOptions&TExtensionServerOptions>) => {
+    #sendServerOptions = async (value: ServerOptions | Partial<ServerOptions & TExtensionServerOptions>) => {
+        this.#pendingServerOptions = { ...this.#serverOptions, ...value };
         await this.#connection.sendSetOptions(value);
         await this.#requestSlowUpdate(true);
     };
 
     #receiveServerOptions = (value: ServerOptions&TExtensionServerOptions) => {
+        this.#pendingServerOptions = null;
         this.#serverOptions = { ...this.#serverOptions, ...value };
         // TODO: understand later
         // eslint-disable-next-line no-undefined
