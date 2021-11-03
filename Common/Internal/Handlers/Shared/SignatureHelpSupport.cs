@@ -64,11 +64,14 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             if (trigger.TriggerReason == SignatureHelpTriggerReason.TypeCharCommand && !provider.IsTriggerCharacter(trigger.TriggerCharacter!.Value))
                 return false;
 
-            var help = await provider.GetItemsAsync(session.Roslyn.Document, session.CursorPosition, trigger, cancellationToken).ConfigureAwait(false);
+            var options = SignatureHelpOptionsData.From(session.Roslyn.Project);
+            var help = await provider.GetItemsAsync(session.Roslyn.Document, session.CursorPosition, trigger, options, cancellationToken).ConfigureAwait(false);
             if (!sendIfEmpty && help == null)
                 return false;
 
-            session.Roslyn.CurrentSignatureHelp = help != null ? new CurrentSignatureHelp(provider, help) : (CurrentSignatureHelp?)null;
+            session.Roslyn.CurrentSignatureHelp = help != null
+                ? new CurrentSignatureHelp(provider, help)
+                : null;
             await SendSignatureHelpAsync(help, sender, cancellationToken).ConfigureAwait(false);
             return true;
         }

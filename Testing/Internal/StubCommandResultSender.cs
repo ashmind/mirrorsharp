@@ -16,7 +16,7 @@ namespace MirrorSharp.Testing.Internal {
         public string? LastMessageTypeName { get; private set; }
         public string? LastMessageJson { get; private set; }
 
-        public StubCommandResultSender(WorkSession session, IConnectionSendViewer? sendViewer) {
+        public StubCommandResultSender(WorkSession session, IConnectionSendViewer? sendViewer = null) {
             _session = session;
             _sendViewer = sendViewer;
         }

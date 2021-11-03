@@ -9,6 +9,9 @@
 ### Added
 - Internal prototypes of new extensions (not exposed)
 
+### Fixed
+- Fixed incompatibility with Microsoft.CodeAnalysis 4.1.0+
+
 ## [2.2.8] - 2021-09-03
 
 ### Changed

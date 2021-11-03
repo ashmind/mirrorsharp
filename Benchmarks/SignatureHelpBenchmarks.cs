@@ -27,13 +27,13 @@ namespace MirrorSharp.Benchmarks {
 
         [Benchmark]
         public void TypeCharExpectingSignatureHelp() {
-            _handler!.ExecuteAsync(LeftParenthesis, _sessionWithHelp!, new StubCommandResultSender(), CancellationToken.None)
+            _handler!.ExecuteAsync(LeftParenthesis, _sessionWithHelp!, new StubCommandResultSender(_sessionWithHelp!), CancellationToken.None)
                 .GetAwaiter().GetResult();
         }
 
         [Benchmark]
         public void TypeCharNotExpectingSignatureHelp() {
-            _handler!.ExecuteAsync(Semicolon, _sessionWithNoHelp!, new StubCommandResultSender(), CancellationToken.None)
+            _handler!.ExecuteAsync(Semicolon, _sessionWithNoHelp!, new StubCommandResultSender(_sessionWithHelp!), CancellationToken.None)
                 .GetAwaiter().GetResult();
         }
     }

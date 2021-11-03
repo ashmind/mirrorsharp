@@ -17,6 +17,8 @@ namespace MirrorSharp.Internal.Reflection {
         public static readonly TypeInfo ISignatureHelpProvider = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.ISignatureHelpProvider", true)!.GetTypeInfo();
         public static readonly TypeInfo SignatureHelpTriggerInfo = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpTriggerInfo", true)!.GetTypeInfo();
         public static readonly TypeInfo SignatureHelpTriggerReason = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpTriggerReason", true)!.GetTypeInfo();
+        // This type only exists in latest Roslyn
+        public static readonly TypeInfo? SignatureHelpOptions = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpOptions", false)?.GetTypeInfo();
         public static readonly TypeInfo SignatureHelpItems = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpItems", true)!.GetTypeInfo();
         public static readonly TypeInfo SignatureHelpItem = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpItem", true)!.GetTypeInfo();
         public static readonly TypeInfo SignatureHelpParameter = MicrosoftCodeAnalysisFeatures.GetType("Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpParameter", true)!.GetTypeInfo();

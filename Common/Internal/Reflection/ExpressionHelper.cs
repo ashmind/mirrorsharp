@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -25,6 +25,10 @@ namespace MirrorSharp.Internal.Reflection {
 
         public static IndexExpression Property(this Expression expression, string propertyName, params Expression[] arguments) {
             return Expression.Property(expression, propertyName, arguments);
+        }
+
+        public static MemberExpression Field(this Expression expression, string fieldName) {
+            return Expression.Field(expression, fieldName);
         }
 
         public static MethodCallExpression Call(this Expression expression, string methodName) {
