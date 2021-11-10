@@ -17,8 +17,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.9.0" />
-    <PackageReference Include="FSharp.Compiler.Service" Version="40.0.0" />
-    <PackageReference Include="FSharp.Core" Version="5.0.2" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="41.0.1" />
+    <PackageReference Include="FSharp.Core" Version="6.0.1" />
   </ItemGroup>
 
 </Project>
