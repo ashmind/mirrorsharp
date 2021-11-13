@@ -41,7 +41,7 @@ namespace MirrorSharp.FSharp.Internal {
                 // allows for using signature files to speed up compilation, but mutually exclusive with `keepAssemblyContents`
                 enablePartialTypeChecking: false
             );
-            Checker.ImplicitlyStartBackgroundWork = false;
+            // Checker.ImplicitlyStartBackgroundWork = false;
             AssemblyReferencePaths = options.AssemblyReferencePaths;
             AssemblyReferencePathsAsFSharpList = ToFSharpList(options.AssemblyReferencePaths);
             _projectOptions = new FSharpProjectOptions(
