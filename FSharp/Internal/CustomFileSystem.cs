@@ -11,16 +11,6 @@ using MirrorSharp.Internal;
 
 namespace MirrorSharp.FSharp.Internal {
 
-    internal class CustomAssemblyLoader : IAssemblyLoader {
-        public Assembly AssemblyLoadFrom(string assemboy) {
-            throw new NotImplementedException();
-        }
-
-        public Assembly AssemblyLoad(AssemblyName assemblyName) {
-            return Assembly.Load(assemblyName);
-        }
-    }
-    
     internal class CustomFileSystem : IFileSystem {
         private const string VirtualTempPath = @"V:\virtualfs#temp\";
 
@@ -41,6 +31,9 @@ namespace MirrorSharp.FSharp.Internal {
                 return new NonDisposingStreamWrapper(virtualFile.Stream);
 
             EnsureIsAssemblyFile(filePath);
+            // For some reason, F# compiler requests this for same file many, many times.
+            // Obviously, repeated IO is a bad idea.
+            // Caching isn't great either, but will do for now.
             return new MemoryStream(_fileBytesCache.GetOrAdd(filePath, f => File.ReadAllBytes(f)));
         }
 
@@ -53,6 +46,9 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public string GetFullPathShim(string fileName) {
+            if (IsSpecialRangeFileName(fileName))
+                return fileName;
+
             if (GetVirtualFile(fileName) != null)
                 return fileName;
 
@@ -62,24 +58,18 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public string GetFullFilePathInDirectoryShim(string dir, string fileName) {
-            var p = IsPathRootedShim(fileName) ? fileName : Path.Combine(dir, fileName);
-            try {
-                return GetFullPathShim(p);
-            }
-            catch (Exception ex) when (
-                ex is ArgumentException or ArgumentNullException or NotSupportedException or PathTooLongException or SecurityException
-            ) {
-                return p;
-            }
+            var path = IsPathRootedShim(fileName) ? fileName : Path.Combine(dir, fileName);
+            return GetFullPathShim(path);
         }
 
         public string GetDirectoryNameShim(string path) {
             if (path == "")
                 return ".";
+
             var dirName = Path.GetDirectoryName(path);
-            if (dirName == null) {
+            if (dirName == null)
                 return IsPathRootedShim(path) ? path : ".";
-            }
+
             return dirName == "" ? "." : dirName;
         }
 
@@ -154,14 +144,7 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public string NormalizePathShim(string path) {
-            try {
-                return IsPathRootedShim(path) 
-                    ? GetFullPathShim(path) 
-                    : path;
-            }
-            catch {
-                return path;
-            }
+            return GetFullPathShim(path);
         }
 
         public bool IsInvalidPathShim(string filename) {
@@ -197,6 +180,14 @@ namespace MirrorSharp.FSharp.Internal {
 
         private static bool IsSourceFile(string fileName) {
             return fileName.EndsWith(".fs", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsSpecialRangeFileName(string fileName) {
+            // File names used for ranges that are outside of specific source files
+            // https://github.com/dotnet/fsharp/blob/dc81e22205550f0cedf4295b06c3a1e338c1cfa1/src/fsharp/range.fs#L226-L228
+            return fileName is "unknown" or "startup" or "commandLineArgs"
+                // https://github.com/dotnet/fsharp/blob/dc81e22205550f0cedf4295b06c3a1e338c1cfa1/src/fsharp/service/ServiceParsedInputOps.fs#L548
+                or "";
         }
 
         public FSharpVirtualFile RegisterVirtualFile(MemoryStream stream) {
