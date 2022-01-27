@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0; net471</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1; net471</TargetFrameworks>
     <AssemblyName>MirrorSharp.Tests</AssemblyName>
     <RootNamespace>MirrorSharp.Tests</RootNamespace>
     <IsPackable>false</IsPackable>
@@ -32,7 +32,7 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="CopySdkReferenceAssemblies" AfterTargets="ResolveReferences" Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+  <Target Name="CopySdkReferenceAssemblies" AfterTargets="ResolveReferences" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <ItemGroup>
       <Content Include="@(Reference->'%(RootDir)%(Directory)%(Filename)%(Extension)')"
                Link="@(Reference->'ref-assemblies\%(Filename)%(Extension)')"

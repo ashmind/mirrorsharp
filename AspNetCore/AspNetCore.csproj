@@ -4,7 +4,7 @@
   <PropertyGroup>
     <AssemblyName>MirrorSharp.AspNetCore</AssemblyName>
     <RootNamespace>MirrorSharp.AspNetCore</RootNamespace>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <VersionPrefix>3.0.3</VersionPrefix>
     <Description>MirrorSharp ASP.NET Core server. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;CodeMirror</PackageTags>
