@@ -1,12 +1,15 @@
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net.WebSockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Internal.Handlers.Shared;
+using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal {
     internal abstract class MiddlewareBase {
@@ -60,11 +63,38 @@ namespace MirrorSharp.Internal {
             return _handlers[commandId - 'A'];
         }
 
+        protected async Task SlowTestStatusAsync(CancellationToken cancellationToken) {
+            using var sender = new NullCommandResultSender(ArrayPool<byte>.Shared);
+            using var session = StartWorkSession();
+
+            Task ExecuteAsync(char commandId, string command) {
+                var byteCount = Encoding.UTF8.GetByteCount(command);
+                byte[]? bytes = null;
+                try {
+                    bytes = ArrayPool<byte>.Shared.Rent(byteCount);
+                    Encoding.UTF8.GetBytes(command, 0, command.Length, bytes, 0);
+                    var asyncData = new AsyncData(bytes.AsMemory(0, byteCount), false, () => throw new());
+                    return GetHandler(commandId).ExecuteAsync(asyncData, session, sender, cancellationToken);
+                }
+                finally {
+                    if (bytes != null)
+                        ArrayPool<byte>.Shared.Return(bytes);
+                }
+            }
+
+            if (_options.StatusTestCommands.Count == 0)
+                throw new NotSupportedException("TODO: Implement default command sequence before a NuGet release");
+
+            foreach (var (commandId, commandText) in _options.StatusTestCommands) {
+                await ExecuteAsync(commandId, commandText).ConfigureAwait(false);
+            }
+        }
+
         protected async Task WebSocketLoopAsync(WebSocket socket, CancellationToken cancellationToken) {
             WorkSession? session = null;
             Connection? connection = null;
             try {
-                session = new WorkSession(_languageManager.GetLanguage(LanguageNames.CSharp), _options, _extensions);
+                session = StartWorkSession();
                 connection = new Connection(socket, session, _handlers, ArrayPool<byte>.Shared, _extensions.ConnectionSendViewer, _extensions.ExceptionLogger, _options);
 
                 while (connection.IsConnected) {
@@ -84,6 +114,10 @@ namespace MirrorSharp.Internal {
                     session?.Dispose();
                 }
             }
+        }
+
+        private WorkSession StartWorkSession() {
+            return new WorkSession(_languageManager.GetLanguage(LanguageNames.CSharp), _options, _extensions);
         }
     }
 }

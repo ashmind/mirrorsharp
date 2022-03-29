@@ -1,4 +1,4 @@
-﻿using MirrorSharp.Internal.Reflection;
+using MirrorSharp.Internal.RoslynInterfaces;
 
 namespace MirrorSharp.Internal {
     internal struct CurrentSignatureHelp {

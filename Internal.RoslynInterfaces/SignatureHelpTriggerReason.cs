@@ -1,4 +1,4 @@
-﻿namespace MirrorSharp.Internal.Reflection {
+namespace MirrorSharp.Internal.RoslynInterfaces {
     internal enum SignatureHelpTriggerReason {
         InvokeSignatureHelpCommand,
         TypeCharCommand,

@@ -1,11 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
     <AssemblyName>MirrorSharp.Tests.RoslynLatest</AssemblyName>
     <RootNamespace>MirrorSharp.Tests</RootNamespace>
     <IsPackable>false</IsPackable>
+    <NoWarn>VSTHRD200</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -16,13 +17,13 @@
   </PropertyGroup>  
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.1.0-2.21552.7" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.1.0-2.21552.7" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="4.1.0-2.21552.7" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.3.0-1.22179.12" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.3.0-1.22179.12" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="4.3.0-1.22179.12" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="SourceMock" Version="0.10.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
     <PackageReference Include="coverlet.collector" Version="1.0.1" />
   </ItemGroup>
 
@@ -37,7 +38,7 @@
     <Compile Include="../Tests/**/*.cs" Exclude="../Tests/obj/**; ../Tests/Php*.cs; ../Tests/FSharp*.cs" />
   </ItemGroup>
 
-  <Target Name="CopySdkReferenceAssemblies" AfterTargets="ResolveReferences" Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+  <Target Name="CopySdkReferenceAssemblies" AfterTargets="ResolveReferences">
     <ItemGroup>
       <Content Include="@(Reference->'%(RootDir)%(Directory)%(Filename)%(Extension)')"
                Link="@(Reference->'ref-assemblies\%(Filename)%(Extension)')"

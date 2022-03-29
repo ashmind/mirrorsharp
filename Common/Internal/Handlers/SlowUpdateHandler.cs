@@ -8,7 +8,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using MirrorSharp.Advanced;
-using MirrorSharp.Internal.Reflection;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal.Handlers {
@@ -74,14 +73,15 @@ namespace MirrorSharp.Internal.Handlers {
             await sender.SendJsonMessageAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        private static void WriteActions(IFastJsonWriter writer, ImmutableArray<CodeAction> actions, WorkSession session) {
+        private void WriteActions(IFastJsonWriter writer, ImmutableArray<CodeAction> actions, WorkSession session) {
             var roslynSession = session.Roslyn;
+            var codeActionInternals = roslynSession.RoslynInternals.CodeAction;
             foreach (var action in actions) {
                 if (action is CodeActionWithOptions)
                     continue;
 
-                if (RoslynReflection.IsInlinable(action)) {
-                    WriteActions(writer, RoslynReflection.GetNestedCodeActions(action), session);
+                if (codeActionInternals.IsInlinable(action)) {
+                    WriteActions(writer, codeActionInternals.GetNestedCodeActions(action), session);
                     continue;
                 }
                 var id = roslynSession.CurrentCodeActions.Count;

@@ -11,15 +11,17 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal.Abstraction;
-using MirrorSharp.Internal.Reflection;
+using MirrorSharp.Internal.RoslynInterfaces;
 
 namespace MirrorSharp.Internal.Roslyn {
     internal abstract class RoslynLanguageBase : ILanguage {
         private readonly IRoslynLanguageOptions _options;
+        private readonly CompositionHost _compositionHost;
         private readonly MefHostServices _hostServices;
         private readonly ImmutableArray<ISignatureHelpProviderWrapper> _defaultSignatureHelpProviders;
         private readonly ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> _codeFixProvidersIndexedByDiagnosticIds;
         private readonly ImmutableArray<DiagnosticAnalyzer> _analyzers;
+        private readonly RoslynInternals _roslynInternals;
 
         protected RoslynLanguageBase(
             string name,
@@ -28,29 +30,39 @@ namespace MirrorSharp.Internal.Roslyn {
             IRoslynLanguageOptions options
         ) {
             Name = name;
-            _hostServices = CreateHostServices(featuresAssemblyName, workspacesAssemblyName);
+            _compositionHost = CreateCompositionHost(featuresAssemblyName, workspacesAssemblyName);
+            _hostServices = MefHostServices.Create(_compositionHost);
 
             _options = options;
             _codeFixProvidersIndexedByDiagnosticIds = CreateDefaultCodeFixProvidersSlow();
             _analyzers = ImmutableArray.CreateRange(
                 _options.AnalyzerReferences.SelectMany(r => r.GetAnalyzers(Name))
             );
-            _defaultSignatureHelpProviders = CreateDefaultSignatureHelpProvidersSlow();
+            _roslynInternals = RoslynInternals.Get(_compositionHost);
+            _defaultSignatureHelpProviders = ImmutableArray.CreateRange(
+                _roslynInternals.SingatureHelpProviderResolver.GetAllSlow(languageName: Name)
+            );
         }
 
-        private MefHostServices CreateHostServices(string featuresAssemblyName, string workspacesAssemblyName) {
+        private CompositionHost CreateCompositionHost(string featuresAssemblyName, string workspacesAssemblyName) {
             var types = new[] {
                 RoslynAssemblies.MicrosoftCodeAnalysisWorkspaces,
                 RoslynAssemblies.MicrosoftCodeAnalysisFeatures,
                 Assembly.Load(new AssemblyName(featuresAssemblyName)),
-                Assembly.Load(new AssemblyName(workspacesAssemblyName))
+                Assembly.Load(new AssemblyName(workspacesAssemblyName)),
+                RoslynInternals.LoadInternalsAssemblySlow()
             }.SelectMany(a => a.DefinedTypes).Where(ShouldConsiderForHostServices);
 
             var configuration = new ContainerConfiguration().WithParts(types);
-            return MefHostServices.Create(configuration.CreateContainer());
+            return configuration.CreateContainer();
         }
 
-        protected virtual bool ShouldConsiderForHostServices(Type type) => true;
+        protected virtual bool ShouldConsiderForHostServices(Type type)
+            => type.FullName is not (
+                "Microsoft.CodeAnalysis.SolutionCrawler.SolutionCrawlerRegistrationService"
+                or
+                "Microsoft.CodeAnalysis.Host.DefaultWorkspaceEventListenerServiceFactory"
+            );
 
         public string Name { get; }
 
@@ -74,15 +86,8 @@ namespace MirrorSharp.Internal.Roslyn {
                 _analyzers,
                 _codeFixProvidersIndexedByDiagnosticIds,
                 _defaultSignatureHelpProviders,
+                _roslynInternals,
                 extensions
-            );
-        }
-
-        private ImmutableArray<ISignatureHelpProviderWrapper> CreateDefaultSignatureHelpProvidersSlow() {
-            return ImmutableArray.CreateRange(
-                RoslynReflection.GetSignatureHelpProvidersSlow(_hostServices)
-                    .Where(l => l.Metadata.Language == Name)
-                    .Select(l => l.Value)
             );
         }
 

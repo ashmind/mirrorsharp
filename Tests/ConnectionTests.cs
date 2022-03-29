@@ -84,7 +84,9 @@ namespace MirrorSharp.Tests {
         private CommandHandlerMock MockCommandHandler(char commandId, Func<AsyncData, Task>? execute = null) {
             var handler = new CommandHandlerMock();
             handler.Setup.CommandId.Returns(commandId);
+            #pragma warning disable VSTHRD110 // Observe result of async calls
             handler.Setup.ExecuteAsync().Runs((data, ss, sn, t) => execute?.Invoke(data) ?? Task.CompletedTask);
+            #pragma warning restore VSTHRD110 // Observe result of async calls
             return handler;
         }
 
@@ -97,9 +99,9 @@ namespace MirrorSharp.Tests {
         private static WebSocket MockWebSocketToReceive(string command) {
             var mock = new WebSocketMock();
             var dataStream = new MemoryStream(Encoding.UTF8.GetBytes(command));
-            mock.Setup.ReceiveAsync(default(MockArgumentMatcher<ArraySegment<byte>>)).Runs((ArraySegment<byte> data, CancellationToken _) => {
-                var count = dataStream.Read(data.Array!, data.Offset, data.Count);
-                return Task.FromResult(new WebSocketReceiveResult(count, WebSocketMessageType.Text, dataStream.Position == dataStream.Length));
+            mock.Setup.ReceiveAsync(default(MockArgumentMatcher<ArraySegment<byte>>)).Runs(async (ArraySegment<byte> data, CancellationToken _) => {
+                var count = await dataStream.ReadAsync(data.Array!, data.Offset, data.Count);
+                return new WebSocketReceiveResult(count, WebSocketMessageType.Text, dataStream.Position == dataStream.Length);
             });
             return mock;
         }

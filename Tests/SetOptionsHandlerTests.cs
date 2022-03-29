@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using MirrorSharp.Advanced;
 using MirrorSharp.Advanced.Mocks;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing;
@@ -17,14 +17,14 @@ namespace MirrorSharp.Tests {
         [Theory]
         [InlineData(LanguageNames.CSharp)]
         [InlineData(LanguageNames.VisualBasic)]
-        public async void ExecuteAsync_UpdatesSessionLanguage(string languageName) {
+        public async Task ExecuteAsync_UpdatesSessionLanguage(string languageName) {
             var driver = MirrorSharpTestDriver.New(new MirrorSharpOptions().EnableVisualBasic());
             await driver.SendAsync(SetOptions, "language=" + languageName);
             Assert.Equal(languageName, driver.Session.Language.Name);
         }
 
         [Fact]
-        public async void ExecuteAsync_CallsSetOptionExtension_IfOptionHasExtensionPrefix() {
+        public async Task ExecuteAsync_CallsSetOptionExtension_IfOptionHasExtensionPrefix() {
             var extensionMock = new SetOptionsFromClientExtensionMock();
             extensionMock.Setup.TrySetOption().Returns(true);
 
@@ -38,7 +38,7 @@ namespace MirrorSharp.Tests {
         }
 
         [Fact]
-        public async void ExecuteAsync_ReappliesExtensionOption_WhenChangingLanguage() {
+        public async Task ExecuteAsync_ReappliesExtensionOption_WhenChangingLanguage() {
             var extensionMock = new SetOptionsFromClientExtensionMock();
             extensionMock.Setup.TrySetOption().Returns(true);
 
@@ -56,7 +56,7 @@ namespace MirrorSharp.Tests {
         }
 
         [Fact]
-        public async void ExecuteAsync_DoesNotApplyExtensionOptionTwice_WhenChangingLanguage_IfOptionIsSentWithLanguageChange() {
+        public async Task ExecuteAsync_DoesNotApplyExtensionOptionTwice_WhenChangingLanguage_IfOptionIsSentWithLanguageChange() {
             var extensionMock = new SetOptionsFromClientExtensionMock();
             extensionMock.Setup.TrySetOption().Returns(true);
 
@@ -74,7 +74,7 @@ namespace MirrorSharp.Tests {
         }
 
         [Fact]
-        public async void ExecuteAsync_EchoesOptionsIncludingPreviousCalls() {
+        public async Task ExecuteAsync_EchoesOptionsIncludingPreviousCalls() {
             var extensionMock = new SetOptionsFromClientExtensionMock();
             extensionMock.Setup.TrySetOption().Returns(true);
 

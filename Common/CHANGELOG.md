@@ -5,11 +5,13 @@
 ### Changed
 - Updated dependency on System.Memory to 4.5.4
 - Made WorkSession.Extensions values nullable
+- Internal restructuring (Common is now split into multiple internal packages)
 
 ### Added
 - Internal prototypes of new extensions (not exposed)
 
 ### Fixed
+- Fixed incompatibility with Microsoft.CodeAnalysis 4.2.0+
 - Fixed incompatibility with Microsoft.CodeAnalysis 4.1.0+
 
 ## [2.2.8] - 2021-09-03

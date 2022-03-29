@@ -14,7 +14,7 @@ namespace MirrorSharp.Tests {
 
     public class ReplaceTextHandlerTests {
         [Fact]
-        public async void ExecuteAsync_AddsCompleteText_IfTextIsSplitIntoSeveralBuffers() {
+        public async Task ExecuteAsync_AddsCompleteText_IfTextIsSplitIntoSeveralBuffers() {
             var driver = MirrorSharpTestDriver.New();
             await driver.SendAsync(ReplaceText, new[] { "0:0:0::x", "123456789", "123456789" });
 
@@ -22,7 +22,7 @@ namespace MirrorSharp.Tests {
         }
 
         [Fact]
-        public async void ExecuteAsync_AddsCompleteText_IfTextIsSplitInTwoBuffersInTheMiddleOfUtf8Char() {
+        public async Task ExecuteAsync_AddsCompleteText_IfTextIsSplitInTwoBuffersInTheMiddleOfUtf8Char() {
             var driver = MirrorSharpTestDriver.New();
             var bytes = Encoding.UTF8.GetBytes("0:0:0::☀");
             await driver.SendAsync(ReplaceText, new[] {
@@ -39,7 +39,7 @@ namespace MirrorSharp.Tests {
         [InlineData("abc", "0:0:2::", "abc", 2)]
         [InlineData("abc", "3:0:0::x:y", "abcx:y", 0)]
         [InlineData("abc", "0:0:0:test:x", "xabc", 0)]
-        public async void ExecuteAsync_AddsSpecifiedCharacter(string initialText, string dataString, string expectedText, int expectedCursorPosition) {
+        public async Task ExecuteAsync_AddsSpecifiedCharacter(string initialText, string dataString, string expectedText, int expectedCursorPosition) {
             var driver = MirrorSharpTestDriver.New().SetText(initialText);
             await driver.SendAsync(ReplaceText, dataString);
 

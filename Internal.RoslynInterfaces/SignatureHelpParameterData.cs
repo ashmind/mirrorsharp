@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 
-namespace MirrorSharp.Internal.Reflection {
+namespace MirrorSharp.Internal.RoslynInterfaces {
     internal class SignatureHelpParameterData {
-        // see FromInternalTypeExpressionSlow
         public SignatureHelpParameterData(
             string name,
             Func<CancellationToken, IEnumerable<TaggedText>> documentationFactory,
@@ -27,16 +24,5 @@ namespace MirrorSharp.Internal.Reflection {
         public IList<TaggedText> DisplayParts { get; }
         public IList<TaggedText> PrefixDisplayParts { get; }
         public IList<TaggedText> SuffixDisplayParts { get; }
-
-        public static Expression FromInternalTypeExpressionSlow(Expression expression) {
-            return Expression.New(
-                typeof(SignatureHelpParameterData).GetTypeInfo().GetConstructors()[0],
-                expression.Property(nameof(Name)),
-                expression.Property(nameof(DocumentationFactory)),
-                expression.Property(nameof(DisplayParts)),
-                expression.Property(nameof(PrefixDisplayParts)),
-                expression.Property(nameof(SuffixDisplayParts))
-            );
-        }
     }
 }

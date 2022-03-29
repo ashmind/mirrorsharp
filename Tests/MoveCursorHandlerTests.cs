@@ -13,7 +13,7 @@ namespace MirrorSharp.Tests {
         [InlineData("1", 1)]
         [InlineData("79", 79)]
         [InlineData("1234567890", 1234567890)]
-        public async void ExecuteAsync_UpdatesSessionCursorPosition(string dataString, int expectedPosition) {
+        public async Task ExecuteAsync_UpdatesSessionCursorPosition(string dataString, int expectedPosition) {
             var driver = MirrorSharpTestDriver.New();
             await driver.SendAsync(MoveCursor, dataString);
             Assert.Equal(expectedPosition, driver.Session.CursorPosition);

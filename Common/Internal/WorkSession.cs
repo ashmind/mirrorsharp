@@ -1,10 +1,11 @@
+using System;
 using System.Collections.Generic;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Abstraction;
 using MirrorSharp.Internal.Roslyn;
 
 namespace MirrorSharp.Internal {
-    internal class WorkSession : IWorkSession {
+    internal class WorkSession : IWorkSession, IDisposable {
         private readonly ILanguageSessionExtensions _extensions;
         private ILanguage _language;
         private ILanguageSessionInternal? _languageSession;

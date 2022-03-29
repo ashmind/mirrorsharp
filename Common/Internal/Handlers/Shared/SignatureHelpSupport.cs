@@ -1,10 +1,8 @@
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using MirrorSharp.Advanced;
-using MirrorSharp.Internal.Reflection;
 using MirrorSharp.Internal.Results;
+using MirrorSharp.Internal.RoslynInterfaces;
 
 namespace MirrorSharp.Internal.Handlers.Shared {
     internal class SignatureHelpSupport : ISignatureHelpSupport {

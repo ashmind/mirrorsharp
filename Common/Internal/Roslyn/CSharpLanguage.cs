@@ -11,10 +11,9 @@ namespace MirrorSharp.Internal.Roslyn {
         ) {
         }
 
-        protected override bool ShouldConsiderForHostServices(Type type) {            
-            return
-                // IntelliCode type, not available in normal environments
-                type.FullName != "Microsoft.CodeAnalysis.ExternalAccess.Pythia.PythiaSignatureHelpProvider";
-        }
+        protected override bool ShouldConsiderForHostServices(Type type)
+            => base.ShouldConsiderForHostServices(type)
+            // IntelliCode type, not available in normal environments
+            && type.FullName != "Microsoft.CodeAnalysis.ExternalAccess.Pythia.PythiaSignatureHelpProvider";
     }
 }
