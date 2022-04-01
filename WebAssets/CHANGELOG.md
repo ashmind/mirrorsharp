@@ -1,9 +1,9 @@
 # Changelog
 
-## Unreleased
+## [2.1.0] - 2022-04-01
 
 ### Added
-- Prototype implementation for starting in disconnected mode
+- Option `noInitialConnection` for starting in disconnected mode
 
 ### Fixed
 - Edge cases of option handling on reconnects
