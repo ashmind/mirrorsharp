@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace MirrorSharp.Internal.RoslynInterfaces {
+namespace MirrorSharp.Internal.Roslyn.Internals {
     internal struct SignatureHelpOptionsData {
         public Project Project { get; }
 

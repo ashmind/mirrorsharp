@@ -14,11 +14,11 @@ using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Advanced;
 using MirrorSharp.Advanced.EarlyAccess;
 using MirrorSharp.Internal.Abstraction;
-using MirrorSharp.Internal.RoslynInterfaces;
+using MirrorSharp.Internal.Roslyn.Internals;
 
 namespace MirrorSharp.Internal.Roslyn {
     internal class RoslynSession : ILanguageSessionInternal, IRoslynSession {
-        private static AnalyzerOptions EmptyAnalyzerOptions = new AnalyzerOptions(ImmutableArray<AdditionalText>.Empty);
+        private static AnalyzerOptions EmptyAnalyzerOptions = new (ImmutableArray<AdditionalText>.Empty);
 
         private static readonly TextChange[] NoTextChanges = new TextChange[0];
 

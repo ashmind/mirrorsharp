@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Internal.Abstraction;
-using MirrorSharp.Internal.RoslynInterfaces;
+using MirrorSharp.Internal.Roslyn.Internals;
 
 namespace MirrorSharp.Internal.Roslyn {
     internal abstract class RoslynLanguageBase : ILanguage {
@@ -50,7 +50,7 @@ namespace MirrorSharp.Internal.Roslyn {
                 RoslynAssemblies.MicrosoftCodeAnalysisFeatures,
                 Assembly.Load(new AssemblyName(featuresAssemblyName)),
                 Assembly.Load(new AssemblyName(workspacesAssemblyName)),
-                RoslynInternals.LoadInternalsAssemblySlow()
+                RoslynInternals.GetInternalsAssemblySlow()
             }.SelectMany(a => a.DefinedTypes).Where(ShouldConsiderForHostServices);
 
             var configuration = new ContainerConfiguration().WithParts(types);

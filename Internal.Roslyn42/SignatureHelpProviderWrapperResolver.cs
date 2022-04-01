@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Shared.Utilities;
 using Microsoft.CodeAnalysis.SignatureHelp;
-using MirrorSharp.Internal.RoslynInterfaces;
+using MirrorSharp.Internal.Roslyn.Internals;
 
 namespace MirrorSharp.Internal.Roslyn42 {
     [Export(typeof(ISignatureHelpProviderWrapperResolver))]

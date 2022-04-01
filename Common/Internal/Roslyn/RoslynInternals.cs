@@ -1,11 +1,19 @@
 using System;
+#if !NETCOREAPP
+using System.Buffers;
+#endif
 using System.Composition.Hosting;
-using System.IO;
 using System.Reflection;
-using MirrorSharp.Internal.RoslynInterfaces;
+#if NETCOREAPP
+using System.Runtime.Loader;
+#endif
+using System.Threading;
+using MirrorSharp.Internal.Roslyn.Internals;
 
 namespace MirrorSharp.Internal.Roslyn {
     internal class RoslynInternals {
+        private static readonly Lazy<Assembly> _internalAssembly = new(LoadInternalsAssemblySlow, LazyThreadSafetyMode.PublicationOnly);
+
         public RoslynInternals(
             ICodeActionInternals codeAction,
             IWorkspaceAnalyzerOptionsInternals workspaceAnalyzerOptions,
@@ -29,25 +37,38 @@ namespace MirrorSharp.Internal.Roslyn {
             );
         }
 
-        public static Assembly LoadInternalsAssemblySlow() {
+        public static Assembly GetInternalsAssemblySlow() {
+            return _internalAssembly.Value;
+        }
+
+        private static Assembly LoadInternalsAssemblySlow() {
             var roslynVersion = RoslynAssemblies.MicrosoftCodeAnalysis.GetName().Version;
 
             var assemblyName = roslynVersion switch {
-                { Major: > 4 } => "MirrorSharp.Internal.Roslyn42",
-                { Major: 4, Minor: >= 2 } => "MirrorSharp.Internal.Roslyn42",
-                { Major: 4, Minor: 1 } => "MirrorSharp.Internal.Roslyn41",
-                { Major: 4 } => "MirrorSharp.Internal.Roslyn36",
-                { Major: 3, Minor: >= 6 } => "MirrorSharp.Internal.Roslyn36",
-                { Major: 3, Minor: >= 3 } => "MirrorSharp.Internal.Roslyn33",
+                { Major: > 4 } => "MirrorSharp.Internal.Roslyn42.dll",
+                { Major: 4, Minor: >= 2 } => "MirrorSharp.Internal.Roslyn42.dll",
+                { Major: 4, Minor: 1 } => "MirrorSharp.Internal.Roslyn41.dll",
+                { Major: 4 } => "MirrorSharp.Internal.Roslyn36.dll",
+                { Major: 3, Minor: >= 6 } => "MirrorSharp.Internal.Roslyn36.dll",
+                { Major: 3, Minor: >= 3 } => "MirrorSharp.Internal.Roslyn33.dll",
                 _ => throw new NotSupportedException()
             };
 
-            var basePath = AppDomain.CurrentDomain.BaseDirectory!;
-            if (AppDomain.CurrentDomain.RelativeSearchPath is { } relativePath)
-                basePath = Path.Combine(basePath, relativePath);
-
-            var assemblyPath = Path.Combine(basePath, assemblyName + ".dll");
-            return Assembly.LoadFrom(assemblyPath);
+            using var assemblyStream = typeof(RoslynInternals).Assembly.GetManifestResourceStream(assemblyName)!;
+            #if NETCOREAPP
+            return AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
+            #else
+            byte[]? assemblyBytes = null;
+            try {
+                assemblyBytes = ArrayPool<byte>.Shared.Rent((int)assemblyStream.Length);
+                assemblyStream.Read(assemblyBytes, 0, assemblyBytes.Length);
+                return Assembly.Load(assemblyBytes);
+            }
+            finally {
+                if (assemblyBytes != null)
+                    ArrayPool<byte>.Shared.Return(assemblyBytes);
+            }
+            #endif
         }
     }
 }

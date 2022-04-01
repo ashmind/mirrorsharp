@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 
-namespace MirrorSharp.Internal.RoslynInterfaces {
+namespace MirrorSharp.Internal.Roslyn.Internals {
     internal struct SignatureHelpItemData {
         // see FromInternalTypeExpressionSlow
         public SignatureHelpItemData(

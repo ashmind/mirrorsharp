@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Text;
 
-namespace MirrorSharp.Internal.RoslynInterfaces {
+namespace MirrorSharp.Internal.Roslyn.Internals {
     internal class SignatureHelpItemsData {
         public SignatureHelpItemsData(
             IEnumerable<SignatureHelpItemData> items,

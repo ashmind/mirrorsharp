@@ -23,5 +23,4 @@
     <ProjectReference Condition="'$(UseLocalILAsm)' == 'True'" Include="..\..\Mobius.ILasm\Mobius.ILASM\Mobius.ILasm.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
-
 </Project>

@@ -1,10 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>MirrorSharp.Internal.Roslyn42</AssemblyName>
     <RootNamespace>MirrorSharp.Internal.Roslyn42</RootNamespace>
-    <VersionPrefix>1.0.0-test-2022-04-01-1</VersionPrefix>
-    <Description>Internal MirrorSharp component — reference MirrorSharp.Common instead. $(DescriptionSuffix)</Description>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -26,6 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Internal.RoslynInterfaces\Internal.RoslynInterfaces.csproj" />
+    <ProjectReference Include="..\Internal.RoslynInternals\Internal.RoslynInternals.csproj" />
   </ItemGroup>
 </Project>

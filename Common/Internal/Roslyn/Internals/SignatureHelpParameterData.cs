@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 
-namespace MirrorSharp.Internal.RoslynInterfaces {
+namespace MirrorSharp.Internal.Roslyn.Internals {
     internal class SignatureHelpParameterData {
         public SignatureHelpParameterData(
             string name,

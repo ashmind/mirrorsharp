@@ -1,4 +1,4 @@
-namespace MirrorSharp.Internal.RoslynInterfaces {
+namespace MirrorSharp.Internal.Roslyn.Internals {
     internal struct SignatureHelpTriggerInfoData {
         public SignatureHelpTriggerReason TriggerReason { get; }
         public char? TriggerCharacter { get; }
