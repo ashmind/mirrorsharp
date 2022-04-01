@@ -1,9 +1,12 @@
 # Changelog
 
-## [Unreleased]
+## [3.0.0-test-2021-04-01] - 2021-04-01
 
 ### Changed
-- Internal changes to support latest MirrorSharp.Common
+- Updated to support MirrorSharp.Common 3.0.0
+
+### Removed
+- Obsolete method UseMirrorSharp is now marked Obsolete(true) and will not compile
 
 ## [2.3.3] - 2020-03-04
 

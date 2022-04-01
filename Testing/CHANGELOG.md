@@ -1,11 +1,10 @@
 # Changelog
 
-## [Unreleased]
+## [3.0.0-test-2022-04-01-1] - 2021-04-01
 
 ### Changed
+- Updated to support MirrorSharp.Common 3.0.0
 - Updated dependency on System.Buffers to 4.5.1
-- Internal API changes
-- Internal changes to support latest MirrorSharp.Common
 
 ## [2.2.2] - 2020-03-04
 

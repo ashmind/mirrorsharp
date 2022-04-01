@@ -13,7 +13,7 @@ namespace MirrorSharp.AspNetCore {
         /// <param name="app">The app builder.</param>
         /// <param name="options">The <see cref="MirrorSharpOptions" /> object used by the MirrorSharp middleware.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("This method will be removed in the next major version. Use app.MapMirrorSharp() instead.")]
+        [Obsolete("This method will be removed in the next major version. Use app.MapMirrorSharp() instead.", true)]
         public static IApplicationBuilder UseMirrorSharp(this IApplicationBuilder app, MirrorSharpOptions? options = null) {
             Argument.NotNull(nameof(app), app);
             app.UseMiddleware<Middleware>(options ?? new MirrorSharpOptions());

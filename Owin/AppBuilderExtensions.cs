@@ -11,7 +11,7 @@ namespace MirrorSharp.Owin {
         /// <param name="app">The app builder.</param>
         /// <param name="options">The <see cref="MirrorSharpOptions" /> object used by the MirrorSharp middleware.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("This method will be removed in the next major version. Use app.MapMirrorSharp() instead.")]
+        [Obsolete("This method will be removed in the next major version. Use app.MapMirrorSharp() instead.", true)]
         public static IAppBuilder UseMirrorSharp(this IAppBuilder app, MirrorSharpOptions? options = null) {
             Argument.NotNull(nameof(app), app);
             app.Use(typeof(Middleware), options ?? new MirrorSharpOptions());

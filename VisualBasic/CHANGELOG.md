@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.0.0-test-2022-04-01-1] - 2021-04-01
+
+### Changed
+- Updated to support MirrorSharp.Common 3.0.0
+
 ## [2.1.2] - 2020-12-17
 
 ### Changed

@@ -1,8 +1,9 @@
 # Changelog
 
-## [Unreleased]
+## [3.0.0-test-2022-04-01-1] - 2022-04-01
 
 ### Changed
+- Updated minimum .NET Core target to 3.1 (.NET Standard 2.0 should still allow older targets)
 - Updated dependency on System.Memory to 4.5.4
 - Made WorkSession.Extensions values nullable
 - Internal restructuring (Common is now split into multiple internal packages)
@@ -13,6 +14,9 @@
 ### Fixed
 - Fixed incompatibility with Microsoft.CodeAnalysis 4.2.0+
 - Fixed incompatibility with Microsoft.CodeAnalysis 4.1.0+
+
+### Removed
+- Some obsolete properties on MirrorSharpOptions are now marked Obsolete(true) and will not compile
 
 ## [2.2.8] - 2021-09-03
 

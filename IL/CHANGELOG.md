@@ -1,9 +1,12 @@
 # Changelog
 
-## [Unreleased]
+## [0.2-test-2021-04-01] - 2021-04-01
 
 ### Added
 - Target setting on IILSession
+
+### Changed
+- Updated to support MirrorSharp.Common 3.0.0
 
 ### Fixed
 - WorkSession.IsIL() check failing if WorkSession is a mock
