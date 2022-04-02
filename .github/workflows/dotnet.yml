@@ -20,7 +20,7 @@ jobs:
           dotnet-version: 3.1.x
     - uses: actions/setup-dotnet@v1
       with:
-          dotnet-version: 5.0.x
+          dotnet-version: 6.0.x
 
     # https://github.com/actions/setup-dotnet/issues/155#issuecomment-748452076
     - run: dotnet nuget locals all --clear
