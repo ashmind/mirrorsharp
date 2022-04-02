@@ -13,3 +13,4 @@ obj/
 /WebAssets/coverage
 /Owin.Demo/wwwroot
 /AspNetCore.Demo/wwwroot
+/AspNetCore.Demo.Net6/wwwroot

@@ -5,11 +5,10 @@
     <AssemblyName>MirrorSharp.VisualBasic</AssemblyName>
     <RootNamespace>MirrorSharp.VisualBasic</RootNamespace>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <VersionPrefix>3.0.0-test-2022-04-01-1</VersionPrefix>
+    <VersionPrefix>3.0.0-test-2022-04-02-1</VersionPrefix>
     <Description>MirrorSharp Visual Basic .NET support library. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;Visual Basic;CodeMirror</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.5' ">$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;portable-net45+win8</PackageTargetFallback>
   </PropertyGroup>
 
   <ItemGroup>

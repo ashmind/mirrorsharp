@@ -5,7 +5,7 @@
     <AssemblyName>MirrorSharp.IL</AssemblyName>
     <RootNamespace>MirrorSharp.IL</RootNamespace>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <VersionPrefix>0.2-test-2022-04-01-1</VersionPrefix>
+    <VersionPrefix>0.2-test-2022-04-02-1</VersionPrefix>
     <Description>MirrorSharp IL support library. $(DescriptionSuffix)</Description>
     <PackageTags>IL;CodeMirror</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>    
