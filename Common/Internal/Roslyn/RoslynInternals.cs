@@ -45,8 +45,9 @@ namespace MirrorSharp.Internal.Roslyn {
             var roslynVersion = RoslynAssemblies.MicrosoftCodeAnalysis.GetName().Version;
 
             var assemblyName = roslynVersion switch {
-                { Major: > 4 } => "MirrorSharp.Internal.Roslyn42.dll",
-                { Major: 4, Minor: >= 2 } => "MirrorSharp.Internal.Roslyn42.dll",
+                { Major: > 4 } => "MirrorSharp.Internal.Roslyn43.dll",
+                { Major: 4, Minor: >= 3 } => "MirrorSharp.Internal.Roslyn43.dll",
+                { Major: 4, Minor: 2 } => "MirrorSharp.Internal.Roslyn42.dll",
                 { Major: 4, Minor: 1 } => "MirrorSharp.Internal.Roslyn41.dll",
                 { Major: 4 } => "MirrorSharp.Internal.Roslyn36.dll",
                 { Major: 3, Minor: >= 6 } => "MirrorSharp.Internal.Roslyn36.dll",

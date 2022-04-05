@@ -16,6 +16,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("MirrorSharp.Internal.Roslyn36")]
 [assembly: InternalsVisibleTo("MirrorSharp.Internal.Roslyn41")]
 [assembly: InternalsVisibleTo("MirrorSharp.Internal.Roslyn42")]
+[assembly: InternalsVisibleTo("MirrorSharp.Internal.Roslyn43")]
 [assembly: InternalsVisibleTo("MirrorSharp.FSharp")]
 [assembly: InternalsVisibleTo("MirrorSharp.VisualBasic")]
 [assembly: InternalsVisibleTo("MirrorSharp.Php")]
