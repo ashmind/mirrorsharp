@@ -11,7 +11,7 @@ namespace MirrorSharp.FSharp.Advanced {
         /// <remarks><see cref="FSharpVirtualFile.Dispose()" /> should be used to deregister the file.</remarks>
         public static FSharpVirtualFile RegisterVirtualFile(MemoryStream stream) {
             Argument.NotNull(nameof(stream), stream);
-            return CustomFileSystem.Instance.RegisterVirtualFile(stream);
+            return CustomFileSystem.Instance.RegisterVirtualFile(static s => s, stream);
         }
     }
 }

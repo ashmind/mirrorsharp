@@ -17,9 +17,9 @@ using Newtonsoft.Json;
 
 namespace MirrorSharp.Testing {
     public class MirrorSharpTestDriver {
-        private static readonly MirrorSharpOptions DefaultOptions = new MirrorSharpOptions();
-        private static readonly MirrorSharpServices DefaultServices = new MirrorSharpServices();
-        private static readonly ConcurrentDictionary<MirrorSharpOptions, LanguageManager> LanguageManagerCache = new ConcurrentDictionary<MirrorSharpOptions, LanguageManager>();
+        private static readonly MirrorSharpOptions DefaultOptions = new();
+        private static readonly MirrorSharpServices DefaultServices = new();
+        private static readonly ConcurrentDictionary<MirrorSharpOptions, LanguageManager> LanguageManagerCache = new();
 
         private readonly TestMiddleware _middleware;
         private readonly MirrorSharpServices _services;

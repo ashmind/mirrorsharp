@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- (Breaking) Renamed FSharpVirtualFile.Name to Path
+
+### Fixed
+- Multiple edge cases in the file management and error reporting
+
+### Removed
+- (Breaking) Removed FSharpVirtualFile.Stream
+
 ## [1.0.0] - 2021-04-04
 ## [1.0.0-test-2021-04-02-1] - 2021-04-02
 ## [1.0.0-test-2021-04-01-1] - 2021-04-01
