@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Composition;
 using System.Composition.Hosting;
 using System.Linq;
 using System.Reflection;
@@ -45,6 +46,9 @@ namespace MirrorSharp.Internal.Roslyn {
         }
 
         private CompositionHost CreateCompositionHost(string featuresAssemblyName, string workspacesAssemblyName) {
+            // TODO: Naive way to force-load "System.Composition.AttributedModel" -- TODO: improve/investigate
+            _ = typeof(ExportAttribute).Assembly;
+
             var types = new[] {
                 RoslynAssemblies.MicrosoftCodeAnalysisWorkspaces,
                 RoslynAssemblies.MicrosoftCodeAnalysisFeatures,
