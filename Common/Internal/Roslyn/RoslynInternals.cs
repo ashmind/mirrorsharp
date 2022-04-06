@@ -42,8 +42,23 @@ namespace MirrorSharp.Internal.Roslyn {
         }
 
         private static Assembly LoadInternalsAssemblySlow() {
-            var roslynVersion = RoslynAssemblies.MicrosoftCodeAnalysis.GetName().Version;
+            var roslynVersion = RoslynAssemblies.MicrosoftCodeAnalysis.GetName().Version!;
+            var assembly = LoadInternalsAssemblySlow(roslynVersion);
+            // CI build. TODO: SharpLab only?
+            if (roslynVersion.Major == 42 && roslynVersion.Minor == 42) {                
+                try {
+                    _ = assembly.DefinedTypes;
+                }
+                catch (ReflectionTypeLoadException) {
+                    // Try previous version, in case CI is not on newest yet
+                    assembly = LoadInternalsAssemblySlow(new Version(4, 2));
+                }             
+            }
 
+            return assembly;
+        }
+
+        private static Assembly LoadInternalsAssemblySlow(Version roslynVersion) {
             var assemblyName = roslynVersion switch {
                 { Major: > 4 } => "MirrorSharp.Internal.Roslyn43.dll",
                 { Major: 4, Minor: >= 3 } => "MirrorSharp.Internal.Roslyn43.dll",
