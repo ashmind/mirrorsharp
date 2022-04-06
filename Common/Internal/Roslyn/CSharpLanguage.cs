@@ -3,7 +3,8 @@ using Microsoft.CodeAnalysis;
 
 namespace MirrorSharp.Internal.Roslyn {
     internal class CSharpLanguage : RoslynLanguageBase {
-        public CSharpLanguage(MirrorSharpCSharpOptions options) : base(
+        public CSharpLanguage(LanguageCreationContext context, MirrorSharpCSharpOptions options) : base(
+            context,
             LanguageNames.CSharp,
             "Microsoft.CodeAnalysis.CSharp.Features",
             "Microsoft.CodeAnalysis.CSharp.Workspaces",

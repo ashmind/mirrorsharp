@@ -4,6 +4,6 @@ using MirrorSharp.Internal.Abstraction;
 
 namespace MirrorSharp.Internal {
     internal interface ILanguageManagerOptions {
-        IDictionary<string, Func<ILanguage>> Languages { get; }
+        IDictionary<string, Func<LanguageCreationContext, ILanguage>> Languages { get; }
     }
 }

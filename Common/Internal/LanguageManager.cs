@@ -12,8 +12,9 @@ namespace MirrorSharp.Internal {
         // ReSharper disable HeapView.DelegateAllocation
         // ReSharper disable HeapView.ObjectAllocation.Possible
         public LanguageManager(ILanguageManagerOptions options) {
+            var context = new LanguageCreationContext();
             foreach (var language in options.Languages) {
-                _languages.Add(language.Key, new Lazy<ILanguage>(language.Value, LazyThreadSafetyMode.ExecutionAndPublication));
+                _languages.Add(language.Key, new Lazy<ILanguage>(() => language.Value(context), LazyThreadSafetyMode.ExecutionAndPublication));
             }
         }
         // ReSharper restore HeapView.ObjectAllocation.Possible

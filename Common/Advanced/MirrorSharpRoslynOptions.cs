@@ -100,10 +100,13 @@ namespace MirrorSharp.Advanced {
             return new AnalyzerFileReference(assembly.Location, new PreloadedAnalyzerAssemblyLoader(assembly));
         }
 
+        internal RoslynInternalsLoadStrategy RoslynInternalsLoadStrategy { get; set; } = RoslynInternalsLoadStrategy.MatchVersion;
+
         ParseOptions IRoslynLanguageOptions.ParseOptions => ParseOptions;
         CompilationOptions IRoslynLanguageOptions.CompilationOptions => CompilationOptions;
         ImmutableList<MetadataReference> IRoslynLanguageOptions.MetadataReferences => MetadataReferences;
         bool IRoslynLanguageOptions.IsScript => _isScript;
         Type? IRoslynLanguageOptions.HostObjectType => _hostObjectType;
+        RoslynInternalsLoadStrategy IRoslynLanguageOptions.RoslynInternalsLoadStrategy => RoslynInternalsLoadStrategy;
     }
 }

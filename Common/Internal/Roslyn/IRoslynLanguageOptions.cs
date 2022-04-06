@@ -9,7 +9,7 @@ namespace MirrorSharp.Internal.Roslyn {
         CompilationOptions CompilationOptions { get; }
         ImmutableList<MetadataReference> MetadataReferences { get; }
         ImmutableList<AnalyzerReference> AnalyzerReferences { get; }
-
+        RoslynInternalsLoadStrategy RoslynInternalsLoadStrategy { get; }
         bool IsScript { get; }
         Type? HostObjectType { get; }
     }

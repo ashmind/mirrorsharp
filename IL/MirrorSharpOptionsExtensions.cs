@@ -15,7 +15,7 @@ namespace MirrorSharp {
         // ReSharper disable once InconsistentNaming
         public static MirrorSharpOptions EnableIL(this MirrorSharpOptions options, Action<MirrorSharpILOptions>? setup = null) {
             Argument.NotNull(nameof(options), options);
-            options.Languages.Add(ILLanguage.Name, () => {
+            options.Languages.Add(ILLanguage.Name, c => {
                 var ilOptions = new MirrorSharpILOptions();
                 setup?.Invoke(ilOptions);
                 return new ILLanguage();

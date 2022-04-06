@@ -9,11 +9,11 @@ using MirrorSharp.Internal.Roslyn;
 namespace MirrorSharp {
     /// <summary>MirrorSharp options object.</summary>
     public sealed class MirrorSharpOptions : IMiddlewareOptions {
-        internal IDictionary<string, Func<ILanguage>> Languages { get; } = new Dictionary<string, Func<ILanguage>>();
+        internal IDictionary<string, Func<LanguageCreationContext, ILanguage>> Languages { get; } = new Dictionary<string, Func<LanguageCreationContext, ILanguage>>();
 
         /// <summary>Creates a new instance of <see cref="MirrorSharpOptions" />.</summary>
         public MirrorSharpOptions() {
-            Languages.Add(LanguageNames.CSharp, () => new CSharpLanguage(CSharp));
+            Languages.Add(LanguageNames.CSharp, c => new CSharpLanguage(c, CSharp));
         }
 
         /// <summary>MirrorSharp options for C#.</summary>
@@ -55,7 +55,7 @@ namespace MirrorSharp {
             return this;
         }
 
-        IDictionary<string, Func<ILanguage>> ILanguageManagerOptions.Languages => Languages;
+        IDictionary<string, Func<LanguageCreationContext, ILanguage>> ILanguageManagerOptions.Languages => Languages;
         IList<(char commandId, string commandText)> IMiddlewareOptions.StatusTestCommands => StatusTestCommands;
     }
 }

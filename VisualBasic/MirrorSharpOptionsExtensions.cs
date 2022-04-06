@@ -17,10 +17,10 @@ namespace MirrorSharp {
         /// <returns>Value of <paramref name="options" />, for convenience.</returns>
         public static MirrorSharpOptions EnableVisualBasic(this MirrorSharpOptions options, Action<MirrorSharpVisualBasicOptions>? setup = null) {
             Argument.NotNull(nameof(options), options);
-            options.Languages.Add(LanguageNames.VisualBasic, () => {
+            options.Languages.Add(LanguageNames.VisualBasic, c => {
                 var visualBasicOptions = new MirrorSharpVisualBasicOptions();
                 setup?.Invoke(visualBasicOptions);
-                return new VisualBasicLanguage(visualBasicOptions);
+                return new VisualBasicLanguage(c, visualBasicOptions);
             });
             return options;
         }

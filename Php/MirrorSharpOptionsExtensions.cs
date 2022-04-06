@@ -12,7 +12,7 @@ namespace MirrorSharp {
         /// <returns>Value of <paramref name="options" />, for convenience.</returns>
         public static MirrorSharpOptions EnablePhp(this MirrorSharpOptions options, Action<MirrorSharpPhpOptions>? setup = null) {
             Argument.NotNull(nameof(options), options);
-            options.Languages.Add(PhpLanguage.Name, () => {
+            options.Languages.Add(PhpLanguage.Name, c => {
                 var phpOptions = new MirrorSharpPhpOptions();
                 setup?.Invoke(phpOptions);
                 return new PhpLanguage(phpOptions);

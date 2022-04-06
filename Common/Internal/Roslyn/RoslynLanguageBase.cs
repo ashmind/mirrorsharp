@@ -6,6 +6,7 @@ using System.Composition.Hosting;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -16,6 +17,8 @@ using MirrorSharp.Internal.Roslyn.Internals;
 
 namespace MirrorSharp.Internal.Roslyn {
     internal abstract class RoslynLanguageBase : ILanguage {
+        private static object RoslynInternalsCacheKey = new();
+
         private readonly IRoslynLanguageOptions _options;
         private readonly CompositionHost _compositionHost;
         private readonly MefHostServices _hostServices;
@@ -25,13 +28,14 @@ namespace MirrorSharp.Internal.Roslyn {
         private readonly RoslynInternals _roslynInternals;
 
         protected RoslynLanguageBase(
+            LanguageCreationContext context,
             string name,
             string featuresAssemblyName,
             string workspacesAssemblyName,
             IRoslynLanguageOptions options
         ) {
             Name = name;
-            _compositionHost = CreateCompositionHost(featuresAssemblyName, workspacesAssemblyName);
+            _compositionHost = CreateCompositionHost(context, featuresAssemblyName, workspacesAssemblyName);
             _hostServices = MefHostServices.Create(_compositionHost);
 
             _options = options;
@@ -45,8 +49,10 @@ namespace MirrorSharp.Internal.Roslyn {
             );
         }
 
-        private CompositionHost CreateCompositionHost(string featuresAssemblyName, string workspacesAssemblyName) {
-            // TODO: Naive way to force-load "System.Composition.AttributedModel" -- TODO: improve/investigate
+        private CompositionHost CreateCompositionHost(
+            LanguageCreationContext context, string featuresAssemblyName, string workspacesAssemblyName
+        ) {
+            // TODO: Naive way to force-load "System.Composition.AttributedModel" -- improve/investigate
             _ = typeof(ExportAttribute).Assembly;
 
             var types = new[] {
@@ -54,11 +60,21 @@ namespace MirrorSharp.Internal.Roslyn {
                 RoslynAssemblies.MicrosoftCodeAnalysisFeatures,
                 Assembly.Load(new AssemblyName(featuresAssemblyName)),
                 Assembly.Load(new AssemblyName(workspacesAssemblyName)),
-                RoslynInternals.GetInternalsAssemblySlow()
+                GetRoslynInternalsAssemblySlow(context)
             }.SelectMany(a => a.DefinedTypes).Where(ShouldConsiderForHostServices);
 
             var configuration = new ContainerConfiguration().WithParts(types);
             return configuration.CreateContainer();
+        }
+
+        private Assembly GetRoslynInternalsAssemblySlow(LanguageCreationContext context) {
+            return ((Lazy<Assembly>)context.SharedCache.GetOrAdd(
+                RoslynInternalsCacheKey,
+                new Lazy<Assembly>(
+                    () => new RoslynInternalsLoader().LoadInternalsAssemblySlow(_options.RoslynInternalsLoadStrategy),
+                    LazyThreadSafetyMode.ExecutionAndPublication
+                )
+            )).Value;
         }
 
         protected virtual bool ShouldConsiderForHostServices(Type type)

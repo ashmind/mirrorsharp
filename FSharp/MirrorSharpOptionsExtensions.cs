@@ -16,7 +16,7 @@ namespace MirrorSharp {
         /// <returns>Value of <paramref name="options" />, for convenience.</returns>
         public static MirrorSharpOptions EnableFSharp(this MirrorSharpOptions options, Action<MirrorSharpFSharpOptions>? setup = null) {
             Argument.NotNull(nameof(options), options);
-            options.Languages.Add(FSharpLanguage.Name, () => {
+            options.Languages.Add(FSharpLanguage.Name, c => {
                 var fsharp = new MirrorSharpFSharpOptions();
                 setup?.Invoke(fsharp);
                 return new FSharpLanguage(fsharp, new Microsoft.IO.RecyclableMemoryStreamManager());
