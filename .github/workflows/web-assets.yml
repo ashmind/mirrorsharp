@@ -16,7 +16,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
       with:
-        node-version: '14.16.0'
+        node-version: '16.14.2'
 
     - name: 'WebAssets: npm ci'
       run: npm ci
