@@ -24,6 +24,7 @@ jobs:
     - name: 'WebAssets: npm run build'
       run: npm run build
       working-directory: WebAssets
+
     - name: 'WebAssets: npm test'
       run: npm test
       working-directory: WebAssets
@@ -32,6 +33,14 @@ jobs:
       with:
         name: tests-__diff_output__
         path: WebAssets/tests/__image_snapshots__/__diff_output__
+        if-no-files-found: ignore        
+    - run: npm test rendering -- --updateSnapshot
+      if: failure()
+    - uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: '__image_snapshots__ (updated)'
+        path: source/WebApp/tests/rendering/__image_snapshots__
         if-no-files-found: ignore
 
     - name: 'AspNetCore.Demo: npm ci'
