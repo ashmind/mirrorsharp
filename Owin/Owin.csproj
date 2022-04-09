@@ -5,7 +5,7 @@
     <AssemblyName>MirrorSharp.Owin</AssemblyName>
     <RootNamespace>MirrorSharp.Owin</RootNamespace>
     <TargetFramework>net461</TargetFramework>
-    <VersionPrefix>2.3.3</VersionPrefix>
+    <VersionPrefix>3.0.0</VersionPrefix>
     <Description>MirrorSharp OWIN server. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;CodeMirror</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <!--
+      It would be great to reference MirrorSharp.Common directly in the
+      Internal.Roslyn* ones, however we want the reverse reference as
+      well - and this avoids a dependency loop when building.
+
+      This assembly is not used at runtime - MirrorSharp.Common is.
+    -->
+    <AssemblyName>MirrorSharp.Common</AssemblyName>
+    <RootNamespace>MirrorSharp.Internal.Roslyn.Internals</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="3.3.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="3.3.1" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../Common/Properties/AssemblyInfo.cs" Link="Properties/AssemblyInfo.cs" />
+    <Compile Include="../Common/Internal/Argument.cs" />
+    <Compile Include="../Common/Internal/Roslyn/Internals/**/*.cs" />
+  </ItemGroup>
+</Project>

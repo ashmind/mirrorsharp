@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>MirrorSharp.AspNetCore.Demo</AssemblyName>
     <RootNamespace>MirrorSharp.AspNetCore.Demo</RootNamespace>
     <IsPackable>false</IsPackable>
@@ -20,9 +20,10 @@
     <ProjectReference Include="..\AspNetCore\AspNetCore.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\FSharp\FSharp.csproj" />
+    <ProjectReference Include="..\IL\IL.csproj" />
   </ItemGroup>
 
-  <Target Name="CopyFrameworkXmlDocumentation" AfterTargets="ResolveReferences">
+  <Target Name="CopySdkReferenceAssemblies" AfterTargets="ResolveReferences">
     <ItemGroup>
       <Content Include="@(Reference->'%(RootDir)%(Directory)%(Filename)%(Extension)')"
                Link="@(Reference->'ref-assemblies\%(Filename)%(Extension)')"

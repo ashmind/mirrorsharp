@@ -1,6 +1,7 @@
 import type { Message, ServerOptions } from '../interfaces/protocol';
 // import type { SelfDebug } from './self-debug';
 import { addEvents } from '../helpers/add-events';
+import { ensureDefined } from '../helpers/ensure-defined';
 
 const eventKeys = ['open', 'message', 'error', 'close'] as const;
 
@@ -28,21 +29,29 @@ export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
         close:   [] as Array<ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>['close']>
     } as const;
 
-    #socket!: WebSocket;
+    #socket: WebSocket | undefined;
     #openPromise!: Promise<void>;
+    #resolveDelayedOpenPromise: (() => void) | undefined | null;
 
     #mustBeClosed = false;
     #reopenPeriod = 0;
-    #reopenPeriodResetTimer: ReturnType<typeof setTimeout>|undefined|null;
+    #reopenPeriodResetTimer: ReturnType<typeof setTimeout> | undefined | null;
     #reopening = false;
 
     #removeEvents: () => void;
 
-    constructor(url: string/* , selfDebug: SelfDebug|null */) {
+    constructor(url: string, /* selfDebug: SelfDebug|null, */ { delayedOpen }: { delayedOpen?: boolean } = {}) {
         this.#url = url;
         // this.#selfDebug = selfDebug;
 
-        this.#open();
+        if (!delayedOpen) {
+            this.open();
+        }
+        else {
+            this.#openPromise = new Promise(resolve => {
+                this.#resolveDelayedOpenPromise = resolve;
+            });
+        }
 
         this.#removeEvents = addEvents(this, {
             error: this.#tryToReopen,
@@ -50,11 +59,16 @@ export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
         });
     }
 
-    #open = () => {
+    open = () => {
         this.#socket = new WebSocket(this.#url);
         this.#openPromise = new Promise(resolve => {
-            this.#socket.addEventListener('open', () => {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.#socket!.addEventListener('open', () => {
                 this.#reopenPeriodResetTimer = setTimeout(() => { this.#reopenPeriod = 0; }, this.#reopenPeriod);
+                if (this.#resolveDelayedOpenPromise) {
+                    this.#resolveDelayedOpenPromise();
+                    this.#resolveDelayedOpenPromise = null;
+                }
                 resolve();
             });
         });
@@ -95,18 +109,23 @@ export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
         this.#reopening = true;
         setTimeout(() => {
-            this.#open();
+            this.open();
             this.#reopening = false;
         }, this.#reopenPeriod);
         if (this.#reopenPeriod < 60000)
             this.#reopenPeriod = Math.min(5 * (this.#reopenPeriod + 200), 60000);
     };
 
-    #sendWhenOpen = async (command: string) => {
+    #sendIfOpen = async (command: string) => {
         if (this.#mustBeClosed)
             throw `Cannot send command '${command}' after the close() call.`;
 
-        await this.#openPromise;
+        if (this.#socket?.readyState !== WebSocket.OPEN) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            console.warn(`Dropped command '${command}' because the socket state is ${this.#socket?.readyState}.`);
+            return;
+        }
+
         // if (this.#selfDebug)
         //     this.#selfDebug.log('send', command);
         this.#socket.send(command);
@@ -138,38 +157,41 @@ export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
         cursorIndexAfter: number,
         reason?: string | null
     ) {
-        return this.#sendWhenOpen('R' + start + ':' + length + ':' + cursorIndexAfter + ':' + (reason ?? '') + ':' + newText);
+        return this.#sendIfOpen('R' + start + ':' + length + ':' + cursorIndexAfter + ':' + (reason ?? '') + ':' + newText);
     }
 
     sendMoveCursor(cursorIndex: number) {
-        return this.#sendWhenOpen('M' + cursorIndex);
+        return this.#sendIfOpen('M' + cursorIndex);
     }
 
     sendTypeChar(char: string) {
-        return this.#sendWhenOpen('C' + char);
+        return this.#sendIfOpen('C' + char);
     }
 
     sendCompletionState(indexOrCommand: 'info'|'force'|number|'cancel', indexIfInfo?: number) {
+        // common bug -- the specific flow is not fully clear yet,
+        // but there is no reason to send null/undefined to server if it will fail anyway
+        ensureDefined(indexOrCommand, 'completion command');
         const argument = indexOrCommand !== 'info'
             ? (stateCommandMap[indexOrCommand] ?? indexOrCommand)
-            : 'I' + indexIfInfo;
-        return this.#sendWhenOpen('S' + argument);
+            : 'I' + ensureDefined(indexIfInfo, 'completion info index');
+        return this.#sendIfOpen('S' + argument);
     }
 
     sendSignatureHelpState(command: 'force'|'cancel') {
-        return this.#sendWhenOpen('P' + stateCommandMap[command]);
+        return this.#sendIfOpen('P' + stateCommandMap[command]);
     }
 
     sendRequestInfoTip(cursorIndex: number) {
-        return this.#sendWhenOpen('I' + cursorIndex);
+        return this.#sendIfOpen('I' + cursorIndex);
     }
 
     sendSlowUpdate() {
-        return this.#sendWhenOpen('U');
+        return this.#sendIfOpen('U');
     }
 
     sendApplyDiagnosticAction(actionId: number) {
-        return this.#sendWhenOpen('F' + actionId);
+        return this.#sendIfOpen('F' + actionId);
     }
 
     sendSetOptions(options: ServerOptions|Partial<ServerOptions&TExtensionServerOptions>) {
@@ -177,16 +199,16 @@ export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
         for (const key in options) {
             optionPairs.push(key + '=' + (options as Record<string, string>)[key]);
         }
-        return this.#sendWhenOpen('O' + optionPairs.join(','));
+        return this.#sendIfOpen('O' + optionPairs.join(','));
     }
 
     sendRequestSelfDebugData() {
-        return this.#sendWhenOpen('Y');
+        return this.#sendIfOpen('Y');
     }
 
     close() {
         this.#mustBeClosed = true;
         this.#removeEvents();
-        this.#socket.close();
+        this.#socket?.close();
     }
 }

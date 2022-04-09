@@ -21,7 +21,7 @@ namespace MirrorSharp.Internal {
         // ReSharper restore HeapView.ClosureAllocation
 
         public ILanguage GetLanguage(string name) {
-            if (!_languages.TryGetValue(name, out Lazy<ILanguage> lazy))
+            if (!_languages.TryGetValue(name, out var lazy))
                 throw new Exception($"Language '{name}' was not enabled in MirrorSharpOptions.");
 
             return lazy.Value;

@@ -1,10 +1,11 @@
+using System;
 using System.Collections.Generic;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Abstraction;
 using MirrorSharp.Internal.Roslyn;
 
 namespace MirrorSharp.Internal {
-    internal class WorkSession : IWorkSession {
+    internal class WorkSession : IWorkSession, IDisposable {
         private readonly ILanguageSessionExtensions _extensions;
         private ILanguage _language;
         private ILanguageSessionInternal? _languageSession;
@@ -56,7 +57,7 @@ namespace MirrorSharp.Internal {
 
         public IDictionary<string, string> RawOptionsFromClient { get; } = new Dictionary<string, string>();
         public SelfDebug? SelfDebug { get; }
-        public IDictionary<string, object> ExtensionData { get; } = new Dictionary<string, object>();
+        public IDictionary<string, object?> ExtensionData { get; } = new Dictionary<string, object?>();
 
         private void EnsureInitialized() {
             if (_languageSession != null)

@@ -1,8 +1,8 @@
 #nullable enable
 MirrorSharp.FSharp.Advanced.FSharpFileSystem
 MirrorSharp.FSharp.Advanced.FSharpParseAndCheckResults
-MirrorSharp.FSharp.Advanced.FSharpParseAndCheckResults.CheckAnswer.get -> FSharp.Compiler.SourceCodeServices.FSharpCheckFileAnswer!
-MirrorSharp.FSharp.Advanced.FSharpParseAndCheckResults.ParseResults.get -> FSharp.Compiler.SourceCodeServices.FSharpParseFileResults!
+MirrorSharp.FSharp.Advanced.FSharpParseAndCheckResults.CheckAnswer.get -> FSharp.Compiler.CodeAnalysis.FSharpCheckFileAnswer!
+MirrorSharp.FSharp.Advanced.FSharpParseAndCheckResults.ParseResults.get -> FSharp.Compiler.CodeAnalysis.FSharpParseFileResults!
 MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions
 MirrorSharp.FSharp.Advanced.FSharpTargets
 MirrorSharp.FSharp.Advanced.FSharpVirtualFile
@@ -12,13 +12,13 @@ MirrorSharp.FSharp.Advanced.FSharpVirtualFile.Stream.get -> System.IO.MemoryStre
 MirrorSharp.FSharp.Advanced.IFSharpSession
 MirrorSharp.FSharp.Advanced.IFSharpSession.AssemblyReferencePaths.get -> System.Collections.Immutable.ImmutableArray<string!>
 MirrorSharp.FSharp.Advanced.IFSharpSession.AssemblyReferencePathsAsFSharpList.get -> Microsoft.FSharp.Collections.FSharpList<string!>!
-MirrorSharp.FSharp.Advanced.IFSharpSession.Checker.get -> FSharp.Compiler.SourceCodeServices.FSharpChecker!
-MirrorSharp.FSharp.Advanced.IFSharpSession.ConvertToDiagnostic(FSharp.Compiler.SourceCodeServices.FSharpErrorInfo! error) -> Microsoft.CodeAnalysis.Diagnostic!
+MirrorSharp.FSharp.Advanced.IFSharpSession.Checker.get -> FSharp.Compiler.CodeAnalysis.FSharpChecker!
+MirrorSharp.FSharp.Advanced.IFSharpSession.ConvertToDiagnostic(FSharp.Compiler.Diagnostics.FSharpDiagnostic! diagnostic) -> Microsoft.CodeAnalysis.Diagnostic!
 MirrorSharp.FSharp.Advanced.IFSharpSession.ConvertToOffset(int line, int column) -> int
-MirrorSharp.FSharp.Advanced.IFSharpSession.GetLastCheckAnswer() -> FSharp.Compiler.SourceCodeServices.FSharpCheckFileAnswer?
-MirrorSharp.FSharp.Advanced.IFSharpSession.GetLastParseResults() -> FSharp.Compiler.SourceCodeServices.FSharpParseFileResults?
+MirrorSharp.FSharp.Advanced.IFSharpSession.GetLastCheckAnswer() -> FSharp.Compiler.CodeAnalysis.FSharpCheckFileAnswer?
+MirrorSharp.FSharp.Advanced.IFSharpSession.GetLastParseResults() -> FSharp.Compiler.CodeAnalysis.FSharpParseFileResults?
 MirrorSharp.FSharp.Advanced.IFSharpSession.ParseAndCheckAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<MirrorSharp.FSharp.Advanced.FSharpParseAndCheckResults!>
-MirrorSharp.FSharp.Advanced.IFSharpSession.ProjectOptions.get -> FSharp.Compiler.SourceCodeServices.FSharpProjectOptions!
+MirrorSharp.FSharp.Advanced.IFSharpSession.ProjectOptions.get -> FSharp.Compiler.CodeAnalysis.FSharpProjectOptions!
 MirrorSharp.FSharp.Advanced.IFSharpSession.ProjectOptions.set -> void
 MirrorSharp.FSharp.Advanced.WorkSessionExtensions
 MirrorSharp.FSharp.MirrorSharpFSharpOptions
@@ -40,11 +40,11 @@ const MirrorSharp.FSharp.Advanced.FSharpTargets.Library = "library" -> string!
 const MirrorSharp.FSharp.Advanced.FSharpTargets.Module = "module" -> string!
 const MirrorSharp.FSharp.Advanced.FSharpTargets.WinExe = "winexe" -> string!
 static MirrorSharp.FSharp.Advanced.FSharpFileSystem.RegisterVirtualFile(System.IO.MemoryStream! stream) -> MirrorSharp.FSharp.Advanced.FSharpVirtualFile!
-static MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions.WithOtherOptionDebug(this FSharp.Compiler.SourceCodeServices.FSharpProjectOptions! options, bool? debug) -> FSharp.Compiler.SourceCodeServices.FSharpProjectOptions!
-static MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions.WithOtherOptionDefine(this FSharp.Compiler.SourceCodeServices.FSharpProjectOptions! options, string! symbol, bool defined = true) -> FSharp.Compiler.SourceCodeServices.FSharpProjectOptions!
-static MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions.WithOtherOptionOptimize(this FSharp.Compiler.SourceCodeServices.FSharpProjectOptions! options, bool? optimize) -> FSharp.Compiler.SourceCodeServices.FSharpProjectOptions!
-static MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions.WithOtherOptionTarget(this FSharp.Compiler.SourceCodeServices.FSharpProjectOptions! options, string? target) -> FSharp.Compiler.SourceCodeServices.FSharpProjectOptions!
-static MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions.WithOtherOptions(this FSharp.Compiler.SourceCodeServices.FSharpProjectOptions! options, string![]! otherOptions) -> FSharp.Compiler.SourceCodeServices.FSharpProjectOptions!
+static MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions.WithOtherOptionDebug(this FSharp.Compiler.CodeAnalysis.FSharpProjectOptions! options, bool? debug) -> FSharp.Compiler.CodeAnalysis.FSharpProjectOptions!
+static MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions.WithOtherOptionDefine(this FSharp.Compiler.CodeAnalysis.FSharpProjectOptions! options, string! symbol, bool defined = true) -> FSharp.Compiler.CodeAnalysis.FSharpProjectOptions!
+static MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions.WithOtherOptionOptimize(this FSharp.Compiler.CodeAnalysis.FSharpProjectOptions! options, bool? optimize) -> FSharp.Compiler.CodeAnalysis.FSharpProjectOptions!
+static MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions.WithOtherOptionTarget(this FSharp.Compiler.CodeAnalysis.FSharpProjectOptions! options, string? target) -> FSharp.Compiler.CodeAnalysis.FSharpProjectOptions!
+static MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions.WithOtherOptions(this FSharp.Compiler.CodeAnalysis.FSharpProjectOptions! options, string![]! otherOptions) -> FSharp.Compiler.CodeAnalysis.FSharpProjectOptions!
 static MirrorSharp.FSharp.Advanced.WorkSessionExtensions.FSharp(this MirrorSharp.Advanced.IWorkSession! session) -> MirrorSharp.FSharp.Advanced.IFSharpSession!
 static MirrorSharp.FSharp.Advanced.WorkSessionExtensions.IsFSharp(this MirrorSharp.Advanced.IWorkSession! session) -> bool
 static MirrorSharp.MirrorSharpOptionsExtensions.EnableFSharp(this MirrorSharp.MirrorSharpOptions! options, System.Action<MirrorSharp.FSharp.MirrorSharpFSharpOptions!>? setup = null) -> MirrorSharp.MirrorSharpOptions!

@@ -22,11 +22,13 @@ namespace MirrorSharp.Testing {
         private static readonly ConcurrentDictionary<MirrorSharpOptions, LanguageManager> LanguageManagerCache = new ConcurrentDictionary<MirrorSharpOptions, LanguageManager>();
 
         private readonly TestMiddleware _middleware;
+        private readonly MirrorSharpServices _services;
 
         private MirrorSharpTestDriver(MirrorSharpOptions? options = null, MirrorSharpServices? services = null, string languageName = LanguageNames.CSharp) {
             options ??= DefaultOptions;
             services ??= DefaultServices;
 
+            _services = services;
             var language = GetLanguageManager(options).GetLanguage(languageName);
             _middleware = new TestMiddleware(options, services);
             Session = new WorkSession(language, options, services.ToImmutable());
@@ -103,6 +105,10 @@ namespace MirrorSharp.Testing {
             return SendWithOptionalResultAsync<CompletionsResult>(CommandIds.TypeChar, @char);
         }
 
+        internal Task SendBackspaceAsync() {
+            return SendReplaceTextAsync("", Session.CursorPosition - 1, 1, Session.CursorPosition - 1);
+        }
+
         internal async Task<TResult> SendWithRequiredResultAsync<TResult>(char commandId, HandlerTestArgument? argument = null)
             where TResult: class
         {
@@ -113,7 +119,7 @@ namespace MirrorSharp.Testing {
         internal async Task<TResult?> SendWithOptionalResultAsync<TResult>(char commandId, HandlerTestArgument? argument = null)
             where TResult : class
         {
-            var sender = new StubCommandResultSender();
+            var sender = new StubCommandResultSender(Session, _services.ConnectionSendViewer);
             await _middleware.GetHandler(commandId).ExecuteAsync(argument?.ToAsyncData(commandId) ?? AsyncData.Empty, Session, sender, CancellationToken.None);
             return sender.LastMessageJson != null
                 ? JsonConvert.DeserializeObject<TResult>(sender.LastMessageJson)
@@ -121,7 +127,12 @@ namespace MirrorSharp.Testing {
         }
 
         internal Task SendAsync(char commandId, HandlerTestArgument? argument = default(HandlerTestArgument)) {
-            return _middleware.GetHandler(commandId).ExecuteAsync(argument?.ToAsyncData(commandId) ?? AsyncData.Empty, Session, new StubCommandResultSender(), CancellationToken.None);
+            return _middleware.GetHandler(commandId).ExecuteAsync(
+                argument?.ToAsyncData(commandId) ?? AsyncData.Empty,
+                Session,
+                new StubCommandResultSender(Session, _services.ConnectionSendViewer),
+                CancellationToken.None
+            );
         }
 
         private static LanguageManager GetLanguageManager(MirrorSharpOptions options) {

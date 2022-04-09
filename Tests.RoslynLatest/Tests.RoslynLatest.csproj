@@ -6,23 +6,24 @@
     <AssemblyName>MirrorSharp.Tests.RoslynLatest</AssemblyName>
     <RootNamespace>MirrorSharp.Tests</RootNamespace>
     <IsPackable>false</IsPackable>
+    <NoWarn>VSTHRD200</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
     <RestoreAdditionalProjectSources>
-      https://dotnet.myget.org/F/roslyn/api/v3/index.json;
-      https://dotnet.myget.org/F/roslyn-analyzers/api/v3/index.json
+      https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json;
+      https://pkgs.dev.azure.com/azure-public/vside/_packaging/vs-impl/nuget/v3/index.json
     </RestoreAdditionalProjectSources>
-  </PropertyGroup>
+  </PropertyGroup>  
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="3.10.0-1.final" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="3.10.0-1.final" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="3.10.0-1.final" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.3.0-1.22179.12" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.3.0-1.22179.12" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="4.3.0-1.22179.12" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
-    <PackageReference Include="Moq" Version="4.13.1" />
+    <PackageReference Include="SourceMock" Version="0.10.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
     <PackageReference Include="coverlet.collector" Version="1.0.1" />
   </ItemGroup>
 
@@ -32,8 +33,24 @@
     <ProjectReference Include="..\Testing\Testing.csproj" />
     <ProjectReference Include="..\VisualBasic\VisualBasic.csproj" />
   </ItemGroup>
-  
 
-  <Import Project="..\Tests.Shared\MirrorSharp.Tests.Shared.projitems" Label="Shared" />
+  <ItemGroup>
+    <Compile Include="../Tests/**/*.cs" Exclude="../Tests/obj/**; ../Tests/Php*.cs; ../Tests/FSharp*.cs" />
+  </ItemGroup>
 
+  <Target Name="CopySdkReferenceAssemblies" AfterTargets="ResolveReferences">
+    <ItemGroup>
+      <Content Include="@(Reference->'%(RootDir)%(Directory)%(Filename)%(Extension)')"
+               Link="@(Reference->'ref-assemblies\%(Filename)%(Extension)')"
+               Condition="$([System.String]::new('%(Filename)').StartsWith('System')) or '%(Filename)' == 'netstandard'">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="@(Reference->'%(RootDir)%(Directory)%(Filename).xml')"
+               Link="@(Reference->'ref-assemblies\%(Filename).xml')"
+               Condition="($([System.String]::new('%(Filename)').StartsWith('System')) or '%(Filename)' == 'netstandard')
+                          and Exists('%(RootDir)%(Directory)%(Filename).xml')">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+  </Target>
 </Project>

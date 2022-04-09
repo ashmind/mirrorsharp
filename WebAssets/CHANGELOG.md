@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.1.0] - 2022-04-01
+
+### Added
+- Option `noInitialConnection` for starting in disconnected mode
+
+### Fixed
+- Edge cases of option handling on reconnects
+
+### Changed
+- Changed IL mode to "text/x-cil" (mode itself is not included yet)
+- Changed approach to handling of user actions in disconnected mode
+
+## [2.0.5] - 2021-09-05
+
+### Added
+- Added IL language to the language list
+
+## [2.0.5-preview-2021-06-26-1] - 2021-06-26
+
+### Changed
+- Not user-facing — updated completion flow to fail earlier, before attempting to send incorrect data
+
 ## [2.0.4] - 2021-02-28
 
 ### Fixed

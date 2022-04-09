@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../NuGet.Common.props" />
+  
+  <PropertyGroup>
+    <AssemblyName>MirrorSharp.IL</AssemblyName>
+    <RootNamespace>MirrorSharp.IL</RootNamespace>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <VersionPrefix>0.2</VersionPrefix>
+    <Description>MirrorSharp IL support library. $(DescriptionSuffix)</Description>
+    <PackageTags>IL;CodeMirror</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>    
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <UseLocalILAsm Condition="Exists('..\..\Mobius.ILasm\Mobius.ILASM\Mobius.ILasm.csproj')">True</UseLocalILAsm>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Condition="'$(UseLocalILAsm)' != 'True'" Include="Mobius.ILasm" Version="0.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Condition="'$(UseLocalILAsm)' == 'True'" Include="..\..\Mobius.ILasm\Mobius.ILASM\Mobius.ILasm.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
+  </ItemGroup>
+</Project>

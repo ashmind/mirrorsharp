@@ -27,12 +27,12 @@ namespace MirrorSharp.Internal {
                 _array = newArray;
             }
             catch (Exception) {
-                if (_array != newArray)
+                if (_array != newArray && newArray != null)
                     _pool.Return(newArray);
                 throw;
             }
             finally {
-                if (_array != oldArray)
+                if (_array != oldArray && oldArray != null)
                     _pool.Return(oldArray);
             }
         }

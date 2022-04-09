@@ -48,7 +48,7 @@ jobs:
       run: npm run build
       working-directory: Owin.Demo
 
-    - if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/feature/codemirror-6'
+    - if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/codemirror-6'
       uses: JS-DevTools/npm-publish@v1
       with:
         package: './WebAssets/dist/package.json'

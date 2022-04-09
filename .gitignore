@@ -12,6 +12,7 @@ obj/
 /*.tgz
 /WebAssets/dist
 /WebAssets/coverage
+/WebAssets/tests/.render-cache
 /Owin.Demo/wwwroot
 /AspNetCore.Demo/wwwroot
-/WebAssets/tests/.render-cache
+/AspNetCore.Demo.Net6/wwwroot

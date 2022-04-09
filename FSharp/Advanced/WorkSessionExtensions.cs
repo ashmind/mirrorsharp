@@ -9,7 +9,7 @@ namespace MirrorSharp.FSharp.Advanced {
         /// <returns><c>true</c> if the session is using F#; otherwise, <c>false</c></returns>
         public static bool IsFSharp(this IWorkSession session) {
             Argument.NotNull(nameof(session), session);
-            return ((WorkSession)session).LanguageSession is IFSharpSession;
+            return session is WorkSession { LanguageSession: IFSharpSession };
         }
 
         /// <summary>Returns F# session associated with the <see cref="IWorkSession" />, if any; throws otherwise.</summary>

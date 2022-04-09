@@ -13,6 +13,6 @@ namespace MirrorSharp.Advanced {
         /// <summary>Returns current source code handled by the session.</summary>
         string GetText();
         /// <summary>Arbitrary data associated with the current session.</summary>
-        IDictionary<string, object> ExtensionData { get; }
+        IDictionary<string, object?> ExtensionData { get; }
     }
 }

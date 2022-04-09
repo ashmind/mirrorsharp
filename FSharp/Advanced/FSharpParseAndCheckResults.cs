@@ -1,4 +1,4 @@
-using FSharp.Compiler.SourceCodeServices;
+using FSharp.Compiler.CodeAnalysis;
 
 namespace MirrorSharp.FSharp.Advanced {
     /// <summary>Represent combined Parse and Check results from the <see cref="FSharpChecker" />.</summary>

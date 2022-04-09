@@ -34,6 +34,10 @@ if (language === 'F#') {
 else if (mode === 'script') {
     textarea.value = 'var messages = Context.Messages;';
 }
+else if (language === 'IL') {
+    textarea.value = '.class private auto ansi \'<Module>\'\r\n{\r\n}';
+}
+
 
 mirrorsharp(document.getElementById('editor-container'), {
     serviceUrl: window.location.href.replace(/^http(s?:\/\/[^/]+).*$/i, 'ws$1/mirrorsharp'),

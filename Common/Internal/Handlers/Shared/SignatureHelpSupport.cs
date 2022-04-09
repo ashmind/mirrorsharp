@@ -1,10 +1,8 @@
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using MirrorSharp.Advanced;
-using MirrorSharp.Internal.Reflection;
 using MirrorSharp.Internal.Results;
+using MirrorSharp.Internal.Roslyn.Internals;
 
 namespace MirrorSharp.Internal.Handlers.Shared {
     internal class SignatureHelpSupport : ISignatureHelpSupport {
@@ -45,6 +43,9 @@ namespace MirrorSharp.Internal.Handlers.Shared {
         }
 
         public Task ForceSignatureHelpAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
+            if (!session.IsRoslyn)
+                return Task.CompletedTask;
+
             var trigger = new SignatureHelpTriggerInfoData(SignatureHelpTriggerReason.InvokeSignatureHelpCommand);
             return TryApplySignatureHelpAsync(session, sender, cancellationToken, trigger);
         }
@@ -61,11 +62,14 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             if (trigger.TriggerReason == SignatureHelpTriggerReason.TypeCharCommand && !provider.IsTriggerCharacter(trigger.TriggerCharacter!.Value))
                 return false;
 
-            var help = await provider.GetItemsAsync(session.Roslyn.Document, session.CursorPosition, trigger, cancellationToken).ConfigureAwait(false);
+            var options = SignatureHelpOptionsData.From(session.Roslyn.Project);
+            var help = await provider.GetItemsAsync(session.Roslyn.Document, session.CursorPosition, trigger, options, cancellationToken).ConfigureAwait(false);
             if (!sendIfEmpty && help == null)
                 return false;
 
-            session.Roslyn.CurrentSignatureHelp = help != null ? new CurrentSignatureHelp(provider, help) : (CurrentSignatureHelp?)null;
+            session.Roslyn.CurrentSignatureHelp = help != null
+                ? new CurrentSignatureHelp(provider, help)
+                : null;
             await SendSignatureHelpAsync(help, sender, cancellationToken).ConfigureAwait(false);
             return true;
         }

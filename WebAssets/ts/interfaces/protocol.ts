@@ -126,7 +126,7 @@ export interface OptionsEchoMessage<TExtensionServerOptions> {
     readonly options: ServerOptions & TExtensionServerOptions;
 }
 
-export type Language = 'C#'|'Visual Basic'|'F#'|'PHP';
+export type Language = 'C#'|'Visual Basic'|'F#'|'PHP'|'IL';
 
 export interface ServerOptions {
     language?: Language;

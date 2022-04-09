@@ -14,11 +14,11 @@ using Microsoft.CodeAnalysis.Text;
 using MirrorSharp.Advanced;
 using MirrorSharp.Advanced.EarlyAccess;
 using MirrorSharp.Internal.Abstraction;
-using MirrorSharp.Internal.Reflection;
+using MirrorSharp.Internal.Roslyn.Internals;
 
 namespace MirrorSharp.Internal.Roslyn {
     internal class RoslynSession : ILanguageSessionInternal, IRoslynSession {
-        private static AnalyzerOptions EmptyAnalyzerOptions = new AnalyzerOptions(ImmutableArray<AdditionalText>.Empty);
+        private static AnalyzerOptions EmptyAnalyzerOptions = new (ImmutableArray<AdditionalText>.Empty);
 
         private static readonly TextChange[] NoTextChanges = new TextChange[0];
 
@@ -41,6 +41,7 @@ namespace MirrorSharp.Internal.Roslyn {
             ImmutableArray<DiagnosticAnalyzer> analyzers,
             ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> codeFixProviders,
             ImmutableArray<ISignatureHelpProviderWrapper> signatureHelpProviders,
+            RoslynInternals roslynInternals,
             ILanguageSessionExtensions extensions
         ) {
             _sourceText = sourceText;
@@ -62,6 +63,8 @@ namespace MirrorSharp.Internal.Roslyn {
             Analyzers = analyzers;
             SignatureHelpProviders = signatureHelpProviders;
             CodeFixProviders = codeFixProviders;
+
+            RoslynInternals = roslynInternals;
 
             _extensions = extensions;
         }
@@ -90,7 +93,7 @@ namespace MirrorSharp.Internal.Roslyn {
 
             var solution = Project.Solution;
             if (_lastWorkspaceAnalyzerOptionsSolution != solution) {
-                _workspaceAnalyzerOptions = RoslynReflection.NewWorkspaceAnalyzerOptions(EmptyAnalyzerOptions, solution);
+                _workspaceAnalyzerOptions = RoslynInternals.WorkspaceAnalyzerOptions.New(EmptyAnalyzerOptions, solution);
                 _lastWorkspaceAnalyzerOptionsSolution = solution;
             }
 
@@ -159,6 +162,7 @@ namespace MirrorSharp.Internal.Roslyn {
         public ImmutableDictionary<string, ImmutableArray<CodeFixProvider>> CodeFixProviders { get; }
         public QuickInfoService QuickInfoService { get; }
         public ImmutableArray<ISignatureHelpProviderWrapper> SignatureHelpProviders { get; }
+        public RoslynInternals RoslynInternals { get; }
 
         public void SetScriptMode(bool isScript = true, Type? hostObjectType = null) {
             RoslynScriptHelper.Validate(isScript, hostObjectType);

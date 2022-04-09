@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
-using FSharp.Compiler.SourceCodeServices;
+using FSharp.Compiler.CodeAnalysis;
 using MirrorSharp.Internal;
 
 namespace MirrorSharp.FSharp.Advanced {
     /// <summary>Provides Roslyn-like extensions that allow simple updates to <see cref="FSharpProjectOptions" />.</summary>
     public static class FSharpProjectOptionsExtensions {
         /// <summary>
-        /// Returns a new instance of <see cref="FSharpProjectOptions" /> with 
-        /// <see cref="FSharpProjectOptions.OtherOptions"/> <c>--debug</c> option set to the provided value; if 
+        /// Returns a new instance of <see cref="FSharpProjectOptions" /> with
+        /// <see cref="FSharpProjectOptions.OtherOptions"/> <c>--debug</c> option set to the provided value; if
         /// it already matches the provided value, returns <paramref name="options" />.
         /// </summary>
         /// <param name="options">The options to use as a base for the returned value.</param>
@@ -24,8 +24,8 @@ namespace MirrorSharp.FSharp.Advanced {
         }
 
         /// <summary>
-        /// Returns a new instance of <see cref="FSharpProjectOptions" /> with 
-        /// <see cref="FSharpProjectOptions.OtherOptions"/> <c>--optimize</c> option set to the provided value; if 
+        /// Returns a new instance of <see cref="FSharpProjectOptions" /> with
+        /// <see cref="FSharpProjectOptions.OtherOptions"/> <c>--optimize</c> option set to the provided value; if
         /// it already matches the provided value, returns <paramref name="options" />.
         /// </summary>
         /// <param name="options">The options to use as a base for the returned value.</param>
@@ -41,8 +41,8 @@ namespace MirrorSharp.FSharp.Advanced {
         }
 
         /// <summary>
-        /// Returns a new instance of <see cref="FSharpProjectOptions" /> with 
-        /// <see cref="FSharpProjectOptions.OtherOptions"/> <c>--target</c> option set to the provided value; if 
+        /// Returns a new instance of <see cref="FSharpProjectOptions" /> with
+        /// <see cref="FSharpProjectOptions.OtherOptions"/> <c>--target</c> option set to the provided value; if
         /// it already matches the provided value, returns <paramref name="options" />.
         /// </summary>
         /// <param name="options">The options to use as a base for the returned value.</param>
@@ -58,7 +58,7 @@ namespace MirrorSharp.FSharp.Advanced {
         }
 
         /// <summary>
-        /// Returns a new instance of <see cref="FSharpProjectOptions" /> with 
+        /// Returns a new instance of <see cref="FSharpProjectOptions" /> with
         /// <see cref="FSharpProjectOptions.OtherOptions"/> <c>--define</c>:<paramref name="symbol"/> option
         /// added or removed depending on <paramref name="defined"/>; if it already matches the provided
         /// value, returns <paramref name="options" />.
@@ -78,8 +78,8 @@ namespace MirrorSharp.FSharp.Advanced {
         }
 
         /// <summary>
-        /// Returns a new instance of <see cref="FSharpProjectOptions" /> with 
-        /// <see cref="FSharpProjectOptions.OtherOptions"/> set to the provided value; if 
+        /// Returns a new instance of <see cref="FSharpProjectOptions" /> with
+        /// <see cref="FSharpProjectOptions.OtherOptions"/> set to the provided value; if
         /// it is already the same as the provided value, returns <paramref name="options" />.
         /// </summary>
         /// <param name="options">The options to use as a base for the returned value.</param>
@@ -106,7 +106,6 @@ namespace MirrorSharp.FSharp.Advanced {
                 options.LoadTime,
                 options.UnresolvedReferences,
                 options.OriginalLoadReferences,
-                options.ExtraProjectInfo,
                 options.Stamp
             );
         }

@@ -38,6 +38,8 @@ namespace MirrorSharp {
         /// <summary>Defines whether the SelfDebug mode is enabled — might reduce performance.</summary>
         public bool SelfDebugEnabled { get; set; }
 
+        internal IList<(char commandId, string commandText)> StatusTestCommands { get; } = new List<(char commandId, string commandText)>();
+
         /// <summary>Disables C# — the language will not be available to the client.</summary>
         /// <returns>Current <see cref="MirrorSharpOptions" /> object, for convenience.</returns>
         public MirrorSharpOptions DisableCSharp() {
@@ -54,6 +56,7 @@ namespace MirrorSharp {
         }
 
         IDictionary<string, Func<ILanguage>> ILanguageManagerOptions.Languages => Languages;
+        IList<(char commandId, string commandText)> IMiddlewareOptions.StatusTestCommands => StatusTestCommands;
     }
 }
 

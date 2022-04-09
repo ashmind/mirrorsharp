@@ -8,12 +8,14 @@ namespace MirrorSharp.Internal {
             ISlowUpdateExtension? slowUpdate,
             IRoslynSourceTextGuard? roslynSourceTextGuard,
             IRoslynCompilationGuard? roslynCompilationGuard,
+            IConnectionSendViewer? connectionSendViewer,
             IExceptionLogger? exceptionLogger
         ) {
             SetOptionsFromClient = setOptionsFromClient;
             SlowUpdate = slowUpdate;
             RoslynSourceTextGuard = roslynSourceTextGuard;
             RoslynCompilationGuard = roslynCompilationGuard;
+            ConnectionSendViewer = connectionSendViewer;
             ExceptionLogger = exceptionLogger;
         }
 
@@ -21,6 +23,7 @@ namespace MirrorSharp.Internal {
         public ISlowUpdateExtension? SlowUpdate { get; }
         public IRoslynSourceTextGuard? RoslynSourceTextGuard { get; }
         public IRoslynCompilationGuard? RoslynCompilationGuard { get; }
+        public IConnectionSendViewer? ConnectionSendViewer { get; }
         public IExceptionLogger? ExceptionLogger { get; }
     }
 }

@@ -7,49 +7,39 @@ using System.Text;
 
 namespace MirrorSharp.Internal {
     internal static class FastConvert {
-        private static readonly ArrayPool<char> CharPool = ArrayPool<char>.Shared;
         private const byte Utf8Zero = (byte)'0';
         private const byte Utf8Nine = (byte)'9';
 
         private static readonly string[] CharStringMap =
             Enumerable.Range(0, 128).Select(c => ((char)c).ToString()).ToArray();
 
-        private static readonly ConcurrentDictionary<string, string> LowerInvariantStrings =
-            new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, string> LowerInvariantStrings = new();
 
-        public static int Utf8ByteArrayToInt32(ArraySegment<byte> bytes) {
+        public static int Utf8BytesToInt32(ReadOnlySpan<byte> bytes) {
+            Argument.NotEmpty(nameof(bytes), bytes);
+
             var result = 0;
-            var array = bytes.Array;
-            var count = bytes.Offset + bytes.Count;
-            for (var i = bytes.Offset; i < count; i++) {
-                var @byte = array[i];
+            foreach (var @byte in bytes) {
                 if (@byte < Utf8Zero || @byte > Utf8Nine)
-                    throw new FormatException($"String '{SlowUtf8ByteArrayToString(bytes)}' is not a valid positive number.");
+                    throw new FormatException($"String '{SlowUtf8BytesToString(bytes)}' is not a valid positive number.");
 
                 result = (10 * result) + (@byte - Utf8Zero);
             }
             return result;
         }
 
-        public static char Utf8ByteArrayToChar(ArraySegment<byte> bytes) {
-            if (bytes.Count == 1)
-                return (char)bytes.Array[bytes.Offset];
+        public static char Utf8BytesToChar(ReadOnlySpan<byte> bytes) {
+            Argument.NotEmpty(nameof(bytes), bytes);
 
-            var buffer = CharPool.Rent(2);
-            int charCount;
-            try {
-                charCount = Encoding.UTF8.GetChars(bytes.Array, bytes.Offset, bytes.Count, buffer, 0);
-            }
-            finally {
-                CharPool.Return(buffer);
-            }
+            if (bytes.Length == 1)
+                return (char)bytes[0];
 
-            if (charCount != 1) {
-                // ReSharper disable once HeapView.BoxingAllocation
-                throw new FormatException($"Expected one char, but conversion produced {charCount}.");
-            }
+            var chars = (Span<char>)stackalloc char[2];
+            var charCount = Encoding.UTF8.GetChars(bytes, chars);
+            if (charCount != 1)
+                throw new FormatException($"Expected one char, but conversion produced {charCount}. Bytes: {SlowBytesToHexString(bytes)}");
 
-            return buffer[0];
+            return chars[0];
         }
 
         public static string CharToString(char c) {
@@ -60,7 +50,7 @@ namespace MirrorSharp.Internal {
         }
 
         public static string StringToLowerInvariantString(string value) {
-            if (LowerInvariantStrings.TryGetValue(value, out string result))
+            if (LowerInvariantStrings.TryGetValue(value, out var result))
                 return result;
 
             var lower = value.ToLowerInvariant();
@@ -74,8 +64,12 @@ namespace MirrorSharp.Internal {
             return EnumCache<TEnum>.LowerInvariantStrings[value];
         }
 
-        private static string SlowUtf8ByteArrayToString(ArraySegment<byte> bytes) {
+        private static string SlowUtf8BytesToString(ReadOnlySpan<byte> bytes) {
             return Encoding.UTF8.GetString(bytes);
+        }
+
+        private static string SlowBytesToHexString(ReadOnlySpan<byte> bytes) {
+            return "0x" + string.Join("", bytes.ToArray().Select(b => b.ToString("X2")));
         }
 
         private static class EnumCache<TEnum>

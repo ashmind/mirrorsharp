@@ -11,8 +11,8 @@ using MirrorSharp.Testing.Internal;
 
 namespace MirrorSharp.Benchmarks {
     public class SignatureHelpBenchmarks {
-        private static readonly AsyncData LeftParenthesis = new AsyncData(new ArraySegment<byte>(Encoding.UTF8.GetBytes("(")), false, () => Task.FromResult<ArraySegment<byte>?>(null));
-        private static readonly AsyncData Semicolon = new AsyncData(new ArraySegment<byte>(Encoding.UTF8.GetBytes(";")), false, () => Task.FromResult<ArraySegment<byte>?>(null));
+        private static readonly AsyncData LeftParenthesis = new(Encoding.UTF8.GetBytes("("), false, () => Task.FromResult<ReadOnlyMemory<byte>?>(null));
+        private static readonly AsyncData Semicolon = new(Encoding.UTF8.GetBytes(";"), false, () => Task.FromResult<ReadOnlyMemory<byte>?>(null));
 
         private TypeCharHandler? _handler;
         private WorkSession? _sessionWithHelp;
@@ -27,13 +27,13 @@ namespace MirrorSharp.Benchmarks {
 
         [Benchmark]
         public void TypeCharExpectingSignatureHelp() {
-            _handler!.ExecuteAsync(LeftParenthesis, _sessionWithHelp!, new StubCommandResultSender(), CancellationToken.None)
+            _handler!.ExecuteAsync(LeftParenthesis, _sessionWithHelp!, new StubCommandResultSender(_sessionWithHelp!), CancellationToken.None)
                 .GetAwaiter().GetResult();
         }
 
         [Benchmark]
         public void TypeCharNotExpectingSignatureHelp() {
-            _handler!.ExecuteAsync(Semicolon, _sessionWithNoHelp!, new StubCommandResultSender(), CancellationToken.None)
+            _handler!.ExecuteAsync(Semicolon, _sessionWithNoHelp!, new StubCommandResultSender(_sessionWithHelp!), CancellationToken.None)
                 .GetAwaiter().GetResult();
         }
     }

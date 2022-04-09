@@ -11,10 +11,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="node_modules\**\*.*" />
-    <Content Remove="node_modules\**\*.*" />
-    <Compile Remove="node_modules\**\*.*" />
-    <None Include="node_modules\**\*.*" />
+    <Compile Remove="node_modules\**" />
+    <EmbeddedResource Remove="node_modules\**" />
+    <None Remove="node_modules\**" />
   </ItemGroup>
 
   <ItemGroup>
