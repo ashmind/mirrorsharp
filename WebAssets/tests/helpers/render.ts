@@ -6,7 +6,7 @@ import type { TestDriver } from '../test-driver';
 import lazyRenderSetup from './render/docker/lazy-setup';
 import controlledPromise from '../../ts/helpers/controlled-promise';
 
-async function processRequest(request: puppeteer.Request, html: string) {
+async function processRequest(request: puppeteer.HTTPRequest, html: string) {
     const method = request.method();
     const url = new URL(request.url());
     if (method !== 'GET') {
