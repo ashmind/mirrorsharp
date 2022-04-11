@@ -28,16 +28,21 @@ jobs:
     - name: 'WebAssets: npm test'
       run: npm test
       working-directory: WebAssets
+      timeout-minutes: 3
+
     - uses: actions/upload-artifact@v2
       if: failure()
       with:
         name: tests-__diff_output__
         path: WebAssets/tests/__image_snapshots__/__diff_output__
-        if-no-files-found: ignore        
+        if-no-files-found: ignore
+
     - name: 'WebAssets: npm test -- --updateSnapshot'
       run: npm test -- --updateSnapshot
       working-directory: WebAssets
       if: failure()
+      timeout-minutes: 3
+
     - uses: actions/upload-artifact@v2
       if: failure()
       with:

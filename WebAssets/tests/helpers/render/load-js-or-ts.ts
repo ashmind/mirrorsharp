@@ -15,7 +15,7 @@ export default async function loadJSOrTS(path: string): Promise<string> {
     if (cached)
         return cached;
 
-    console.log(`Loading ${path} from ${fullPath}`);
+    // console.log(`Loading ${path} from ${fullPath}`);
     if (fullPath.endsWith('.ts')) {
         const compiled = adjustImportsForBrowser(compileTestTypeScript(fullPath), fullPath);
         await cache.set(fullPath, compiled);

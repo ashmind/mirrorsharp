@@ -6,6 +6,7 @@ import { shouldSkipRender } from '../should-skip';
 type RenderSetupState = 'none' | 'pending' | 'ready';
 function setSetupState(state: RenderSetupState) {
     process.env.TEST_DOCKER_SETUP_STATE = state;
+    console.log('TEST_DOCKER_SETUP_STATE set to', state);
 }
 function getSetupState() {
     return (process.env.TEST_DOCKER_SETUP_STATE as RenderSetupState|undefined) ?? 'none';
