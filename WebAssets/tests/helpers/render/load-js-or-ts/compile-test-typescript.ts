@@ -9,7 +9,7 @@ export default function compile(path: string): string {
     if (compiled.has(path))
         return compiled.get(path)!;
 
-    console.log(`Compiling ${path}`);
+    // console.log(`Compiling ${path}`);
 
     const { config: { compilerOptions } } = ts.readConfigFile(`${testRoot}/tsconfig.json`, ts.sys.readFile);
     const { options, errors } = ts.convertCompilerOptionsFromJson(compilerOptions as unknown, testRoot);
@@ -26,7 +26,7 @@ export default function compile(path: string): string {
     // eslint-disable-next-line no-undefined
     const emitResult = program.emit(undefined, (path: string, data: string) => {
         const tsPath = pathResolve(path.replace(/\.js$/, '.ts'));
-        console.log(`Compiled ${tsPath}`);
+        // console.log(`Compiled ${tsPath}`);
         compiled.set(tsPath, data);
     });
     ensureNoErrors(emitResult.diagnostics, path);

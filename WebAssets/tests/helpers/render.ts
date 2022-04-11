@@ -79,8 +79,10 @@ export default async function render(
     size: { width: number; height: number },
     { debug = !!inspector.url() }: { debug?: boolean } = {}
 ) {
+    console.log('starting render');
     const { port } = await lazyRenderSetup();
 
+    console.log('render setup complete');
     const content = `<!DOCTYPE html>
         <html>
           <head>
@@ -103,25 +105,36 @@ export default async function render(
           </body>
         </html>`;
 
+    console.log('waiting for puppeteer.connect()');
     const browser = await puppeteer.connect({ browserURL: `http://localhost:${port}` });
+    console.log('puppeteer.connect() done; waiting for browser.newPage()');
     const page = await browser.newPage();
+    console.log('browser.newPage() done; waiting for page.setViewport()');
     await page.setViewport(size);
 
     const load = controlledPromise();
+    console.log('page.setViewport() done; waiting for setupRequestInterception()');
     await setupRequestInterception(page, content, e => load.reject(e));
+    console.log('setupRequestInterception() done; waiting for page.exposeFunction()');
     await page.exposeFunction('notifyLoaded', (e?: Error) => e ? load.reject(e) : load.resolve());
 
     // does not exist -- required for module relative references
+    console.log('page.exposeFunction() done; waiting for page.goto()');
     await page.goto('http://mirrorsharp.test');
 
+    console.log('page.goto() done; waiting for load.promise');
     await Promise.race(!debug ? [
         load.promise,
         timeout(30000, 'Page did not call notifyLoaded() within the time limit.')
     ] : [load.promise]);
+    console.log('load.promise done; waiting for page.screenshot()');
     const screenshot = await page.screenshot();
 
+    console.log('page.screenshot() done; waiting for page.close()');
     await page.close();
+    console.log('page.close() done; executing browser.disconnect()');
     browser.disconnect();
 
+    console.log('browser.disconnect() done; all done.');
     return screenshot;
 }

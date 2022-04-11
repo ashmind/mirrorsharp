@@ -37,7 +37,7 @@ jobs:
         if-no-files-found: ignore
 
     - name: 'WebAssets: npm test -- --updateSnapshot'
-      run: npm test -- --updateSnapshot
+      run: npm test -- --runInBand --updateSnapshot
       working-directory: WebAssets
       if: failure()
 
