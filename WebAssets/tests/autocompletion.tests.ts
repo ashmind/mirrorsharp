@@ -122,19 +122,29 @@ test.each([
     [2, ['field', 'interface', 'keyword', 'local', 'method', 'module', 'namespace']],
     [3, ['parameter', 'property', 'structure', 'typeparameter', 'union']]
 ])('completion list is rendered correctly (%p)', async (_, kinds) => {
+    const start = new Date();
+    const seconds = () => Math.floor((new Date().getTime() - start.getTime()) / 1000);
     if (TestDriver.shouldSkipRender)
         return;
+    console.log(`[(${seconds()}s] completion test ${_}: starting`);
+    console.log(`[(${seconds()}s] completion test ${_}: await TestDriver.new()`);
     const driver = await TestDriver.new({ textWithCursor: '|' });
 
+    console.log(`[(${seconds()}s] completion test ${_}: driver.receive.completions()`);
     driver.receive.completions(kinds.map(k => ({
         displayText: k,
         kinds: [k]
     })));
+    console.log(`[(${seconds()}s] completion test ${_}: driver.completeBackgroundWork()`);
     await driver.completeBackgroundWork();
 
-    const rendered = await driver.render();
+    console.log(`[(${seconds()}s] completion test ${_}: driver.render()`);
+    const rendered = await driver.render({ seconds });
 
+    console.log(`[(${seconds()}s] completion test ${_}: expect().toMatchImageSnapshot()`);
     expect(rendered).toMatchImageSnapshot();
+
+    console.log(`[(${seconds()}s] completion test ${_}: completed`);
 });
 
 test('completion is applied on Tab', async () => {

@@ -77,12 +77,12 @@ export { shouldSkipRender } from './render/should-skip';
 export default async function render(
     driver: TestDriver<unknown>,
     size: { width: number; height: number },
-    { debug = !!inspector.url() }: { debug?: boolean } = {}
+    { debug = !!inspector.url(), seconds = () => 0 }: { debug?: boolean; seconds?: () => number } = {}
 ) {
-    console.log('starting render');
+    console.log(`[(${seconds()}s] render: starting`);
+    console.log(`[(${seconds()}s] render: await lazyRenderSetup()`);
     const { port } = await lazyRenderSetup();
 
-    console.log('render setup complete');
     const content = `<!DOCTYPE html>
         <html>
           <head>
@@ -105,36 +105,36 @@ export default async function render(
           </body>
         </html>`;
 
-    console.log('waiting for puppeteer.connect()');
+    console.log(`[(${seconds()}s] render: await puppeteer.connect()`);
     const browser = await puppeteer.connect({ browserURL: `http://localhost:${port}` });
-    console.log('puppeteer.connect() done; waiting for browser.newPage()');
+    console.log(`[(${seconds()}s] render: await browser.newPage()`);
     const page = await browser.newPage();
-    console.log('browser.newPage() done; waiting for page.setViewport()');
+    console.log(`[(${seconds()}s] render: await page.setViewport()`);
     await page.setViewport(size);
 
     const load = controlledPromise();
-    console.log('page.setViewport() done; waiting for setupRequestInterception()');
+    console.log(`[(${seconds()}s] render: await setupRequestInterception()`);
     await setupRequestInterception(page, content, e => load.reject(e));
-    console.log('setupRequestInterception() done; waiting for page.exposeFunction()');
+    console.log(`[(${seconds()}s] render: await page.exposeFunction()`);
     await page.exposeFunction('notifyLoaded', (e?: Error) => e ? load.reject(e) : load.resolve());
 
     // does not exist -- required for module relative references
-    console.log('page.exposeFunction() done; waiting for page.goto()');
+    console.log(`[(${seconds()}s] render: await page.goto()`);
     await page.goto('http://mirrorsharp.test');
 
-    console.log('page.goto() done; waiting for load.promise');
+    console.log(`[(${seconds()}s] render: await load.promise`);
     await Promise.race(!debug ? [
         load.promise,
         timeout(30000, 'Page did not call notifyLoaded() within the time limit.')
     ] : [load.promise]);
-    console.log('load.promise done; waiting for page.screenshot()');
+    console.log(`[(${seconds()}s] render: await page.screenshot()`);
     const screenshot = await page.screenshot();
 
-    console.log('page.screenshot() done; waiting for page.close()');
+    console.log(`[(${seconds()}s] render: wait page.close()`);
     await page.close();
-    console.log('page.close() done; executing browser.disconnect()');
+    console.log(`[(${seconds()}s] render: await browser.disconnect()`);
     browser.disconnect();
 
-    console.log('browser.disconnect() done; all done.');
+    console.log(`[(${seconds()}s] render: completed`);
     return screenshot;
 }
