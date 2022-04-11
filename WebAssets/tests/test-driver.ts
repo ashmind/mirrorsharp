@@ -1,7 +1,7 @@
 import { TestDriver as IsomorphicTestDriver, TestDriverConstructorArguments, TestDriverOptions, setTimers } from './test-driver-isomorphic';
 import render, { shouldSkipRender } from './helpers/render';
 
-const renderSize = { width: 640, height: 200 };
+const renderSize = { width: 700, height: 300 };
 
 (() => {
     // clean JSDOM between tests

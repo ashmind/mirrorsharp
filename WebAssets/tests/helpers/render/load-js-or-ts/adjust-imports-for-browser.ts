@@ -21,7 +21,7 @@ function rewriteImportPath(path: string, scriptFullPath: string) {
     const resolvedPath = relative(dirname(scriptFullPath), resolvedFullPath);
     const url = (resolvedPath.startsWith('.') ? '' : './') + resolvedPath.replace(/\\/g, '/');
 
-    console.log(`Rewriting ${path} to ${url} (imported in ${scriptFullPath}).`);
+    // console.log(`Rewriting ${path} to ${url} (imported in ${scriptFullPath}).`);
     return url;
 }
 
