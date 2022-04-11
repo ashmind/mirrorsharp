@@ -117,6 +117,7 @@ test('completion list is filtered based on new typed text', async () => {
     expect(currentCompletions(state).map(c => c.label)).toEqual(['aba', 'ABB']);
 });
 
+let testInProgress = false;
 test.each([
     [1, ['class', 'constant', 'delegate', 'enum', 'enummember', 'event', 'extensionmethod']],
     [2, ['field', 'interface', 'keyword', 'local', 'method', 'module', 'namespace']],
@@ -126,25 +127,33 @@ test.each([
     const seconds = () => Math.floor((new Date().getTime() - start.getTime()) / 1000);
     if (TestDriver.shouldSkipRender)
         return;
-    console.log(`[(${seconds()}s] completion test ${_}: starting`);
-    console.log(`[(${seconds()}s] completion test ${_}: await TestDriver.new()`);
-    const driver = await TestDriver.new({ textWithCursor: '|' });
+    if (testInProgress)
+        throw 'Attempted to start a new test while a test is already in progress';
+    testInProgress = true;
+    try {
+        console.log(`[${seconds()}s] completion test ${_}: starting`);
+        console.log(`[${seconds()}s] completion test ${_}: await TestDriver.new()`);
+        const driver = await TestDriver.new({ textWithCursor: '|' });
 
-    console.log(`[(${seconds()}s] completion test ${_}: driver.receive.completions()`);
-    driver.receive.completions(kinds.map(k => ({
-        displayText: k,
-        kinds: [k]
-    })));
-    console.log(`[(${seconds()}s] completion test ${_}: driver.completeBackgroundWork()`);
-    await driver.completeBackgroundWork();
+        console.log(`[${seconds()}s] completion test ${_}: driver.receive.completions()`);
+        driver.receive.completions(kinds.map(k => ({
+            displayText: k,
+            kinds: [k]
+        })));
+        console.log(`[${seconds()}s] completion test ${_}: driver.completeBackgroundWork()`);
+        await driver.completeBackgroundWork();
 
-    console.log(`[(${seconds()}s] completion test ${_}: driver.render()`);
-    const rendered = await driver.render({ seconds });
+        console.log(`[${seconds()}s] completion test ${_}: driver.render()`);
+        const rendered = await driver.render({ seconds });
 
-    console.log(`[(${seconds()}s] completion test ${_}: expect().toMatchImageSnapshot()`);
-    expect(rendered).toMatchImageSnapshot();
+        console.log(`[${seconds()}s] completion test ${_}: expect().toMatchImageSnapshot()`);
+        expect(rendered).toMatchImageSnapshot();
 
-    console.log(`[(${seconds()}s] completion test ${_}: completed`);
+        console.log(`[${seconds()}s] completion test ${_}: completed`);
+    }
+    finally {
+        testInProgress = false;
+    }
 });
 
 test('completion is applied on Tab', async () => {
