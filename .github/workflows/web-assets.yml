@@ -26,9 +26,8 @@ jobs:
       working-directory: WebAssets
 
     - name: 'WebAssets: npm test'
-      run: npm test
+      run: npm test -- --runInBand
       working-directory: WebAssets
-      timeout-minutes: 5
 
     - uses: actions/upload-artifact@v2
       if: failure()
@@ -41,7 +40,6 @@ jobs:
       run: npm test -- --updateSnapshot
       working-directory: WebAssets
       if: failure()
-      timeout-minutes: 5
 
     - uses: actions/upload-artifact@v2
       if: failure()
