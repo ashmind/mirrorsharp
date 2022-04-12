@@ -36,10 +36,10 @@ jobs:
         path: WebAssets/tests/__image_snapshots__/__diff_output__
         if-no-files-found: ignore
 
-    #- name: 'WebAssets: npm test -- --updateSnapshot'
-    #  run: npm test -- --runInBand --updateSnapshot
-    #  working-directory: WebAssets
-    #  if: failure()
+    - name: 'WebAssets: npm test -- --updateSnapshot'
+      run: npm test -- --runInBand --updateSnapshot
+      working-directory: WebAssets
+      if: failure()
 
     - uses: actions/upload-artifact@v2
       if: failure()

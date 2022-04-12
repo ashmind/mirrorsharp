@@ -4,7 +4,8 @@
         "bin/": true,
         "obj/": true,
         "*.csproj*": true,
-        "Properties/": true
+        "Properties/": true,
+        "tests/.render-cache/": true
     },
     "editor.codeActionsOnSave": {
         "source.fixAll": true
@@ -22,7 +23,8 @@
         "**/bower_components": true,
         "**/coverage/**": true,
         "**/.temp/**": true,
-        "**/dist/**": true
+        "**/dist/**": true,
+        "**/tests/.render-cache/**": true
     },
     "cSpell.words": [
         "Andrey",
