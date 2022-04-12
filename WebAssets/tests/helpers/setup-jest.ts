@@ -1,3 +1,4 @@
+import './real-timers'; // ensures real timers are captured before fake ones are set up
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 
 expect.extend({ toMatchImageSnapshot });

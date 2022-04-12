@@ -1,5 +1,6 @@
 import execa from 'execa';
 import fetch from 'node-fetch';
+import { setTimeout  } from '../../real-timers';
 import { setContainerIdFromSetup } from './container-id';
 import { shouldSkipRender } from '../should-skip';
 
