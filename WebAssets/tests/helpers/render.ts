@@ -74,67 +74,77 @@ const timeout = (ms: number, message: string) => new Promise(
 );
 
 export { shouldSkipRender } from './render/should-skip';
+
+let renderInProgress = false;
 export default async function render(
     driver: TestDriver<unknown>,
     size: { width: number; height: number },
     { debug = !!inspector.url(), seconds = () => 0 }: { debug?: boolean; seconds?: () => number } = {}
 ) {
-    console.log(`[${seconds()}s] render: starting`);
-    console.log(`[${seconds()}s] render: await lazyRenderSetup()`);
-    const { port } = await lazyRenderSetup();
+    if (renderInProgress)
+        throw 'Attempted to start a new render while render is already in progress';
+    renderInProgress = true;
+    try {
+        console.log(`[${seconds()}s] render: starting`);
+        console.log(`[${seconds()}s] render: await lazyRenderSetup()`);
+        const { port } = await lazyRenderSetup();
 
-    const content = `<!DOCTYPE html>
-        <html>
-          <head>
-            <title>mirrorsharp render test page</title>
-            <link rel="stylesheet" href="css/mirrorsharp.css">
-          </head>
-          <body>
-            <script type="module">
-                import { timers } from './tests/helpers/render/browser-fake-timers.ts';
-                import { TestDriver, setTimers } from './tests/test-driver-isomorphic.ts';
+        const content = `<!DOCTYPE html>
+            <html>
+            <head>
+                <title>mirrorsharp render test page</title>
+                <link rel="stylesheet" href="css/mirrorsharp.css">
+            </head>
+            <body>
+                <script type="module">
+                    import { timers } from './tests/helpers/render/browser-fake-timers.ts';
+                    import { TestDriver, setTimers } from './tests/test-driver-isomorphic.ts';
 
-                setTimers(timers);
-                TestDriver
-                    .fromJSON(${JSON.stringify(driver.toJSON())})
-                    .then(() => notifyLoaded(), e => {
-                        console.error(e);
-                        notifyLoaded(e.message);
-                    });
-            </script>
-          </body>
-        </html>`;
+                    setTimers(timers);
+                    TestDriver
+                        .fromJSON(${JSON.stringify(driver.toJSON())})
+                        .then(() => notifyLoaded(), e => {
+                            console.error(e);
+                            notifyLoaded(e.message);
+                        });
+                </script>
+            </body>
+            </html>`;
 
-    console.log(`[${seconds()}s] render: await puppeteer.connect()`);
-    const browser = await puppeteer.connect({ browserURL: `http://localhost:${port}` });
-    console.log(`[${seconds()}s] render: await browser.newPage()`);
-    const page = await browser.newPage();
-    console.log(`[${seconds()}s] render: await page.setViewport()`);
-    await page.setViewport(size);
+        console.log(`[${seconds()}s] render: await puppeteer.connect()`);
+        const browser = await puppeteer.connect({ browserURL: `http://localhost:${port}` });
+        console.log(`[${seconds()}s] render: await browser.newPage()`);
+        const page = await browser.newPage();
+        console.log(`[${seconds()}s] render: await page.setViewport()`);
+        await page.setViewport(size);
 
-    const load = controlledPromise();
-    console.log(`[${seconds()}s] render: await setupRequestInterception()`);
-    await setupRequestInterception(page, content, e => load.reject(e));
-    console.log(`[${seconds()}s] render: await page.exposeFunction()`);
-    await page.exposeFunction('notifyLoaded', (e?: Error) => e ? load.reject(e) : load.resolve());
+        const load = controlledPromise();
+        console.log(`[${seconds()}s] render: await setupRequestInterception()`);
+        await setupRequestInterception(page, content, e => load.reject(e));
+        console.log(`[${seconds()}s] render: await page.exposeFunction()`);
+        await page.exposeFunction('notifyLoaded', (e?: Error) => e ? load.reject(e) : load.resolve());
 
-    // does not exist -- required for module relative references
-    console.log(`[${seconds()}s] render: await page.goto()`);
-    await page.goto('http://mirrorsharp.test');
+        // does not exist -- required for module relative references
+        console.log(`[${seconds()}s] render: await page.goto()`);
+        await page.goto('http://mirrorsharp.test');
 
-    console.log(`[${seconds()}s] render: await load.promise`);
-    await Promise.race(!debug ? [
-        load.promise,
-        timeout(30000, 'Page did not call notifyLoaded() within the time limit.')
-    ] : [load.promise]);
-    console.log(`[${seconds()}s] render: await page.screenshot()`);
-    const screenshot = await page.screenshot();
+        console.log(`[${seconds()}s] render: await load.promise`);
+        await Promise.race(!debug ? [
+            load.promise,
+            timeout(30000, 'Page did not call notifyLoaded() within the time limit.')
+        ] : [load.promise]);
+        console.log(`[${seconds()}s] render: await page.screenshot()`);
+        const screenshot = await page.screenshot();
 
-    console.log(`[${seconds()}s] render: wait page.close()`);
-    await page.close();
-    console.log(`[${seconds()}s] render: await browser.disconnect()`);
-    browser.disconnect();
+        console.log(`[${seconds()}s] render: wait page.close()`);
+        await page.close();
+        console.log(`[${seconds()}s] render: await browser.disconnect()`);
+        browser.disconnect();
 
-    console.log(`[${seconds()}s] render: completed`);
-    return screenshot;
+        console.log(`[${seconds()}s] render: completed`);
+        return screenshot;
+    }
+    finally {
+        renderInProgress = false;
+    }
 }

@@ -19,13 +19,20 @@ function getPort() {
 }
 
 async function waitFor(ready: () => Promise<boolean>|boolean, error: () => Error) {
+    console.log('waitFor: starting');
     let remainingRetryCount = 50;
+    console.log(`[${remainingRetryCount} retries] waitFor: await Promise.resolve(ready())`);
     while (!(await Promise.resolve(ready()))) {
-        if (remainingRetryCount === 0)
+        if (remainingRetryCount === 0) {
+            console.log(`[${remainingRetryCount} retries] waitFor: error - no tries remaining`);
             throw error();
+        }
+        console.log(`[${remainingRetryCount} retries] waitFor: await new Promise(() => setTimeout())`);
         await new Promise(resolve => setTimeout(resolve, 100));
         remainingRetryCount -= 1;
+        console.log(`[${remainingRetryCount} retries] waitFor: await Promise.resolve(ready())`);
     }
+    console.log('waitFor: completed');
 }
 
 export default async (): Promise<{ port: string }> => {
@@ -69,10 +76,13 @@ export default async (): Promise<{ port: string }> => {
 
     await waitFor(async () => {
         try {
+            console.log('lazySetup: waitFor, await fetch()');
             await fetch(`http://localhost:${port}`);
+            console.log('lazySetup: waitFor, fetch completed');
             return true;
         }
         catch {
+            console.log('lazySetup: waitFor, fetch failed');
             return false;
         }
     }, () => new Error(`Chrome container has not opened port ${port} within the wait period.`));
