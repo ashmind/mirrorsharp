@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "parcel build index.html --out-dir wwwroot --no-minify",
-    "watch": "parcel watch index.html --out-dir wwwroot"
+    "watch": "parcel watch index.html --out-dir wwwroot",
+    "postinstall": "cd ./node_modules/mirrorsharp && npm install --production"
   },
   "dependencies": {
     "mirrorsharp": "file:../WebAssets/dist",
