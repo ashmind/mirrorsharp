@@ -57,6 +57,7 @@ const files = task('files', async () => {
     // which is fine, from perspective of the project itself it's TypeScript, so type=module is irrelevant
     // only the output (dist) is JS modules
     packageJson.type = 'module';
+    delete packageJson.devDependencies;
     await jetpack.writeAsync('dist/package.json', JSON.stringify(packageJson, null, 4));
 }, { watch: ['./README.md', './package.json'] });
 
