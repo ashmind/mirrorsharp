@@ -61,7 +61,7 @@ namespace MirrorSharp.Tests {
                     Public Sub M()
                     End Sub
                 End Class
-            ");
+            ".Replace("                ", "").Trim());
 
             var result = await driver.SendWithRequiredResultAsync<SlowUpdateResult<object>>(SlowUpdate);
 
