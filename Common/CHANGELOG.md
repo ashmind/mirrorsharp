@@ -1,10 +1,10 @@
 # Changelog
 
-## Unreleased
+## [3.0.1] - 2022-08-13
 
 ### Fixed
-- Fixed incompatibility with Microsoft.CodeAnalysis 4.4.0+
-- Fixed incompatibility with Microsoft.CodeAnalysis 4.3.0+
+- Fixed incompatibility with preview versions of Microsoft.CodeAnalysis 4.4.0+
+- Fixed incompatibility with preview versions of Microsoft.CodeAnalysis 4.3.0+
 
 ## [3.0.0] - 2022-04-04
 ## [3.0.0-test-2022-04-02-1] - 2022-04-02
