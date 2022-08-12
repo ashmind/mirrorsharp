@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed incompatibility with Microsoft.CodeAnalysis 4.4.0+
 - Fixed incompatibility with Microsoft.CodeAnalysis 4.3.0+
 
 ## [3.0.0] - 2022-04-04

@@ -25,6 +25,7 @@
     <ProjectReference Include="..\Internal.Roslyn41\Internal.Roslyn41.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Internal.Roslyn42\Internal.Roslyn42.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Internal.Roslyn43\Internal.Roslyn43.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Internal.Roslyn44\Internal.Roslyn44.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>MirrorSharp.Internal.Roslyn43</AssemblyName>
-    <RootNamespace>MirrorSharp.Internal.Roslyn43</RootNamespace>
+    <AssemblyName>MirrorSharp.Internal.Roslyn44</AssemblyName>
+    <RootNamespace>MirrorSharp.Internal.Roslyn44</RootNamespace>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -19,9 +19,9 @@
 
   <ItemGroup>
     <PackageReference Include="IgnoresAccessChecksToGenerator" Version="0.5.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.3.0-3.22411.3" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.3.0-3.22411.3" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.3.0-3.22411.3" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.4.0-2.22411.8" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.4.0-2.22411.8" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.4.0-2.22411.8" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
