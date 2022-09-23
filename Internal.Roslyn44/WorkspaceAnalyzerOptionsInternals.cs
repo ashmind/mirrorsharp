@@ -11,8 +11,7 @@ namespace MirrorSharp.Internal.Roslyn43 {
             Argument.NotNull(nameof(options), options);
             Argument.NotNull(nameof(project), project);
             return new WorkspaceAnalyzerOptions(
-                options, project.Solution,
-                IdeAnalyzerOptions.GetDefault(project.Services)
+                options, IdeAnalyzerOptions.GetDefault(project.Services)
             );
         }
     }
