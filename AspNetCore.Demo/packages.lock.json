@@ -818,8 +818,8 @@
       },
       "System.Memory": {
         "type": "Transitive",
-        "resolved": "4.5.4",
-        "contentHash": "1MbJTHS1lZ4bS4FmsJjnuGJOu88ZzTT2rLvrhW7Ygic+pC0NWA+3hgAen0HRdsocuQXCkUTdFn9yHJJhsijDXw=="
+        "resolved": "4.5.5",
+        "contentHash": "XIWiDvKPXaTveaB7HVganDlOCRoj03l+jrwNvcge/t8vhGYKvqV+dMv6G4SAX2NoNmN0wZfVPTAlFwZcZvVOUw=="
       },
       "System.Net.Http": {
         "type": "Transitive",
@@ -1503,7 +1503,7 @@
           "Microsoft.CodeAnalysis.CSharp.Features": "[3.3.1, )",
           "Microsoft.CodeAnalysis.Common": "[3.3.1, )",
           "Microsoft.CodeAnalysis.Workspaces.Common": "[3.3.1, )",
-          "System.Memory": "[4.5.4, )"
+          "System.Memory": "[4.5.5, )"
         }
       },
       "MirrorSharp.FSharp": {
