@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed incompatibility with preview versions of Microsoft.CodeAnalysis 4.4.0+
 - Fixed incompatibility with preview versions of Microsoft.CodeAnalysis 4.3.0+
+- Fixed support for .NET Framework XML documentation redirects on x64
 
 ## [3.0.0] - 2022-04-04
 ## [3.0.0-test-2022-04-02-1] - 2022-04-02
