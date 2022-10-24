@@ -10,6 +10,8 @@ jobs:
   build-and-publish:
     name: 'Build and Publish'
     runs-on: windows-latest
+    env:
+      NUGET_PACKAGES: ${{github.workspace}}/.nuget/packages
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-dotnet@v1
@@ -21,6 +23,13 @@ jobs:
     - uses: actions/setup-dotnet@v1
       with:
           dotnet-version: 6.0.x
+
+    - uses: actions/cache@v3
+      with:
+        path: ${{github.workspace}}/.nuget/packages
+        key: ${{runner.os}}-nuget-${{hashFiles('**/packages.lock.json')}}
+        restore-keys: |
+          ${{runner.os}}-nuget-
 
     # https://github.com/actions/setup-dotnet/issues/155#issuecomment-748452076
     - run: dotnet nuget locals all --clear
