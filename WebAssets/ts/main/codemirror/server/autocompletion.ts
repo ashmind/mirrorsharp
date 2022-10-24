@@ -42,7 +42,7 @@ export const autocompletionFromServer = <O, U>(connection: Connection<O, U>) => 
     };
 
     const receiveCompletionInfo = (view: EditorView, message: CompletionInfoMessage) => {
-        const completion = currentCompletions(view.state)[message.index] as CompletionWithIndex;
+        const completion = currentCompletions(view.state)[message.index] as unknown as CompletionWithIndex;
         const { resolve } = completion[completionInfoNodeKey] ?? {};
         if (!resolve)
             return;

@@ -1,7 +1,6 @@
 import { EditorState, EditorSelection } from '@codemirror/state';
-import { indentUnit } from '@codemirror/language';
-import { classHighlightStyle } from '@codemirror/highlight';
-import { history } from '@codemirror/history';
+import { indentUnit, classHighlightStyle } from '@codemirror/language';
+import { history } from '@codemirror/commands';
 import type { Connection } from '../connection';
 import type { SlowUpdateOptions } from '../../interfaces/slow-update';
 import { csharp } from './lang-csharp';

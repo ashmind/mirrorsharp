@@ -1,6 +1,5 @@
 
-import { defaultKeymap, indentMore, indentLess } from '@codemirror/commands';
-import { historyKeymap } from '@codemirror/history';
+import { defaultKeymap, historyKeymap, indentMore, indentLess } from '@codemirror/commands';
 import { keymap, ViewPlugin } from '@codemirror/view';
 import { defineEffectField } from '../../helpers/define-effect-field';
 

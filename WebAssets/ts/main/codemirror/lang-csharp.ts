@@ -1,8 +1,8 @@
 import { parser } from 'lezer-csharp-simple';
-import { LezerLanguage } from '@codemirror/language';
-import { styleTags, tags } from '@codemirror/highlight';
+import { LRLanguage } from '@codemirror/language';
+import { styleTags, tags } from '@lezer/highlight';
 
-export const csharpSyntax = LezerLanguage.define({
+export const csharpSyntax = LRLanguage.define({
     parser: parser.configure({
         props: [styleTags({
             Keyword: tags.keyword,
