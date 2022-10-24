@@ -1,10 +1,15 @@
 # Changelog
 
+## [3.0.2] - 2022-10-25
+
+### Fixed
+- Fixed incompatibility with preview versions of Microsoft.CodeAnalysis 4.4.0+
+
 ## [3.0.1] - 2022-08-13
 
 ### Fixed
 - Fixed incompatibility with preview versions of Microsoft.CodeAnalysis 4.4.0+
-- Fixed incompatibility with preview versions of Microsoft.CodeAnalysis 4.3.0+
+- Fixed incompatibility with Microsoft.CodeAnalysis 4.3.0+
 - Fixed support for .NET Framework XML documentation redirects on x64
 
 ## [3.0.0] - 2022-04-04
