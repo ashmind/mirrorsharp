@@ -8,16 +8,6 @@
         "resolved": "3.3.0",
         "contentHash": "upaG6u/PxjkOj39Kk0DLmmA75acYChmv6/HnOUxvSgGWul53uPcVaPxBWCzkHDfIljyiq5qeIG+CatT8x8FAEA=="
       },
-      "Mobius.ILasm": {
-        "type": "Direct",
-        "requested": "[0.1.0, )",
-        "resolved": "0.1.0",
-        "contentHash": "0uB5lko7fQZ4eOqkEyApSwxSwdMqdrduTpi6aAvr1nr03Lw+muS6UaAYCvk2ICN+AR94lPelvSx1+HCCwBMhTQ==",
-        "dependencies": {
-          "System.Reflection.Emit": "4.7.0",
-          "System.Security.Permissions": "5.0.0"
-        }
-      },
       "NETStandard.Library": {
         "type": "Direct",
         "requested": "[2.0.3, )",
@@ -525,6 +515,13 @@
           "Microsoft.CodeAnalysis.Common": "[3.3.1, )",
           "Microsoft.CodeAnalysis.Workspaces.Common": "[3.3.1, )",
           "System.Memory": "[4.5.5, )"
+        }
+      },
+      "mobius.ilasm": {
+        "type": "Project",
+        "dependencies": {
+          "System.Reflection.Emit": "[4.7.0, )",
+          "System.Security.Permissions": "[5.0.0, )"
         }
       }
     }

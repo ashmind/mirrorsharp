@@ -51,6 +51,7 @@ namespace MirrorSharp.Internal.Roslyn {
             if (roslynVersion.Major == 42 && roslynVersion.Minor == 42) {
                 // Try previous versions, in case CI is not on newest yet
                 assembly = GetAssemblyOrNullIfTypesFailToLoad(assembly)
+                        ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 4)))
                         ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 3)))
                         ?? LoadInternalsAssemblySlow(new Version(4, 2));
             }
@@ -72,7 +73,8 @@ namespace MirrorSharp.Internal.Roslyn {
 
         private static Assembly LoadInternalsAssemblySlow(Version roslynVersion) {
             var assemblyName = roslynVersion switch {
-                { Major: > 4 } or { Major: 4, Minor: >= 4 } => "MirrorSharp.Internal.Roslyn44.dll",
+                { Major: > 4 } or { Major: 4, Minor: >= 5 } => "MirrorSharp.Internal.Roslyn45.dll",
+                { Major: 4, Minor: >= 4 } => "MirrorSharp.Internal.Roslyn44.dll",
                 { Major: 4, Minor: >= 3 } => "MirrorSharp.Internal.Roslyn43.dll",
                 { Major: 4, Minor: 2 } => "MirrorSharp.Internal.Roslyn42.dll",
                 { Major: 4, Minor: 1 } => "MirrorSharp.Internal.Roslyn41.dll",

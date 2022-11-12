@@ -221,15 +221,6 @@
           "Microsoft.NETCore.Platforms": "5.0.0"
         }
       },
-      "Mobius.ILasm": {
-        "type": "Transitive",
-        "resolved": "0.1.0",
-        "contentHash": "0uB5lko7fQZ4eOqkEyApSwxSwdMqdrduTpi6aAvr1nr03Lw+muS6UaAYCvk2ICN+AR94lPelvSx1+HCCwBMhTQ==",
-        "dependencies": {
-          "System.Reflection.Emit": "4.7.0",
-          "System.Security.Permissions": "5.0.0"
-        }
-      },
       "NETStandard.Library": {
         "type": "Transitive",
         "resolved": "1.6.1",
@@ -1490,7 +1481,7 @@
       "MirrorSharp.AspNetCore": {
         "type": "Project",
         "dependencies": {
-          "MirrorSharp.Common": "[3.0.1, )"
+          "MirrorSharp.Common": "[3.0.2, )"
         }
       },
       "MirrorSharp.AspNetCore.Demo.Library": {
@@ -1513,14 +1504,21 @@
           "FSharp.Core": "[6.0.1, )",
           "Microsoft.Build.Utilities.Core": "[17.0.0, )",
           "Microsoft.IO.RecyclableMemoryStream": "[2.2.0, )",
-          "MirrorSharp.Common": "[3.0.1, )"
+          "MirrorSharp.Common": "[3.0.2, )"
         }
       },
       "MirrorSharp.IL": {
         "type": "Project",
         "dependencies": {
-          "MirrorSharp.Common": "[3.0.1, )",
+          "MirrorSharp.Common": "[3.0.2, )",
           "Mobius.ILasm": "[0.1.0, )"
+        }
+      },
+      "mobius.ilasm": {
+        "type": "Project",
+        "dependencies": {
+          "System.Reflection.Emit": "[4.7.0, )",
+          "System.Security.Permissions": "[5.0.0, )"
         }
       }
     }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../NuGet.Common.props" />
   
   <PropertyGroup>
@@ -26,6 +26,7 @@
     <ProjectReference Include="..\Internal.Roslyn42\Internal.Roslyn42.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Internal.Roslyn43\Internal.Roslyn43.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Internal.Roslyn44\Internal.Roslyn44.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Internal.Roslyn45\Internal.Roslyn45.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>

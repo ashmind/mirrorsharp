@@ -19,9 +19,9 @@
 
   <ItemGroup>
     <PackageReference Include="IgnoresAccessChecksToGenerator" Version="0.5.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.4.0-3.22472.9" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.4.0-3.22472.9" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.4.0-3.22472.9" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.4.0-6.22559.4" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.4.0-6.22559.4" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.4.0-6.22559.4" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

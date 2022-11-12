@@ -2130,13 +2130,13 @@
           "FSharp.Core": "[6.0.1, )",
           "Microsoft.Build.Utilities.Core": "[17.0.0, )",
           "Microsoft.IO.RecyclableMemoryStream": "[2.2.0, )",
-          "MirrorSharp.Common": "[3.0.1, )"
+          "MirrorSharp.Common": "[3.0.2, )"
         }
       },
       "MirrorSharp.Php": {
         "type": "Project",
         "dependencies": {
-          "MirrorSharp.Common": "[3.0.1, )",
+          "MirrorSharp.Common": "[3.0.2, )",
           "Peachpie.App": "[0.9.0-CI01101, )",
           "Peachpie.CodeAnalysis": "[0.9.0-CI01101, )"
         }
@@ -2145,7 +2145,7 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.CodeAnalysis.Common": "[3.3.1, )",
-          "MirrorSharp.Common": "[3.0.1, )",
+          "MirrorSharp.Common": "[3.0.2, )",
           "Newtonsoft.Json": "[9.0.1, )",
           "System.Buffers": "[4.5.1, )"
         }
@@ -2155,7 +2155,7 @@
         "dependencies": {
           "Microsoft.CodeAnalysis.VisualBasic": "[3.3.1, )",
           "Microsoft.CodeAnalysis.VisualBasic.Features": "[3.3.1, )",
-          "MirrorSharp.Common": "[3.0.1, )"
+          "MirrorSharp.Common": "[3.0.2, )"
         }
       }
     },
@@ -3026,13 +3026,13 @@
           "FSharp.Core": "[6.0.1, )",
           "Microsoft.Build.Utilities.Core": "[17.0.0, )",
           "Microsoft.IO.RecyclableMemoryStream": "[2.2.0, )",
-          "MirrorSharp.Common": "[3.0.1, )"
+          "MirrorSharp.Common": "[3.0.2, )"
         }
       },
       "MirrorSharp.Php": {
         "type": "Project",
         "dependencies": {
-          "MirrorSharp.Common": "[3.0.1, )",
+          "MirrorSharp.Common": "[3.0.2, )",
           "Peachpie.App": "[0.9.0-CI01101, )",
           "Peachpie.CodeAnalysis": "[0.9.0-CI01101, )"
         }
@@ -3041,7 +3041,7 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.CodeAnalysis.Common": "[3.3.1, )",
-          "MirrorSharp.Common": "[3.0.1, )",
+          "MirrorSharp.Common": "[3.0.2, )",
           "Newtonsoft.Json": "[9.0.1, )",
           "System.Buffers": "[4.5.1, )"
         }
@@ -3051,7 +3051,7 @@
         "dependencies": {
           "Microsoft.CodeAnalysis.VisualBasic": "[3.3.1, )",
           "Microsoft.CodeAnalysis.VisualBasic.Features": "[3.3.1, )",
-          "MirrorSharp.Common": "[3.0.1, )"
+          "MirrorSharp.Common": "[3.0.2, )"
         }
       }
     }
