@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <AssemblyName>MirrorSharp.Tests.RoslynLatest</AssemblyName>
     <RootNamespace>MirrorSharp.Tests</RootNamespace>
@@ -17,9 +17,9 @@
 
   <ItemGroup>
     <!-- https://dev.azure.com/dnceng/public/_artifacts/feed/dotnet-tools -->
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.5.0-2.22561.5" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.5.0-2.22561.5" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="4.5.0-2.22561.5" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.5.0-2.22574.5" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.5.0-2.22574.5" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="4.5.0-2.22574.5" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="SourceMock" Version="0.10.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
