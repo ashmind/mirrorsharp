@@ -43,7 +43,7 @@
     </ItemGroup>
   </Target>
 
-  <PropertyGroup>
+  <PropertyGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net471')) ">
     <CoreCompileDependsOn>RunGenerateReferenceAssembliesPathTask;$(CoreCompileDependsOn)</CoreCompileDependsOn>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)\..\GenerateReferenceAssembliesPathTask\bin\$(Configuration)\netstandard2.0\GenerateReferenceAssembliesPathTask.props" />

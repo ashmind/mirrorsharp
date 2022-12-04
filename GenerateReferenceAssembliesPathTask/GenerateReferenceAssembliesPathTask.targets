@@ -4,7 +4,7 @@
     <UsingTask TaskName="$(MSBuildThisFileName).GenerateReferenceAssembliesPathTask"
                AssemblyFile="$(MSBuildThisFileDirectory)\$(MSBuildThisFileName).dll"/>
 
-    <Target Name="RunGenerateReferenceAssembliesPathTask" Inputs="$(TargetFrameworkRootPath)" Outputs="$(RootFolder)\MirrorSharpOptionsWithXmlDocumentation.generated.cs">
+    <Target Name="RunGenerateReferenceAssembliesPathTask" Outputs="$(RootFolder)\MirrorSharpOptionsWithXmlDocumentation.generated.cs">
         <GenerateReferenceAssembliesPathTask
             ContinueOnError="False"
             TargetFrameworkRootPath="$(TargetFrameworkRootPath)"
