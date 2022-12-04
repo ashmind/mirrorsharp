@@ -46,6 +46,12 @@
   <PropertyGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net471')) ">
     <CoreCompileDependsOn>RunGenerateReferenceAssembliesPathTask;$(CoreCompileDependsOn)</CoreCompileDependsOn>
   </PropertyGroup>
+  <ItemGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net471')) ">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)\..\GenerateReferenceAssembliesPathTask\bin\$(Configuration)\netstandard2.0\GenerateReferenceAssembliesPathTask.props" />
   <Import Project="$(MSBuildThisFileDirectory)\..\GenerateReferenceAssembliesPathTask\bin\$(Configuration)\netstandard2.0\GenerateReferenceAssembliesPathTask.targets" />
 
