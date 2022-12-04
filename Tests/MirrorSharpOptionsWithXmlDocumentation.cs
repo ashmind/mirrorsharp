@@ -8,10 +8,6 @@ namespace MirrorSharp.Tests {
         private static readonly string MscorlibReferenceAssemblyPath =
             AppDomain.CurrentDomain.BaseDirectory
                 + @"\ref-assemblies\System.Runtime.dll";
-        #elif NET471
-        private static readonly string MscorlibReferenceAssemblyPath =
-            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)
-                + @"\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.1\mscorlib.dll";
         #endif
 
         public static MirrorSharpOptions Instance { get; } = new MirrorSharpOptions().SetupCSharp(c => {
