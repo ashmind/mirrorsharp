@@ -34,6 +34,7 @@ jobs:
         restore-keys: |
           ${{runner.os}}-nuget-
 
+    - run: dotnet build GenerateReferenceAssembliesPathTask/GenerateReferenceAssembliesPathTask.csproj --configuration Release
     - run: dotnet build --configuration Release 
     - run: dotnet test --no-build --configuration Release 
     - run: dotnet pack --no-build --output . --configuration Release
