@@ -34,13 +34,15 @@ jobs:
         restore-keys: |
           ${{runner.os}}-nuget-
 
-    - run: dotnet build GenerateReferenceAssembliesPathTask/GenerateReferenceAssembliesPathTask.csproj --configuration Release
-    - run: dotnet build --configuration Release 
-    - run: dotnet test --no-build --configuration Release 
+    - run: dotnet --info
+    - run: dotnet restore
+    - run: dotnet build GenerateReferenceAssembliesPathTask/GenerateReferenceAssembliesPathTask.csproj --configuration Release --no-restore
+    - run: dotnet build --configuration Release --no-restore
+    - run: dotnet test --no-build --configuration Release
     - run: dotnet pack --no-build --output . --configuration Release
 
     - if: github.ref == 'refs/heads/main'
-      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_TOKEN}} --skip-duplicate 
+      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_TOKEN}} --skip-duplicate
 
     - if: github.ref == 'refs/heads/main'
       uses: actions/upload-artifact@v2-preview
