@@ -12,7 +12,11 @@ namespace MirrorSharp.Tests {
     public class FSharpTests {
         private static readonly MirrorSharpOptions Options = new MirrorSharpOptions().EnableFSharp();
 
+#if NET7_0_OR_GREATER
         [Fact]
+#else
+        [Fact(Skip = "Microsoft.Build.Utilities.Core v17.4.0")]
+#endif
         public async void SlowUpdate_ProducesNoDiagnostics_IfCodeIsValid() {
             var driver = MirrorSharpTestDriver.New(Options, FSharpLanguage.Name);
             var code = @"
@@ -28,7 +32,11 @@ namespace MirrorSharp.Tests {
             Assert.Equal("", string.Join("\r\n", result.Diagnostics));
         }
 
+#if NET7_0_OR_GREATER
         [Fact]
+#else
+        [Fact(Skip = "Microsoft.Build.Utilities.Core v17.4.0")]
+#endif
         public async void SlowUpdate_ProducesExpectedDiagnostics_IfCodeHasErrors() {
             var driver = MirrorSharpTestDriver.New(Options, FSharpLanguage.Name);
             await driver.SendReplaceTextAsync("xyz");
@@ -48,7 +56,11 @@ namespace MirrorSharp.Tests {
             );
         }
 
+#if NET7_0_OR_GREATER
         [Fact]
+#else
+        [Fact(Skip = "Microsoft.Build.Utilities.Core v17.4.0")]
+#endif
         public async void TypeChar_ProducesExpectedCompletion() {
             var driver = MirrorSharpTestDriver.New(Options, FSharpLanguage.Name);
             driver.SetTextWithCursor(@"
@@ -76,7 +88,11 @@ namespace MirrorSharp.Tests {
             );
         }
 
+#if NET7_0_OR_GREATER
         [Fact]
+#else
+        [Fact(Skip = "Microsoft.Build.Utilities.Core v17.4.0")]
+#endif
         public async void ForceCompletion_ProducesExpectedCompletion_ForDelegateTypeInScope() {
             var driver = MirrorSharpTestDriver.New(Options, FSharpLanguage.Name);
             driver.SetTextWithCursor(@"
@@ -94,7 +110,11 @@ namespace MirrorSharp.Tests {
             );
         }
 
+#if NET7_0_OR_GREATER
         [Fact]
+#else
+        [Fact(Skip = "Microsoft.Build.Utilities.Core v17.4.0")]
+#endif
         public async void CompletionState_ProducesExpectedCompletionChanges() {
             var driver = MirrorSharpTestDriver.New(Options, FSharpLanguage.Name);
             driver.SetTextWithCursor(@"
