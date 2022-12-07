@@ -23,7 +23,7 @@
     <ProjectReference Include="..\Testing\Testing.csproj" />
     <ProjectReference Include="..\VisualBasic\VisualBasic.csproj" />
   </ItemGroup>
-  
+
   <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
     <ItemGroup>
       <ReferencePath Condition="'%(FileName)' == 'Peachpie.Microsoft.CodeAnalysis'">
@@ -32,7 +32,7 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="CopySdkReferenceAssemblies" AfterTargets="ResolveReferences" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+  <Target Name="CopySdkReferenceAssemblies" AfterTargets="ResolveReferences" Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'">
     <ItemGroup>
       <Content Include="@(Reference->'%(RootDir)%(Directory)%(Filename)%(Extension)')"
                Link="@(Reference->'ref-assemblies\%(Filename)%(Extension)')"
