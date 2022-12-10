@@ -27,9 +27,9 @@ namespace MirrorSharp.Internal.Handlers {
                 .GetQuickInfoAsync(session.Roslyn.Document, cursorPosition, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (IsNullOrEmpty(info))
+            if (IsNullOrEmpty(info!))
                 return;
-            await SendInfoTipAsync(info, sender, cancellationToken).ConfigureAwait(false);
+            await SendInfoTipAsync(info!, sender, cancellationToken).ConfigureAwait(false);
         }
 
         private Task SendInfoTipAsync(QuickInfoItem info, ICommandResultSender sender, CancellationToken cancellationToken) {

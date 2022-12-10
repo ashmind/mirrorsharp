@@ -41,7 +41,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             if (completionList == null)
                 throw new InvalidOperationException("Cannot select completion when completion list is not active.");
 
-            var item = completionList.Items[selectedIndex];
+            var item = completionList.ItemsList[selectedIndex];
             var change = await session.LanguageSession.GetCompletionChangeAsync(completionList.Span, item, cancellationToken: cancellationToken).ConfigureAwait(false);
             current.List = null;
 
@@ -64,7 +64,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             var span = textChange.Span;
             var newStart = Math.Min(span.Start, completionSpan.Start);
             var newLength = Math.Max(span.End, session.CursorPosition) - newStart;
-            return new TextChange(new TextSpan(newStart, newLength), textChange.NewText);
+            return new TextChange(new TextSpan(newStart, newLength), textChange.NewText ?? "");
         }
 
         public async Task SendItemInfoAsync(int selectedIndex, WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken) {
@@ -72,7 +72,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             if (list == null)
                 return;
 
-            var item = list.Items[selectedIndex];
+            var item = list.ItemsList[selectedIndex];
             var description = await session.LanguageSession.GetCompletionDescriptionAsync(item, cancellationToken).ConfigureAwait(false);
             if (description == null)
                 return;
@@ -127,7 +127,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
             }
 
             writer.WritePropertyStartArray("completions");
-            foreach (var item in completionList.Items) {
+            foreach (var item in completionList.ItemsList) {
                 writer.WriteStartObject();
                 writer.WriteProperty("filterText", item.FilterText);
                 writer.WriteProperty("displayText", item.DisplayText);

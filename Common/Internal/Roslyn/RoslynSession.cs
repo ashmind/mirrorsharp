@@ -57,8 +57,8 @@ namespace MirrorSharp.Internal.Roslyn {
             }
             _workspace = new CustomWorkspace(hostServices);
             _document = CreateProjectAndOpenNewDocument(_workspace, projectInfo, safeSourceTextForDocument);
-            QuickInfoService = QuickInfoService.GetService(_document);
-            _completionService = CompletionService.GetService(_document);
+            QuickInfoService = QuickInfoService.GetService(_document)!;
+            _completionService = CompletionService.GetService(_document)!;
 
             Analyzers = analyzers;
             SignatureHelpProviders = signatureHelpProviders;
@@ -82,7 +82,7 @@ namespace MirrorSharp.Internal.Roslyn {
         public string GetText() => SourceText.ToString();
         public void ReplaceText(string? newText, int start = 0, int? length = null) {
             var finalLength = length ?? SourceText.Length - start;
-            _oneTextChange[0] = new TextChange(new TextSpan(start, finalLength), newText);
+            _oneTextChange[0] = new TextChange(new TextSpan(start, finalLength), newText ?? "");
             SourceText = SourceText.WithChanges(_oneTextChange);
         }
 
@@ -106,7 +106,7 @@ namespace MirrorSharp.Internal.Roslyn {
         }
 
         public Task<CompletionList?> GetCompletionsAsync(int cursorPosition, CompletionTrigger trigger, CancellationToken cancellationToken) {
-            return _completionService.GetCompletionsAsync(Document, cursorPosition, trigger, cancellationToken: cancellationToken);
+            return _completionService.GetCompletionsAsync(Document, cursorPosition, trigger, cancellationToken: cancellationToken)!;
         }
 
         public Task<CompletionDescription?> GetCompletionDescriptionAsync(CompletionItem item, CancellationToken cancellationToken) {
