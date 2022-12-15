@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [3.0.3] - 2022-12-15
 
 ### Fixed
 - Fixed support for Microsoft.CodeAnalysis 4.5.0+ (preview versions)
