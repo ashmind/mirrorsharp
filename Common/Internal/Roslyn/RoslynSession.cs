@@ -28,7 +28,7 @@ namespace MirrorSharp.Internal.Roslyn {
         private bool _documentOutOfDate;
         private Document _document;
         private SourceText _sourceText;
-        private Solution? _lastWorkspaceAnalyzerOptionsSolution;
+        private Project? _lastWorkspaceAnalyzerOptionsProject;
         private AnalyzerOptions? _workspaceAnalyzerOptions;
 
         private readonly CompletionService _completionService;
@@ -91,10 +91,9 @@ namespace MirrorSharp.Internal.Roslyn {
             var compilation = (await Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false))!;
             _extensions.RoslynCompilationGuard?.ValidateCompilation(compilation, this);
 
-            var solution = Project.Solution;
-            if (_lastWorkspaceAnalyzerOptionsSolution != solution) {
-                _workspaceAnalyzerOptions = RoslynInternals.WorkspaceAnalyzerOptions.New(EmptyAnalyzerOptions, solution);
-                _lastWorkspaceAnalyzerOptionsSolution = solution;
+            if (_lastWorkspaceAnalyzerOptionsProject != Project) {
+                _workspaceAnalyzerOptions = RoslynInternals.WorkspaceAnalyzerOptions.New(EmptyAnalyzerOptions, Project);
+                _lastWorkspaceAnalyzerOptionsProject = Project;
             }
 
             return await compilation.WithAnalyzers(Analyzers, _workspaceAnalyzerOptions, cancellationToken)

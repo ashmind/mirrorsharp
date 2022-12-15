@@ -6,12 +6,15 @@ using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Control;
+using Microsoft.IO;
 using MirrorSharp.FSharp.Advanced;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Abstraction;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using range = FSharp.Compiler.Text.Range;
@@ -21,13 +24,25 @@ namespace MirrorSharp.FSharp.Internal {
     internal class FSharpSession : ILanguageSessionInternal, IFSharpSession {
         private static readonly Task<CompletionDescription?> NoCompletionDescriptionTask = Task.FromResult<CompletionDescription?>(null);
 
-        private string _text;
+        private string _sourceText;
+        private FSharpVirtualFile _sourceFile;
+        private MemoryStream? _sourceStream;
         private LineColumnMap? _lastLineMap;
         private FSharpParseAndCheckResults? _lastParseAndCheck;
         private FSharpProjectOptions _projectOptions;
 
-        public FSharpSession(string text, MirrorSharpFSharpOptions options) {
-            _text = text;
+        private readonly RecyclableMemoryStreamManager _memoryStreamManager;
+
+        public FSharpSession(
+            string text, MirrorSharpFSharpOptions options,
+            RecyclableMemoryStreamManager memoryStreamManager
+        ) {
+            _sourceText = text;
+            _sourceFile = CustomFileSystem.Instance.RegisterVirtualFile(
+                static s => s.EnsureTextStream(), this, fileName: "_.fs"
+            );
+            _sourceFile.LastWriteTime = DateTime.Now;
+            _memoryStreamManager = memoryStreamManager;
 
             Checker = FSharpChecker.Create(
                 null,
@@ -47,7 +62,7 @@ namespace MirrorSharp.FSharp.Internal {
             _projectOptions = new FSharpProjectOptions(
                 "_",
                 projectId: null,
-                sourceFiles: new[] { "_.fs" },
+                sourceFiles: new[] { _sourceFile.Path },
                 otherOptions: ConvertToOtherOptions(options),
                 referencedProjects: Array.Empty<FSharpReferencedProject>(),
                 isIncompleteTypeCheckEnvironment: true,
@@ -57,6 +72,16 @@ namespace MirrorSharp.FSharp.Internal {
                 originalLoadReferences: FSharpList<Tuple<range, string, string>>.Empty,
                 stamp: null
             );
+        }
+
+        private MemoryStream EnsureTextStream() {
+            if (_sourceStream == null) {
+                var byteCount = Encoding.UTF8.GetByteCount(_sourceText);
+                _sourceStream = _memoryStreamManager.GetStream("FSharpSession.SourceFile", byteCount, asContiguousBuffer: true);
+                Encoding.UTF8.GetBytes(_sourceText, 0, _sourceText.Length, _sourceStream.GetBuffer(), 0);
+            }
+
+            return _sourceStream;
         }
 
         private FSharpList<string> ToFSharpList(ImmutableArray<string> assemblyReferencePaths) {
@@ -121,9 +146,9 @@ namespace MirrorSharp.FSharp.Internal {
         public async ValueTask<FSharpParseAndCheckResults> ParseAndCheckAsync(CancellationToken cancellationToken) {
             if (_lastParseAndCheck != null)
                 return _lastParseAndCheck;
-            var sourceText = SourceText.ofString(_text);
+            var sourceText = SourceText.ofString(_sourceText);
             var tuple = await FSharpAsync.StartAsTask(
-                Checker.ParseAndCheckFileInProject("_.fs", 0, sourceText, ProjectOptions, Microsoft.FSharp.Core.FSharpOption<string>.None), null, cancellationToken
+                Checker.ParseAndCheckFileInProject(_sourceFile.Path, 0, sourceText, ProjectOptions, Microsoft.FSharp.Core.FSharpOption<string>.None), null, cancellationToken
             ).ConfigureAwait(false);
 
             _lastParseAndCheck = new FSharpParseAndCheckResults(tuple.Item1, tuple.Item2);
@@ -175,17 +200,20 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public string GetText() {
-            return _text;
+            return _sourceText;
         }
 
         public void ReplaceText(string? newText, int start = 0, int? length = null) {
             if (length > 0)
-                _text = _text.Remove(start, length.Value);
+                _sourceText = _sourceText.Remove(start, length.Value);
             if (newText?.Length > 0)
-                _text = _text.Insert(start, newText);
+                _sourceText = _sourceText.Insert(start, newText);
 
             _lastParseAndCheck = null;
             _lastLineMap = null;
+            _sourceStream?.Dispose();
+            _sourceStream = null;
+            _sourceFile.LastWriteTime = DateTime.Now;
         }
 
         public bool ShouldTriggerCompletion(int cursorPosition, CompletionTrigger trigger) {
@@ -201,8 +229,8 @@ namespace MirrorSharp.FSharp.Internal {
             var info = GetLineMap().GetLineAndColumn(cursorPosition);
             var symbols = success.Item.GetDeclarationListSymbols(
                 result.ParseResults, info.line.Number,
-                _text.Substring(info.line.Start, info.line.Length),
-                QuickParse.GetPartialLongNameEx(_text.Substring(info.line.Start, info.line.Length), info.column - 1),
+                _sourceText.Substring(info.line.Start, info.line.Length),
+                QuickParse.GetPartialLongNameEx(_sourceText.Substring(info.line.Start, info.line.Length), info.column - 1),
                 Microsoft.FSharp.Core.FSharpOption<Microsoft.FSharp.Core.FSharpFunc<Microsoft.FSharp.Core.Unit, FSharpList<AssemblySymbol>>>.None
             );
             if (symbols.IsEmpty)
@@ -242,11 +270,13 @@ namespace MirrorSharp.FSharp.Internal {
 
         private LineColumnMap GetLineMap() {
             if (_lastLineMap == null)
-                _lastLineMap = LineColumnMap.BuildFor(_text);
+                _lastLineMap = LineColumnMap.BuildFor(_sourceText);
             return _lastLineMap;
         }
 
         public void Dispose() {
+            _sourceFile.Dispose();
+            _sourceStream?.Dispose();
         }
     }
 }

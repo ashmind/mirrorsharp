@@ -2,8 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
-using System.Security;
 using FSharp.Compiler.IO;
 using Microsoft.FSharp.Core;
 using MirrorSharp.FSharp.Advanced;
@@ -12,12 +10,13 @@ using MirrorSharp.Internal;
 namespace MirrorSharp.FSharp.Internal {
 
     internal class CustomFileSystem : IFileSystem {
-        private const string VirtualTempPath = @"V:\virtualfs#temp\";
+        private const string VirtualPathPrefix = "#mirrorsharp-virtual-fs";
+        private const string VirtualTempPath = VirtualPathPrefix + "temp";
 
-        private readonly ConcurrentDictionary<string, FSharpVirtualFile> _virtualFiles = new ConcurrentDictionary<string, FSharpVirtualFile>();
-        private readonly ConcurrentDictionary<string, byte[]> _fileBytesCache = new ConcurrentDictionary<string, byte[]>();
-        private readonly ConcurrentDictionary<string, bool> _fileExistsCache = new ConcurrentDictionary<string, bool>();
-        private readonly ConcurrentDictionary<string, bool> _directoryExistsCache = new ConcurrentDictionary<string, bool>();
+        private readonly ConcurrentDictionary<string, FSharpVirtualFile> _virtualFiles = new();
+        private readonly ConcurrentDictionary<string, byte[]> _fileBytesCache = new();
+        private readonly ConcurrentDictionary<string, bool> _fileExistsCache = new();
+        private readonly ConcurrentDictionary<string, bool> _directoryExistsCache = new();
 
         public static CustomFileSystem Instance { get; } = new CustomFileSystem();
 
@@ -26,9 +25,8 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public Stream OpenFileForReadShim(string filePath, FSharpOption<bool> useMemoryMappedFile, FSharpOption<bool> shouldShadowCopy) {
-            var virtualFile = GetVirtualFile(filePath);
-            if (virtualFile != null)
-                return new NonDisposingStreamWrapper(virtualFile.Stream);
+            if (GetVirtualFile(filePath) is {} virtualFile)
+                return new NonDisposingStreamWrapper(virtualFile.GetStream());
 
             EnsureIsAssemblyFile(filePath);
             // For some reason, F# compiler requests this for same file many, many times.
@@ -38,9 +36,8 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public Stream OpenFileForWriteShim(string filePath, FSharpOption<FileMode> fileMode, FSharpOption<FileAccess> fileAccess, FSharpOption<FileShare> fileShare) {
-            var virtualFile = GetVirtualFile(filePath);
-            if (virtualFile != null)
-                return new NonDisposingStreamWrapper(virtualFile.Stream);
+            if (GetVirtualFile(filePath) is {} virtualFile)
+                return new NonDisposingStreamWrapper(virtualFile.GetStream());
 
             throw new NotSupportedException();
         }
@@ -49,7 +46,7 @@ namespace MirrorSharp.FSharp.Internal {
             if (IsSpecialRangeFileName(fileName))
                 return fileName;
 
-            if (GetVirtualFile(fileName) != null)
+            if (fileName.StartsWith(VirtualPathPrefix))
                 return fileName;
 
             if (!Path.IsPathRooted(fileName))
@@ -74,8 +71,8 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public DateTime GetLastWriteTimeShim(string fileName) {
-            if (IsSourceFile(fileName))
-                return DateTime.Now;
+            if (GetVirtualFile(fileName) is {} virtualFile)
+                return virtualFile.LastWriteTime;
 
             EnsureIsAssemblyFile(fileName);
             // pretend all assemblies are ancient and unchanging
@@ -85,8 +82,8 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public DateTime GetCreationTimeShim(string path) {
-            if (IsSourceFile(path))
-                return DateTime.Now;
+            if (GetVirtualFile(path) is {} virtualFile)
+                return DateTime.MinValue;
 
             EnsureIsAssemblyFile(path);
             // pretend all assemblies are ancient and unchanging
@@ -124,6 +121,9 @@ namespace MirrorSharp.FSharp.Internal {
             if (path.StartsWith(VirtualTempPath, StringComparison.OrdinalIgnoreCase))
                 return false;
 
+            if (path.StartsWith(VirtualPathPrefix, StringComparison.OrdinalIgnoreCase))
+                return true;
+
             return _directoryExistsCache.GetOrAdd(path, f => Directory.Exists(f));
         }
 
@@ -152,6 +152,9 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public bool IsPathRootedShim(string path) {
+            if (path.StartsWith(VirtualPathPrefix))
+                return true;
+
             return Path.IsPathRooted(path);
         }
 
@@ -178,10 +181,6 @@ namespace MirrorSharp.FSharp.Internal {
                 || fileName.EndsWith(".sigdata", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static bool IsSourceFile(string fileName) {
-            return fileName.EndsWith(".fs", StringComparison.OrdinalIgnoreCase);
-        }
-
         private static bool IsSpecialRangeFileName(string fileName) {
             // File names used for ranges that are outside of specific source files
             // https://github.com/dotnet/fsharp/blob/dc81e22205550f0cedf4295b06c3a1e338c1cfa1/src/fsharp/range.fs#L226-L228
@@ -190,14 +189,21 @@ namespace MirrorSharp.FSharp.Internal {
                 or "";
         }
 
-        public FSharpVirtualFile RegisterVirtualFile(MemoryStream stream) {
-            Argument.NotNull(nameof(stream), stream);
+        public FSharpVirtualFile RegisterVirtualFile<TGetStreamContext>(
+            Func<TGetStreamContext, MemoryStream> getStream,
+            TGetStreamContext getStreamContext,
+            string? fileName = null
+        ) {
+            Argument.NotNull(nameof(getStream), getStream);
 
-            var name = "virtualfs#" + Guid.NewGuid().ToString("D");
+            var path = Path.Combine(VirtualPathPrefix, Guid.NewGuid().ToString("D"));
+            if (fileName != null)
+                path = Path.Combine(path, fileName);
+
             var file = (FSharpVirtualFile?)null;
             try {
-                file = new FSharpVirtualFile(name, stream, _virtualFiles);
-                _virtualFiles.TryAdd(name, file);
+                file = new FSharpVirtualFile<TGetStreamContext>(path, getStream, getStreamContext, _virtualFiles);
+                _virtualFiles.TryAdd(path, file);
                 return file;
             }
             catch {
@@ -206,8 +212,9 @@ namespace MirrorSharp.FSharp.Internal {
             }
         }
 
-        private FSharpVirtualFile? GetVirtualFile(string path) {
-            return _virtualFiles.TryGetValue(Path.GetFileName(path), out var file) ? file : null;
-        }
+        private FSharpVirtualFile? GetVirtualFile(string path)
+            => _virtualFiles.TryGetValue(path, out var file)
+             ? file
+             : null;
     }
 }

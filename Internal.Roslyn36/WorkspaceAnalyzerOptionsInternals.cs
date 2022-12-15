@@ -7,8 +7,10 @@ namespace MirrorSharp.Internal.Roslyn36 {
     [Shared]
     [Export(typeof(IWorkspaceAnalyzerOptionsInternals))]
     internal class WorkspaceAnalyzerOptionsInternals : IWorkspaceAnalyzerOptionsInternals {
-        public AnalyzerOptions New(AnalyzerOptions options, Solution solution) {
-            return new WorkspaceAnalyzerOptions(options, solution);
+        public AnalyzerOptions New(AnalyzerOptions options, Project project) {
+            Argument.NotNull(nameof(options), options);
+            Argument.NotNull(nameof(project), project);
+            return new WorkspaceAnalyzerOptions(options, project.Solution);
         }
     }
 }

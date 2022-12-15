@@ -19,7 +19,7 @@ namespace MirrorSharp {
             options.Languages.Add(FSharpLanguage.Name, () => {
                 var fsharp = new MirrorSharpFSharpOptions();
                 setup?.Invoke(fsharp);
-                return new FSharpLanguage(fsharp);
+                return new FSharpLanguage(fsharp, new Microsoft.IO.RecyclableMemoryStreamManager());
             });
             return options;
         }

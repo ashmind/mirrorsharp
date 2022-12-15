@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 #if !NETCOREAPP
 using System.Buffers;
 #endif
@@ -11,8 +12,10 @@ using System.Threading;
 using MirrorSharp.Internal.Roslyn.Internals;
 
 namespace MirrorSharp.Internal.Roslyn {
-    internal class RoslynInternals {
-        private static readonly Lazy<Assembly> _internalAssembly = new(LoadInternalsAssemblySlow, LazyThreadSafetyMode.PublicationOnly);
+    internal class RoslynInternals {        
+        private static readonly Lazy<Assembly> _internalAssembly = new(
+            LoadInternalsAssemblyWithDependenciesSlowUncached, LazyThreadSafetyMode.PublicationOnly
+        );
 
         public RoslynInternals(
             ICodeActionInternals codeAction,
@@ -41,12 +44,39 @@ namespace MirrorSharp.Internal.Roslyn {
             return _internalAssembly.Value;
         }
 
-        private static Assembly LoadInternalsAssemblySlow() {
-            var roslynVersion = RoslynAssemblies.MicrosoftCodeAnalysis.GetName().Version;
+        private static Assembly LoadInternalsAssemblyWithDependenciesSlowUncached() {
+            var roslynVersion = RoslynAssemblies.MicrosoftCodeAnalysis.GetName().Version!;
+            var assembly = LoadInternalsAssemblySlow(roslynVersion);
+            // CI build. TODO: SharpLab only?
+            if (roslynVersion.Major == 42 && roslynVersion.Minor == 42) {
+                // Try previous versions, in case CI is not on newest yet
+                assembly = GetAssemblyOrNullIfTypesFailToLoad(assembly)
+                        ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 4)))
+                        ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 3)))
+                        ?? LoadInternalsAssemblySlow(new Version(4, 2));
+            }
 
+            PreloadInternalAssemblyDependenciesSlow(assembly);
+            return assembly;
+        }
+
+        private static Assembly? GetAssemblyOrNullIfTypesFailToLoad(Assembly assembly) {
+            try {
+                _ = assembly.DefinedTypes;
+            }
+            catch (ReflectionTypeLoadException) {
+                return null;
+            }
+
+            return assembly;
+        }
+
+        private static Assembly LoadInternalsAssemblySlow(Version roslynVersion) {
             var assemblyName = roslynVersion switch {
-                { Major: > 4 } => "MirrorSharp.Internal.Roslyn42.dll",
-                { Major: 4, Minor: >= 2 } => "MirrorSharp.Internal.Roslyn42.dll",
+                { Major: > 4 } or { Major: 4, Minor: >= 5 } => "MirrorSharp.Internal.Roslyn45.dll",
+                { Major: 4, Minor: >= 4 } => "MirrorSharp.Internal.Roslyn44.dll",
+                { Major: 4, Minor: >= 3 } => "MirrorSharp.Internal.Roslyn43.dll",
+                { Major: 4, Minor: 2 } => "MirrorSharp.Internal.Roslyn42.dll",
                 { Major: 4, Minor: 1 } => "MirrorSharp.Internal.Roslyn41.dll",
                 { Major: 4 } => "MirrorSharp.Internal.Roslyn36.dll",
                 { Major: 3, Minor: >= 6 } => "MirrorSharp.Internal.Roslyn36.dll",
@@ -69,6 +99,12 @@ namespace MirrorSharp.Internal.Roslyn {
                     ArrayPool<byte>.Shared.Return(assemblyBytes);
             }
             #endif
+        }
+
+        private static void PreloadInternalAssemblyDependenciesSlow(Assembly assembly) {
+            foreach (var reference in assembly.GetReferencedAssemblies()) {
+                Assembly.Load(reference);
+            }
         }
     }
 }

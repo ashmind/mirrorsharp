@@ -44,7 +44,7 @@ namespace MirrorSharp.Internal {
             // https://github.com/dotnet/roslyn/issues/13529#issuecomment-245097691
             // only supporting %PROGRAMFILESDIR% for now
             var programFilesDir = Environment
-                .GetFolderPath(Environment.SpecialFolder.ProgramFiles)
+                .GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)
                 .TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
             return redirect.Replace("%PROGRAMFILESDIR%", programFilesDir);
         }

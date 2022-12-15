@@ -6,9 +6,8 @@ MirrorSharp.FSharp.Advanced.FSharpParseAndCheckResults.ParseResults.get -> FShar
 MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions
 MirrorSharp.FSharp.Advanced.FSharpTargets
 MirrorSharp.FSharp.Advanced.FSharpVirtualFile
+MirrorSharp.FSharp.Advanced.FSharpVirtualFile.Path.get -> string!
 MirrorSharp.FSharp.Advanced.FSharpVirtualFile.Dispose() -> void
-MirrorSharp.FSharp.Advanced.FSharpVirtualFile.Name.get -> string!
-MirrorSharp.FSharp.Advanced.FSharpVirtualFile.Stream.get -> System.IO.MemoryStream!
 MirrorSharp.FSharp.Advanced.IFSharpSession
 MirrorSharp.FSharp.Advanced.IFSharpSession.AssemblyReferencePaths.get -> System.Collections.Immutable.ImmutableArray<string!>
 MirrorSharp.FSharp.Advanced.IFSharpSession.AssemblyReferencePathsAsFSharpList.get -> Microsoft.FSharp.Collections.FSharpList<string!>!

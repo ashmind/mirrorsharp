@@ -8,7 +8,7 @@
     <VersionPrefix>0.2</VersionPrefix>
     <Description>MirrorSharp IL support library. $(DescriptionSuffix)</Description>
     <PackageTags>IL;CodeMirror</PackageTags>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>    
+    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
   </PropertyGroup>
 
   <PropertyGroup>
