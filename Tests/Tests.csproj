@@ -43,16 +43,13 @@
     </ItemGroup>
   </Target>
 
-  <PropertyGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net471')) ">
-    <CoreCompileDependsOn>RunGenerateReferenceAssembliesPathTask;$(CoreCompileDependsOn)</CoreCompileDependsOn>
-  </PropertyGroup>
   <ItemGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net471')) ">
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" GeneratePathProperty="true" />
   </ItemGroup>
-  <Import Project="$(MSBuildThisFileDirectory)\..\GenerateReferenceAssembliesPathTask\bin\$(Configuration)\netstandard2.0\GenerateReferenceAssembliesPathTask.props" />
-  <Import Project="$(MSBuildThisFileDirectory)\..\GenerateReferenceAssembliesPathTask\bin\$(Configuration)\netstandard2.0\GenerateReferenceAssembliesPathTask.targets" />
-
+  <Target Name="WriteToFileMscorelibPath" AfterTargets="Build" Condition=" '$(PkgMicrosoft_NETFramework_ReferenceAssemblies)' != '' ">
+    <WriteLinesToFile
+      File="$(OutputPath)\PkgMicrosoft_NETFramework_ReferenceAssemblies.txt"
+      Overwrite="true"
+      Lines="$(PkgMicrosoft_NETFramework_ReferenceAssemblies)\..\..\microsoft.netframework.referenceassemblies.net471\1.0.3\build\.NETFramework\v4.7.1\mscorlib.dll" />
+  </Target>
 </Project>

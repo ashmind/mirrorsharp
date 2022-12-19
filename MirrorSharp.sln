@@ -61,8 +61,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Internal.Roslyn43", "Intern
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Internal.Roslyn44", "Internal.Roslyn44\Internal.Roslyn44.csproj", "{471A092B-76F9-4789-B028-113D5A1C261E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenerateReferenceAssembliesPathTask", "GenerateReferenceAssembliesPathTask\GenerateReferenceAssembliesPathTask.csproj", "{ACF6EC25-CD19-42D3-A5B1-4D9EF5C4B7C1}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -157,10 +155,6 @@ Global
 		{471A092B-76F9-4789-B028-113D5A1C261E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{471A092B-76F9-4789-B028-113D5A1C261E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{471A092B-76F9-4789-B028-113D5A1C261E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ACF6EC25-CD19-42D3-A5B1-4D9EF5C4B7C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ACF6EC25-CD19-42D3-A5B1-4D9EF5C4B7C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ACF6EC25-CD19-42D3-A5B1-4D9EF5C4B7C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ACF6EC25-CD19-42D3-A5B1-4D9EF5C4B7C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
