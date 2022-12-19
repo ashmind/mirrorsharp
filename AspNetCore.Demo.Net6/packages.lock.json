@@ -1487,7 +1487,7 @@
       "MirrorSharp.AspNetCore": {
         "type": "Project",
         "dependencies": {
-          "MirrorSharp.Common": "[3.0.1, )"
+          "MirrorSharp.Common": "[3.0.3, )"
         }
       },
       "MirrorSharp.AspNetCore.Demo.Library": {
@@ -1510,13 +1510,13 @@
           "FSharp.Core": "[6.0.1, )",
           "Microsoft.Build.Utilities.Core": "[17.0.0, )",
           "Microsoft.IO.RecyclableMemoryStream": "[2.2.0, )",
-          "MirrorSharp.Common": "[3.0.1, )"
+          "MirrorSharp.Common": "[3.0.3, )"
         }
       },
       "MirrorSharp.IL": {
         "type": "Project",
         "dependencies": {
-          "MirrorSharp.Common": "[3.0.1, )",
+          "MirrorSharp.Common": "[3.0.3, )",
           "Mobius.ILasm": "[0.1.0, )"
         }
       }

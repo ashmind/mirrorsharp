@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>MirrorSharp.Internal.Roslyn45</AssemblyName>
+    <RootNamespace>MirrorSharp.Internal.Roslyn45</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RestoreAdditionalProjectSources>
+      https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json;
+      https://pkgs.dev.azure.com/azure-public/vside/_packaging/vs-impl/nuget/v3/index.json
+    </RestoreAdditionalProjectSources>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <InternalsAssemblyNames>Microsoft.CodeAnalysis.Features;Microsoft.CodeAnalysis.Workspaces</InternalsAssemblyNames>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IgnoresAccessChecksToGenerator" Version="0.5.0" PrivateAssets="All" />
+    <!-- https://dev.azure.com/dnceng/public/_artifacts/feed/dotnet-tools -->
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.5.0-2.22580.13" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.5.0-2.22580.13" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.5.0-2.22580.13" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Internal.RoslynInternals\Internal.RoslynInternals.csproj" />
+  </ItemGroup>
+</Project>

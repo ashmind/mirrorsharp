@@ -5,7 +5,7 @@
     <AssemblyName>MirrorSharp.Common</AssemblyName>
     <RootNamespace>MirrorSharp</RootNamespace>
     <TargetFrameworks>netstandard2.0; netcoreapp3.1</TargetFrameworks>
-    <VersionPrefix>3.0.2</VersionPrefix>
+    <VersionPrefix>3.0.3</VersionPrefix>
     <Description>MirrorSharp shared server library. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;CodeMirror</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -26,6 +26,7 @@
     <ProjectReference Include="..\Internal.Roslyn42\Internal.Roslyn42.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Internal.Roslyn43\Internal.Roslyn43.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Internal.Roslyn44\Internal.Roslyn44.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Internal.Roslyn45\Internal.Roslyn45.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>

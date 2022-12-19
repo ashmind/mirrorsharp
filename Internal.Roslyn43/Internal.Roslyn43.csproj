@@ -7,21 +7,14 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <RestoreAdditionalProjectSources>
-      https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json;
-      https://pkgs.dev.azure.com/azure-public/vside/_packaging/vs-impl/nuget/v3/index.json
-    </RestoreAdditionalProjectSources>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <InternalsAssemblyNames>Microsoft.CodeAnalysis.Features;Microsoft.CodeAnalysis.Workspaces</InternalsAssemblyNames>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="IgnoresAccessChecksToGenerator" Version="0.5.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.3.0-3.22411.3" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.3.0-3.22411.3" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.3.0-3.22411.3" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.3.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.3.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.3.1" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
