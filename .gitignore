@@ -3,9 +3,9 @@ project.lock.json
 .vs/
 .tye/
 .idea/
-bower_components/
 node_modules/
 .cache/
+.parcel-cache/
 .temp/
 bin/
 obj/

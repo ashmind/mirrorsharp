@@ -1,5 +1,5 @@
 import { EditorState, EditorSelection } from '@codemirror/state';
-import { indentUnit, classHighlightStyle } from '@codemirror/language';
+import { indentUnit, syntaxHighlighting } from '@codemirror/language';
 import { history } from '@codemirror/commands';
 import type { Connection } from '../connection';
 import type { SlowUpdateOptions } from '../../interfaces/slow-update';
@@ -11,6 +11,7 @@ import { slowUpdateLinter } from './server/slow-update-linter';
 import { connectionState } from './server/connection-state';
 import { infotipsFromServer } from './server/infotips';
 import { autocompletionFromServer } from './server/autocompletion';
+import { classHighlighter } from '@lezer/highlight';
 
 export function createState<O, U>(
     connection: Connection<O, U>,
@@ -28,7 +29,7 @@ export function createState<O, U>(
 
             history(),
             csharp(),
-            classHighlightStyle,
+            syntaxHighlighting(classHighlighter),
 
             connectionState(connection),
             sendChangesToServer(connection),

@@ -57,6 +57,7 @@ const files = task('files', async () => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const packageJson = JSON.parse((await jetpack.readAsync('./package.json'))!) as {
         type?: 'module';
+        devDependencies?: Record<string, string>;
     };
     // cannot be specified in current package.json due to https://github.com/TypeStrong/ts-node/issues/935
     // which is fine, from perspective of the project itself it's TypeScript, so type=module is irrelevant

@@ -120,7 +120,7 @@ export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
         if (this.#mustBeClosed)
             throw `Cannot send command '${command}' after the close() call.`;
 
-        if (this.#socket?.readyState !== WebSocket.OPEN) {
+        if (!this.isOpen()) {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             console.warn(`Dropped command '${command}' because the socket state is ${this.#socket?.readyState}.`);
             return;
@@ -148,6 +148,13 @@ export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
         const index = list.indexOf(handler as any);
         if (index >= 0)
             list.splice(index, 1);
+    }
+
+    isOpen(): this is {
+        // @ts-expect-error "Private fields are not really allowed in guards, but do work somehow"
+        #socket: WebSocket
+    } {
+        return this.#socket?.readyState === WebSocket.OPEN;
     }
 
     sendReplaceText(

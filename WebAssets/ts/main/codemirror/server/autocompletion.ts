@@ -1,87 +1,74 @@
 import type { Connection } from '../../connection';
-import type { CompletionItemData, CompletionsMessage, CompletionInfoMessage } from '../../../interfaces/protocol';
+import type { CompletionsMessage, CompletionInfoMessage } from '../../../interfaces/protocol';
 import { Prec } from '@codemirror/state';
 import { ViewPlugin, EditorView, keymap } from '@codemirror/view';
-import { startCompletion, acceptCompletion, closeCompletion, currentCompletions, completionStatus, autocompletion, CompletionSource, Completion } from '@codemirror/autocomplete';
+import { startCompletion, acceptCompletion, closeCompletion, completionStatus, autocompletion, CompletionSource, Completion } from '@codemirror/autocomplete';
 import { addEvents } from '../../../helpers/add-events';
-import { defineEffectField } from '../../../helpers/define-effect-field';
 import { applyChangesFromServer } from '../../../helpers/apply-changes-from-server';
 import { renderParts } from '../../../helpers/render-parts';
-import controlledPromise from '../../../helpers/controlled-promise';
-
-const [lastCompletionsFromServer, dispatchLastCompletionsFromServerChanged] = defineEffectField<CompletionsMessage|null>(null);
-const completionIndexKey = Symbol('completionIndex');
-const completionInfoNodeKey = Symbol('completionInfoNode');
-
-type CompletionWithIndex = Omit<Completion, 'apply'> & {
-    [completionIndexKey]: number;
-    // A bit hacky -- might be better to update this in the state
-    [completionInfoNodeKey]?: {
-        resolve: (node: Node) => void;
-        promise: Promise<Node>;
-    };
-    apply: (view: EditorView, completion: CompletionWithIndex) => void;
-    info: (completion: CompletionWithIndex) => Promise<Node>;
-};
 
 export const autocompletionFromServer = <O, U>(connection: Connection<O, U>) => {
-    const applyCompletion = ((_, c: CompletionWithIndex) => {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        connection.sendCompletionState(c[completionIndexKey]);
-    }) as CompletionWithIndex['apply'];
+    // Since completions are scoped per connection (server will have one active completion list per connection),
+    // it's OK to have state per plugin rather than per view
+    let currentCompletionsMessage = null as CompletionsMessage | null;
+    const resolveInfoList = new Array<((info: Node) => void) | undefined>();
 
-    const requestCompletionInfo = (completion: CompletionWithIndex) => {
-        let info = completion[completionInfoNodeKey];
-        if (!info) {
-            info = controlledPromise<Node>();
-            completion[completionInfoNodeKey] = info;
+    const applyCompletion = (index: number) => {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        connection.sendCompletionState(index);
+    };
+
+    const requestCompletionInfo = (index: number, ref: { info?: Promise<Node> }) => {
+        if (!ref.info) {
+            ref.info = new Promise(resolve => { resolveInfoList[index] = resolve; });
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            connection.sendCompletionState('info', completion[completionIndexKey]);
+            connection.sendCompletionState('info', index);
         }
-        return info.promise;
+        return ref.info;
     };
 
     const receiveCompletionInfo = (view: EditorView, message: CompletionInfoMessage) => {
-        const completion = currentCompletions(view.state)[message.index] as unknown as CompletionWithIndex;
-        const { resolve } = completion[completionInfoNodeKey] ?? {};
+        const resolve = resolveInfoList[message.index];
         if (!resolve)
             return;
         resolve(renderParts(message.parts, { splitLinesToSections: true }));
     };
 
-    const mapCompletionFromServer = ({ completion: { displayText, kinds }, index }: { completion: CompletionItemData; index: number }) => ({
-        label: displayText,
-        type: kinds[0],
-        apply: applyCompletion,
-        info: requestCompletionInfo,
-        [completionIndexKey]: index
-    } as CompletionWithIndex);
-
     const getAndFilterCompletions = (context => {
-        const all = (context.state.field(lastCompletionsFromServer)
+        const all = currentCompletionsMessage
             ?.completions
-            .map((completion, index) => ({ completion, index })) ?? []);
+            .map((data, index) => ({ data, index })) ?? [];
         const prefix = context.matchBefore(/[\w\d]+/);
 
         let filtered = all;
         if (prefix) {
             const prefixTextLowerCase = prefix.text.toLowerCase();
             filtered = all.filter(
-                ({ completion: c }) => (c.filterText ?? c.displayText).toLowerCase().startsWith(prefixTextLowerCase)
+                ({ data }) => (data.filterText ?? data.displayText).toLowerCase().startsWith(prefixTextLowerCase)
             );
         }
 
+        const completions = filtered.map(({ data, index }) => {
+            const infoRef = {};
+            return ({
+                label: data.displayText,
+                type: data.kinds[0],
+                apply: () => applyCompletion(index),
+                info: () => requestCompletionInfo(index, infoRef)
+            } as Completion);
+        });
+
         return {
             from: prefix?.from ?? context.pos,
-            options: filtered.map(mapCompletionFromServer)
+            options: completions
         };
-    }) as CompletionSource;
+    }) satisfies CompletionSource;
 
     const receiveCompletionMessagesFromServer = ViewPlugin.define(view => {
         const removeEvents = addEvents(connection, {
             message: message => {
                 if (message.type === 'completions') {
-                    dispatchLastCompletionsFromServerChanged(view, message);
+                    currentCompletionsMessage = message;
                     startCompletion(view);
                     return;
                 }
@@ -89,7 +76,7 @@ export const autocompletionFromServer = <O, U>(connection: Connection<O, U>) => 
                 if (message.type === 'changes' && message.reason === 'completion') {
                     applyChangesFromServer(view, message.changes);
                     closeCompletion(view);
-                    dispatchLastCompletionsFromServerChanged(view, null);
+                    currentCompletionsMessage = null;
                 }
 
                 if (message.type === 'completionInfo')
@@ -122,15 +109,14 @@ export const autocompletionFromServer = <O, U>(connection: Connection<O, U>) => 
             if (key.length > 1) // control keys
                 return;
 
-            const state = view.state.field(lastCompletionsFromServer);
-            if (!state?.commitChars.includes(key))
+            if (!currentCompletionsMessage?.commitChars.includes(key))
                 return;
 
             acceptCompletion(view);
         }
     });
 
-    const forceCompletionOnCtrlSpace = Prec.override(keymap.of([{ key: 'Ctrl-Space', run: () => {
+    const forceCompletionOnCtrlSpace = Prec.high(keymap.of([{ key: 'Ctrl-Space', run: () => {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         connection.sendCompletionState('force');
         return true;
@@ -145,7 +131,6 @@ export const autocompletionFromServer = <O, U>(connection: Connection<O, U>) => 
     } }]);
 
     return [
-        lastCompletionsFromServer,
         // overrides default autocompletion binding
         forceCompletionOnCtrlSpace,
         autocompletion({

@@ -32,12 +32,11 @@ if (language === 'F#') {
     code = '[<EntryPoint>]\r\nlet main argv = \r\n    0';
 }
 else if (mode === 'script') {
-    textarea.value = 'var messages = Context.Messages;';
+    code = 'var messages = Context.Messages;';
 }
 else if (language === 'IL') {
-    textarea.value = '.class private auto ansi \'<Module>\'\r\n{\r\n}';
+    code = '.class private auto ansi \'<Module>\'\r\n{\r\n}';
 }
-
 
 mirrorsharp(document.getElementById('editor-container'), {
     serviceUrl: window.location.href.replace(/^http(s?:\/\/[^/]+).*$/i, 'ws$1/mirrorsharp'),

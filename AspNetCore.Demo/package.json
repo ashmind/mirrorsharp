@@ -3,17 +3,16 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "postinstall": "cd ./node_modules/mirrorsharp && npm install --production",
-    "build": "parcel build index.html --out-dir wwwroot --no-minify",
-    "watch": "parcel watch index.html --out-dir wwwroot"
+    "build": "parcel build index.html --dist-dir wwwroot --no-optimize --no-cache"
   },
   "dependencies": {
     "mirrorsharp": "file:../WebAssets/dist",
     "typeface-open-sans": "0.0.75"
   },
   "devDependencies": {
-    "deasync": "^0.1.20",
+    "@parcel/transformer-less": "^2.8.2",
     "less": "^3.12.2",
-    "parcel": "^1.12.4"
+    "parcel": "^2.8.2",
+    "process": "^0.11.10"
   }
 }

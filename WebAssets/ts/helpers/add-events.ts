@@ -19,19 +19,22 @@ type KnownEventGroups<TExtensionServerOptions, TSlowUpdateExtensionData> =
         Partial<ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>>
     ];
 
-function addEvents<TExtensionServerOptions, TSlowUpdateExtensionData>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type OnOffFunction = (key: string, handler: ((...args: Array<any>) => void)) => void;
+
+export const addEvents = <TExtensionServerOptions, TSlowUpdateExtensionData>(
     ...args: KnownEventGroups<TExtensionServerOptions, TSlowUpdateExtensionData>
-) {
+) => {
     const [target, handlers] = args;
     for (const key in handlers) {
-        (target.on as Function)(key, handlers[key as keyof typeof handlers]);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        (target.on as OnOffFunction)(key, handlers[key as keyof typeof handlers]!);
     }
 
     return (): void => {
         for (const key in handlers) {
-            (target.off as Function)(key, handlers[key as keyof typeof handlers]);
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            (target.off as OnOffFunction)(key, handlers[key as keyof typeof handlers]!);
         }
     };
-}
-
-export { addEvents };
+};

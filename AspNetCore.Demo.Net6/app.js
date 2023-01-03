@@ -8,22 +8,40 @@ const params = window.location.search.replace(/^\?/, '').split('&').reduce(funct
 const language = (params['language'] || 'CSharp').replace('Sharp', '#');
 const mode = params['mode'] || 'regular';
 
-const textarea = document.getElementsByTagName('textarea')[0];
+const code = `using System;
+
+class C {
+    const int C2 = 5;
+    string f;
+    string P { get; set; }
+    event EventHandler e;
+    event EventHandler E { add {} remove {} }
+
+    C() {
+    }
+
+    void M(int p) {
+        var l = p;
+    }
+}
+
+class G<T> {
+}`.replace(/(\r\n|\r|\n)/g, '\r\n'); // Parcel changes newlines to LF
+
 if (language === 'F#') {
-    textarea.value = '[<EntryPoint>]\r\nlet main argv = \r\n    0';
+    code = '[<EntryPoint>]\r\nlet main argv = \r\n    0';
 }
 else if (mode === 'script') {
-    textarea.value = 'var messages = Context.Messages;';
+    code = 'var messages = Context.Messages;';
 }
 else if (language === 'IL') {
-    textarea.value = '.class private auto ansi \'<Module>\'\r\n{\r\n}';
+    code = '.class private auto ansi \'<Module>\'\r\n{\r\n}';
 }
 
-
-const ms = mirrorsharp(textarea, {
+mirrorsharp(document.getElementById('editor-container'), {
     serviceUrl: window.location.href.replace(/^http(s?:\/\/[^/]+).*$/i, 'ws$1/mirrorsharp'),
     selfDebugEnabled: true,
-    language: language
+    language,
+    initialText: code,
+    initialServerOptions: (mode !== 'regular' ? { 'x-mode': mode } : {})
 });
-if (mode !== 'regular')
-    ms.setServerOptions({ 'language': language, 'x-mode': mode });

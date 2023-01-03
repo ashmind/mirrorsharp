@@ -1,5 +1,6 @@
 import type { Text, ChangeSet } from '@codemirror/state';
 import { ViewPlugin, PluginValue } from '@codemirror/view';
+import { addEvents } from '../../../helpers/add-events';
 import type { Connection } from '../../connection';
 
 function sendReplace<O, U>(connection: Connection<O, U>, from: number, to: number, text: Text, cursorOffset: number) {
@@ -43,9 +44,16 @@ function sendChanges<O, U>(connection: Connection<O, U>, changes: ChangeSet, pre
 }
 
 export const sendChangesToServer = <O, U>(connection: Connection<O, U>) => ViewPlugin.define(view => {
-    if (view.state.doc.length !== 0)
+    const sendFullText = () => {
+        if (view.state.doc.length === 0)
+            return;
         sendReplace(connection, 0, 0, view.state.doc, view.state.selection.main.from);
+    };
 
+    if (connection.isOpen())
+        sendFullText();
+
+    const removeEvents = addEvents(connection, { open: sendFullText });
     return {
         update({ docChanged, selectionSet, changes, state, startState }) {
             const prevCursorOffset = startState.selection.main.from;
@@ -60,6 +68,8 @@ export const sendChangesToServer = <O, U>(connection: Connection<O, U>) => ViewP
                 // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 connection.sendMoveCursor(cursorOffset);
             }
-        }
+        },
+
+        destroy: removeEvents
     } as PluginValue;
 });

@@ -232,7 +232,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         }
 
         const text = this.getText();
-        if (text === '' || text == null) {
+        if (text === '') {
             this.#lintingSuspended = false;
             return;
         }
@@ -526,7 +526,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
             && this.#serverOptions.language === defaultLanguage;
     };
 
-    #sendServerOptions = async (value: ServerOptions | Partial<ServerOptions & TExtensionServerOptions>) => {
+    #sendServerOptions = async (value: ServerOptions | Partial<TExtensionServerOptions> | Partial<ServerOptions & TExtensionServerOptions>) => {
         this.#pendingServerOptions = { ...this.#serverOptions, ...value };
         await this.#connection.sendSetOptions(value);
         await this.#requestSlowUpdate(true);
@@ -578,7 +578,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         return this.#sendServerOptions({ language: value });
     }
 
-    setServerOptions(value: ServerOptions) {
+    setServerOptions(value: TExtensionServerOptions) {
         return this.#sendServerOptions(value);
     }
 

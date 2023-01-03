@@ -1,8 +1,6 @@
-import { hoverTooltip, Tooltip } from '@codemirror/tooltip';
-import { EditorView, ViewPlugin } from '@codemirror/view';
+import { EditorView, ViewPlugin, hoverTooltip, Tooltip } from '@codemirror/view';
 import type { Connection } from '../../connection';
 import { addEvents } from '../../../helpers/add-events';
-import controlledPromise from '../../../helpers/controlled-promise';
 import { defineEffectField } from '../../../helpers/define-effect-field';
 import type { InfotipMessage } from '../../../interfaces/protocol';
 import { renderPartsTo } from '../../../helpers/render-parts';
@@ -32,14 +30,12 @@ function renderInfotip({ sections, kinds }: InfotipMessage) {
 
 export const infotipsFromServer = <O, U>(connection: Connection<O, U>) => {
     const requestInfotip = (view: EditorView, pos: number) => {
-        const infotipPromise = controlledPromise<Tooltip>();
-        dispatchLastInfotipRequestChanged(view, {
-            pos,
-            resolve: infotipPromise.resolve
+        const infotip = new Promise<Tooltip>(resolve => {
+            dispatchLastInfotipRequestChanged(view, { pos, resolve });
         });
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         connection.sendRequestInfoTip(pos);
-        return infotipPromise.promise;
+        return infotip;
     };
 
     const receiveInfotipFromServer = ViewPlugin.define(view => {
@@ -59,8 +55,8 @@ export const infotipsFromServer = <O, U>(connection: Connection<O, U>) => {
                 request.resolve({
                     pos: request.pos,
                     end: span.start + span.length,
-                    create: () => ({ dom: renderInfotip(message) }),
-                    class: 'mirrorsharp-infotip'
+                    create: () => ({ dom: renderInfotip(message) })/*,
+                    class: 'mirrorsharp-infotip'*/
                 });
             }
         });
