@@ -1,14 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`C# highlighting applies expected classes 1`] = `
-"<div class=\\"cm-line\\"><span class=\\"cmt-keyword\\">public</span> <span class=\\"cmt-keyword\\">class</span> C<span class=\\"cmt-punctuation\\">&lt;</span>T<span class=\\"cmt-punctuation\\">&gt;</span> <span class=\\"cmt-punctuation\\">{</span>
-    <span class=\\"cmt-comment\\">// test comment</span>
-    <span class=\\"cmt-keyword\\">public</span> <span class=\\"cmt-keyword\\">void</span> M<span class=\\"cmt-punctuation\\">&lt;</span>T<span class=\\"cmt-punctuation\\">&gt;</span><span class=\\"cmt-punctuation\\">(</span><span class=\\"cmt-punctuation\\">)</span> <span class=\\"cmt-punctuation\\">{</span>
-        <span class=\\"cmt-keyword\\">double</span> d <span class=\\"cmt-punctuation\\">=</span> <span class=\\"cmt-number\\">1.2e3</span><span class=\\"cmt-punctuation\\">;</span>
-        <span class=\\"cmt-keyword\\">string</span> s1 <span class=\\"cmt-punctuation\\">=</span> <span class=\\"cmt-string\\">\\"test\\"</span><span class=\\"cmt-punctuation\\">;</span>
-        <span class=\\"cmt-keyword\\">string</span> s2 <span class=\\"cmt-punctuation\\">=</span> $<span class=\\"cmt-string\\">\\"a{s1}b\\"</span><span class=\\"cmt-punctuation\\">;</span>
-        <span class=\\"cmt-keyword\\">char</span> c <span class=\\"cmt-punctuation\\">=</span> 't'<span class=\\"cmt-punctuation\\">;</span>
-        Action a <span class=\\"cmt-punctuation\\">=</span> <span class=\\"cmt-punctuation\\">(</span><span class=\\"cmt-punctuation\\">)</span> <span class=\\"cmt-punctuation\\">=&gt;</span> <span class=\\"cmt-punctuation\\">{</span><span class=\\"cmt-punctuation\\">}</span><span class=\\"cmt-punctuation\\">;</span>
-    <span class=\\"cmt-punctuation\\">}</span>
-<span class=\\"cmt-punctuation\\">}</span></div>"
+"<div class=\\"cm-line\\"><span class=\\"tok-keyword\\">public</span> <span class=\\"tok-keyword\\">class</span> C<span class=\\"tok-punctuation\\">&lt;</span>T<span class=\\"tok-punctuation\\">&gt;</span> <span class=\\"tok-punctuation\\">{</span>
+    <span class=\\"tok-comment\\">// test comment</span>
+    <span class=\\"tok-keyword\\">public</span> <span class=\\"tok-keyword\\">void</span> M<span class=\\"tok-punctuation\\">&lt;</span>T<span class=\\"tok-punctuation\\">&gt;</span><span class=\\"tok-punctuation\\">(</span><span class=\\"tok-punctuation\\">)</span> <span class=\\"tok-punctuation\\">{</span>
+        <span class=\\"tok-keyword\\">double</span> d <span class=\\"tok-punctuation\\">=</span> <span class=\\"tok-number\\">1.2e3</span><span class=\\"tok-punctuation\\">;</span>
+        <span class=\\"tok-keyword\\">string</span> s1 <span class=\\"tok-punctuation\\">=</span> <span class=\\"tok-string\\">\\"test\\"</span><span class=\\"tok-punctuation\\">;</span>
+        <span class=\\"tok-keyword\\">string</span> s2 <span class=\\"tok-punctuation\\">=</span> $<span class=\\"tok-string\\">\\"a{s1}b\\"</span><span class=\\"tok-punctuation\\">;</span>
+        <span class=\\"tok-keyword\\">char</span> c <span class=\\"tok-punctuation\\">=</span> 't'<span class=\\"tok-punctuation\\">;</span>
+        Action a <span class=\\"tok-punctuation\\">=</span> <span class=\\"tok-punctuation\\">(</span><span class=\\"tok-punctuation\\">)</span> <span class=\\"tok-punctuation\\">=&gt;</span> <span class=\\"tok-punctuation\\">{</span><span class=\\"tok-punctuation\\">}</span><span class=\\"tok-punctuation\\">;</span>
+    <span class=\\"tok-punctuation\\">}</span>
+<span class=\\"tok-punctuation\\">}</span></div>"
 `;
