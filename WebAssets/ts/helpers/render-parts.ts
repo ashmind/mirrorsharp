@@ -20,7 +20,7 @@ function createSection() {
 
 export function renderPartTo(parent: HTMLElement, part: PartData) {
     const span = document.createElement('span');
-    span.className = 'cmt-' + part.kind;
+    span.className = 'tok-' + part.kind;
     span.textContent = part.text;
     parent.appendChild(span);
 }

@@ -11,27 +11,27 @@
     font-family: inherit;
 }
 
-.mirrorsharp .cmt-keyword,
-.mirrorsharp .cmt-bool,
-.mirrorsharp .cmt-null {
+.mirrorsharp .tok-keyword,
+.mirrorsharp .tok-bool,
+.mirrorsharp .tok-null {
     color: #0000ff;
 }
-.mirrorsharp .cmt-number {
+.mirrorsharp .tok-number {
     color: #000000;
 }
-.mirrorsharp .cmt-string {
+.mirrorsharp .tok-string {
     color: #a31515;
 }
-.mirrorsharp .cmt-comment {
+.mirrorsharp .tok-comment {
     color: #008000;
 }
-.mirrorsharp .cmt-type,
+.mirrorsharp .tok-type,
 /* These are from server only: */
-.mirrorsharp .cmt-class,
-.mirrorsharp .cmt-struct,
-.mirrorsharp .cmt-interface,
-.mirrorsharp .cmt-enum,
-.mirrorsharp .cmt-delegate {
+.mirrorsharp .tok-class,
+.mirrorsharp .tok-struct,
+.mirrorsharp .tok-interface,
+.mirrorsharp .tok-enum,
+.mirrorsharp .tok-delegate {
     color: #2b91af;
 }
 

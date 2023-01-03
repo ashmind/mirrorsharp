@@ -274,7 +274,7 @@ export class TestDriver<TExtensionServerOptions = never> {
 
     async completeBackgroundWork() {
         timers.runOnlyPendingTimers();
-        await new Promise(resolve => resolve());
+        await new Promise<void>(resolve => resolve());
         timers.runOnlyPendingTimers();
     }
 

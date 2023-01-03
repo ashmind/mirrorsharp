@@ -4,7 +4,6 @@ import loadCSS from './render/load-css';
 import loadJSOrTS from './render/load-js-or-ts';
 import type { TestDriver } from '../test-driver';
 import lazyRenderSetup from './render/docker/lazy-setup';
-import controlledPromise from '../../ts/helpers/controlled-promise';
 
 async function processRequest(request: puppeteer.HTTPRequest, html: string) {
     const method = request.method();
@@ -118,11 +117,14 @@ export default async function render(
     // console.log(`[${seconds()}s] render: await page.setViewport()`);
     await page.setViewport(size);
 
-    const load = controlledPromise();
+    let resolveLoad!: () => void;
+    let rejectLoad!: (reason: unknown) => void;
+    const loadPromise = new Promise<void>((resolve, reject) => [resolveLoad, rejectLoad] = [resolve, reject]);
+
     // console.log(`[${seconds()}s] render: await setupRequestInterception()`);
-    await setupRequestInterception(page, content, e => load.reject(e));
+    await setupRequestInterception(page, content, e => rejectLoad(e));
     // console.log(`[${seconds()}s] render: await page.exposeFunction()`);
-    await page.exposeFunction('notifyLoaded', (e?: Error) => e ? load.reject(e) : load.resolve());
+    await page.exposeFunction('notifyLoaded', (e?: Error) => e ? rejectLoad(e) : resolveLoad());
 
     // does not exist -- required for module relative references
     // console.log(`[${seconds()}s] render: await page.goto()`);
@@ -130,9 +132,9 @@ export default async function render(
 
     // console.log(`[${seconds()}s] render: await load.promise`);
     await Promise.race(!debug ? [
-        load.promise,
+        loadPromise,
         timeout(30000, 'Page did not call notifyLoaded() within the time limit.')
-    ] : [load.promise]);
+    ] : [loadPromise]);
     // console.log(`[${seconds()}s] render: await page.screenshot()`);
     const screenshot = await page.screenshot();
 
