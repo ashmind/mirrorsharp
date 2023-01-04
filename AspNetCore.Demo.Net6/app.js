@@ -60,5 +60,5 @@ window.addEventListener('hashchange', () => {
     const updated = getLanguageAndCode();
     ms.setLanguage(updated.language);
     ms.setServerOptions({ 'x-mode': updated.mode });
-    // setText?
+    ms.setText(updated.code);
 });

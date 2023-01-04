@@ -541,6 +541,16 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         return this.#cmView.state.sliceDoc();
     }
 
+    setText(text: string) {
+        this.#cmView.dispatch({
+            changes: {
+                from: 0,
+                to: this.#cmView.state.doc.length,
+                insert: text
+            }
+        });
+    }
+
     getCursorOffset() {
         return this.#cmView.state.selection.main.from;
     }

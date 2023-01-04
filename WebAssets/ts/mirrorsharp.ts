@@ -49,7 +49,7 @@ export interface MirrorSharpInstance<TExtensionServerOptions> {
     getCodeMirrorView(): EditorView;
     getText(): string;
     getCursorOffset(): number;
-    // setText(text: string): void;
+    setText(text: string): void;
     getLanguage(): MirrorSharpLanguage;
     setLanguage(value: MirrorSharpLanguage): void;
     setServerOptions(value: TExtensionServerOptions): void;
@@ -71,7 +71,7 @@ export default function mirrorsharp<TExtensionServerOptions = never, TSlowUpdate
         getCodeMirrorView: () => editor.getCodeMirrorView(),
         getText: () => editor.getText(),
         getCursorOffset: () => editor.getCursorOffset(),
-        // setText: (text: string) => editor.setText(text),
+        setText: (text: string) => editor.setText(text),
         getLanguage: () => editor.getLanguage(),
         setLanguage: (value: Language) => editor.setLanguage(value),
         setServerOptions: (value: TExtensionServerOptions) => editor.setServerOptions(value),
