@@ -46,6 +46,7 @@ function ensureNoErrors(diagnostics: ReadonlyArray<ts.Diagnostic>, path: string)
 
     const errorsString = diagnostics.map(diagnostic => {
         if (diagnostic.file) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start!);
             const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
             return `${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`;

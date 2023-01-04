@@ -38,5 +38,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     globalThis.WebSocket = savedWebSocket!;
 });

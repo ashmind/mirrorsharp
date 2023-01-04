@@ -114,7 +114,7 @@ export interface DiagnosticData {
     readonly actions?: ReadonlyArray<DiagnosticActionData>;
 }
 
-export type DiagnosticSeverity = 'hidden'|'warning'|'error'|'info';
+export type DiagnosticSeverity = 'hidden' | 'warning' | 'error' | 'info';
 
 export interface DiagnosticActionData {
     readonly id: number;
@@ -126,7 +126,19 @@ export interface OptionsEchoMessage<TExtensionServerOptions> {
     readonly options: ServerOptions & TExtensionServerOptions;
 }
 
-export type Language = 'C#'|'Visual Basic'|'F#'|'PHP'|'IL';
+export const LANGUAGE_CSHARP = 'C#';
+export const LANGUAGE_VB = 'Visual Basic';
+export const LANGUAGE_FSHARP = 'F#';
+export const LANGUAGE_PHP = 'PHP';
+export const LANGUAGE_IL = 'IL';
+
+export const LANGUAGE_DEFAULT = LANGUAGE_CSHARP;
+
+export type Language = typeof LANGUAGE_CSHARP
+    | typeof LANGUAGE_VB
+    | typeof LANGUAGE_FSHARP
+    | typeof LANGUAGE_PHP
+    | typeof LANGUAGE_IL;
 
 export interface ServerOptions {
     language?: Language;
@@ -172,5 +184,3 @@ type MapDiscriminatedUnion<T extends Record<K, string>, K extends keyof T> =
 
 export type MessageMap<TExtensionServerOptions, TSlowUpdateExtensionData> =
     MapDiscriminatedUnion<Message<TExtensionServerOptions, TSlowUpdateExtensionData>, 'type'>;
-
-export const DEFAULT_LANGUAGE = 'C#' satisfies Language;

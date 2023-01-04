@@ -31,6 +31,7 @@ export const dispatchMutation = (() => {
 
         disconnect() {
             for (const element of this.#elements) {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const callbacks = mutationObserverCallbacks.get(element)!;
                 callbacks.splice(callbacks.findIndex(({ callback }) => callback === this.#callback), 1);
             }
@@ -38,6 +39,7 @@ export const dispatchMutation = (() => {
     };
 
     return (element: HTMLElement, record: Partial<MutationRecord>) => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         for (const { callback, observer } of mutationObserverCallbacks.get(element)!) {
             callback([record as MutationRecord], observer);
         }

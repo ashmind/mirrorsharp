@@ -5,7 +5,7 @@
         "obj/": true,
         "*.csproj*": true,
         "Properties/": true,
-        "tests/.render-cache/": true
+        ".render-cache/": true
     },
     "editor.codeActionsOnSave": {
         "source.fixAll": true
@@ -24,7 +24,7 @@
         "**/coverage/**": true,
         "**/.temp/**": true,
         "**/dist/**": true,
-        "**/tests/.render-cache/**": true
+        "**/.render-cache/**": true
     },
     "cSpell.words": [
         "Andrey",

@@ -10,17 +10,19 @@ import {
     ServerOptions,
     // SpanData,
     Language,
-    DEFAULT_LANGUAGE
+    LANGUAGE_DEFAULT
 } from '../interfaces/protocol';
 import type { SlowUpdateOptions } from '../interfaces/slow-update';
 import type { Connection } from './connection';
 // import type { SelfDebug } from './self-debug';
-import { createState } from './codemirror/create-state';
+import { createExtensions, createState } from './codemirror/create';
 // import { renderInfotip } from './render-infotip';
 // import { Hinter } from './hinter';
 // import { SignatureTip } from './signature-tip';
 import { addEvents } from '../helpers/add-events';
 import type { Session } from './session';
+import { Extension, StateEffect } from '@codemirror/state';
+import { switchLanguageExtension } from './codemirror/languages';
 
 /*const indexKey = '$mirrorsharp-index';
 interface PositionWithIndex extends CodeMirror.Position {
@@ -72,6 +74,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     // readonly #cm: CodeMirror.EditorFromTextArea;
     readonly #wrapper: HTMLElement;
     readonly #cmView: EditorView;
+    #cmExtensions: ReadonlyArray<Extension>;
     // readonly #hinter: Hinter<TExtensionServerOptions, TSlowUpdateExtensionData>;
     // readonly #signatureTip: InstanceType<typeof SignatureTip>;
 
@@ -81,10 +84,10 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
     #language: Language;
     #serverOptions: ServerOptions & TExtensionServerOptions;
-    #pendingServerOptions: (ServerOptions & TExtensionServerOptions) | null | undefined;
+    // #pendingServerOptions: (ServerOptions & TExtensionServerOptions) | null | undefined;
 
-    #lintingSuspended = true;
-    #hadChangesSinceLastLinting = false;
+    // #lintingSuspended = true;
+    // #hadChangesSinceLastLinting = false;
     // #capturedUpdateLinting: CodeMirror.UpdateLintingCallback | null | undefined;
 
     // #changePending = false;
@@ -103,7 +106,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         // this.#selfDebug = selfDebug;
 
         options = {
-            language: DEFAULT_LANGUAGE,
+            language: LANGUAGE_DEFAULT,
             ...options,
             on: {
                 slowUpdateWait:   () => ({}),
@@ -187,8 +190,11 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         this.#wrapper = document.createElement('div');
         this.#wrapper.classList.add('mirrorsharp');
         container.appendChild(this.#wrapper);
+        this.#cmExtensions = createExtensions(this.#connection, this.#session, {
+            initialLanguage: this.#language
+        });
         this.#cmView = new EditorView({
-            state: createState(this.#connection, this.#session, {
+            state: createState(this.#cmExtensions, {
                 initialText: options.initialText,
                 initialCursorOffset: options.initialCursorOffset
             })
@@ -279,7 +285,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     };
 
     #onConnectionCloseOrError = (e: CloseEvent|ErrorEvent) => {
-        this.#lintingSuspended = true;
+        // this.#lintingSuspended = true;
         this.#showConnectionLoss();
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const connectionChange = this.#options.on!.connectionChange!;
@@ -547,6 +553,10 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         this.#session.setOptions(
             ({ language: value } satisfies Partial<ServerOptions>) as Partial<ServerOptions> & Partial<TExtensionServerOptions>
         );
+        this.#cmExtensions = switchLanguageExtension(this.#cmExtensions, value);
+        this.#cmView.dispatch({
+            effects: StateEffect.reconfigure.of(this.#cmExtensions)
+        });
     }
 
     setServerOptions(value: TExtensionServerOptions) {

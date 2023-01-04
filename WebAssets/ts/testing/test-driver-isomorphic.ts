@@ -45,6 +45,7 @@ class TestRecorder {
     async replayFromJSON({ actions }: ReturnType<TestRecorder['toJSON']>) {
         for (const { target, action, args } of actions) {
             console.log('Replay:', target, action, args);
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const object = this.#objects.get(target)!;
             const result = (object[action] as (...args: ReadonlyArray<unknown>) => unknown)(...args);
             if ((result as { then?: unknown } | null | undefined)?.then)

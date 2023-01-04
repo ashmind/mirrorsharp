@@ -18,7 +18,4 @@ export const csharpSyntax = LRLanguage.define({
     }
 });
 
-/// Returns an extension that installs the JavaScript syntax provider.
-export function csharp() {
-    return csharpSyntax.extension;
-}
+export const csharp = csharpSyntax.extension;

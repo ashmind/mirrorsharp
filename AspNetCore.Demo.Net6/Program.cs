@@ -1,10 +1,14 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using MirrorSharp;
+using MirrorSharp.Advanced;
 using MirrorSharp.AspNetCore;
+using MirrorSharp.AspNetCore.Demo.Extensions;
 using MirrorSharp.AspNetCore.Demo.Library;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton<ISetOptionsFromClientExtension, SetOptionsFromClientExtension>();
+
 var app = builder.Build();
 
 app.UseDefaultFiles();

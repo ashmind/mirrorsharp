@@ -1,5 +1,5 @@
 import { addEvents } from '../helpers/add-events';
-import { DEFAULT_LANGUAGE, Message, ServerOptions } from '../interfaces/protocol';
+import { LANGUAGE_DEFAULT, Message, ServerOptions } from '../interfaces/protocol';
 import type { Connection, ReplaceTextCommand } from './connection';
 
 const UPDATE_PERIOD = 500;
@@ -58,7 +58,7 @@ export class Session<TExtensionServerOptions = unknown> {
         const keys = Object.keys(this.#fullOptions);
         return keys.length === 1
             && keys[0] === 'language'
-            && this.#fullOptions.language === DEFAULT_LANGUAGE;
+            && this.#fullOptions.language === LANGUAGE_DEFAULT;
     };
 
     setFullText(context: FullTextContext) {

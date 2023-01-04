@@ -1,47 +1,64 @@
 import mirrorsharp from 'mirrorsharp';
 
-const params = window.location.search.replace(/^\?/, '').split('&').reduce(function (o, item) {
-    const parts = item.split('=');
-    o[parts[0]] = parts[1];
-    return o;
-}, {});
-const language = (params['language'] || 'CSharp').replace('Sharp', '#');
-const mode = params['mode'] || 'regular';
-
-const code = `using System;
-
-class C {
-    const int C2 = 5;
-    string f;
-    string P { get; set; }
-    event EventHandler e;
-    event EventHandler E { add {} remove {} }
-
-    C() {
+const getCode = (language, mode) => {
+    if (mode === 'script') {
+        return 'var messages = Context.Messages;';
     }
+    else if (language == 'C#') {
+        return `using System;
 
-    void M(int p) {
-        var l = p;
+        class C {
+            const int C2 = 5;
+            string f;
+            string P { get; set; }
+            event EventHandler e;
+            event EventHandler E { add {} remove {} }
+
+            C() {
+            }
+
+            void M(int p) {
+                var l = p;
+            }
+        }
+
+        class G<T> {
+        }`.replace(/(\r\n|\r|\n)/g, '\r\n') // Parcel changes newlines to LF
+          .replace(/^        /gm, '');
+    }
+    else if (language === 'F#') {
+        return '[<EntryPoint>]\r\nlet main argv = \r\n    0';
+    }
+    else if (language === 'IL') {
+        return '.class private auto ansi \'<Module>\'\r\n{\r\n}';
     }
 }
 
-class G<T> {
-}`.replace(/(\r\n|\r|\n)/g, '\r\n'); // Parcel changes newlines to LF
+const getLanguageAndCode = () => {
+    const params = window.location.hash.replace(/^\#/, '').split('&').reduce((result, item) => {
+        const [key, value] = item.split('=');
+        result[key] = value;
+        return result;
+    }, {});
+    const language = (params['language'] || 'CSharp').replace('Sharp', '#');
+    const mode = params['mode'] || 'regular';
+    const code = getCode(language, mode);
 
-if (language === 'F#') {
-    code = '[<EntryPoint>]\r\nlet main argv = \r\n    0';
-}
-else if (mode === 'script') {
-    code = 'var messages = Context.Messages;';
-}
-else if (language === 'IL') {
-    code = '.class private auto ansi \'<Module>\'\r\n{\r\n}';
+    return { language, mode, code };
 }
 
-mirrorsharp(document.getElementById('editor-container'), {
+const initial = getLanguageAndCode();
+const ms = mirrorsharp(document.getElementById('editor-container'), {
     serviceUrl: window.location.href.replace(/^http(s?:\/\/[^/]+).*$/i, 'ws$1/mirrorsharp'),
     selfDebugEnabled: true,
-    language,
-    initialText: code,
-    initialServerOptions: (mode !== 'regular' ? { 'x-mode': mode } : {})
+    language: initial.language,
+    initialText: initial.code,
+    initialServerOptions: (initial.mode !== 'regular' ? { 'x-mode': initial.mode } : {})
+});
+
+window.addEventListener('hashchange', () => {
+    const updated = getLanguageAndCode();
+    ms.setLanguage(updated.language);
+    ms.setServerOptions({ 'x-mode': updated.mode });
+    // setText?
 });

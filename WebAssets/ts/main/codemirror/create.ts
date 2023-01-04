@@ -1,9 +1,8 @@
-import { EditorState, EditorSelection } from '@codemirror/state';
+import { EditorState, EditorSelection, Extension } from '@codemirror/state';
 import { indentUnit, syntaxHighlighting } from '@codemirror/language';
 import { history } from '@codemirror/commands';
 import type { Connection } from '../connection';
 import type { SlowUpdateOptions } from '../../interfaces/slow-update';
-import { csharp } from './lang-csharp';
 import lineSeparator from './line-separator';
 import keymap from './keymap';
 import { sendChangesToServer } from './server/send-changes';
@@ -13,35 +12,42 @@ import { infotipsFromServer } from './server/infotips';
 import { autocompletionFromServer } from './server/autocompletion';
 import { classHighlighter } from '@lezer/highlight';
 import type { Session } from '../session';
+import { languageExtensions } from './languages';
+import type { Language } from '../../interfaces/protocol';
 
-export function createState<O, U>(
+export const createExtensions = <O, U>(
     connection: Connection<O, U>,
     session: Session<O>,
+    options: { initialLanguage: Language } & SlowUpdateOptions<U>
+): ReadonlyArray<Extension> => [
+    indentUnit.of('    '),
+    EditorState.lineSeparator.of(lineSeparator),
+
+    history(),
+    languageExtensions[options.initialLanguage],
+    syntaxHighlighting(classHighlighter),
+
+    connectionState(connection),
+    sendChangesToServer(session as Session),
+    slowUpdateLinter(connection, options),
+    infotipsFromServer(connection),
+    autocompletionFromServer(connection),
+
+    // has to go last so that more specific keymaps
+    // in e.g. autocomplete have more priority
+    keymap
+];
+
+export const createState = (
+    extensions: ReadonlyArray<Extension>,
     options: {
         initialText?: string;
         initialCursorOffset?: number;
-    } & SlowUpdateOptions<U> = {}
-) {
+    } = {}
+) => {
     return EditorState.create({
         ...(options.initialText ? { doc: options.initialText } : {}),
         ...(options.initialCursorOffset ? { selection: EditorSelection.single(options.initialCursorOffset) } : {}),
-        extensions: [
-            indentUnit.of('    '),
-            EditorState.lineSeparator.of(lineSeparator),
-
-            history(),
-            csharp(),
-            syntaxHighlighting(classHighlighter),
-
-            connectionState(connection),
-            sendChangesToServer(session as Session),
-            slowUpdateLinter(connection, options),
-            infotipsFromServer(connection),
-            autocompletionFromServer(connection),
-
-            // has to go last so that more specific keymaps
-            // in e.g. autocomplete have more priority
-            keymap
-        ]
+        extensions
     });
-}
+};
