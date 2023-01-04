@@ -171,7 +171,7 @@ class TestText {
         for (const char of text) {
             const newCursorOffset = cursorOffset + 1;
             this.#cmView.dispatch(this.#cmView.state.update({
-                annotations: [Transaction.userEvent.of('input')],
+                annotations: [Transaction.userEvent.of('input.type')],
                 changes: { from: cursorOffset, insert: char },
                 selection: { anchor: newCursorOffset }
             }));
