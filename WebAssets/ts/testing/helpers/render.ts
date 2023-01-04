@@ -1,13 +1,26 @@
 import inspector from 'inspector';
-import puppeteer, { Page } from 'puppeteer';
+import puppeteer, { HTTPRequest, Page } from 'puppeteer';
 import loadCSS from './render/load-css';
 import loadJSOrTS from './render/load-js-or-ts';
 import type { TestDriver } from '../test-driver';
 import lazyRenderSetup from './render/docker/lazy-setup';
+import * as console from 'console';
+import { setTimeout } from './real-timers';
 
-async function processRequest(request: puppeteer.HTTPRequest, html: string) {
+/* eslint-disable @typescript-eslint/no-unused-vars */
+const verboseLogger = () => {
+    const start = Date.now();
+    return (...args: ReadonlyArray<unknown>) => {
+        const seconds = Math.round((Date.now() - start) / 1000);
+        // console.log(`[${seconds}s]`, ...args);
+    };
+};
+/* eslint-restore @typescript-eslint/no-unused-vars */
+
+async function processRequest(request: HTTPRequest, html: string) {
     const method = request.method();
     const url = new URL(request.url());
+
     if (method !== 'GET') {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         await request.abort();
@@ -59,7 +72,10 @@ async function processRequest(request: puppeteer.HTTPRequest, html: string) {
     await request.respond({ status: 404 });
 }
 
-async function setupRequestInterception(page: Page, html: string, onRequestError: (e: unknown) => void) {
+async function setupRequestInterception(
+    page: Page, html: string,
+    onRequestError: (e: unknown) => void
+) {
     await page.setRequestInterception(true);
 
     page.on('request', request => {
@@ -69,7 +85,7 @@ async function setupRequestInterception(page: Page, html: string, onRequestError
 }
 
 const timeout = (ms: number, message: string) => new Promise(
-    (_, reject) => setTimeout(() => reject(new Error(message)), ms)
+    (_, reject) => setTimeout(() => { reject(new Error(message)); }, ms)
 );
 
 export { shouldSkipRender } from './render/should-skip';
@@ -80,12 +96,14 @@ export default async function render(
     size: { width: number; height: number },
     { debug = !!inspector.url()/*, seconds = () => 0*/ }: { debug?: boolean/*; seconds?: () => number*/ } = {}
 ) {
+    const verbose = verboseLogger();
+
     // if (renderInProgress)
     //     throw 'Attempted to start a new render while render is already in progress';
     // renderInProgress = true;
     // try {
-    //     console.log(`[${seconds()}s] render: starting`);
-    //     console.log(`[${seconds()}s] render: await lazyRenderSetup()`);
+    verbose(`render: starting`);
+    verbose(`render: await lazyRenderSetup()`);
     const { port } = await lazyRenderSetup();
 
     const content = `<!DOCTYPE html>
@@ -95,9 +113,15 @@ export default async function render(
             <link rel="stylesheet" href="css/mirrorsharp.css">
         </head>
         <body>
+            <script>
+                window.addEventListener('error', e => {
+                    console.error(e);
+                    notifyLoaded(\`$\{e.message}\n  at $\{e.filename}\`);
+                });
+            </script>
             <script type="module">
-                import { timers } from './tests/helpers/render/browser-fake-timers.ts';
-                import { TestDriver, setTimers } from './tests/test-driver-isomorphic.ts';
+                import { timers } from './ts/testing/helpers/render/browser-fake-timers.ts';
+                import { TestDriver, setTimers } from './ts/testing/test-driver-isomorphic.ts';
 
                 setTimers(timers);
                 TestDriver
@@ -110,40 +134,41 @@ export default async function render(
         </body>
         </html>`;
 
-    // console.log(`[${seconds()}s] render: await puppeteer.connect()`);
+    verbose(`render: await puppeteer.connect()`);
     const browser = await puppeteer.connect({ browserURL: `http://localhost:${port}` });
-    // console.log(`[${seconds()}s] render: await browser.newPage()`);
+    verbose(`render: await browser.newPage()`);
     const page = await browser.newPage();
-    // console.log(`[${seconds()}s] render: await page.setViewport()`);
+    verbose(`render: await page.setViewport()`);
     await page.setViewport(size);
 
     let resolveLoad!: () => void;
     let rejectLoad!: (reason: unknown) => void;
     const loadPromise = new Promise<void>((resolve, reject) => [resolveLoad, rejectLoad] = [resolve, reject]);
 
-    // console.log(`[${seconds()}s] render: await setupRequestInterception()`);
+    verbose(`render: await setupRequestInterception()`);
     await setupRequestInterception(page, content, e => rejectLoad(e));
-    // console.log(`[${seconds()}s] render: await page.exposeFunction()`);
-    await page.exposeFunction('notifyLoaded', (e?: Error) => e ? rejectLoad(e) : resolveLoad());
+    verbose(`render: await page.exposeFunction()`);
+    await page.exposeFunction('notifyLoaded', (e?: string) => e ? rejectLoad(e) : resolveLoad());
 
     // does not exist -- required for module relative references
-    // console.log(`[${seconds()}s] render: await page.goto()`);
+    verbose(`render: await page.goto()`);
     await page.goto('http://mirrorsharp.test');
 
-    // console.log(`[${seconds()}s] render: await load.promise`);
+    verbose(`render: await loadPromise`, 'debug', debug);
     await Promise.race(!debug ? [
         loadPromise,
         timeout(30000, 'Page did not call notifyLoaded() within the time limit.')
     ] : [loadPromise]);
-    // console.log(`[${seconds()}s] render: await page.screenshot()`);
+
+    verbose(`render: await page.screenshot()`);
     const screenshot = await page.screenshot();
 
-    // console.log(`[${seconds()}s] render: wait page.close()`);
+    verbose(`render: wait page.close()`);
     await page.close();
-    // console.log(`[${seconds()}s] render: await browser.disconnect()`);
+    verbose(`render: await browser.disconnect()`);
     browser.disconnect();
 
-    // console.log(`[${seconds()}s] render: completed`);
+    verbose(`render: completed`);
     return screenshot;
     // }
     // finally {

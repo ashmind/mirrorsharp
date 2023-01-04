@@ -1,4 +1,4 @@
-import { TestDriver } from './test-driver';
+import { TestDriver } from '../testing/test-driver';
 
 test('attempts to reopen connection if lost', async () => {
     const driver = await TestDriver.new({});

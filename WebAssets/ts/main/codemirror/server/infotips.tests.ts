@@ -1,4 +1,4 @@
-import { TestDriver, timers } from './test-driver';
+import { TestDriver, timers } from '../../../testing/test-driver';
 
 const mockHoverDependencies = (driver: TestDriver) => {
     const cmView = driver.getCodeMirrorView();
@@ -16,6 +16,7 @@ test('hover requests infotip', async () => {
     mockHoverDependencies(driver);
 
     driver.domEvents.mousemove(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         driver.getCodeMirrorView().contentDOM.firstChild!
     );
     await waitForHover(driver);
@@ -65,6 +66,7 @@ test('hover applies received infotip', async () => {
     mockHoverDependencies(driver);
 
     driver.domEvents.mousemove(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         driver.getCodeMirrorView().contentDOM.firstChild!
     );
     await waitForHover(driver);
@@ -73,5 +75,6 @@ test('hover applies received infotip', async () => {
 
     const tooltip = driver.getCodeMirrorView().dom.querySelector('.cm-tooltip');
     expect(tooltip).toBeTruthy();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     expect(tooltip!.innerHTML).toMatchSnapshot();
 });

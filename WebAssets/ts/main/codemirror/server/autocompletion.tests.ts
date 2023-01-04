@@ -1,5 +1,5 @@
-import { TestDriver } from './test-driver';
-import { dispatchMutation } from './helpers/mutation-observer-workaround';
+import { TestDriver } from '../../../testing/test-driver';
+import { dispatchMutation } from '../../../testing/helpers/mutation-observer-workaround';
 import { completionStatus, currentCompletions, acceptCompletion, moveCompletionSelection } from '@codemirror/autocomplete';
 
 const ensureCompletionIsReadyForInteraction = async (driver: TestDriver) => {
@@ -11,6 +11,7 @@ const typeCharacterUsingDOM = (driver: TestDriver, character: string) => {
     driver.domEvents.keydown(character);
     const characterText = document.createTextNode(character);
     const { contentDOM } = driver.getCodeMirrorView();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     contentDOM.querySelector<HTMLElement>('.cm-line')!.appendChild(characterText);
     dispatchMutation(contentDOM, {
         type: 'characterData' as MutationRecordType,

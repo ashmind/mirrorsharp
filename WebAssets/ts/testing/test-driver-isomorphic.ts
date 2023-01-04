@@ -1,7 +1,7 @@
 import type { EditorView } from '@codemirror/view';
 import { TransactionSpec, Transaction } from '@codemirror/state';
-import type { PartData, CompletionItemData, ChangeData, ChangesMessage, CompletionsMessage, Message, InfotipMessage } from '../ts/interfaces/protocol';
-import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../ts/mirrorsharp';
+import type { PartData, CompletionItemData, ChangeData, ChangesMessage, CompletionsMessage, Message, InfotipMessage } from '../interfaces/protocol';
+import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../mirrorsharp';
 
 type TestRecorderOptions = { exclude?: (object: object, action: string) => boolean };
 

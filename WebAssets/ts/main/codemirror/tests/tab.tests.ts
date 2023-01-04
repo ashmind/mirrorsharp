@@ -1,4 +1,4 @@
-import { TestDriver } from './test-driver';
+import { TestDriver } from '../../../testing/test-driver';
 import { selectAll } from '@codemirror/commands';
 
 test('Tab indents selected block', async () => {
@@ -13,7 +13,7 @@ test('Tab indents selected block', async () => {
     expect(driver.mirrorsharp.getText()).toEqual('    abc\r\n    def');
 });
 
-test('Shift+Tab indents selected block', async () => {
+test('Shift+Tab unindents selected block', async () => {
     const text = `    abc\r\n    def`;
     const driver = await TestDriver.new({ text });
 

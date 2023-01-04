@@ -1,4 +1,4 @@
-import { TestDriver } from './test-driver';
+import { TestDriver } from '../testing/test-driver';
 
 test('does not send default options on connection open', async () => {
     const driver = await TestDriver.new({

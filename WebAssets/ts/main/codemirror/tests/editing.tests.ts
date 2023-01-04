@@ -1,4 +1,4 @@
-import { TestDriver } from './test-driver';
+import { TestDriver } from '../../../testing/test-driver';
 
 test('change at cursor is sent as typed text', async () => {
     const driver = await TestDriver.new({ textWithCursor: 'a|bc' });

@@ -36,14 +36,14 @@
         ],
         "globals": {
             "ts-jest": {
-                "tsconfig": "<rootDir>/tests/tsconfig.json"
+                "tsconfig": "<rootDir>/ts/tsconfig.json"
             }
         },
         "setupFilesAfterEnv": [
-            "<rootDir>/tests/helpers/setup-jest.ts"
+            "<rootDir>/ts/testing/helpers/setup-jest.ts"
         ],
         "testMatch": [
-            "<rootDir>/tests/**/*.tests.ts"
+            "<rootDir>/ts/**/*.tests.ts"
         ]
     },
     "dependencies": {
@@ -65,7 +65,7 @@
         "@types/lodash.merge": "^4.6.6",
         "@types/node": "^13.9.1",
         "@types/node-fetch": "^2.5.8",
-        "@types/puppeteer": "^5.4.5",
+        "@types/puppeteer": "^7.0.4",
         "@types/sinonjs__fake-timers": "^6.0.2",
         "@typescript-eslint/eslint-plugin": "^5.47.0",
         "@typescript-eslint/parser": "^5.47.0",
@@ -83,7 +83,7 @@
         "merge-options": "^3.0.4",
         "node-fetch": "^2.6.1",
         "oldowan": "^1.0.0-preview-6",
-        "puppeteer": "^13.5.2",
+        "puppeteer": "^19.4.1",
         "rimraf": "^3.0.2",
         "ts-jest": "^29.0.3",
         "ts-node": "^8.9.0",

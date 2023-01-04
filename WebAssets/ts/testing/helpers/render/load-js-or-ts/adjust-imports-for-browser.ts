@@ -2,6 +2,16 @@ import * as babel from '@babel/core';
 import * as fs from 'fs';
 import { dirname, relative, join as pathJoin } from 'path';
 
+type MinimalPackageJson = {
+    type?: 'module' | 'commonjs';
+    main: string;
+    module?: string;
+    exports?: string | ReadonlyArray<string> | {
+        import?: string;
+        require?: string;
+    }
+};
+
 function rewriteImportPath(path: string, scriptFullPath: string) {
     let pathWithExtension = path;
     if (scriptFullPath.endsWith('.ts') && path.startsWith('.') && !path.endsWith('.ts'))
@@ -12,7 +22,7 @@ function rewriteImportPath(path: string, scriptFullPath: string) {
         resolvedFullPath = require.resolve(pathWithExtension, { paths: [dirname(scriptFullPath)] });
     }
     catch (e) {
-        console.warn(`Could not resolve import ${pathWithExtension} from ${scriptFullPath}:`, e as unknown);
+        console.warn(`Could not resolve import ${pathWithExtension} from ${scriptFullPath}:`, e);
         return `./unresolved-imports/${pathWithExtension}`;
     }
 
@@ -33,12 +43,17 @@ function rewriteMainToModule(finalPath: string, initialPath: string) {
         return finalPath;
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const packageJson = require(packageJsonPath) as { main: string; module?: string };
+    const packageJson = require(packageJsonPath) as MinimalPackageJson;
     const relativePath = relative(packageRootPath, finalPath).replace(/\\/g, '/');
-    if (packageJson.main !== relativePath || !packageJson.module)
-        return finalPath;
 
-    return pathJoin(packageRootPath, packageJson.module);
+    const exports = packageJson.exports as { import?: string; require?: string } | undefined;
+    if (exports?.import && exports.require && exports.require === relativePath)
+        return pathJoin(packageRootPath, exports.import);
+
+    if (packageJson.type !== 'module' && packageJson.main === relativePath && packageJson.module)
+        return pathJoin(packageRootPath, packageJson.module);
+
+    return finalPath;
 }
 
 export default function adjustImportsForBrowser(code: string, scriptFullPath: string) {

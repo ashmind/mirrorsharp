@@ -41,11 +41,12 @@ export default async (): Promise<{ port: string }> => {
         '--rm',
         '--security-opt',
         `seccomp=${__dirname}/chrome.seccomp.json`,
-        'gcr.io/zenika-hub/alpine-chrome:86',
+        'gcr.io/zenika-hub/alpine-chrome:108',
         '--remote-debugging-address=0.0.0.0',
         `--remote-debugging-port=9222`,
         'about:blank'
     ])).stdout;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const port = (await execa('docker', [
         'port',
         containerId,

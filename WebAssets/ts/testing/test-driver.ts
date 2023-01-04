@@ -21,8 +21,8 @@ export class TestDriver<TExtensionServerOptions = never> extends IsomorphicTestD
         super(...args);
     }
 
-    async render(options?: Parameters<typeof render>[2]): ReturnType<typeof render> {
-        return await render(this, renderSize, options);
+    render(options?: Parameters<typeof render>[2]): ReturnType<typeof render> {
+        return render(this, renderSize, options);
     }
 
     static async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(

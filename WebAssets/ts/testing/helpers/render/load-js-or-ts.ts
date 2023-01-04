@@ -4,10 +4,8 @@ import transformCommonJS from './load-js-or-ts/transform-commonjs';
 import adjustImportsForBrowser from './load-js-or-ts/adjust-imports-for-browser';
 import { FSCache } from './fs-cache';
 
-const sourceRootPath = dirname(dirname(require.resolve('../../../ts/mirrorsharp.ts')));
-const testsRootPath = pathJoin(sourceRootPath, 'tests');
-
-const cache = new FSCache(pathJoin(testsRootPath, '.render-cache'));
+const sourceRootPath = dirname(dirname(require.resolve('../../../mirrorsharp.ts')));
+const cache = new FSCache(pathJoin(sourceRootPath, '.render-cache'));
 
 export default async function loadJSOrTS(path: string): Promise<string> {
     const fullPath = pathResolve(sourceRootPath, path.replace(/^\//, ''));

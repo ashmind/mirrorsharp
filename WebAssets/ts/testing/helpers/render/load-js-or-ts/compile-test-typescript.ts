@@ -1,18 +1,20 @@
 import * as ts from 'typescript';
-import { resolve as pathResolve } from 'path';
+import { dirname } from 'path';
 
-const testRoot = pathResolve(`${__dirname}/../../../`);
+const tsconfigPath = require.resolve(`../../../../tsconfig.json`);
 
 const compiled = new Map<string, string>();
 
 export default function compile(path: string): string {
-    if (compiled.has(path))
+    if (compiled.has(path)) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return compiled.get(path)!;
+    }
 
     // console.log(`Compiling ${path}`);
 
-    const { config: { compilerOptions } } = ts.readConfigFile(`${testRoot}/tsconfig.json`, ts.sys.readFile);
-    const { options, errors } = ts.convertCompilerOptionsFromJson(compilerOptions as unknown, testRoot);
+    const { config: { compilerOptions } } = ts.readConfigFile(tsconfigPath, ts.sys.readFile);
+    const { options, errors } = ts.convertCompilerOptionsFromJson(compilerOptions as unknown, dirname(tsconfigPath));
 
     ensureNoErrors(errors, path);
     Object.assign(options, {
@@ -25,7 +27,7 @@ export default function compile(path: string): string {
 
     // eslint-disable-next-line no-undefined
     const emitResult = program.emit(undefined, (path: string, data: string) => {
-        const tsPath = pathResolve(path.replace(/\.js$/, '.ts'));
+        const tsPath = require.resolve(path.replace(/\.js$/, '.ts'));
         // console.log(`Compiled ${tsPath}`);
         compiled.set(tsPath, data);
     });
@@ -34,6 +36,7 @@ export default function compile(path: string): string {
     if (!compiled.has(path))
         throw new Error(`TypeScript compiler produced no outputs for ${path}.`);
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return compiled.get(path)!;
 }
 

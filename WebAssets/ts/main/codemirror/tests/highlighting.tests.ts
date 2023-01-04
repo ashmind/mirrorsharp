@@ -1,4 +1,4 @@
-import { TestDriver } from './test-driver';
+import { TestDriver } from '../../../testing/test-driver';
 
 const csharpCode = `
 public class C<T> {
