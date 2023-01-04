@@ -3,6 +3,7 @@ import type { Language, DiagnosticSeverity } from './interfaces/protocol';
 // import { SelfDebug } from './main/self-debug';
 import { Connection } from './main/connection';
 import { Editor } from './main/editor';
+import { Session } from './main/session';
 
 export type MirrorSharpLanguage = Language;
 export type MirrorSharpConnectionState = 'open'|'error'|'close';
@@ -51,7 +52,7 @@ export interface MirrorSharpInstance<TExtensionServerOptions> {
     // setText(text: string): void;
     getLanguage(): MirrorSharpLanguage;
     setLanguage(value: MirrorSharpLanguage): void;
-    setServerOptions(value: TExtensionServerOptions): Promise<void>;
+    setServerOptions(value: TExtensionServerOptions): void;
     connect(): void;
     destroy(destroyOptions: { keepCodeMirror?: boolean }): void;
 }
@@ -62,7 +63,8 @@ export default function mirrorsharp<TExtensionServerOptions = never, TSlowUpdate
 ): MirrorSharpInstance<TExtensionServerOptions> {
     // const selfDebug = options.selfDebugEnabled ? new SelfDebug() : null;
     const connection = new Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(options.serviceUrl/*, selfDebug, */, { delayedOpen: options.noInitialConnection });
-    const editor = new Editor(container, connection/*, selfDebug*/, options);
+    const session = new Session<TExtensionServerOptions>(connection as Connection<TExtensionServerOptions>);
+    const editor = new Editor(container, connection, session/*, selfDebug*/, options);
 
     let connectCalled = false;
     return Object.freeze({
@@ -84,6 +86,7 @@ export default function mirrorsharp<TExtensionServerOptions = never, TSlowUpdate
 
         destroy(destroyOptions?: { keepCodeMirror?: boolean }) {
             editor.destroy(destroyOptions);
+            session.destroy();
             connection.close();
         }
     });

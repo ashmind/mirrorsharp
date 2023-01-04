@@ -2,14 +2,15 @@ import { EditorView } from '@codemirror/view';
 //import 'codemirror/mode/clike/clike';
 //import 'codemirror-addon-infotip';
 //import 'codemirror-addon-lint-fix';
-import type {
+import {
     Message,
     // ChangeData,
     SlowUpdateMessage,
     DiagnosticSeverity,
     ServerOptions,
     // SpanData,
-    Language
+    Language,
+    DEFAULT_LANGUAGE
 } from '../interfaces/protocol';
 import type { SlowUpdateOptions } from '../interfaces/slow-update';
 import type { Connection } from './connection';
@@ -19,6 +20,7 @@ import { createState } from './codemirror/create-state';
 // import { Hinter } from './hinter';
 // import { SignatureTip } from './signature-tip';
 import { addEvents } from '../helpers/add-events';
+import type { Session } from './session';
 
 /*const indexKey = '$mirrorsharp-index';
 interface PositionWithIndex extends CodeMirror.Position {
@@ -59,11 +61,11 @@ interface EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> {
 //     'PHP': 'application/x-httpd-php'
 // } as const;
 
-const defaultLanguage = 'C#';
 // const lineSeparator = '\r\n';
 
 export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly #connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>;
+    readonly #session: Session<TExtensionServerOptions>;
     // readonly #selfDebug: SelfDebug|null;
     readonly #options: EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData>;
 
@@ -81,8 +83,6 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     #serverOptions: ServerOptions & TExtensionServerOptions;
     #pendingServerOptions: (ServerOptions & TExtensionServerOptions) | null | undefined;
 
-    #shouldResendServerOptions: boolean;
-
     #lintingSuspended = true;
     #hadChangesSinceLastLinting = false;
     // #capturedUpdateLinting: CodeMirror.UpdateLintingCallback | null | undefined;
@@ -94,14 +94,16 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     constructor(
         container: HTMLElement,
         connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>,
+        session: Session<TExtensionServerOptions>,
         // selfDebug: SelfDebug|null,
         options: EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
     ) {
         this.#connection = connection;
+        this.#session = session;
         // this.#selfDebug = selfDebug;
 
         options = {
-            language: defaultLanguage,
+            language: DEFAULT_LANGUAGE,
             ...options,
             on: {
                 slowUpdateWait:   () => ({}),
@@ -136,11 +138,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
             language: this.#language
         } as ServerOptions & TExtensionServerOptions;
 
-        if (!this.#hasDefaultServerOptions()) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.#connection.sendSetOptions(this.#serverOptions);
-        }
-        this.#shouldResendServerOptions = false; // first open
+        this.#session.setOptions(this.#serverOptions);
 
         // const cmSource = (function getCodeMirror() {
         //     const next = textarea.nextSibling as { CodeMirror?: CodeMirror.EditorFromTextArea };
@@ -190,7 +188,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         this.#wrapper.classList.add('mirrorsharp');
         container.appendChild(this.#wrapper);
         this.#cmView = new EditorView({
-            state: createState(this.#connection, {
+            state: createState(this.#connection, this.#session, {
                 initialText: options.initialText,
                 initialCursorOffset: options.initialCursorOffset
             })
@@ -221,30 +219,8 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
     #onConnectionOpen = (e: Event) => {
         this.#hideConnectionLoss();
-        if (this.#shouldResendServerOptions) {
-            if (!this.#hasDefaultServerOptions()) {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                this.#connection.sendSetOptions(this.#pendingServerOptions ?? this.#serverOptions);
-            }
-        }
-        else {
-            this.#shouldResendServerOptions = true; // next open
-        }
-
-        const text = this.getText();
-        if (text === '') {
-            this.#lintingSuspended = false;
-            return;
-        }
-
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.#options.on!.connectionChange!('open', e);
-        this.#lintingSuspended = false;
-        this.#hadChangesSinceLastLinting = true;
-        // if (this.#capturedUpdateLinting) {
-        //     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        //     this.#requestSlowUpdate();
-        // }
     };
 
     #onConnectionMessage = (message: Message<TExtensionServerOptions, TSlowUpdateExtensionData>) => {
@@ -284,7 +260,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
                 break;
 
             case 'optionsEcho':
-                this.#receiveServerOptions(message.options);
+                // this.#receiveServerOptions(message.options);
                 break;
 
             case 'self:debug':
@@ -451,14 +427,14 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     //     this.#connection.sendRequestInfoTip(cm.indexFromPos(position));
     // };
 
-    #requestSlowUpdate = (force?: boolean) => {
-        if (this.#lintingSuspended || !(this.#hadChangesSinceLastLinting || force))
-            return null;
-        this.#hadChangesSinceLastLinting = false;
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.#options.on!.slowUpdateWait!();
-        return this.#connection.sendSlowUpdate();
-    };
+    // #requestSlowUpdate = (force?: boolean) => {
+    //     if (this.#lintingSuspended || !(this.#hadChangesSinceLastLinting || force))
+    //         return null;
+    //     this.#hadChangesSinceLastLinting = false;
+    //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    //     this.#options.on!.slowUpdateWait!();
+    //     return this.#connection.sendSlowUpdate();
+    // };
 
     #showSlowUpdate = (update: SlowUpdateMessage<TSlowUpdateExtensionData>) => {
         // const annotations: Array<DiagnosticAnnotation> = [];
@@ -519,29 +495,22 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         this.#wrapper.classList.remove('mirrorsharp-connection-has-issue');
     };
 
-    #hasDefaultServerOptions = () => {
-        const keys = Object.keys(this.#pendingServerOptions ?? this.#serverOptions);
-        return keys.length === 1
-            && keys[0] === 'language'
-            && this.#serverOptions.language === defaultLanguage;
-    };
+    // #sendServerOptions = async (value: ServerOptions | Partial<TExtensionServerOptions> | Partial<ServerOptions & TExtensionServerOptions>) => {
+    //     this.#pendingServerOptions = { ...this.#serverOptions, ...value };
+    //     await this.#connection.sendSetOptions(value);
+    //     await this.#requestSlowUpdate(true);
+    // };
 
-    #sendServerOptions = async (value: ServerOptions | Partial<TExtensionServerOptions> | Partial<ServerOptions & TExtensionServerOptions>) => {
-        this.#pendingServerOptions = { ...this.#serverOptions, ...value };
-        await this.#connection.sendSetOptions(value);
-        await this.#requestSlowUpdate(true);
-    };
-
-    #receiveServerOptions = (value: ServerOptions&TExtensionServerOptions) => {
-        this.#pendingServerOptions = null;
-        this.#serverOptions = { ...this.#serverOptions, ...value };
-        // TODO: understand later
-        // eslint-disable-next-line no-undefined
-        if (value.language !== undefined && value.language !== this.#language) {
-            this.#language = value.language;
-            // this.#cm.setOption('mode', languageModes[this.#language]);
-        }
-    };
+    // #receiveServerOptions = (value: ServerOptions&TExtensionServerOptions) => {
+    //     this.#pendingServerOptions = null;
+    //     this.#serverOptions = { ...this.#serverOptions, ...value };
+    //     // TODO: understand later
+    //     // eslint-disable-next-line no-undefined
+    //     if (value.language !== undefined && value.language !== this.#language) {
+    //         this.#language = value.language;
+    //         // this.#cm.setOption('mode', languageModes[this.#language]);
+    //     }
+    // };
 
     // #spanToRange = (span: SpanData) => {
     //     return {
@@ -575,11 +544,13 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     }
 
     setLanguage(value: Language) {
-        return this.#sendServerOptions({ language: value });
+        this.#session.setOptions(
+            ({ language: value } satisfies Partial<ServerOptions>) as Partial<ServerOptions> & Partial<TExtensionServerOptions>
+        );
     }
 
     setServerOptions(value: TExtensionServerOptions) {
-        return this.#sendServerOptions(value);
+        this.#session.setOptions(value as Partial<TExtensionServerOptions>);
     }
 
     destroy(destroyOptions: { readonly keepCodeMirror?: boolean } = {}) {

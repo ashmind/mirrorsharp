@@ -11,6 +11,14 @@ const stateCommandMap = { cancel: 'X', force: 'F' } as Readonly<{
     [key: number]: undefined;
 }>;
 
+export type ReplaceTextCommand = {
+    start: number,
+    length: number,
+    newText: string,
+    cursorIndexAfter: number,
+    reason?: string | null
+};
+
 export type ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData> = {
     open: (e: Event) => void;
     message: (data: Message<TExtensionServerOptions, TSlowUpdateExtensionData>, e: MessageEvent) => void;
@@ -18,7 +26,7 @@ export type ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData
     close: (e: CloseEvent) => void;
 };
 
-export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
+export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData = unknown> {
     readonly #url: string;
     // readonly #selfDebug: SelfDebug|null;
 
@@ -157,13 +165,7 @@ export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
         return this.#socket?.readyState === WebSocket.OPEN;
     }
 
-    sendReplaceText(
-        start: number,
-        length: number,
-        newText: string,
-        cursorIndexAfter: number,
-        reason?: string | null
-    ) {
+    sendReplaceText({ start, length, cursorIndexAfter, newText, reason }: ReplaceTextCommand) {
         return this.#sendIfOpen('R' + start + ':' + length + ':' + cursorIndexAfter + ':' + (reason ?? '') + ':' + newText);
     }
 
@@ -201,7 +203,7 @@ export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData> {
         return this.#sendIfOpen('F' + actionId);
     }
 
-    sendSetOptions(options: ServerOptions|Partial<ServerOptions&TExtensionServerOptions>) {
+    sendSetOptions(options: Partial<ServerOptions> & Partial<TExtensionServerOptions>) {
         const optionPairs = [];
         for (const key in options) {
             optionPairs.push(key + '=' + (options as Record<string, string>)[key]);

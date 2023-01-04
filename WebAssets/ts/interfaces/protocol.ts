@@ -172,3 +172,5 @@ type MapDiscriminatedUnion<T extends Record<K, string>, K extends keyof T> =
 
 export type MessageMap<TExtensionServerOptions, TSlowUpdateExtensionData> =
     MapDiscriminatedUnion<Message<TExtensionServerOptions, TSlowUpdateExtensionData>, 'type'>;
+
+export const DEFAULT_LANGUAGE = 'C#' satisfies Language;

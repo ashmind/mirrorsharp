@@ -1,23 +1,12 @@
 import execa from 'execa';
 import fetch from 'node-fetch';
 import { setTimeout  } from '../../real-timers';
-import { setContainerIdFromSetup } from './container-id';
 import { shouldSkipRender } from '../should-skip';
 
-type RenderSetupState = 'none' | 'pending' | 'ready';
-function setSetupState(state: RenderSetupState) {
-    process.env.TEST_DOCKER_SETUP_STATE = state;
-    // console.log('TEST_DOCKER_SETUP_STATE set to', state);
-}
-function getSetupState() {
-    return (process.env.TEST_DOCKER_SETUP_STATE as RenderSetupState|undefined) ?? 'none';
-}
-function setPort(port: string) {
-    process.env.TEST_DOCKER_PORT = port;
-}
-function getPort() {
-    return process.env.TEST_DOCKER_PORT;
-}
+let container: undefined | {
+    id: string;
+    port: string;
+};
 
 async function waitFor(ready: () => Promise<boolean>|boolean, error: () => Error) {
     // console.log('waitFor: starting');
@@ -40,19 +29,10 @@ export default async (): Promise<{ port: string }> => {
     if (shouldSkipRender)
         throw new Error('Setup should not be called if we are skipping render.');
 
-    if (getSetupState() === 'ready')
-        return { port: getPort()! };
+    if (container)
+        return { port: container.port };
 
-    if (getSetupState() === 'pending') {
-        await waitFor(
-            () => getSetupState() === 'ready',
-            () => new Error(`Pending setup has not completed within the wait period.`)
-        );
-        return { port: getPort()! };
-    }
-
-    setSetupState('pending');
-    const chromeContainerId = (await execa('docker', [
+    const containerId = (await execa('docker', [
         'container',
         'run',
         '-d',
@@ -66,14 +46,12 @@ export default async (): Promise<{ port: string }> => {
         `--remote-debugging-port=9222`,
         'about:blank'
     ])).stdout;
-    setContainerIdFromSetup(chromeContainerId);
     const port = (await execa('docker', [
         'port',
-        chromeContainerId,
+        containerId,
         '9222'
     ])).stdout.match(/:(\d+)$/)![1];
-    console.log(`Started Chrome container ${chromeContainerId} on port ${port}. Open http://localhost:${port} to debug.`);
-    setPort(port);
+    console.log(`Started Chrome container ${containerId} on port ${port}. Open http://localhost:${port} to debug.`);
 
     await waitFor(async () => {
         try {
@@ -88,6 +66,14 @@ export default async (): Promise<{ port: string }> => {
         }
     }, () => new Error(`Chrome container has not opened port ${port} within the wait period.`));
 
-    setSetupState('ready');
+    container = { id: containerId, port };
     return { port };
 };
+
+afterAll(async () => {
+    if (!container)
+        return;
+
+    await execa('docker', ['stop', container.id]);
+    console.log('Stopped Chrome container', container.id);
+});

@@ -5,7 +5,7 @@ test('does not send default options on connection open', async () => {
         options: { language: 'C#' },
         keepSocketClosed: true
     });
-    driver.socket.trigger('open');
+    driver.socket.open();
     await driver.completeBackgroundWork();
 
     expect(driver.socket.sent).toEqual([]);
@@ -16,7 +16,7 @@ test('sends non-default language on connection open', async () => {
         options: { language: 'Visual Basic' },
         keepSocketClosed: true
     });
-    driver.socket.trigger('open');
+    driver.socket.open();
     await driver.completeBackgroundWork();
 
     expect(driver.socket.sent).toEqual(['Olanguage=Visual Basic']);
@@ -28,10 +28,10 @@ test('re-sends non-default language on next connection open', async () => {
         keepSocketClosed: true
     });
 
-    driver.socket.trigger('open');
+    driver.socket.open();
     await driver.completeBackgroundWork();
     driver.socket.sent = [];
-    driver.socket.trigger('open');
+    driver.socket.open();
     await driver.completeBackgroundWork();
 
     expect(driver.socket.sent).toEqual(['Olanguage=Visual Basic']);
@@ -45,7 +45,7 @@ test('always sends options before slow update', async () => {
     });
 
     await driver.advanceTimeAndCompleteNextLinting();
-    driver.socket.trigger('open');
+    driver.socket.open();
     await driver.completeBackgroundWork();
 
     expect(driver.socket.sent).toEqual([
@@ -62,7 +62,7 @@ test('sends extended options on connection open', async () => {
         },
         keepSocketClosed: true
     });
-    driver.socket.trigger('open');
+    driver.socket.open();
     await driver.completeBackgroundWork();
 
     expect(driver.socket.sent).toEqual(['Ox-test=value,language=C#']);
@@ -91,7 +91,7 @@ test('options echo without extended option does not unset extended option for ne
         }
     });
     driver.receive.optionsEcho({});
-    driver.socket.trigger('open');
+    driver.socket.open();
     await driver.completeBackgroundWork();
 
     expect(driver.socket.sent).toEqual(['Ox-test=value,language=C#']);

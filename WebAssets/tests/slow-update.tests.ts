@@ -6,7 +6,7 @@ test('slowUpdate is not sent if there is no initial text', async () => {
         keepSocketClosed: true
     });
 
-    driver.socket.trigger('open');
+    driver.socket.open();
     await driver.advanceTimeAndCompleteNextLinting();
 
     expect(driver.socket.sent).toEqual([]);
@@ -18,7 +18,7 @@ test('slowUpdate is sent if there is initial text', async () => {
         text: 'Test'
     });
 
-    driver.socket.trigger('open');
+    driver.socket.open();
     await driver.advanceTimeAndCompleteNextLinting();
 
     expect(driver.socket.sent).toEqual([
@@ -34,7 +34,7 @@ test('slowUpdate is sent after initial text even if lint runs before connection 
     });
 
     await driver.advanceTimeAndCompleteNextLinting();
-    driver.socket.trigger('open');
+    driver.socket.open();
     await driver.advanceTimeAndCompleteNextLinting();
 
     expect(driver.socket.sent).toEqual([
@@ -48,7 +48,7 @@ test('slowUpdate is sent if text is set after initial setup', async () => {
         keepSocketClosed: true
     });
 
-    driver.socket.trigger('open');
+    driver.socket.open();
     await driver.advanceTimeAndCompleteNextLinting();
 
     driver.dispatchCodeMirrorTransaction({ changes: { from: 0, insert: 'Test' } });
@@ -70,7 +70,7 @@ test('slowUpdate is sent only once on reopen if connection is closed', async () 
     driver.text.type('b');
     await driver.advanceTimeAndCompleteNextLinting();
     driver.text.type('c');
-    driver.socket.trigger('open');
+    driver.socket.open();
     await driver.advanceTimeAndCompleteNextLinting();
 
     const sent = driver.socket.sent;

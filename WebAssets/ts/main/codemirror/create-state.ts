@@ -12,9 +12,11 @@ import { connectionState } from './server/connection-state';
 import { infotipsFromServer } from './server/infotips';
 import { autocompletionFromServer } from './server/autocompletion';
 import { classHighlighter } from '@lezer/highlight';
+import type { Session } from '../session';
 
 export function createState<O, U>(
     connection: Connection<O, U>,
+    session: Session<O>,
     options: {
         initialText?: string;
         initialCursorOffset?: number;
@@ -32,7 +34,7 @@ export function createState<O, U>(
             syntaxHighlighting(classHighlighter),
 
             connectionState(connection),
-            sendChangesToServer(connection),
+            sendChangesToServer(session as Session),
             slowUpdateLinter(connection, options),
             infotipsFromServer(connection),
             autocompletionFromServer(connection),

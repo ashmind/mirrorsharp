@@ -1,6 +1,6 @@
 import type { EditorView } from '@codemirror/view';
 import { TransactionSpec, Transaction } from '@codemirror/state';
-import type { PartData, CompletionItemData, ChangeData, ChangesMessage, CompletionsMessage, Message, SpanData, InfotipMessage } from '../ts/interfaces/protocol';
+import type { PartData, CompletionItemData, ChangeData, ChangesMessage, CompletionsMessage, Message, InfotipMessage } from '../ts/interfaces/protocol';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../ts/mirrorsharp';
 
 type TestRecorderOptions = { exclude?: (object: object, action: string) => boolean };
@@ -47,7 +47,7 @@ class TestRecorder {
             console.log('Replay:', target, action, args);
             const object = this.#objects.get(target)!;
             const result = (object[action] as (...args: ReadonlyArray<unknown>) => unknown)(...args);
-            if ((result as { then?: unknown })?.then)
+            if ((result as { then?: unknown } | null | undefined)?.then)
                 await result;
         }
     }
@@ -69,47 +69,95 @@ interface MockSocketMessageEvent {
     readonly data: string;
 }
 
-class MockSocket {
-    public createdCount = 0;
-    public sent: Array<string>;
+type MockSocketHandlerMap = {
+    open: () => void;
+    message: (e: MockSocketMessageEvent) => void;
+    error: () => void;
+    close: () => void;
+};
 
-    readonly #handlers = {} as {
-        open?: Array<() => void>;
-        message?: Array<(e: MockSocketMessageEvent) => void>;
-        close?: Array<() => void>;
+class MockSocketController {
+    readonly #handlers = {
+        open: [],
+        message: [],
+        error: [],
+        close: []
+    } as {
+        [K in keyof MockSocketHandlerMap]: Array<MockSocketHandlerMap[K]>
     };
 
-    constructor() {
-        this.sent = [];
+    readyState = MockSocket.CONNECTING as (
+        typeof MockSocket.CONNECTING
+        | typeof MockSocket.OPEN
+        | typeof MockSocket.CLOSING
+        | typeof MockSocket.CLOSED
+    );
+
+    createdCount = 0;
+    sent = [] as Array<string>;
+
+    open() {
+        this.readyState = MockSocket.OPEN;
+        for (const handler of this.#handlers['open']) {
+            handler();
+        }
+    }
+
+    receive(e: MockSocketMessageEvent) {
+        for (const handler of this.#handlers['message']) {
+            handler(e);
+        }
+    }
+
+    close() {
+        this.readyState = MockSocket.CLOSED;
+        for (const handler of this.#handlers['close']) {
+            handler();
+        }
+    }
+
+    addEventListener<TEvent extends keyof MockSocketHandlerMap>(event: TEvent, handler: MockSocketHandlerMap[TEvent]) {
+        this.#handlers[event].push(handler);
+    }
+}
+
+class MockSocket {
+    static readonly CONNECTING = 0;
+    static readonly OPEN = 1;
+    static readonly CLOSING = 2;
+    static readonly CLOSED = 3;
+
+    readonly mock = new MockSocketController();
+
+    get readyState() {
+        return this.mock.readyState;
     }
 
     send(message: string) {
-        this.sent.push(message);
+        this.mock.sent.push(message);
     }
 
-    trigger(event: 'open'): void;
-    trigger(event: 'message', e: MockSocketMessageEvent): void;
-    trigger(event: 'close'): void;
-    trigger(...[event, e]: ['open']|['message', MockSocketMessageEvent]|['close']) {
-        // https://github.com/microsoft/TypeScript/issues/37505 ?
-        for (const handler of (this.#handlers[event] ?? [])) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
-            (handler as (...args: any) => void)(e);
-        }
-    }
-
-    addEventListener(event: 'open', handler: () => void): void;
-    addEventListener(event: 'message', handler: (e: MockSocketMessageEvent) => void): void;
-    addEventListener(event: 'close', handler: () => void): void;
-    addEventListener(...[event, handler]: ['open', () => void]|['message', (e: MockSocketMessageEvent) => void]|['close', () => void]) {
-        let handlers = this.#handlers[event];
-        if (!handlers) {
-            handlers = [] as NonNullable<typeof handlers>;
-            this.#handlers[event] = handlers;
-        }
-        handlers.push(handler);
+    addEventListener<TEvent extends keyof MockSocketHandlerMap>(event: TEvent, handler: MockSocketHandlerMap[TEvent]) {
+        this.mock.addEventListener(event, handler);
     }
 }
+
+const installMockSocket = (socket: MockSocket) => {
+    if (globalThis.WebSocket instanceof MockSocket)
+        throw new Error(`Global WebSocket is already set up in this context.`);
+
+    // eslint-disable-next-line func-style
+    const WebSocket = function() {
+        socket.mock.createdCount += 1;
+        return socket;
+    };
+    WebSocket.CONNECTING = MockSocket.CONNECTING;
+    WebSocket.OPEN = MockSocket.OPEN;
+    WebSocket.CLOSING = MockSocket.CLOSING;
+    WebSocket.CLOSED = MockSocket.CLOSED;
+
+    (globalThis as unknown as { WebSocket: () => Partial<WebSocket> }).WebSocket = WebSocket;
+};
 
 class TestText {
     readonly #cmView: EditorView;
@@ -154,9 +202,9 @@ class TestDomEvents {
 }
 
 class TestReceiver {
-    readonly #socket: MockSocket;
+    readonly #socket: MockSocketController;
 
-    constructor(socket: MockSocket) {
+    constructor(socket: MockSocketController) {
         this.#socket = socket;
     }
 
@@ -190,11 +238,11 @@ class TestReceiver {
     }
 
     #message = (message: Partial<Message<unknown, unknown>>) => {
-        this.#socket.trigger('message', { data: JSON.stringify(message) });
+        this.#socket.receive({ data: JSON.stringify(message) });
     };
 }
 
-export type TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = ({}|{ text: string; cursor?: number }|{ textWithCursor: string }) & {
+export type TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = (object | { text: string; cursor?: number } | { textWithCursor: string }) & {
     keepSocketClosed?: boolean;
     options?: Partial<MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>> & {
         initialText?: never;
@@ -214,7 +262,7 @@ let timers: TestDriverTimers;
 export const setTimers = (value: TestDriverTimers) => timers = value;
 
 export class TestDriver<TExtensionServerOptions = never> {
-    public readonly socket: MockSocket;
+    public readonly socket: MockSocketController;
     public readonly mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>;
     public readonly text: TestText;
     public readonly domEvents: TestDomEvents;
@@ -225,7 +273,7 @@ export class TestDriver<TExtensionServerOptions = never> {
     readonly #optionsForJSONOnly: TestDriverOptions<TExtensionServerOptions, unknown>;
 
     protected constructor(
-        socket: MockSocket,
+        socket: MockSocketController,
         mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>,
         optionsForJSONOnly: TestDriverOptions<TExtensionServerOptions, unknown>
     ) {
@@ -310,14 +358,8 @@ export class TestDriver<TExtensionServerOptions = never> {
         const container = document.createElement('div');
         document.body.appendChild(container);
 
-        if (globalThis.WebSocket instanceof MockSocket)
-            throw new Error(`Global WebSocket is already set up in this context.`);
-
         const socket = new MockSocket();
-        (globalThis as unknown as { WebSocket: () => Partial<WebSocket> }).WebSocket = function() {
-            socket.createdCount += 1;
-            return socket;
-        };
+        installMockSocket(socket);
 
         const msOptions = {
             ...(options.options ?? {}),
@@ -326,12 +368,12 @@ export class TestDriver<TExtensionServerOptions = never> {
         } as MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>;
         const ms = mirrorsharp(container, msOptions);
 
-        const driver = new this(socket, ms, options as TestDriverOptions<TExtensionServerOptions, unknown>);
+        const driver = new this(socket.mock, ms, options as TestDriverOptions<TExtensionServerOptions, unknown>);
 
         if (options.keepSocketClosed)
             return driver;
 
-        driver.socket.trigger('open');
+        driver.socket.open();
         await driver.completeBackgroundWork();
 
         timers.runOnlyPendingTimers();
@@ -346,7 +388,7 @@ export class TestDriver<TExtensionServerOptions = never> {
     }
 }
 
-function getInitialState(options: {}|{ text: string; cursor?: number }|{ textWithCursor: string }) {
+function getInitialState(options: object | { text: string; cursor?: number } | { textWithCursor: string }) {
     let { text, cursor } = options as { text?: string; cursor?: number };
     if ('textWithCursor' in options)
         ({ text, cursor } = parseTextWithCursor(options.textWithCursor));
@@ -361,7 +403,7 @@ function parseTextWithCursor(value: string) {
 }
 
 export type TestDriverConstructorArguments<TExtensionServerOptions> = [
-    MockSocket,
+    MockSocketController,
     MirrorSharpInstance<TExtensionServerOptions>,
     TestDriverOptions<TExtensionServerOptions, unknown>
 ];
