@@ -1,4 +1,4 @@
-import { LANGUAGE_FSHARP, LANGUAGE_VB } from '../../../interfaces/protocol';
+import { LANGUAGE_FSHARP, LANGUAGE_PHP, LANGUAGE_VB } from '../../../interfaces/protocol';
 import { TestDriver } from '../../../testing/test-driver';
 
 const CODE_CSHARP = `
@@ -34,7 +34,7 @@ test('C# highlighting is rendered correctly', async () => {
 });
 
 const CODE_VB = `
-Class C (Of T)
+Public Class C (Of T)
     ' test comment
     Public Sub M (Of U)()
         Dim d As Decimal = 1.2e3
@@ -103,6 +103,46 @@ test('F# highlighting is rendered correctly', async () => {
     const driver = await TestDriver.new({
         text: CODE_FSHARP,
         options: { language: LANGUAGE_FSHARP }
+    });
+    await driver.completeBackgroundWork();
+
+    const rendered = await driver.render();
+
+    expect(rendered).toMatchImageSnapshot();
+});
+
+const CODE_PHP = `
+<?php
+
+class C {
+    // test comment
+    public function M() {
+        $d = 1.2e3;
+        $s1 = 'test';
+        $s2 = "a{$s1}b";
+        $a = fn() => 0;
+    }
+}
+`.replace(/\r\n|\r|\n/g, '\r\n').trim();
+
+test('PHP highlighting applies expected classes', async () => {
+    const driver = await TestDriver.new({
+        text: CODE_PHP,
+        options: { language: LANGUAGE_PHP }
+    });
+    await driver.completeBackgroundWork();
+
+    const html = driver.getCodeMirrorView().contentDOM.innerHTML;
+
+    expect(html).toMatchSnapshot();
+});
+
+test('PHP highlighting is rendered correctly', async () => {
+    if (TestDriver.shouldSkipRender)
+        return;
+    const driver = await TestDriver.new({
+        text: CODE_PHP,
+        options: { language: LANGUAGE_PHP }
     });
     await driver.completeBackgroundWork();
 
