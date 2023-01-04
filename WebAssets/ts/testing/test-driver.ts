@@ -1,7 +1,7 @@
 import { TestDriver as IsomorphicTestDriver, TestDriverConstructorArguments, TestDriverOptions, setTimers } from './test-driver-isomorphic';
 import render, { shouldSkipRender } from './helpers/render';
 
-const renderSize = { width: 700, height: 300 };
+const DEFAULT_SIZE = { width: 700, height: 300 };
 
 (() => {
     // clean JSDOM between tests
@@ -21,8 +21,11 @@ export class TestDriver<TExtensionServerOptions = never> extends IsomorphicTestD
         super(...args);
     }
 
-    render(options?: Parameters<typeof render>[2]): ReturnType<typeof render> {
-        return render(this, renderSize, options);
+    render({ size }: { size?: { width?: number; height?: number } } = {}): ReturnType<typeof render> {
+        return render(this, {
+            width: size?.width ?? DEFAULT_SIZE.width,
+            height: size?.height ?? DEFAULT_SIZE.height
+        });
     }
 
     static async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(

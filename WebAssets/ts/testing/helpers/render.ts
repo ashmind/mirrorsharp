@@ -93,9 +93,9 @@ export { shouldSkipRender } from './render/should-skip';
 //let renderInProgress = false;
 export default async function render(
     driver: TestDriver<unknown>,
-    size: { width: number; height: number },
-    { debug = !!inspector.url()/*, seconds = () => 0*/ }: { debug?: boolean/*; seconds?: () => number*/ } = {}
+    size: { width: number; height: number }
 ) {
+    const debug = !!inspector.url();
     const verbose = verboseLogger();
 
     // if (renderInProgress)

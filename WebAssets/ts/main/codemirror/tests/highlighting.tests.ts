@@ -1,4 +1,4 @@
-import { LANGUAGE_FSHARP, LANGUAGE_PHP, LANGUAGE_VB } from '../../../interfaces/protocol';
+import { LANGUAGE_FSHARP, LANGUAGE_IL, LANGUAGE_PHP, LANGUAGE_VB } from '../../../interfaces/protocol';
 import { TestDriver } from '../../../testing/test-driver';
 
 const CODE_CSHARP = `
@@ -107,6 +107,55 @@ test('F# highlighting is rendered correctly', async () => {
     await driver.completeBackgroundWork();
 
     const rendered = await driver.render();
+
+    expect(rendered).toMatchImageSnapshot();
+});
+
+const CODE_IL = `
+.class public C\`1<T>
+    extends [System.Runtime]System.Object
+{
+    // test comment
+    .method public
+        instance void M<U> () cil managed
+    {
+        .maxstack 3
+        .locals init (
+            [0] float64 d,
+            [1] string s1
+        )
+
+        IL_0000: ldc.r8 1.2e3
+        IL_0009: stloc.0
+        IL_000a: ldstr "test"
+        IL_000f: stloc.1
+        IL_0010: ret
+    }
+}
+`.replace(/\r\n|\r|\n/g, '\r\n').trim();
+
+test('IL highlighting applies expected classes', async () => {
+    const driver = await TestDriver.new({
+        text: CODE_IL,
+        options: { language: LANGUAGE_IL }
+    });
+    await driver.completeBackgroundWork();
+
+    const html = driver.getCodeMirrorView().contentDOM.innerHTML;
+
+    expect(html).toMatchSnapshot();
+});
+
+test('IL highlighting is rendered correctly', async () => {
+    if (TestDriver.shouldSkipRender)
+        return;
+    const driver = await TestDriver.new({
+        text: CODE_IL,
+        options: { language: LANGUAGE_IL }
+    });
+    await driver.completeBackgroundWork();
+
+    const rendered = await driver.render({ size: { height: 500 } });
 
     expect(rendered).toMatchImageSnapshot();
 });
