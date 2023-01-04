@@ -116,7 +116,7 @@ export const autocompletionFromServer = <O, U>(connection: Connection<O, U>) => 
         }
     });
 
-    const forceCompletionOnCtrlSpace = Prec.high(keymap.of([{ key: 'Ctrl-Space', run: () => {
+    const forceCompletionOnCtrlSpace = Prec.highest(keymap.of([{ key: 'Ctrl-Space', run: () => {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         connection.sendCompletionState('force');
         return true;
