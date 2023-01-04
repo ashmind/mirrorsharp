@@ -1,4 +1,4 @@
-import { LANGUAGE_FSHARP } from '../../../interfaces/protocol';
+import { LANGUAGE_FSHARP, LANGUAGE_VB } from '../../../interfaces/protocol';
 import { TestDriver } from '../../../testing/test-driver';
 
 const CODE_CSHARP = `
@@ -26,6 +26,46 @@ test('C# highlighting is rendered correctly', async () => {
     if (TestDriver.shouldSkipRender)
         return;
     const driver = await TestDriver.new({ text: CODE_CSHARP });
+    await driver.completeBackgroundWork();
+
+    const rendered = await driver.render();
+
+    expect(rendered).toMatchImageSnapshot();
+});
+
+const CODE_VB = `
+Class C (Of T)
+    ' test comment
+    Public Sub M (Of U)()
+        Dim d As Decimal = 1.2e3
+        Dim s1 As String = "test"
+        Dim s2 As String = $"a{s1}b"
+        Dim c As Char = 't'
+        Dim a As Action = Sub()
+                          End Sub
+    End Sub
+End Class
+`.replace(/\r\n|\r|\n/g, '\r\n').trim();
+
+test('VB highlighting applies expected classes', async () => {
+    const driver = await TestDriver.new({
+        text: CODE_VB,
+        options: { language: LANGUAGE_VB }
+    });
+    await driver.completeBackgroundWork();
+
+    const html = driver.getCodeMirrorView().contentDOM.innerHTML;
+
+    expect(html).toMatchSnapshot();
+});
+
+test('VB highlighting is rendered correctly', async () => {
+    if (TestDriver.shouldSkipRender)
+        return;
+    const driver = await TestDriver.new({
+        text: CODE_VB,
+        options: { language: LANGUAGE_VB }
+    });
     await driver.completeBackgroundWork();
 
     const rendered = await driver.render();
