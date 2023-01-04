@@ -2,7 +2,6 @@ import jetpack from 'fs-jetpack';
 import fg from 'fast-glob';
 import { transformFileAsync } from '@babel/core';
 import { task, exec, build } from 'oldowan';
-import convertPrivateFields from './build/babel-plugin-convert-private-fields-to-symbols';
 
 const clean = task('clean', async () => {
     const paths = await fg(['.temp/**/*.*', 'dist/**/*.*', '!dist/node_modules/**/*.*']);
@@ -26,13 +25,7 @@ const tsTransform = task('ts:transform', async () => {
             plugins: [
                 // Add .js extension to all imports.
                 // Technically TypeScript already resolves .js to .ts, but it's a hack.
-                'babel-plugin-add-import-extension',
-
-                '@babel/plugin-syntax-class-properties',
-                // Sort out private class fields which are level 3 proposal and
-                // should not be posted to npm. Technically TypeScript can do it,
-                // but I think WeakMap is an absolute overkill.
-                convertPrivateFields
+                'babel-plugin-add-import-extension'
             ]
         }))!;
 
