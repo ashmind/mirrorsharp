@@ -14,21 +14,21 @@ function sendReplace(session: Session, from: number, to: number, text: Text, cur
 
 function sendChanges(session: Session, changes: ChangeSet, prevCursorOffset: number, cursorOffset: number) {
     let changeCount = 0;
-    let firstFrom: number|undefined;
-    let firstTo: number|undefined;
-    let firstText: Text|undefined;
+    let first: {
+        from: number,
+        to: number,
+        text: Text
+    } | undefined;
     changes.iterChanges((from, to, _f, _t, inserted) => {
         changeCount += 1;
         if (changeCount === 1) {
-            firstFrom = from;
-            firstTo = to;
-            firstText = inserted;
+            first = { from, to, text: inserted };
             return;
         }
 
         if (changeCount === 2) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            sendReplace(session, firstFrom!, firstTo!, firstText!, cursorOffset);
+            sendReplace(session, first!.from, first!.to, first!.text, cursorOffset);
         }
 
         sendReplace(session, from, to, inserted, cursorOffset);
@@ -36,14 +36,18 @@ function sendChanges(session: Session, changes: ChangeSet, prevCursorOffset: num
 
     if (changeCount === 1) {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        if (firstFrom === prevCursorOffset && firstTo === firstFrom && firstText!.length === 1) {
+        const { from, to, text } = first!;
+        if (from === prevCursorOffset && to === from && text.length === 1) {
+            let char = text.line(1).text.charAt(0);
+            if (char === '' && text.lines === 2 && text.line(1).length === 0)
+                char = '\n';
+
             // eslint-disable-next-line @typescript-eslint/no-floating-promises, @typescript-eslint/no-non-null-assertion
-            session.sendTypeChar(firstText!.line(1).text.charAt(0));
+            session.sendTypeChar(char);
             return true;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        sendReplace(session, firstFrom!, firstTo!, firstText!, cursorOffset);
+        sendReplace(session, from, to, text, cursorOffset);
     }
 }
 

@@ -10,6 +10,16 @@ test('change at cursor is sent as typed text', async () => {
     expect(lastSent).toBe('Cx');
 });
 
+test('enter at cursor is sent as typed newline', async () => {
+    const driver = await TestDriver.new({ textWithCursor: 'a|bc' });
+
+    driver.domEvents.keydown('Enter');
+    await driver.completeBackgroundWork();
+
+    const lastSent = driver.socket.sent.filter(c => !c.startsWith('U')).slice(-1)[0];
+    expect(lastSent).toBe('C\n');
+});
+
 test('change not at cursor is sent as replaced text', async () => {
     const driver = await TestDriver.new({ textWithCursor: 'a|bc' });
 
