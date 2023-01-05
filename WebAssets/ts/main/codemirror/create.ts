@@ -24,14 +24,16 @@ export const createExtensions = <O, U>(
     EditorState.lineSeparator.of(lineSeparator),
 
     history(),
+
     languageExtensions[options.initialLanguage],
     syntaxHighlighting(classHighlighter),
 
     connectionState(connection),
     sendChangesToServer(session as Session),
-    slowUpdateLinter(connection, options),
     infotipsFromServer(connection),
     autocompletionFromServer(connection),
+
+    slowUpdateLinter(connection as Connection<unknown, U>, options),
 
     // has to go last so that more specific keymaps
     // in e.g. autocomplete have more priority

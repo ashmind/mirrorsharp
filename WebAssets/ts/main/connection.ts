@@ -26,7 +26,7 @@ export type ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData
     close: (e: CloseEvent) => void;
 };
 
-export class Connection<TExtensionServerOptions, TSlowUpdateExtensionData = unknown> {
+export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionData = unknown> {
     readonly #url: string;
     // readonly #selfDebug: SelfDebug|null;
 

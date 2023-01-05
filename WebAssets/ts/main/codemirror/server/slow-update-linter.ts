@@ -1,22 +1,41 @@
-import { ViewPlugin, EditorView, PluginValue } from '@codemirror/view';
-import { Diagnostic, setDiagnostics } from '@codemirror/lint';
+import { ViewPlugin } from '@codemirror/view';
+import { Action, Diagnostic, setDiagnostics, lintGutter } from '@codemirror/lint';
 import type { Connection } from '../../connection';
 import type { SlowUpdateOptions } from '../../../interfaces/slow-update';
-import type { DiagnosticData } from '../../../interfaces/protocol';
+import type { DiagnosticActionData, DiagnosticData, DiagnosticSeverity } from '../../../interfaces/protocol';
 import { addEvents } from '../../../helpers/add-events';
+import { applyChangesFromServer } from '../../../helpers/apply-changes-from-server';
 
-const mapDiagnostic = ({ span: { start, length }, message, severity }: DiagnosticData): Diagnostic => ({
-    from: start,
-    to: start + length,
-    message,
-    severity: severity as 'error'|'info'|'warning'
-});
-
-const createLinterPlugin = <O, TExtensionData>(
-    view: EditorView,
-    connection: Connection<O, TExtensionData>,
+const receiveSlowUpdateResultsFromServer = <TExtensionData>(
+    connection: Connection<unknown, TExtensionData>,
     { slowUpdateResult }: SlowUpdateOptions<TExtensionData>
-) => {
+) => ViewPlugin.define(view => {
+    const mapSeverity = (severity: DiagnosticSeverity, tags: ReadonlyArray<string>) => {
+        if (severity === 'error' || severity === 'warning')
+            return severity;
+
+        if (tags.includes('unnecessary'))
+            return 'unnecessary' as Diagnostic['severity'];
+
+        return 'info';
+    };
+
+    const mapAction = ({ id, title }: DiagnosticActionData): Action => ({
+        name: title,
+        apply: () => {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            connection.sendApplyDiagnosticAction(id);
+        }
+    });
+
+    const mapDiagnostic = ({ span: { start, length }, message, severity, actions, tags }: DiagnosticData): Diagnostic => ({
+        from: start,
+        to: start + length,
+        message,
+        severity: mapSeverity(severity, tags),
+        actions: actions?.map(mapAction)
+    });
+
     const removeConnectionEvents = addEvents(connection, {
         message(message) {
             if (message.type !== 'slowUpdate')
@@ -31,20 +50,37 @@ const createLinterPlugin = <O, TExtensionData>(
             view.dispatch(setDiagnostics(view.state, diagnostics));
 
             if (slowUpdateResult)
-                slowUpdateResult(message);
+                slowUpdateResult({ diagnostics: message.diagnostics, x: message.x });
         }
     });
 
     return {
-        destroy() {
-            removeConnectionEvents();
-        }
-    } as PluginValue;
-};
+        destroy: () => removeConnectionEvents()
+    };
+});
 
-export const slowUpdateLinter = <O, TExtensionData>(
-    connection: Connection<O, TExtensionData>,
+const receiveFixChangesFromServer = <TExtensionData>(
+    connection: Connection<unknown, TExtensionData>
+) => ViewPlugin.define(view => {
+    const removeConnectionEvents = addEvents(connection, {
+        message(message) {
+            if (message.type !== 'changes' || message.reason !== 'fix')
+                return;
+
+            applyChangesFromServer(view, message.changes);
+        }
+    });
+
+    return {
+        destroy: () => removeConnectionEvents()
+    };
+});
+
+export const slowUpdateLinter = <TExtensionData>(
+    connection: Connection<unknown, TExtensionData>,
     options: SlowUpdateOptions<TExtensionData>
 ) => [
-    ViewPlugin.define(view => createLinterPlugin(view, connection, options))
+    receiveSlowUpdateResultsFromServer(connection, options),
+    receiveFixChangesFromServer(connection),
+    lintGutter()
 ];

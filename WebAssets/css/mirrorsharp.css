@@ -35,7 +35,7 @@
     color: #2b91af;
 }
 
-.mirrorsharp .cm-lintRange-hidden {
+.mirrorsharp .cm-lintRange-unnecessary {
     opacity: 0.5;
 }
 
@@ -143,6 +143,54 @@
 
 .mirrorsharp-infotip {
     padding: 3px 8px;
+}
+
+.mirrorsharp .cm-diagnostic-unnecessary {
+    border-left: 5px solid #999;
+}
+
+.mirrorsharp .cm-diagnostic {
+    display: flex;
+    flex-direction: column;
+}
+
+.mirrorsharp .cm-diagnosticAction {
+    /* Can be removed after https://github.com/codemirror/dev/issues/1053 */
+    cursor: pointer;
+    align-self: flex-start;
+    background-color: #ddd;
+    border: 1px solid #aaa;
+    margin-left: 13px;
+    color: #000;
+    padding: 4px 6px;
+}
+
+.mirrorsharp .cm-diagnosticAction:hover {
+    background-color: #eee;
+}
+
+.mirrorsharp .cm-diagnosticAction::before {
+    content: '';
+    display: inline-block;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24.67 35.8'%3E%3Cpath fill='%23ceab00' d='M24.67 12.07a12.22 12.22 0 0 1-2.57 7.11q-2.4 3.26-2.74 3.85a13.92 13.92 0 0 0-1.54 7v.09h-11v-.06a13.89 13.89 0 0 0-1.63-7 45.25 45.25 0 0 0-2.66-3.85A12.22 12.22 0 0 1-.04 12.1 11.49 11.49 0 0 1 3.6 3.58a12.41 12.41 0 0 1 17.39 0 11.49 11.49 0 0 1 3.68 8.49Z'/%3E%3Cpath fill='%23ffd800' d='M20.98 18.32a9.93 9.93 0 0 0-1.11-13.88 10.75 10.75 0 0 0-15.08 0 9.93 9.93 0 0 0-1.11 13.88l1.63 2.23a9.09 9.09 0 0 1 1.11 1.8 12.57 12.57 0 0 1 1.8 6.42h8.27a12.89 12.89 0 0 1 1.77-6.42 35.57 35.57 0 0 1 2.06-3.08l.09-.09q-.02-.17.06-.17Z'/%3E%3Cpath fill='%23ceab00' d='M6.85 13.7h1.5l2.6 5.4v9.7H9.56v-9.7Zm10.98 0h-1.5l-2.6 5.4v9.7h1.39v-9.7Z'/%3E%3Cpath fill='%239d9d9d' d='m6.8 30.12 1.5 1.48v1.34l1.3 1.36h5.5l1.4-1.43v-1.32l1.3-1.43Z'/%3E%3Cpath fill='%23626262' d='M6.8 30.11v-1.35h11.01v1.35H8.25Zm1.45 2.76v-1.35h8.22v1.35H8.25Zm1.37 2.74v-1.37h5.48v1.37H9.62Z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 1em;
+    height: 1em;
+    margin-right: 0.5em;
+    vertical-align: top;
+}
+
+.mirrorsharp .cm-diagnosticAction {
+    margin-top: 5px;
+}
+
+.mirrorsharp .cm-diagnosticAction:first-of-type {
+    margin-top: 7px;
+}
+
+.mirrorsharp .cm-diagnosticAction:last-child {
+    margin-bottom: 5px;
 }
 
 /* Old */
