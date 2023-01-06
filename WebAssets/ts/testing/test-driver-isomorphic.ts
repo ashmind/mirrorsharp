@@ -1,6 +1,6 @@
 import type { EditorView } from '@codemirror/view';
 import { TransactionSpec, Transaction } from '@codemirror/state';
-import type { PartData, CompletionItemData, ChangeData, ChangesMessage, CompletionsMessage, Message, InfotipMessage } from '../interfaces/protocol';
+import type { PartData, CompletionItemData, ChangeData, ChangesMessage, CompletionsMessage, Message, InfotipMessage, DiagnosticData } from '../interfaces/protocol';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../mirrorsharp';
 
 type TestRecorderOptions = { exclude?: (object: object, action: string) => boolean };
@@ -194,11 +194,19 @@ class TestDomEvents {
             .dispatchEvent(new KeyboardEvent('keydown', { key, ...other }));
     }
 
+    // cannot work in render mode -- needs adjustment
     mousemove(target: Node) {
         const event = new MouseEvent('mousemove', { bubbles: true });
         // default does not apply fake timers due to global object differences
         Object.defineProperty(event, 'timeStamp', { value: Date.now() });
         target.dispatchEvent(event);
+    }
+
+    mouseover(selector: string) {
+        const target = this.#cmView.dom.querySelector(selector);
+        if (!target)
+            throw new Error(`Could not find element '${selector}'.`);
+        target.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     }
 }
 
@@ -236,6 +244,14 @@ class TestReceiver {
 
     completionInfo(index: number, parts: ReadonlyArray<PartData>) {
         this.#message({ type: 'completionInfo', index, parts });
+    }
+
+    slowUpdate(diagnostics: ReadonlyArray<DiagnosticData>, x?: unknown) {
+        this.#message({
+            type: 'slowUpdate',
+            diagnostics,
+            x
+        });
     }
 
     #message = (message: Partial<Message<unknown, unknown>>) => {
@@ -287,7 +303,7 @@ export class TestDriver<TExtensionServerOptions = never> {
         this.domEvents = new TestDomEvents(cmView);
         this.receive = new TestReceiver(socket);
         this.recorder = new TestRecorder([
-            /*this.keys, */this.text, this.receive, this
+            this.text, this.domEvents, this.receive, this
         ], {
             exclude: (object, key) => object === this && (key === 'render' || key === 'toJSON')
         });

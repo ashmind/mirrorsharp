@@ -76,7 +76,7 @@ const receiveFixChangesFromServer = <TExtensionData>(
     };
 });
 
-export const slowUpdateLinter = <TExtensionData>(
+export const lintingFromServer = <TExtensionData>(
     connection: Connection<unknown, TExtensionData>,
     options: SlowUpdateOptions<TExtensionData>
 ) => [

@@ -6,7 +6,7 @@ import type { SlowUpdateOptions } from '../../interfaces/slow-update';
 import lineSeparator from './line-separator';
 import keymap from './keymap';
 import { sendChangesToServer } from './server/send-changes';
-import { slowUpdateLinter } from './server/slow-update-linter';
+import { lintingFromServer } from './server/linting';
 import { connectionState } from './server/connection-state';
 import { infotipsFromServer } from './server/infotips';
 import { autocompletionFromServer } from './server/autocompletion';
@@ -30,10 +30,9 @@ export const createExtensions = <O, U>(
 
     connectionState(connection),
     sendChangesToServer(session as Session),
+    lintingFromServer(connection as Connection<unknown, U>, options),
     infotipsFromServer(connection),
     autocompletionFromServer(connection),
-
-    slowUpdateLinter(connection as Connection<unknown, U>, options),
 
     // has to go last so that more specific keymaps
     // in e.g. autocomplete have more priority
