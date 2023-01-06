@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.0.4] - 2023-01-06
+
+### Fixed
+- Fixed sorting order of diagnostic quickfix actions (C#/VB)
+
 ## [3.0.3] - 2022-12-15
 
 ### Fixed

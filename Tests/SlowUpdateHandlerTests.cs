@@ -44,12 +44,12 @@ namespace MirrorSharp.Tests {
             var diagnostic = result.Diagnostics.Single(d => d.Message?.Contains("Action") ?? false);
             Assert.Equal(
                 new[] {
+                    "using System;",
                     "Generate class 'Action'",
                     "Generate nested class 'Action'",
-                    "System.Action",
-                    "using System;"
+                    "System.Action"
                 },
-                diagnostic.Actions.Select(a => a.Title).OrderBy(t => t).ToArray()
+                diagnostic.Actions.Select(a => a.Title).ToArray()
             );
         }
 
