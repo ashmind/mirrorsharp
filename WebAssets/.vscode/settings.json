@@ -4,8 +4,7 @@
         "bin/": true,
         "obj/": true,
         "*.csproj*": true,
-        "Properties/": true,
-        ".render-cache/": true
+        "Properties/": true
     },
     "editor.codeActionsOnSave": {
         "source.fixAll": true
@@ -24,7 +23,7 @@
         "**/coverage/**": true,
         "**/.temp/**": true,
         "**/dist/**": true,
-        "**/.render-cache/**": true
+        "**/storybook-static/**": true
     },
     "cSpell.words": [
         "Andrey",

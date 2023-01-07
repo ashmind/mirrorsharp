@@ -1,5 +1,5 @@
 import { TestDriver } from '../../../testing/test-driver-jest';
-import { dispatchMutation } from '../../../testing/helpers/mutation-observer-workaround';
+import { dispatchMutation } from '../../../testing/shared/mutation-observer-workaround';
 import { completionStatus, currentCompletions, acceptCompletion, moveCompletionSelection } from '@codemirror/autocomplete';
 
 const typeCharacterUsingDOM = (driver: TestDriver, character: string) => {

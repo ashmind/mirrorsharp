@@ -11,6 +11,7 @@ export type Message<TExtensionServerOptions, TSlowUpdateExtensionData> = Changes
                     | ErrorMessage
                     | UnknownMessage;
 
+// ts-unused-exports:disable-next-line
 export interface ChangesMessage {
     readonly type: 'changes';
     readonly changes: ReadonlyArray<ChangeData>;
@@ -31,10 +32,12 @@ export interface CompletionsMessage {
     readonly suggestion?: CompletionSuggestionData;
 }
 
+// ts-unused-exports:disable-next-line
 export interface CompletionSuggestionData {
     readonly displayText: string;
 }
 
+// ts-unused-exports:disable-next-line
 export interface CompletionItemData {
     readonly displayText: string;
     readonly kinds: ReadonlyArray<string>;
@@ -49,35 +52,47 @@ export interface CompletionInfoMessage {
     readonly parts: ReadonlyArray<PartData>;
 }
 
+// Temporary, until restored support for signatures
+// ts-unused-exports:disable-next-line
 export interface SignaturesMessage {
     readonly type: 'signatures';
     readonly span: SpanData;
     readonly signatures: ReadonlyArray<SignatureData>;
 }
 
+// Temporary, until restored support for signatures
+// ts-unused-exports:disable-next-line
 export interface SignaturesEmptyMessage {
     readonly type: 'signatures';
     readonly span?: undefined;
     readonly signatures?: undefined;
 }
 
+// Temporary, until restored support for signatures
+// ts-unused-exports:disable-next-line
 export interface SignatureData {
     readonly parts: ReadonlyArray<SignaturePartData>;
     readonly selected?: boolean;
     readonly info?: SignatureInfoData;
 }
 
+// Temporary, until restored support for signatures
+// ts-unused-exports:disable-next-line
 export interface SignatureInfoData {
     readonly parts: ReadonlyArray<PartData>;
     // normally represents the selected parameter
     readonly parameter?: SignatureInfoParameterData;
 }
 
+// Temporary, until restored support for signatures
+// ts-unused-exports:disable-next-line
 export interface SignatureInfoParameterData {
     readonly name: string;
     readonly parts: ReadonlyArray<PartData>;
 }
 
+// Temporary, until restored support for signatures
+// ts-unused-exports:disable-next-line
 export interface SignaturePartData extends PartData {
     readonly selected?: boolean;
 }
@@ -89,11 +104,14 @@ export interface InfotipMessage {
     readonly sections: ReadonlyArray<InfotipSectionData>;
 }
 
+// Temporary, investigate
+// ts-unused-exports:disable-next-line
 export interface InfotipEmptyMessage {
     readonly type: 'infotip';
     readonly sections?: undefined;
 }
 
+// ts-unused-exports:disable-next-line
 export interface InfotipSectionData {
     readonly kind: string;
     readonly parts: ReadonlyArray<PartData>;
@@ -121,6 +139,7 @@ export interface DiagnosticActionData {
     readonly title: string;
 }
 
+// ts-unused-exports:disable-next-line
 export interface OptionsEchoMessage<TExtensionServerOptions> {
     readonly type: 'optionsEcho';
     readonly options: ServerOptions & TExtensionServerOptions;
@@ -144,11 +163,15 @@ export interface ServerOptions {
     language?: Language;
 }
 
+// Temporary, until self-debug is restored or removed
+// ts-unused-exports:disable-next-line
 export interface SelfDebugMessage {
     readonly type: 'self:debug';
     readonly log: ReadonlyArray<SelfDebugLogEntryData>;
 }
 
+// Temporary, until self-debug is restored or removed
+// ts-unused-exports:disable-next-line
 export interface SelfDebugLogEntryData {
     readonly time: Date;
     readonly event: string;
@@ -157,11 +180,14 @@ export interface SelfDebugLogEntryData {
     readonly cursor: number;
 }
 
+// Temporary, investigate
+// ts-unused-exports:disable-next-line
 export interface ErrorMessage {
     readonly type: 'error';
     readonly message: string;
 }
 
+// ts-unused-exports:disable-next-line
 export interface UnknownMessage {
     type: '_';
 }
@@ -171,16 +197,8 @@ export interface PartData {
     readonly text: string;
 }
 
+// ts-unused-exports:disable-next-line
 export interface SpanData {
     readonly start: number;
     readonly length: number;
 }
-
-type DiscriminateUnion<T, K extends keyof T, V extends T[K]> =
-  T extends Record<K, V> ? T : never;
-
-type MapDiscriminatedUnion<T extends Record<K, string>, K extends keyof T> =
-  { [V in T[K]]: DiscriminateUnion<T, K, V> };
-
-export type MessageMap<TExtensionServerOptions, TSlowUpdateExtensionData> =
-    MapDiscriminatedUnion<Message<TExtensionServerOptions, TSlowUpdateExtensionData>, 'type'>;

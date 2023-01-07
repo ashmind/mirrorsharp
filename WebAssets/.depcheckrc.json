@@ -1,0 +1,21 @@
+{
+    "ignore-patterns": [
+        ".temp/",
+        "storybook-static/"
+    ],
+    "ignores": [
+        "@storybook/addon-links",
+        "@storybook/addon-measure",
+        "@storybook/addon-outline",
+        "@storybook/addon-viewport",
+        "@storybook/builder-webpack5",
+        "@storybook/manager-webpack5",
+        "@types/jest",
+        "babel-plugin-add-import-extension",
+        "jest-environment-jsdom",
+
+        "depcheck",
+        "http-server",
+        "ts-unused-exports"
+    ]
+}

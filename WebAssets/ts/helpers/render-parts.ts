@@ -18,7 +18,7 @@ function createSection() {
     return section;
 }
 
-export function renderPartTo(parent: HTMLElement, part: PartData) {
+function renderPartTo(parent: HTMLElement, part: PartData) {
     const span = document.createElement('span');
     span.className = 'tok-' + part.kind;
     span.textContent = part.text;

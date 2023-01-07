@@ -8,6 +8,7 @@
 //     [key: string]: string|undefined;
 // };
 
+// ts-unused-exports:disable-next-line
 export class SignatureTip {
     // readonly #cm: CodeMirror.Editor;
 

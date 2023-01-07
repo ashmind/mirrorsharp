@@ -5,20 +5,25 @@ import { Connection } from './main/connection';
 import { Editor } from './main/editor';
 import { Session } from './main/session';
 
+// ts-unused-exports:disable-next-line
 export type MirrorSharpLanguage = Language;
+// ts-unused-exports:disable-next-line
 export type MirrorSharpConnectionState = 'open'|'error'|'close';
 
+// ts-unused-exports:disable-next-line
 export interface MirrorSharpDiagnostic {
     readonly id: string;
     readonly severity: DiagnosticSeverity;
     readonly message: string;
 }
 
+// ts-unused-exports:disable-next-line
 export interface MirrorSharpSlowUpdateResult<TExtensionData = never> {
     readonly diagnostics: ReadonlyArray<MirrorSharpDiagnostic>;
     readonly x: TExtensionData;
 }
 
+// ts-unused-exports:disable-next-line
 export interface MirrorSharpOptions<TExtensionServerOptions = never, TSlowUpdateExtensionData = never> {
     readonly serviceUrl: string;
 
@@ -45,6 +50,7 @@ export interface MirrorSharpOptions<TExtensionServerOptions = never, TSlowUpdate
     readonly initialServerOptions?: TExtensionServerOptions;
 }
 
+// ts-unused-exports:disable-next-line
 export interface MirrorSharpInstance<TExtensionServerOptions> {
     getCodeMirrorView(): EditorView;
     getRootElement(): Element;
@@ -58,6 +64,7 @@ export interface MirrorSharpInstance<TExtensionServerOptions> {
     destroy(destroyOptions: { keepCodeMirror?: boolean }): void;
 }
 
+// ts-unused-exports:disable-next-line
 export default function mirrorsharp<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
     container: HTMLElement,
     options: MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>

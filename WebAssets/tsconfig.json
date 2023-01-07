@@ -1,6 +1,6 @@
 {
     "include": [
-        "./build.ts",
+        "build.ts",
         "build/*.ts"
     ],
     "compilerOptions": {

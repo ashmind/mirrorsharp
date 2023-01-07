@@ -5,8 +5,6 @@ import { defineEffectField } from '../../../helpers/define-effect-field';
 
 const [isConnected, dispatchIsConnectedChanged] = defineEffectField(false);
 
-export { isConnected };
-
 export const connectionState = <O, TExtensionData>(
     connection: Connection<O, TExtensionData>
 ) => {

@@ -7,7 +7,7 @@ import { renderPartsTo } from '../../../helpers/render-parts';
 
 const [lastInfotipRequest, dispatchLastInfotipRequestChanged] = defineEffectField<{ pos: number; resolve: ((tooltip: Tooltip) => void) }|null>(null);
 
-export function kindsToClassNames(kinds: ReadonlyArray<string>) {
+function kindsToClassNames(kinds: ReadonlyArray<string>) {
     return kinds.map(kind => 'mirrorsharp-infotip-icon-' + kind);
 }
 

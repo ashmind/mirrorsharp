@@ -2,14 +2,27 @@ import jetpack from 'fs-jetpack';
 import fg from 'fast-glob';
 import { transformFileAsync } from '@babel/core';
 import { task, exec, build } from 'oldowan';
-import './build/storybook.ts';
+import './build/storybook';
 
 const clean = task('clean', async () => {
     const paths = await fg(['.temp/**/*.*', 'dist/**/*.*', '!dist/node_modules/**/*.*']);
     await Promise.all(paths.map(jetpack.removeAsync));
 });
 
-const tscArgs = '--project ./ts/tsconfig.json --module ES2015 --noEmit false --outDir ./.temp --declaration true';
+const depsDepcheck = task('deps:depcheck', () => exec('depcheck'));
+const deps = task('deps', () => Promise.all([
+    depsDepcheck()
+]));
+
+const tsESLint = task('ts:eslint', () => exec('eslint ./ts --max-warnings 0 --ext .js,.jsx,.ts,.tsx'));
+const tsUnusedExports = task('ts:unused-exports', async () => {
+    console.log('ts-unused-exports: dist');
+    await exec('ts-unused-exports ./ts/tsconfig.json --ignoreFiles=\\.(stories|tests)$ --ignoreFiles=test\\.data --ignoreFiles=testing');
+    console.log('ts-unused-exports: tests');
+    await exec('ts-unused-exports ./ts/tsconfig.json --excludePathsFromReport=stories');
+});
+
+const tscArgs = '--project ./ts/tsconfig.build.json --outDir ./.temp';
 const tsTsc = task('ts:tsc',
     () => exec(`tsc ${tscArgs}`),
     { watch: () => exec(`tsc --watch ${tscArgs}`) }
@@ -36,7 +49,10 @@ const tsTransform = task('ts:transform', async () => {
 }, { watch: ['.temp/**/*.js'] });
 
 const ts = task('ts', async () => {
-    await exec('eslint ./ts --max-warnings 0 --ext .js,.jsx,.ts,.tsx');
+    await Promise.all([
+        await tsESLint(),
+        await tsUnusedExports()
+    ]);
     await tsTsc();
     await Promise.all([
         tsTransform(),
@@ -61,9 +77,17 @@ const files = task('files', async () => {
     await jetpack.writeAsync('dist/package.json', JSON.stringify(packageJson, null, 4));
 }, { watch: ['./README.md', './package.json'] });
 
+task ('lint', async () => {
+    await tsESLint();
+    await tsUnusedExports();
+    await tsTsc();
+    await depsDepcheck();
+});
+
 task('default', async () => {
     await clean();
     await Promise.all([
+        deps(),
         ts(),
         css(),
         files()

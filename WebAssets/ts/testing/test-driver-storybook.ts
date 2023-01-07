@@ -1,4 +1,4 @@
-import { timers } from './helpers/render/browser-fake-timers';
+import { timers } from './storybook/browser-fake-timers';
 import { setTimers, TestDriverBase, TestDriverOptions } from './test-driver-base';
 
 setTimers(timers);
