@@ -7,7 +7,7 @@ import waitOn from 'wait-on';
 import execa from 'execa';
 
 export const root = path.resolve(__dirname, '..');
-export const sourceRoot = path.resolve(root, 'ts');
+export const sourceRoot = path.resolve(root, 'src');
 
 const UPDATE_SNAPSHOTS_KEY = 'SHARPLAB_TEST_UPDATE_SNAPSHOTS';
 

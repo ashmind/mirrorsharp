@@ -1,4 +1,4 @@
-import '../css/mirrorsharp.css';
+import '../src/mirrorsharp.css';
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },

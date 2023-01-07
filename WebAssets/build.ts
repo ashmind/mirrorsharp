@@ -14,15 +14,15 @@ const deps = task('deps', () => Promise.all([
     depsDepcheck()
 ]));
 
-const tsESLint = task('ts:eslint', () => exec('eslint ./ts --max-warnings 0 --ext .js,.jsx,.ts,.tsx'));
+const tsESLint = task('ts:eslint', () => exec('eslint ./src --max-warnings 0 --ext .js,.jsx,.ts,.tsx'));
 const tsUnusedExports = task('ts:unused-exports', async () => {
     console.log('ts-unused-exports: dist');
-    await exec('ts-unused-exports ./ts/tsconfig.json --ignoreFiles=\\.(stories|tests)$ --ignoreFiles=test\\.data --ignoreFiles=testing');
+    await exec('ts-unused-exports ./src/tsconfig.json --ignoreFiles=\\.(stories|tests)$ --ignoreFiles=test\\.data --ignoreFiles=testing');
     console.log('ts-unused-exports: tests');
-    await exec('ts-unused-exports ./ts/tsconfig.json --excludePathsFromReport=stories');
+    await exec('ts-unused-exports ./src/tsconfig.json --excludePathsFromReport=stories');
 });
 
-const tscArgs = '--project ./ts/tsconfig.build.json --outDir ./.temp';
+const tscArgs = '--project ./src/tsconfig.build.json --outDir ./.temp';
 const tsTsc = task('ts:tsc',
     () => exec(`tsc ${tscArgs}`),
     { watch: () => exec(`tsc --watch ${tscArgs}`) }
@@ -60,7 +60,10 @@ const ts = task('ts', async () => {
     ]);
 });
 
-const css = task('css', () => jetpack.copyAsync('css', 'dist', { overwrite: true }), { watch: ['css/*.*'] });
+const css = task('css',
+    () => jetpack.copyAsync('src', 'dist', { matching: ['*.css', '*.less'], overwrite: true }),
+    { watch: ['src/*.css', 'src/*.less'] }
+);
 
 const files = task('files', async () => {
     await jetpack.copyAsync('./README.md', 'dist/README.md', { overwrite: true });

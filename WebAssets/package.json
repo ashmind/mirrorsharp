@@ -40,14 +40,14 @@
         ],
         "globals": {
             "ts-jest": {
-                "tsconfig": "<rootDir>/ts/tsconfig.json"
+                "tsconfig": "<rootDir>/src/tsconfig.json"
             }
         },
         "setupFilesAfterEnv": [
-            "<rootDir>/ts/testing/jest/setup-jest.ts"
+            "<rootDir>/src/testing/jest/setup-jest.ts"
         ],
         "testMatch": [
-            "<rootDir>/ts/**/*.tests.ts"
+            "<rootDir>/src/**/*.tests.ts"
         ]
     },
     "dependencies": {

@@ -3,7 +3,7 @@
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         // https://github.com/typescript-eslint/typescript-eslint/issues/540
-        "project": "ts/tsconfig.json"
+        "project": "src/tsconfig.json"
     },
     "plugins": [
         "@typescript-eslint"
