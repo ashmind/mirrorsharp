@@ -1,4 +1,4 @@
-import { TestDriver } from '../../../testing/test-driver';
+import { TestDriver } from '../../../testing/test-driver-jest';
 import { selectAll } from '@codemirror/commands';
 
 test('Tab indents selected block', async () => {

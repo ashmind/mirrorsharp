@@ -2,7 +2,7 @@ import inspector from 'inspector';
 import puppeteer, { HTTPRequest, Page } from 'puppeteer';
 import loadCSS from './render/load-css';
 import loadJSOrTS from './render/load-js-or-ts';
-import type { TestDriver } from '../test-driver';
+import type { TestDriver } from '../test-driver-jest';
 import lazyRenderSetup from './render/docker/lazy-setup';
 import * as console from 'console';
 import { setTimeout } from './real-timers';

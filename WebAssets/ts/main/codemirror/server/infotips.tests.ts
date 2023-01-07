@@ -1,4 +1,4 @@
-import { TestDriver, timers } from '../../../testing/test-driver';
+import { TestDriver, timers } from '../../../testing/test-driver-jest';
 
 const mockHoverDependencies = (driver: TestDriver) => {
     const cmView = driver.getCodeMirrorView();

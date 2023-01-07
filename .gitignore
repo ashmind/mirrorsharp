@@ -6,6 +6,7 @@ project.lock.json
 node_modules/
 .cache/
 .parcel-cache/
+storybook-static/
 .temp/
 bin/
 obj/

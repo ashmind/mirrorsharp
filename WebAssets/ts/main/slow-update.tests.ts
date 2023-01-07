@@ -1,5 +1,5 @@
 
-import { TestDriver } from '../testing/test-driver';
+import { TestDriver } from '../testing/test-driver-jest';
 
 test('slowUpdate is not sent if there is no initial text', async () => {
     const driver = await TestDriver.new({

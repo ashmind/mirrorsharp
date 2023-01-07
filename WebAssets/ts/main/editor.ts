@@ -537,6 +537,10 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         return this.#cmView;
     }
 
+    getRootElement() {
+        return this.#wrapper;
+    }
+
     getText() {
         return this.#cmView.state.sliceDoc();
     }

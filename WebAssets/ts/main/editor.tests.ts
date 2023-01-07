@@ -1,4 +1,4 @@
-import { TestDriver } from '../testing/test-driver';
+import { TestDriver } from '../testing/test-driver-jest';
 
 test('setText replaces document text', async () => {
     const driver = await TestDriver.new({

@@ -1,11 +1,6 @@
-import { TestDriver } from '../../../testing/test-driver';
+import { TestDriver } from '../../../testing/test-driver-jest';
 import { dispatchMutation } from '../../../testing/helpers/mutation-observer-workaround';
 import { completionStatus, currentCompletions, acceptCompletion, moveCompletionSelection } from '@codemirror/autocomplete';
-
-const ensureCompletionIsReadyForInteraction = async (driver: TestDriver) => {
-    await driver.completeBackgroundWork();
-    jest.advanceTimersByTime(100);
-};
 
 const typeCharacterUsingDOM = (driver: TestDriver, character: string) => {
     driver.domEvents.keydown(character);
@@ -37,7 +32,7 @@ test('applying completion sends expected message', async () => {
     const driver = await TestDriver.new({ text: '' });
 
     driver.receive.completions([{ displayText: 'Test', kinds: ['method'] }]);
-    await ensureCompletionIsReadyForInteraction(driver);
+    await driver.ensureCompletionIsReadyForInteraction();
     acceptCompletion(driver.getCodeMirrorView());
     await driver.completeBackgroundWork();
 
@@ -118,42 +113,11 @@ test('completion list is filtered based on new typed text', async () => {
     expect(currentCompletions(state).map(c => c.label)).toEqual(['aba', 'ABB']);
 });
 
-test.each([
-    [1, ['class', 'constant', 'delegate', 'enum', 'enummember', 'event', 'extensionmethod']],
-    [2, ['field', 'interface', 'keyword', 'local', 'method', 'module', 'namespace']],
-    [3, ['parameter', 'property', 'structure', 'typeparameter', 'union']]
-])('completion list is rendered correctly (%p)', async (_, kinds) => {
-    // const start = new Date();
-    // const seconds = () => Math.floor((new Date().getTime() - start.getTime()) / 1000);
-    if (TestDriver.shouldSkipRender)
-        return;
-
-    // console.log(`[${seconds()}s] completion test ${_}: starting`);
-    // console.log(`[${seconds()}s] completion test ${_}: await TestDriver.new()`);
-    const driver = await TestDriver.new({ textWithCursor: '|' });
-
-    // console.log(`[${seconds()}s] completion test ${_}: driver.receive.completions()`);
-    driver.receive.completions(kinds.map(k => ({
-        displayText: k,
-        kinds: [k]
-    })));
-    // console.log(`[${seconds()}s] completion test ${_}: driver.completeBackgroundWork()`);
-    await driver.completeBackgroundWork();
-
-    // console.log(`[${seconds()}s] completion test ${_}: driver.render()`);
-    const rendered = await driver.render(/*{ seconds }*/);
-
-    // console.log(`[${seconds()}s] completion test ${_}: expect().toMatchImageSnapshot()`);
-    expect(rendered).toMatchImageSnapshot();
-
-    // console.log(`[${seconds()}s] completion test ${_}: completed`);
-});
-
 test('completion is applied on Tab', async () => {
     const driver = await TestDriver.new({ text: '' });
 
     driver.receive.completions([{ displayText: 'ToString', kinds: ['method'] }]);
-    await ensureCompletionIsReadyForInteraction(driver);
+    await driver.ensureCompletionIsReadyForInteraction();
 
     driver.domEvents.keydown('Tab');
     await driver.completeBackgroundWork();
@@ -169,7 +133,7 @@ test('completion is applied on (', async () => {
     driver.receive.completions([{ displayText: 'ToString', kinds: ['method'] }], {
         commitChars: '(;'
     });
-    await ensureCompletionIsReadyForInteraction(driver);
+    await driver.ensureCompletionIsReadyForInteraction();
 
     typeCharacterUsingDOM(driver, '(');
     await driver.completeBackgroundWork();
@@ -186,7 +150,7 @@ test('completion requests info when open', async () => {
     const driver = await TestDriver.new({ text: '' });
 
     driver.receive.completions([{ displayText: 'ToString', kinds: ['method'] }]);
-    await ensureCompletionIsReadyForInteraction(driver);
+    await driver.ensureCompletionIsReadyForInteraction();
 
     expect(driver.socket.sent).toContain('SI0');
 });
@@ -198,7 +162,7 @@ test('completion requests info when selected', async () => {
         { displayText: 'Method0', kinds: ['method'] },
         { displayText: 'Method1', kinds: ['method'] }
     ]);
-    await ensureCompletionIsReadyForInteraction(driver);
+    await driver.ensureCompletionIsReadyForInteraction();
 
     moveCompletionSelection(true, 'option')(driver.getCodeMirrorView());
     await driver.completeBackgroundWork();
@@ -213,7 +177,7 @@ test('completion does not request same info twice', async () => {
         { displayText: 'Method0', kinds: ['method'] },
         { displayText: 'Method1', kinds: ['method'] }
     ]);
-    await ensureCompletionIsReadyForInteraction(driver);
+    await driver.ensureCompletionIsReadyForInteraction();
 
     // -> 0
     moveCompletionSelection(true, 'option')(driver.getCodeMirrorView());
@@ -235,7 +199,7 @@ test('completion applies requested info', async () => {
     const driver = await TestDriver.new({ text: '' });
 
     driver.receive.completions([{ displayText: 'ToString', kinds: ['method'] }]);
-    await ensureCompletionIsReadyForInteraction(driver);
+    await driver.ensureCompletionIsReadyForInteraction();
 
     driver.receive.completionInfo(0, [
         { text: 'ToString', kind: 'method' },
@@ -247,39 +211,4 @@ test('completion applies requested info', async () => {
     const tooltip = driver.getCodeMirrorView().dom.querySelector('.cm-completionInfo');
     expect(tooltip).not.toBeNull();
     expect(tooltip?.innerHTML).toMatchSnapshot();
-});
-
-test('completion info renders correctly', async () => {
-    if (TestDriver.shouldSkipRender)
-        return;
-    const driver = await TestDriver.new({ text: '' });
-
-    driver.receive.completions([{ displayText: 'CompareTo', kinds: ['method'] }]);
-    await ensureCompletionIsReadyForInteraction(driver);
-
-    driver.receive.completionInfo(0, [
-        { text: 'int', kind: 'keyword' },
-        { text: ' ', kind: 'space' },
-        { text: 'int', kind: 'keyword' },
-        { text: '.', kind: 'punctuation' },
-        { text: 'CompareTo', kind: 'method' },
-        { text: '(', kind: 'punctuation' },
-        { text: 'int', kind: 'keyword' },
-        { text: ' ', kind: 'space' },
-        { text: 'value', kind: 'parameter' },
-        { text: ')', kind: 'punctuation' },
-        { text: ' ', kind: 'space' },
-        { text: '(', kind: 'punctuation' },
-        { text: '+', kind: 'punctuation' },
-        { text: ' 1', kind: 'text' },
-        { text: ' overload', kind: 'text' },
-        { text: ')', kind: 'punctuation' },
-        { text: '\r\n', kind: 'linebreak' },
-        { text: 'Compares this instance to a specified 32-bit signed integer and returns an indication of their relative values.', kind: 'text' }
-    ]);
-    await driver.completeBackgroundWork();
-
-    const rendered = await driver.render();
-
-    expect(rendered).toMatchImageSnapshot();
 });

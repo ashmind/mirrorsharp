@@ -1,10 +1,13 @@
-import { TestDriver } from '../../../testing/test-driver';
+import { testDriverStory } from '../../../testing/storybook/test-driver-story';
+import { TestDriver } from '../../../testing/test-driver-storybook';
 
-test('lint gutter tooltip with actions renders correctly', async () => {
-    if (TestDriver.shouldSkipRender)
-        return;
+export default {
+    title: 'Linting',
+    component: {}
+};
+
+export const GutterTooltip = testDriverStory(async () => {
     const driver = await TestDriver.new({ text: 'class X : EventArgs {}' });
-
     driver.receive.slowUpdate([
         {
             id: 'CS0246',
@@ -49,11 +52,7 @@ test('lint gutter tooltip with actions renders correctly', async () => {
     ]);
     await driver.completeBackgroundWork();
 
-    driver.domEvents.mouseover('.cm-gutter-lint .cm-lint-marker');
-    jest.advanceTimersByTime(500);
-    await driver.completeBackgroundWork();
+    await driver.hover('.cm-gutter-lint .cm-lint-marker');
 
-    const rendered = await driver.render();
-
-    expect(rendered).toMatchImageSnapshot();
+    return driver;
 });

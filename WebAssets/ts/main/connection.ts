@@ -136,7 +136,8 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
 
         // if (this.#selfDebug)
         //     this.#selfDebug.log('send', command);
-        this.#socket.send(command);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.#socket!.send(command);
     };
 
     on<TKey extends keyof ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>>(
@@ -158,10 +159,7 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
             list.splice(index, 1);
     }
 
-    isOpen(): this is {
-        // @ts-expect-error "Private fields are not really allowed in guards, but do work somehow"
-        #socket: WebSocket
-    } {
+    isOpen() {
         return this.#socket?.readyState === WebSocket.OPEN;
     }
 

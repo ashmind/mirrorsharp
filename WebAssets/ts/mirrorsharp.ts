@@ -47,9 +47,10 @@ export interface MirrorSharpOptions<TExtensionServerOptions = never, TSlowUpdate
 
 export interface MirrorSharpInstance<TExtensionServerOptions> {
     getCodeMirrorView(): EditorView;
+    getRootElement(): Element;
     getText(): string;
-    getCursorOffset(): number;
     setText(text: string): void;
+    getCursorOffset(): number;
     getLanguage(): MirrorSharpLanguage;
     setLanguage(value: MirrorSharpLanguage): void;
     setServerOptions(value: TExtensionServerOptions): void;
@@ -69,12 +70,14 @@ export default function mirrorsharp<TExtensionServerOptions = never, TSlowUpdate
     let connectCalled = false;
     return Object.freeze({
         getCodeMirrorView: () => editor.getCodeMirrorView(),
+        getRootElement: () => editor.getRootElement(),
         getText: () => editor.getText(),
         getCursorOffset: () => editor.getCursorOffset(),
         setText: (text: string) => editor.setText(text),
         getLanguage: () => editor.getLanguage(),
         setLanguage: (value: Language) => editor.setLanguage(value),
         setServerOptions: (value: TExtensionServerOptions) => editor.setServerOptions(value),
+
         connect: () => {
             if (!options.noInitialConnection)
                 throw new Error('Connect can only be called if options.noInitialConnection was set.');

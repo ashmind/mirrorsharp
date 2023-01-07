@@ -278,7 +278,7 @@ export type TestDriverTimers = {
 let timers: TestDriverTimers;
 export const setTimers = (value: TestDriverTimers) => timers = value;
 
-export class TestDriver<TExtensionServerOptions = never> {
+export class TestDriverBase<TExtensionServerOptions = never> {
     public readonly socket: MockSocketController;
     public readonly mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>;
     public readonly text: TestText;
@@ -350,10 +350,21 @@ export class TestDriver<TExtensionServerOptions = never> {
         }
     }
 
+    async hover(selector: string) {
+        this.domEvents.mouseover(selector);
+        timers.advanceTimersByTime(500);
+        await this.completeBackgroundWork();
+    }
+
     async advanceTimeAndCompleteNextLinting() {
         timers.advanceTimersByTime(1000);
         timers.advanceTimersToNextTimer();
         await this.completeBackgroundWork();
+    }
+
+    async ensureCompletionIsReadyForInteraction() {
+        await this.completeBackgroundWork();
+        timers.advanceTimersByTime(100);
     }
 
     toJSON() {
@@ -398,7 +409,7 @@ export class TestDriver<TExtensionServerOptions = never> {
         return driver;
     }
 
-    static async fromJSON({ options, recorder }: ReturnType<TestDriver<unknown>['toJSON']>) {
+    static async fromJSON({ options, recorder }: ReturnType<TestDriverBase<unknown>['toJSON']>) {
         const driver = await this.new(options);
         await driver.recorder.replayFromJSON(recorder);
         return driver;

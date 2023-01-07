@@ -2,6 +2,7 @@ import jetpack from 'fs-jetpack';
 import fg from 'fast-glob';
 import { transformFileAsync } from '@babel/core';
 import { task, exec, build } from 'oldowan';
+import './build/storybook.ts';
 
 const clean = task('clean', async () => {
     const paths = await fg(['.temp/**/*.*', 'dist/**/*.*', '!dist/node_modules/**/*.*']);

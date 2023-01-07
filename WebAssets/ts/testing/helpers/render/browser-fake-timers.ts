@@ -1,5 +1,5 @@
 import FakeTimers from '@sinonjs/fake-timers';
-import type { TestDriverTimers } from '../../test-driver-isomorphic';
+import type { TestDriverTimers } from '../../test-driver-base';
 
 const clock = FakeTimers.install();
 
