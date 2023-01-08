@@ -137,7 +137,8 @@
 }
 
 .mirrorsharp .cm-tooltip.cm-completionInfo,
-.mirrorsharp-infotip {
+.mirrorsharp-infotip,
+.mirrorsharp-signature-list {
     font-family: var(--mirrorsharp-font-family-sans-serif);
 }
 
@@ -191,6 +192,38 @@
 
 .mirrorsharp .cm-diagnosticAction:last-child {
     margin-bottom: 5px;
+}
+
+.mirrorsharp-signature-list {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.mirrorsharp-signature {
+    padding: 4px 5px;
+    line-height: 1.2;
+}
+
+.mirrorsharp-signature-selected {
+    background: #fff;
+}
+
+.mirrorsharp-signature-part-selected {
+    font-weight: bold;
+}
+
+.mirrorsharp-signature-info,
+.mirrorsharp-signature-info-parameter {
+    margin-top: 2px;
+}
+
+.mirrorsharp-signature-info-parameter {
+    font-style: italic;
+}
+
+.mirrorsharp-signature-info-parameter-name {
+    font-weight: bold;
 }
 
 /* Old */

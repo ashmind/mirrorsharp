@@ -1,7 +1,7 @@
 import { StateEffect, StateField } from '@codemirror/state';
 import type { EditorView } from '@codemirror/view';
 
-export function defineEffectField<T>(initialValue: T) {
+export function defineEffectField<T>(...[initialValue]: undefined extends T ? [T] | [] : [T]) {
     const effectType = StateEffect.define<T>();
     const field = StateField.define({
         create: () => initialValue,

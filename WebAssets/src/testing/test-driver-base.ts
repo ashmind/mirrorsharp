@@ -1,6 +1,17 @@
 import type { EditorView } from '@codemirror/view';
 import { TransactionSpec, Transaction } from '@codemirror/state';
-import type { PartData, CompletionItemData, ChangeData, ChangesMessage, CompletionsMessage, Message, InfotipMessage, DiagnosticData } from '../interfaces/protocol';
+import type {
+    PartData,
+    CompletionItemData,
+    ChangeData,
+    Message,
+    ChangesMessage,
+    CompletionsMessage,
+    SignaturesMessage,
+    InfotipMessage,
+    DiagnosticData,
+    UnknownMessage
+} from '../interfaces/protocol';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../mirrorsharp';
 
 type TestRecorderOptions = { exclude?: (object: object, action: string) => boolean };
@@ -246,6 +257,10 @@ class TestReceiver {
         this.#message({ type: 'completionInfo', index, parts });
     }
 
+    signatures(message: Omit<SignaturesMessage, 'type'>) {
+        this.#message({ type: 'signatures', ...message });
+    }
+
     slowUpdate(diagnostics: ReadonlyArray<DiagnosticData>, x?: unknown) {
         this.#message({
             type: 'slowUpdate',
@@ -254,7 +269,7 @@ class TestReceiver {
         });
     }
 
-    #message = (message: Partial<Message<unknown, unknown>>) => {
+    #message = (message: Partial<Exclude<Message<unknown, unknown>, UnknownMessage>>) => {
         this.#socket.receive({ data: JSON.stringify(message) });
     };
 }

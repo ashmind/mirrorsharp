@@ -8,24 +8,33 @@ import type { PartData } from '../interfaces/protocol';
     };
 */
 
-type Options = {
+type Options<TPartData> = {
     splitLinesToSections?: boolean;
+    getExtraClassNames?: (part: TPartData) => ReadonlyArray<string>;
 };
 
-function createSection() {
+const createSection = () => {
     const section = document.createElement('div');
     section.className = 'mirrorsharp-parts-section';
     return section;
-}
+};
 
-function renderPartTo(parent: HTMLElement, part: PartData) {
+const renderPartTo = <TPartData extends PartData>(
+    parent: HTMLElement, part: TPartData,
+    { getExtraClassNames }: Pick<Options<TPartData>, 'getExtraClassNames'>
+) => {
     const span = document.createElement('span');
-    span.className = 'tok-' + part.kind;
+    const extraClassNames = getExtraClassNames?.(part);
+    span.className = 'tok-' + part.kind + (extraClassNames ? ' ' + extraClassNames.join(' ') : '');
     span.textContent = part.text;
     parent.appendChild(span);
-}
+};
 
-export function renderPartsTo(parent: HTMLElement, parts: ReadonlyArray<PartData>, { splitLinesToSections }: Options = {}) {
+export const renderPartsTo = <TPartData extends PartData>(
+    parent: HTMLElement,
+    parts: ReadonlyArray<TPartData>,
+    { splitLinesToSections, getExtraClassNames }: Options<TPartData> = {}
+) => {
     let section = splitLinesToSections ? createSection() : parent;
     for (const part of parts) {
         if (part.kind === 'linebreak' && splitLinesToSections) {
@@ -33,14 +42,17 @@ export function renderPartsTo(parent: HTMLElement, parts: ReadonlyArray<PartData
             section = createSection();
             continue;
         }
-        renderPartTo(section, part);
+        renderPartTo(section, part, { getExtraClassNames });
     }
     if (splitLinesToSections)
         parent.appendChild(section);
-}
+};
 
-export function renderParts(parts: ReadonlyArray<PartData>, options: Options = {}): HTMLElement {
+export const renderParts = <TPartData extends PartData>(
+    parts: ReadonlyArray<TPartData>,
+    options: Options<TPartData> = {}
+): HTMLElement => {
     const container = document.createElement('div');
     renderPartsTo(container, parts, options);
     return container;
-}
+};

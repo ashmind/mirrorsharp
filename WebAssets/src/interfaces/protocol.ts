@@ -52,46 +52,35 @@ export interface CompletionInfoMessage {
     readonly parts: ReadonlyArray<PartData>;
 }
 
-// Temporary, until restored support for signatures
-// ts-unused-exports:disable-next-line
 export interface SignaturesMessage {
     readonly type: 'signatures';
     readonly span: SpanData;
     readonly signatures: ReadonlyArray<SignatureData>;
 }
 
-// Temporary, until restored support for signatures
-// ts-unused-exports:disable-next-line
 export interface SignaturesEmptyMessage {
     readonly type: 'signatures';
     readonly span?: undefined;
     readonly signatures?: undefined;
 }
 
-// Temporary, until restored support for signatures
-// ts-unused-exports:disable-next-line
 export interface SignatureData {
     readonly parts: ReadonlyArray<SignaturePartData>;
     readonly selected?: boolean;
     readonly info?: SignatureInfoData;
 }
 
-// Temporary, until restored support for signatures
-// ts-unused-exports:disable-next-line
 export interface SignatureInfoData {
     readonly parts: ReadonlyArray<PartData>;
     // normally represents the selected parameter
     readonly parameter?: SignatureInfoParameterData;
 }
 
-// Temporary, until restored support for signatures
-// ts-unused-exports:disable-next-line
 export interface SignatureInfoParameterData {
     readonly name: string;
     readonly parts: ReadonlyArray<PartData>;
 }
 
-// Temporary, until restored support for signatures
 // ts-unused-exports:disable-next-line
 export interface SignaturePartData extends PartData {
     readonly selected?: boolean;

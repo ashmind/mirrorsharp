@@ -14,6 +14,7 @@ import { classHighlighter } from '@lezer/highlight';
 import type { Session } from '../session';
 import { languageExtensions } from './languages';
 import type { Language } from '../../interfaces/protocol';
+import { signatureHelpFromServer } from './server/signature-help';
 
 export const createExtensions = <O, U>(
     connection: Connection<O, U>,
@@ -32,6 +33,7 @@ export const createExtensions = <O, U>(
     sendChangesToServer(session as Session),
     lintingFromServer(connection as Connection<unknown, U>, options),
     infotipsFromServer(connection),
+    signatureHelpFromServer(connection as Connection),
     autocompletionFromServer(connection),
 
     // has to go last so that more specific keymaps
