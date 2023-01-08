@@ -7,11 +7,11 @@ import { renderPartsTo } from '../../../helpers/render-parts';
 
 const [lastInfotipRequest, dispatchLastInfotipRequestChanged] = defineEffectField<{ pos: number; resolve: ((tooltip: Tooltip) => void) }|null>(null);
 
-function kindsToClassNames(kinds: ReadonlyArray<string>) {
+const kindsToClassNames = (kinds: ReadonlyArray<string>) => {
     return kinds.map(kind => 'mirrorsharp-infotip-icon-' + kind);
-}
+};
 
-function renderInfotip({ sections, kinds }: InfotipMessage) {
+const renderInfotip = ({ sections, kinds }: InfotipMessage) => {
     const wrapper = document.createElement('div');
     sections.forEach((section, index) => {
         const element = document.createElement('div');
@@ -26,7 +26,7 @@ function renderInfotip({ sections, kinds }: InfotipMessage) {
         wrapper.appendChild(element);
     });
     return wrapper;
-}
+};
 
 export const infotipsFromServer = <O, U>(connection: Connection<O, U>) => {
     const requestInfotip = (view: EditorView, pos: number) => {
@@ -55,8 +55,7 @@ export const infotipsFromServer = <O, U>(connection: Connection<O, U>) => {
                 request.resolve({
                     pos: request.pos,
                     end: span.start + span.length,
-                    create: () => ({ dom: renderInfotip(message) })/*,
-                    class: 'mirrorsharp-infotip'*/
+                    create: () => ({ dom: renderInfotip(message) })
                 });
             }
         });

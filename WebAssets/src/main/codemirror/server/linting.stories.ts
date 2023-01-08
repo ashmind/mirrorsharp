@@ -52,7 +52,10 @@ export const GutterTooltip = testDriverStory(async () => {
     ]);
     await driver.completeBackgroundWork();
 
-    await driver.hover('.cm-gutter-lint .cm-lint-marker');
+    driver.domEvents.mouseover('.cm-gutter-lint .cm-lint-marker');
+    await driver.advanceTimeToHoverAndCompleteWork();
+
+    driver.disableAllFurtherPointerEvents();
 
     return driver;
 });

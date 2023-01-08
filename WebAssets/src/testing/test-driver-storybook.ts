@@ -8,4 +8,8 @@ export class TestDriver extends TestDriverBase {
     ) {
         return await super.new(options) as TestDriver;
     }
+
+    disableAllFurtherPointerEvents() {
+        this.getCodeMirrorView().dom.style.pointerEvents = 'none';
+    }
 }

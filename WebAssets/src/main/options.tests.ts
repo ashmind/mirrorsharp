@@ -44,7 +44,7 @@ test('always sends options before slow update', async () => {
         options: { language: 'Visual Basic' }
     });
 
-    await driver.advanceTimeAndCompleteNextLinting();
+    await driver.advanceTimeToSlowUpdateAndCompleteWork();
     driver.socket.open();
     await driver.completeBackgroundWork();
 

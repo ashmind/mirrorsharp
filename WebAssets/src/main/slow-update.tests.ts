@@ -1,4 +1,3 @@
-
 import { TestDriver } from '../testing/test-driver-jest';
 
 test('slowUpdate is not sent if there is no initial text', async () => {
@@ -7,7 +6,7 @@ test('slowUpdate is not sent if there is no initial text', async () => {
     });
 
     driver.socket.open();
-    await driver.advanceTimeAndCompleteNextLinting();
+    await driver.advanceTimeToSlowUpdateAndCompleteWork();
 
     expect(driver.socket.sent).toEqual([]);
 });
@@ -19,7 +18,7 @@ test('slowUpdate is sent if there is initial text', async () => {
     });
 
     driver.socket.open();
-    await driver.advanceTimeAndCompleteNextLinting();
+    await driver.advanceTimeToSlowUpdateAndCompleteWork();
 
     expect(driver.socket.sent).toEqual([
         'R0:0:0::Test',
@@ -33,9 +32,9 @@ test('slowUpdate is sent after initial text even if lint runs before connection 
         text: 'Test'
     });
 
-    await driver.advanceTimeAndCompleteNextLinting();
+    await driver.advanceTimeToSlowUpdateAndCompleteWork();
     driver.socket.open();
-    await driver.advanceTimeAndCompleteNextLinting();
+    await driver.advanceTimeToSlowUpdateAndCompleteWork();
 
     expect(driver.socket.sent).toEqual([
         'R0:0:0::Test',
@@ -49,10 +48,10 @@ test('slowUpdate is sent if text is set after initial setup', async () => {
     });
 
     driver.socket.open();
-    await driver.advanceTimeAndCompleteNextLinting();
+    await driver.advanceTimeToSlowUpdateAndCompleteWork();
 
     driver.dispatchCodeMirrorTransaction({ changes: { from: 0, insert: 'Test' } });
-    await driver.advanceTimeAndCompleteNextLinting();
+    await driver.advanceTimeToSlowUpdateAndCompleteWork();
 
     expect(driver.socket.sent).toEqual([
         'R0:0:0::Test',
@@ -66,12 +65,12 @@ test('slowUpdate is sent only once on reopen if connection is closed', async () 
         textWithCursor: 'a|'
     });
 
-    await driver.advanceTimeAndCompleteNextLinting();
+    await driver.advanceTimeToSlowUpdateAndCompleteWork();
     driver.text.type('b');
-    await driver.advanceTimeAndCompleteNextLinting();
+    await driver.advanceTimeToSlowUpdateAndCompleteWork();
     driver.text.type('c');
     driver.socket.open();
-    await driver.advanceTimeAndCompleteNextLinting();
+    await driver.advanceTimeToSlowUpdateAndCompleteWork();
 
     const sent = driver.socket.sent;
     expect(sent).toEqual([

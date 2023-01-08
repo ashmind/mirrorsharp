@@ -365,13 +365,12 @@ export class TestDriverBase<TExtensionServerOptions = never> {
         }
     }
 
-    async hover(selector: string) {
-        this.domEvents.mouseover(selector);
+    async advanceTimeToHoverAndCompleteWork() {
         timers.advanceTimersByTime(500);
         await this.completeBackgroundWork();
     }
 
-    async advanceTimeAndCompleteNextLinting() {
+    async advanceTimeToSlowUpdateAndCompleteWork() {
         timers.advanceTimersByTime(1000);
         timers.advanceTimersToNextTimer();
         await this.completeBackgroundWork();

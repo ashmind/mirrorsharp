@@ -66,6 +66,8 @@
     "devDependencies": {
         "@babel/core": "^7.9.0",
         "@sinonjs/fake-timers": "^6.0.1",
+        "@storybook/addon-actions": "^6.5.15",
+        "@storybook/addon-interactions": "^6.5.15",
         "@storybook/addon-links": "^6.5.15",
         "@storybook/addon-measure": "^6.5.15",
         "@storybook/addon-outline": "^6.5.15",
@@ -74,6 +76,7 @@
         "@storybook/html": "^6.5.15",
         "@storybook/manager-webpack5": "^6.5.15",
         "@storybook/test-runner": "^0.9.2",
+        "@storybook/testing-library": "^0.0.13",
         "@types/jest": "^29.2.5",
         "@types/jest-image-snapshot": "^6.1.0",
         "@types/node": "^16.18.11",

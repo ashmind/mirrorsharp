@@ -1,0 +1,36 @@
+export const INFOTIP_EVENTHANDLER = {
+    kinds: ['delegate', 'public'],
+    sections: [
+        {
+            kind: 'description',
+            parts: [
+                { text: 'delegate', kind: 'keyword' },
+                { text: ' ', kind: 'space' },
+                { text: 'void', kind: 'keyword' },
+                { text: ' ', kind: 'space' },
+                { text: 'System', kind: 'namespace' },
+                { text: '.', kind: 'punctuation' },
+                { text: 'EventHandler', kind: 'delegate' },
+                { text: '(', kind: 'punctuation' },
+                { text: 'object', kind: 'keyword' },
+                { text: ' ', kind: 'space' },
+                { text: 'sender', kind: 'parameter' },
+                { text: ',', kind: 'punctuation' },
+                { text: ' ', kind: 'space' },
+                { text: 'System', kind: 'namespace' },
+                { text: '.', kind: 'punctuation' },
+                { text: 'EventArgs', kind: 'class' },
+                { text: ' ', kind: 'space' },
+                { text: 'e', kind: 'parameter' },
+                { text: ')', kind: 'punctuation' }
+            ]
+        },
+        {
+            kind: 'documentationcomments',
+            parts: [
+                { text: 'Represents the method that will handle an event that has no event data.', kind: 'text' }
+            ]
+        }
+    ],
+    span: { start: 0, length: 0 }
+};

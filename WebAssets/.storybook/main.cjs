@@ -6,7 +6,9 @@ module.exports = {
         "@storybook/addon-links",
         "@storybook/addon-viewport",
         "@storybook/addon-measure",
-        "@storybook/addon-outline"
+        "@storybook/addon-outline",
+        "@storybook/addon-actions",
+        "@storybook/addon-interactions"
     ],
     core: {
         builder: 'webpack5'
