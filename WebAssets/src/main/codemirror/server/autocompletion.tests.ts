@@ -1,5 +1,4 @@
 import { TestDriver } from '../../../testing/test-driver-jest';
-import { dispatchMutation } from '../../../testing/shared/mutation-observer-workaround';
 import { completionStatus, currentCompletions, acceptCompletion, moveCompletionSelection } from '@codemirror/autocomplete';
 
 const typeCharacterUsingDOM = (driver: TestDriver, character: string) => {
@@ -8,10 +7,6 @@ const typeCharacterUsingDOM = (driver: TestDriver, character: string) => {
     const { contentDOM } = driver.getCodeMirrorView();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     contentDOM.querySelector<HTMLElement>('.cm-line')!.appendChild(characterText);
-    dispatchMutation(contentDOM, {
-        type: 'characterData' as MutationRecordType,
-        target: characterText
-    });
 };
 
 test('completions message shows completion list', async () => {
