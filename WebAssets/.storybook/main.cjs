@@ -13,5 +13,12 @@ module.exports = {
     },
     features: {
         buildStoriesJson: true
+    },
+    webpackFinal(config) {
+        // https://github.com/storybookjs/storybook/issues/15335#issuecomment-1013136904
+        config.module.rules.push({
+            resolve: { fullySpecified: false },
+        })
+        return config;
     }
 }

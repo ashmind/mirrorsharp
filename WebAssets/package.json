@@ -9,6 +9,7 @@
         "Andrey Shchekin (https://github.com/ashmind)"
     ],
     "license": "MIT",
+    "type": "module",
     "main": "mirrorsharp.js",
     "types": "mirrorsharp.d.ts",
     "homepage": "https://github.com/ashmind/mirrorsharp",
@@ -23,14 +24,14 @@
         "Firefox >= 72"
     ],
     "scripts": {
-        "lint": "ts-node-script ./build.ts lint",
-        "build": "ts-node-script ./build.ts",
-        "watch": "ts-node-script ./build.ts --watch",
+        "lint": "ts-node-esm ./build.ts lint",
+        "build": "ts-node-esm ./build.ts",
+        "watch": "ts-node-esm ./build.ts --watch",
         "test": "jest",
         "storybook": "start-storybook -p 6006",
         "build-storybook": "build-storybook",
-        "test-storybook": "ts-node-script ./build.ts storybook:test",
-        "test-storybook-with-update": "ts-node-script ./build.ts storybook:test:update"
+        "test-storybook": "ts-node-esm ./build.ts storybook:test",
+        "test-storybook-with-update": "ts-node-esm ./build.ts storybook:test:update"
     },
     "jest": {
         "preset": "ts-jest/presets/js-with-ts",
@@ -75,7 +76,7 @@
         "@storybook/test-runner": "^0.9.2",
         "@types/jest": "^29.2.5",
         "@types/jest-image-snapshot": "^6.1.0",
-        "@types/node": "^13.9.1",
+        "@types/node": "^16.18.11",
         "@types/sinonjs__fake-timers": "^6.0.2",
         "@types/wait-on": "^5.3.1",
         "@typescript-eslint/eslint-plugin": "^5.47.0",

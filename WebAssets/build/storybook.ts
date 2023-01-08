@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import path from 'path';
 import { promisify } from 'util';
 import kill from 'tree-kill';
@@ -6,7 +7,7 @@ import { task } from 'oldowan';
 import waitOn from 'wait-on';
 import execa from 'execa';
 
-export const root = path.resolve(__dirname, '..');
+export const root = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '..');
 export const sourceRoot = path.resolve(root, 'src');
 
 const UPDATE_SNAPSHOTS_KEY = 'SHARPLAB_TEST_UPDATE_SNAPSHOTS';
@@ -37,7 +38,7 @@ task('storybook:test:in-container', async () => {
     finally {
         if (!server.killed) {
             console.log('http-server: terminating');
-            await promisify(kill)(server.pid);
+            await promisify(kill)(server.pid!);
         }
     }
 }, {
@@ -53,9 +54,9 @@ const test = task('storybook:test', async () => {
         `--volume=${root}:/work`,
         '--workdir=/work',
         ...(process.env[UPDATE_SNAPSHOTS_KEY] === 'true' ? ['--env', `${UPDATE_SNAPSHOTS_KEY}=true`] : []),
-        // Note: Playwright version must match dependncy of @storybook/test-runner
+        // Note: Playwright version must match dependency of @storybook/test-runner
         'mcr.microsoft.com/playwright:v1.29.2-focal',
-        './node_modules/.bin/ts-node-script', './build.ts', 'storybook:test:in-container'
+        './node_modules/.bin/ts-node-esm', './build.ts', 'storybook:test:in-container'
     ]);
 }, {
     timeout: 20 * 60 * 1000

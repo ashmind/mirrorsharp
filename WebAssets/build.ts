@@ -2,7 +2,7 @@ import jetpack from 'fs-jetpack';
 import fg from 'fast-glob';
 import { transformFileAsync } from '@babel/core';
 import { task, exec, build } from 'oldowan';
-import './build/storybook';
+import './build/storybook.ts';
 
 const clean = task('clean', async () => {
     const paths = await fg(['.temp/**/*.*', 'dist/**/*.*', '!dist/node_modules/**/*.*']);
@@ -67,17 +67,7 @@ const css = task('css',
 
 const files = task('files', async () => {
     await jetpack.copyAsync('./README.md', 'dist/README.md', { overwrite: true });
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const packageJson = JSON.parse((await jetpack.readAsync('./package.json'))!) as {
-        type?: 'module';
-        devDependencies?: Record<string, string>;
-    };
-    // cannot be specified in current package.json due to https://github.com/TypeStrong/ts-node/issues/935
-    // which is fine, from perspective of the project itself it's TypeScript, so type=module is irrelevant
-    // only the output (dist) is JS modules
-    packageJson.type = 'module';
-    delete packageJson.devDependencies;
-    await jetpack.writeAsync('dist/package.json', JSON.stringify(packageJson, null, 4));
+    await jetpack.copyAsync('./package.json', 'dist/package.json', { overwrite: true });
 }, { watch: ['./README.md', './package.json'] });
 
 task ('lint', async () => {

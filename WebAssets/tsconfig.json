@@ -6,6 +6,7 @@
     "compilerOptions": {
         "target": "ESNext",
         "moduleResolution": "node",
+        "module": "ES2022",
         "noEmit": true,
         "strict": true,
         "importsNotUsedAsValues": "error",
