@@ -29,23 +29,33 @@ jobs:
       run: npm test -- --runInBand
       working-directory: WebAssets
 
-    - uses: actions/upload-artifact@v2
+    - name: 'WebAssets: npm run build-storybook'
+      run: npm run build-storybook
+      working-directory: WebAssets
+
+    - name: 'WebAssets: npm run test-storybook'
+      run: npm run test-storybook
+      working-directory: WebAssets
+
+    - name: "[Failure] Run actions/upload-artifact@v2 (diff output)"
+      uses: actions/upload-artifact@v2
       if: failure()
       with:
-        name: tests-__diff_output__
-        path: WebAssets/tests/__image_snapshots__/__diff_output__
+        name: __diff_output__
+        path: WebAssets/src/**/__image_snapshots__/__diff_output__
         if-no-files-found: ignore
 
-    - name: 'WebAssets: npm test -- --updateSnapshot'
-      run: npm test -- --runInBand --updateSnapshot
+    - name: '[Failure] WebAssets: npm run test-storybook-with-update'
+      run: npm run test-storybook-with-update
       working-directory: WebAssets
       if: failure()
 
-    - uses: actions/upload-artifact@v2
+    - name: "[Failure] Run actions/upload-artifact@v2 (updated snapshots)"
+      uses: actions/upload-artifact@v2
       if: failure()
       with:
-        name: 'tests-__image_snapshots__ (updated)'
-        path: WebAssets/tests/__image_snapshots__
+        name: '__image_snapshots__ (updated)'
+        path: WebAssets/src/**/__image_snapshots__
         if-no-files-found: ignore
 
     - name: 'AspNetCore.Demo: npm ci'
@@ -54,6 +64,13 @@ jobs:
     - name: 'AspNetCore.Demo: npm run build'
       run: npm run build
       working-directory: AspNetCore.Demo
+
+    - name: 'AspNetCore.Demo.Net6: npm ci'
+      run: npm ci
+      working-directory: AspNetCore.Demo.Net6
+    - name: 'AspNetCore.Demo.Net6: npm run build'
+      run: npm run build
+      working-directory: AspNetCore.Demo.Net6
 
     - name: 'Owin.Demo: npm ci'
       run: npm ci
