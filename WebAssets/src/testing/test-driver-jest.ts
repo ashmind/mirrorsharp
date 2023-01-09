@@ -1,3 +1,4 @@
+import { TestText } from './jest/test-text';
 import { TestDriverBase, TestDriverConstructorArguments, TestDriverOptions, setTimers } from './test-driver-base';
 
 (() => {
@@ -12,8 +13,11 @@ Range.prototype.getClientRects = () => [{}] as unknown as DOMRectList;
 export const timers = setTimers(jest);
 
 export class TestDriver<TExtensionServerOptions = never> extends TestDriverBase {
+    public readonly text: TestText;
+
     private constructor(...args: TestDriverConstructorArguments<TExtensionServerOptions>) {
         super(...args);
+        this.text = new TestText(this.getCodeMirrorView());
     }
 
     static async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(

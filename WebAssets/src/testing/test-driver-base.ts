@@ -1,5 +1,5 @@
 import type { EditorView } from '@codemirror/view';
-import { TransactionSpec, Transaction } from '@codemirror/state';
+import type { TransactionSpec } from '@codemirror/state';
 import type {
     PartData,
     CompletionItemData,
@@ -14,27 +14,6 @@ import type {
 } from '../interfaces/protocol';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../mirrorsharp';
 import { installMockSocket, MockSocket, MockSocketController } from './shared/mock-socket';
-
-class TestText {
-    readonly #cmView: EditorView;
-
-    constructor(cmView: EditorView) {
-        this.#cmView = cmView;
-    }
-
-    type(text: string) {
-        let cursorOffset = this.#cmView.state.selection.main.anchor;
-        for (const char of text) {
-            const newCursorOffset = cursorOffset + 1;
-            this.#cmView.dispatch(this.#cmView.state.update({
-                annotations: [Transaction.userEvent.of('input.type')],
-                changes: { from: cursorOffset, insert: char },
-                selection: { anchor: newCursorOffset }
-            }));
-            cursorOffset = newCursorOffset;
-        }
-    }
-}
 
 class TestDomEvents {
     readonly #cmView: EditorView;
@@ -140,7 +119,6 @@ export const setTimers = (value: TestDriverTimers) => timers = value;
 export class TestDriverBase<TExtensionServerOptions = never> {
     public readonly socket: MockSocketController;
     public readonly mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>;
-    public readonly text: TestText;
     public readonly domEvents: TestDomEvents;
     public readonly receive: TestReceiver;
 
@@ -155,7 +133,6 @@ export class TestDriverBase<TExtensionServerOptions = never> {
         this.socket = socket;
         this.#cmView = cmView;
         this.mirrorsharp = mirrorsharp;
-        this.text = new TestText(cmView);
         this.domEvents = new TestDomEvents(cmView);
         this.receive = new TestReceiver(socket);
     }
