@@ -1,3 +1,4 @@
+import { userEvent as user } from '@storybook/testing-library';
 import { testDriverStory } from '../../../testing/storybook/test-driver-story';
 import { TestDriver } from '../../../testing/test-driver-storybook';
 
@@ -52,10 +53,14 @@ export const GutterTooltip = testDriverStory(async () => {
     ]);
     await driver.completeBackgroundWork();
 
-    driver.domEvents.mouseover('.cm-gutter-lint .cm-lint-marker');
-    await driver.advanceTimeToHoverAndCompleteWork();
-
-    driver.disableAllFurtherPointerEvents();
-
     return driver;
 });
+GutterTooltip.play = async ({ canvasElement, loaded: { driver } }) => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const gutterMarker = canvasElement.querySelector('.cm-gutter-lint .cm-lint-marker')!;
+
+    user.hover(gutterMarker);
+    await driver.advanceTimeToHoverAndCompleteWork();
+
+    driver.disableAllFurtherInteractionEvents();
+};

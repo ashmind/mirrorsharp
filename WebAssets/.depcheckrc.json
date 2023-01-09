@@ -8,6 +8,8 @@
         "@storybook/addon-measure",
         "@storybook/addon-outline",
         "@storybook/addon-viewport",
+        "@storybook/addon-actions",
+        "@storybook/addon-interactions",
         "@storybook/builder-webpack5",
         "@storybook/manager-webpack5",
         "@types/jest",

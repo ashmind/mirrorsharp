@@ -13,9 +13,8 @@ export const Simple = testDriverStory(async () => {
     await driver.completeBackgroundWork();
     return driver;
 });
-Simple.play = async ({ canvasElement, loaded }) => {
+Simple.play = async ({ canvasElement, loaded: { driver } }) => {
     const canvas = within(canvasElement);
-    const driver = loaded.driver as TestDriver;
 
     const code = await canvas.findByText('EventHandler', { exact: false });
     const cmView = driver.getCodeMirrorView();
@@ -30,5 +29,5 @@ Simple.play = async ({ canvasElement, loaded }) => {
     driver.receive.infotip(INFOTIP_EVENTHANDLER);
 
     await driver.completeBackgroundWork();
-    driver.disableAllFurtherPointerEvents();
+    driver.disableAllFurtherInteractionEvents();
 };
