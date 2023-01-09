@@ -1,41 +1,19 @@
 import { EditorView } from '@codemirror/view';
-//import 'codemirror/mode/clike/clike';
-//import 'codemirror-addon-infotip';
-//import 'codemirror-addon-lint-fix';
 import {
     Message,
-    // ChangeData,
     SlowUpdateMessage,
     DiagnosticSeverity,
     ServerOptions,
-    // SpanData,
     Language,
     LANGUAGE_DEFAULT
 } from '../interfaces/protocol';
 import type { SlowUpdateOptions } from '../interfaces/slow-update';
 import type { Connection } from './connection';
-// import type { SelfDebug } from './self-debug';
 import { createExtensions, createState } from './codemirror/create';
-// import { renderInfotip } from './render-infotip';
-// import { Hinter } from './hinter';
-// import { SignatureTip } from './signature-tip';
 import { addEvents } from '../helpers/add-events';
 import type { Session } from './session';
 import { Extension, StateEffect } from '@codemirror/state';
 import { switchLanguageExtension } from './codemirror/languages';
-
-/*const indexKey = '$mirrorsharp-index';
-interface PositionWithIndex extends CodeMirror.Position {
-    [indexKey]: number;
-}
-
-interface DiagnosticAnnotation extends CodeMirror.Annotation {
-    readonly diagnostic: DiagnosticData;
-}
-
-interface AnnotationFixWithId extends CodeMirror.AnnotationFix {
-    readonly id: number;
-}*/
 
 interface EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly language?: Language;
@@ -55,55 +33,29 @@ interface EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly initialServerOptions?: TExtensionServerOptions;
 }
 
-// const languageModes = {
-//     'C#': 'text/x-csharp',
-//     'Visual Basic': 'text/x-vb',
-//     'F#': 'text/x-fsharp',
-//     'IL': 'text/x-cil',
-//     'PHP': 'application/x-httpd-php'
-// } as const;
-
-// const lineSeparator = '\r\n';
-
 export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly #connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>;
     readonly #session: Session<TExtensionServerOptions>;
-    // readonly #selfDebug: SelfDebug|null;
     readonly #options: EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData>;
 
-    // readonly #cm: CodeMirror.EditorFromTextArea;
     readonly #wrapper: HTMLElement;
     readonly #cmView: EditorView;
     #cmExtensions: ReadonlyArray<Extension>;
-    // readonly #hinter: Hinter<TExtensionServerOptions, TSlowUpdateExtensionData>;
-    // readonly #signatureTip: InstanceType<typeof SignatureTip>;
 
-    // readonly #keyMap: CodeMirror.KeyMap;
     // readonly #removeCodeMirrorEvents: () => void;
     readonly #removeConnectionEvents: () => void;
 
     #language: Language;
     #serverOptions: ServerOptions & TExtensionServerOptions;
-    // #pendingServerOptions: (ServerOptions & TExtensionServerOptions) | null | undefined;
-
-    // #lintingSuspended = true;
-    // #hadChangesSinceLastLinting = false;
-    // #capturedUpdateLinting: CodeMirror.UpdateLintingCallback | null | undefined;
-
-    // #changePending = false;
-    // #changeReason: string|null = null;
-    // #changesAreFromServer = false;
 
     constructor(
         container: HTMLElement,
         connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>,
         session: Session<TExtensionServerOptions>,
-        // selfDebug: SelfDebug|null,
         options: EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
     ) {
         this.#connection = connection;
         this.#session = session;
-        // this.#selfDebug = selfDebug;
 
         options = {
             language: LANGUAGE_DEFAULT,
@@ -130,9 +82,6 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         //     lintFix: { getFixes: this.#getLintFixes },
         //     infotip: { async: true, delay: 500, getInfo: this.#infotipGetInfo, render: renderInfotip }
         // } as CodeMirror.EditorConfiguration & { lineSeparator: string };
-
-        // // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        // cmOptions.gutters!.push('CodeMirror-lint-markers');
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.#language = options.language!;
@@ -180,12 +129,6 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         //     /* eslint-enable object-shorthand */
         // };
         // this.#cm.addKeyMap(this.#keyMap);
-        // // see https://github.com/codemirror/CodeMirror/blob/dbaf6a94f1ae50d387fa77893cf6b886988c2147/addon/lint/lint.js#L133
-        // // ensures that next 'id' will be -1 whether a change happened or not
-        // // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        // this.#cm.state.lint.waitingFor = -2;
-        // if (!cmSource.existing)
-        //     this.setText(textarea.value);
 
         this.#wrapper = document.createElement('div');
         this.#wrapper.classList.add('mirrorsharp');
@@ -200,15 +143,8 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
             })
         });
 
-        // if (selfDebug)
-        //     selfDebug.watchEditor(this.getText, this.#getCursorIndex);
-
         this.#wrapper.appendChild(this.#cmView.dom);
-        // const cmWrapper = this.#cm.getWrapperElement();
-        // cmWrapper.classList.add('mirrorsharp', 'mirrorsharp-theme');
 
-        // this.#hinter = new Hinter(/*this.#cm, connection*/);
-        // this.#signatureTip = new SignatureTip(/* this.#cm */);
         this.#removeConnectionEvents = addEvents(connection, {
             open: this.#onConnectionOpen,
             message: this.#onConnectionMessage,
@@ -231,61 +167,18 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
     #onConnectionMessage = (message: Message<TExtensionServerOptions, TSlowUpdateExtensionData>) => {
         switch (message.type) {
-            case 'changes':
-                //this.#receiveServerChanges(message.changes, message.reason);
-                break;
-
-            case 'completions':
-                // this.#hinter.start(message.completions, message.span, {
-                //     commitChars: message.commitChars,
-                //     suggestion: message.suggestion
-                // });
-                break;
-
-            case 'completionInfo':
-                // this.#hinter.showTip(message.index, message.parts);
-                break;
-
-            case 'signatures':
-                // this.#signatureTip.update(message);
-                break;
-
-            case 'infotip':
-                if (!message.sections) {
-                    // this.#cm.infotipUpdate(null);
-                    return;
-                }
-                // this.#cm.infotipUpdate({
-                //     data: message,
-                //     range: this.#spanToRange(message.span)
-                // });
-                break;
-
             case 'slowUpdate':
                 this.#showSlowUpdate(message);
-                break;
-
-            case 'optionsEcho':
-                // this.#receiveServerOptions(message.options);
-                break;
-
-            case 'self:debug':
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                // this.#selfDebug!.displayData(message);
                 break;
 
             case 'error':
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 this.#options.on!.serverError!(message.message);
                 break;
-
-            default:
-                throw new Error('Unknown message type "' + message.type);
         }
     };
 
     #onConnectionCloseOrError = (e: CloseEvent|ErrorEvent) => {
-        // this.#lintingSuspended = true;
         this.#showConnectionLoss();
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const connectionChange = this.#options.on!.connectionChange!;
@@ -296,151 +189,6 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
             connectionChange('error', e);
         }
     };
-
-    // #onCodeMirrorBeforeChange = (_: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
-    //     (change.from)[indexKey] = this.#cm.indexFromPos(change.from);
-    //     (change.to)[indexKey] = this.#cm.indexFromPos(change.to);
-    //     this.#changePending = true;
-    // };
-
-    // #onCodeMirrorCursorActivity = () => {
-    //     if (this.#changePending)
-    //         return;
-    //     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    //     this.#connection.sendMoveCursor(this.#getCursorIndex());
-    // };
-
-    // #onCodeMirrorChanges = (_: CodeMirror.Editor, changes: ReadonlyArray<CodeMirror.EditorChange>) => {
-    //     this.#hadChangesSinceLastLinting = true;
-    //     this.#changePending = false;
-    //     const cursorIndex = this.#getCursorIndex();
-    //     changes = this.#mergeChanges(changes);
-    //     for (let i = 0; i < changes.length; i++) {
-    //         const change = changes[i];
-    //         const start = (change.from)[indexKey];
-    //         const length = (change.to)[indexKey] - start;
-    //         const text = change.text.join(lineSeparator);
-    //         if (cursorIndex === start + 1 && text.length === 1 && !this.#changesAreFromServer) {
-    //             if (length > 0) {
-    //                 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    //                 this.#connection.sendReplaceText(start, length, '', cursorIndex - 1);
-    //             }
-    //             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    //             this.#connection.sendTypeChar(text);
-    //         }
-    //         else {
-    //             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    //             this.#connection.sendReplaceText(start, length, text, cursorIndex, this.#changeReason);
-    //         }
-    //     }
-    //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    //     this.#options.on!.textChange!(this.#getText);
-    // };
-
-    // #mergeChanges = (changes: ReadonlyArray<CodeMirror.EditorChange>) => {
-    //     if (changes.length < 2)
-    //         return changes;
-
-    //     const canBeMerged = (first: CodeMirror.EditorChange|null, second: CodeMirror.EditorChange|null) => {
-    //         return first && second
-    //             && first.origin === 'undo'
-    //             && second.origin === 'undo'
-    //             && first.to.line === second.from.line
-    //             && first.text.length === 1
-    //             && second.text.length === 1
-    //             && second.from.ch === second.to.ch
-    //             && (first.to.ch + first.text[0].length) === second.from.ch;
-    //     };
-
-    //     const results = [];
-    //     let before: CodeMirror.EditorChange|null = null;
-    //     for (const change of changes) {
-    //         if (canBeMerged(before, change)) {
-    //             before = {
-    //                 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-    //                 from: before.from,
-    //                 to: before.to,
-    //                 text: [before.text[0] + change.text[0]],
-    //                 origin: change.origin
-    //                 /* eslint-enable @typescript-eslint/no-non-null-assertion */
-    //             };
-    //         }
-    //         else {
-    //             if (before)
-    //                 results.push(before);
-    //             before = change;
-    //         }
-    //     }
-    //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    //     results.push(before);
-    //     return results;
-    // };
-
-    // #lintGetAnnotations = (_: string, updateLinting: CodeMirror.UpdateLintingCallback) => {
-    //     if (!this.#capturedUpdateLinting) {
-    //         this.#capturedUpdateLinting = function(this: ThisParameterType<CodeMirror.UpdateLintingCallback>, ...args: Parameters<CodeMirror.UpdateLintingCallback>) {
-    //             const [cm] = args;
-    //             // see https://github.com/codemirror/CodeMirror/blob/dbaf6a94f1ae50d387fa77893cf6b886988c2147/addon/lint/lint.js#L133
-    //             // ensures that next 'id' will always match 'waitingFor'
-    //             (cm.state as { lint: { waitingFor: number } }).lint.waitingFor = -1;
-    //             updateLinting.apply(this, args);
-    //         };
-    //     }
-    //     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    //     this.#requestSlowUpdate();
-    // };
-
-    // #receiveServerChanges = (changes: ReadonlyArray<ChangeData>, reason: string|null) => {
-    //     this.#changesAreFromServer = true;
-    //     this.#changeReason = reason ?? 'server';
-    //     /*this.#cm.operation(() => {
-    //         let offset = 0;
-    //         for (const change of changes) {
-    //             const from = this.#cm.posFromIndex(change.start + offset);
-    //             const to = change.length > 0 ? this.#cm.posFromIndex(change.start + offset + change.length) : from;
-    //             this.#cm.replaceRange(change.text, from, to, '+server');
-    //             offset += change.text.length - change.length;
-    //         }
-    //     });*/
-    //     this.#changeReason = null;
-    //     this.#changesAreFromServer = false;
-    // };
-
-    // #getLintFixes = (cm: CodeMirror.Editor, line: number, annotations: ReadonlyArray<CodeMirror.Annotation>) => {
-    //     const requestApplyFix = (cm: CodeMirror.Editor, line: number, fix: AnnotationFixWithId) => {
-    //         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    //         this.#connection.sendApplyDiagnosticAction(fix.id);
-    //     };
-
-    //     const fixes: Array<CodeMirror.AnnotationFix> = [];
-    //     for (const annotation of annotations) {
-    //         const diagnostic = (annotation).diagnostic;
-    //         if (!diagnostic.actions)
-    //             continue;
-    //         for (const action of diagnostic.actions) {
-    //             fixes.push({
-    //                 text: action.title,
-    //                 apply: requestApplyFix,
-    //                 id: action.id
-    //             } as AnnotationFixWithId);
-    //         }
-    //     }
-    //     return fixes;
-    // };
-
-    // #infotipGetInfo = (cm: CodeMirror.Editor, position: CodeMirror.Position) => {
-    //     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    //     this.#connection.sendRequestInfoTip(cm.indexFromPos(position));
-    // };
-
-    // #requestSlowUpdate = (force?: boolean) => {
-    //     if (this.#lintingSuspended || !(this.#hadChangesSinceLastLinting || force))
-    //         return null;
-    //     this.#hadChangesSinceLastLinting = false;
-    //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    //     this.#options.on!.slowUpdateWait!();
-    //     return this.#connection.sendSlowUpdate();
-    // };
 
     #showSlowUpdate = (update: SlowUpdateMessage<TSlowUpdateExtensionData>) => {
         // const annotations: Array<DiagnosticAnnotation> = [];
@@ -501,38 +249,6 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         this.#wrapper.classList.remove('mirrorsharp-connection-has-issue');
     };
 
-    // #sendServerOptions = async (value: ServerOptions | Partial<TExtensionServerOptions> | Partial<ServerOptions & TExtensionServerOptions>) => {
-    //     this.#pendingServerOptions = { ...this.#serverOptions, ...value };
-    //     await this.#connection.sendSetOptions(value);
-    //     await this.#requestSlowUpdate(true);
-    // };
-
-    // #receiveServerOptions = (value: ServerOptions&TExtensionServerOptions) => {
-    //     this.#pendingServerOptions = null;
-    //     this.#serverOptions = { ...this.#serverOptions, ...value };
-    //     // TODO: understand later
-    //     // eslint-disable-next-line no-undefined
-    //     if (value.language !== undefined && value.language !== this.#language) {
-    //         this.#language = value.language;
-    //         // this.#cm.setOption('mode', languageModes[this.#language]);
-    //     }
-    // };
-
-    // #spanToRange = (span: SpanData) => {
-    //     return {
-    //         from: this.#cm.posFromIndex(span.start),
-    //         to: this.#cm.posFromIndex(span.start + span.length)
-    //     };
-    // };
-
-    // getCodeMirror() {
-    //     return this.#cm;
-    // }
-
-    // setText(text: string) {
-    //     this.#cm.setValue(text.replace(/(\r\n|\r|\n)/g, '\r\n'));
-    // }
-
     getCodeMirrorView() {
         return this.#cmView;
     }
@@ -544,6 +260,10 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     getText() {
         return this.#cmView.state.sliceDoc();
     }
+
+    // setText(text: string) {
+    //     this.#cm.setValue(text.replace(/(\r\n|\r|\n)/g, '\r\n'));
+    // }
 
     setText(text: string) {
         this.#cmView.dispatch({
