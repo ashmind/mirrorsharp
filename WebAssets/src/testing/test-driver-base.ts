@@ -15,69 +15,6 @@ import type {
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../mirrorsharp';
 import { installMockSocket, MockSocket, MockSocketController } from './shared/mock-socket';
 
-type TestRecorderOptions = { exclude?: (object: object, action: string) => boolean };
-
-class TestRecorder {
-    readonly #objects = new Map<string, Record<string, unknown>>();
-    readonly #actions = new Array<{ target: string; action: string; args: ReadonlyArray<unknown> }>();
-
-    constructor(targets: ReadonlyArray<object>, options: TestRecorderOptions = {}) {
-        for (const target of targets) {
-            this.#observe(target as Record<string, unknown>, options);
-        }
-    }
-
-    #getAllPropertyNames = (object: Record<string, unknown>) => {
-        const names = new Array<string>();
-        let current = object as object|undefined;
-        while (current) {
-            names.push(...Object.getOwnPropertyNames(current));
-            current = Object.getPrototypeOf(current);
-        }
-        return [...new Set<string>(names)];
-    };
-
-    #observe = (object: Record<string, unknown>, { exclude = () => false }: Pick<TestRecorderOptions, 'exclude'>) => {
-        const target = object.constructor.name;
-        this.#objects.set(target, object);
-        const actions = this.#actions;
-        for (const key of this.#getAllPropertyNames(object)) {
-            const value = object[key];
-            if (typeof value !== 'function' || key === 'constructor')
-                continue;
-            if (exclude(object, key))
-                continue;
-            object[key] = function(...args: ReadonlyArray<unknown>) {
-                actions.push({ target, action: key, args });
-                return value.apply(this, args) as unknown;
-            };
-        }
-    };
-
-    async replayFromJSON({ actions }: ReturnType<TestRecorder['toJSON']>) {
-        for (const { target, action, args } of actions) {
-            console.log('Replay:', target, action, args);
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const object = this.#objects.get(target)!;
-            const result = (object[action] as (...args: ReadonlyArray<unknown>) => unknown)(...args);
-            if ((result as { then?: unknown } | null | undefined)?.then)
-                await result;
-        }
-    }
-
-    toJSON() {
-        for (const { target, action, args } of this.#actions) {
-            for (const arg of args) {
-                if (typeof arg === 'function')
-                    throw new Error(`Cannot serialize function argument ${arg.name} of action ${target}.${action}.`);
-            }
-        }
-        return {
-            actions: this.#actions
-        };
-    }
-}
-
 class TestText {
     readonly #cmView: EditorView;
 
@@ -206,15 +143,12 @@ export class TestDriverBase<TExtensionServerOptions = never> {
     public readonly text: TestText;
     public readonly domEvents: TestDomEvents;
     public readonly receive: TestReceiver;
-    public readonly recorder: TestRecorder;
 
     readonly #cmView: EditorView;
-    readonly #optionsForJSONOnly: TestDriverOptions<TExtensionServerOptions, unknown>;
 
     protected constructor(
         socket: MockSocketController,
-        mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>,
-        optionsForJSONOnly: TestDriverOptions<TExtensionServerOptions, unknown>
+        mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>
     ) {
         const cmView = mirrorsharp.getCodeMirrorView();
 
@@ -224,13 +158,6 @@ export class TestDriverBase<TExtensionServerOptions = never> {
         this.text = new TestText(cmView);
         this.domEvents = new TestDomEvents(cmView);
         this.receive = new TestReceiver(socket);
-        this.recorder = new TestRecorder([
-            this.text, this.domEvents, this.receive, this
-        ], {
-            exclude: (object, key) => object === this && (key === 'render' || key === 'toJSON')
-        });
-
-        this.#optionsForJSONOnly = optionsForJSONOnly;
     }
 
     getCodeMirrorView() {
@@ -288,13 +215,6 @@ export class TestDriverBase<TExtensionServerOptions = never> {
         timers.advanceTimersByTime(100);
     }
 
-    toJSON() {
-        return {
-            options: this.#optionsForJSONOnly,
-            recorder: this.recorder.toJSON()
-        };
-    }
-
     static async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
         options: TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
     ) {
@@ -317,7 +237,7 @@ export class TestDriverBase<TExtensionServerOptions = never> {
         } as MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>;
         const ms = mirrorsharp(container, msOptions);
 
-        const driver = new this(socket.mock, ms, options as TestDriverOptions<TExtensionServerOptions, unknown>);
+        const driver = new this(socket.mock, ms);
 
         if (options.keepSocketClosed)
             return driver;
@@ -327,12 +247,6 @@ export class TestDriverBase<TExtensionServerOptions = never> {
 
         timers.runOnlyPendingTimers();
         driver.socket.sent = [];
-        return driver;
-    }
-
-    static async fromJSON({ options, recorder }: ReturnType<TestDriverBase<unknown>['toJSON']>) {
-        const driver = await this.new(options);
-        await driver.recorder.replayFromJSON(recorder);
         return driver;
     }
 }
@@ -353,6 +267,5 @@ function parseTextWithCursor(value: string) {
 
 export type TestDriverConstructorArguments<TExtensionServerOptions> = [
     MockSocketController,
-    MirrorSharpInstance<TExtensionServerOptions>,
-    TestDriverOptions<TExtensionServerOptions, unknown>
+    MirrorSharpInstance<TExtensionServerOptions>
 ];

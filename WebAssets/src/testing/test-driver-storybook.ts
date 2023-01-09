@@ -1,7 +1,5 @@
-import type { MirrorSharpInstance } from '../mirrorsharp';
-import type { MockSocketController } from './shared/mock-socket';
 import { timers } from './storybook/browser-fake-timers';
-import { setTimers, TestDriverBase, TestDriverOptions } from './test-driver-base';
+import { setTimers, TestDriverBase, TestDriverConstructorArguments, TestDriverOptions } from './test-driver-base';
 
 setTimers(timers);
 export class TestDriver<TExtensionServerOptions = never> extends TestDriverBase<TExtensionServerOptions> {
@@ -10,13 +8,8 @@ export class TestDriver<TExtensionServerOptions = never> extends TestDriverBase<
         listener: EventListenerOrEventListenerObject;
     }>;
 
-    constructor(
-        // https://github.com/microsoft/TypeScript/issues/30991
-        socket: MockSocketController,
-        mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>,
-        optionsForJSONOnly: TestDriverOptions<TExtensionServerOptions, unknown>
-    ) {
-        super(socket, mirrorsharp, optionsForJSONOnly);
+    private constructor(...args: TestDriverConstructorArguments<TExtensionServerOptions>) {
+        super(...args);
 
         const savedAddEventListener = window.addEventListener;
         window.addEventListener = (...args: Parameters<typeof window.addEventListener>) => {
