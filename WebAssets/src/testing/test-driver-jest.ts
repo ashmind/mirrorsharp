@@ -1,3 +1,4 @@
+import { TestDomEvents } from './jest/test-dom-events';
 import { TestText } from './jest/test-text';
 import { TestDriverBase, TestDriverConstructorArguments, TestDriverOptions, setTimers } from './test-driver-base';
 
@@ -14,10 +15,14 @@ export const timers = setTimers(jest);
 
 export class TestDriver<TExtensionServerOptions = never> extends TestDriverBase {
     public readonly text: TestText;
+    public readonly domEvents: TestDomEvents;
 
     private constructor(...args: TestDriverConstructorArguments<TExtensionServerOptions>) {
         super(...args);
-        this.text = new TestText(this.getCodeMirrorView());
+
+        const cmView = this.getCodeMirrorView();
+        this.text = new TestText(cmView);
+        this.domEvents = new TestDomEvents(cmView);
     }
 
     static async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(

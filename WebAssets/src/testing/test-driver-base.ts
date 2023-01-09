@@ -15,35 +15,6 @@ import type {
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../mirrorsharp';
 import { installMockSocket, MockSocket, MockSocketController } from './shared/mock-socket';
 
-class TestDomEvents {
-    readonly #cmView: EditorView;
-
-    constructor(cmView: EditorView) {
-        this.#cmView = cmView;
-    }
-
-    keydown(key: string, other: Omit<KeyboardEventInit, 'key'> = {}) {
-        this.#cmView
-            .contentDOM
-            .dispatchEvent(new KeyboardEvent('keydown', { key, ...other }));
-    }
-
-    // cannot work in render mode -- needs adjustment
-    mousemove(target: Node) {
-        const event = new MouseEvent('mousemove', { bubbles: true });
-        // default does not apply fake timers due to global object differences
-        Object.defineProperty(event, 'timeStamp', { value: Date.now() });
-        target.dispatchEvent(event);
-    }
-
-    mouseover(selector: string) {
-        const target = this.#cmView.dom.querySelector(selector);
-        if (!target)
-            throw new Error(`Could not find element '${selector}'.`);
-        target.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
-    }
-}
-
 class TestReceiver {
     readonly #socket: MockSocketController;
 
@@ -119,7 +90,6 @@ export const setTimers = (value: TestDriverTimers) => timers = value;
 export class TestDriverBase<TExtensionServerOptions = never> {
     public readonly socket: MockSocketController;
     public readonly mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>;
-    public readonly domEvents: TestDomEvents;
     public readonly receive: TestReceiver;
 
     readonly #cmView: EditorView;
@@ -133,7 +103,6 @@ export class TestDriverBase<TExtensionServerOptions = never> {
         this.socket = socket;
         this.#cmView = cmView;
         this.mirrorsharp = mirrorsharp;
-        this.domEvents = new TestDomEvents(cmView);
         this.receive = new TestReceiver(socket);
     }
 
