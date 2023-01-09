@@ -2,17 +2,17 @@ import type { Text, ChangeSet } from '@codemirror/state';
 import { ViewPlugin, PluginValue } from '@codemirror/view';
 import type { Session } from '../../session';
 
-function sendReplace(session: Session, from: number, to: number, text: Text, cursorOffset: number) {
+const sendReplace = (session: Session, from: number, to: number, text: string | Text, cursorOffset: number) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     session.sendPartialText({
         start: from,
         length: to - from,
-        newText: text.toString(),
+        newText: typeof text === 'string' ? text : text.toString(),
         cursorIndexAfter: cursorOffset
     });
-}
+};
 
-function sendChanges(session: Session, changes: ChangeSet, prevCursorOffset: number, cursorOffset: number) {
+const sendChanges = (session: Session, changes: ChangeSet, prevCursorOffset: number, cursorOffset: number) => {
     let changeCount = 0;
     let first: {
         from: number,
@@ -38,18 +38,20 @@ function sendChanges(session: Session, changes: ChangeSet, prevCursorOffset: num
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const { from, to, text } = first!;
         if (from === prevCursorOffset && to === from && text.length === 1) {
-            let char = text.line(1).text.charAt(0);
-            if (char === '' && text.lines === 2 && text.line(1).length === 0)
-                char = '\n';
+            const char = text.line(1).text.charAt(0);
+            if (char === '' && text.lines === 2 && text.line(1).length === 0) {
+                sendReplace(session, from, to, '\r\n', cursorOffset);
+                return;
+            }
 
             // eslint-disable-next-line @typescript-eslint/no-floating-promises, @typescript-eslint/no-non-null-assertion
             session.sendTypeChar(char);
-            return true;
+            return;
         }
 
         sendReplace(session, from, to, text, cursorOffset);
     }
-}
+};
 
 export const sendChangesToServer = (session: Session) => ViewPlugin.define(view => {
     session.setFullText({

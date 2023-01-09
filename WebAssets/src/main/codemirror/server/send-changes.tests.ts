@@ -17,7 +17,7 @@ test('enter at cursor is sent as typed newline', async () => {
     await driver.completeBackgroundWork();
 
     const lastSent = driver.socket.sent.filter(c => !c.startsWith('U')).slice(-1)[0];
-    expect(lastSent).toBe('C\n');
+    expect(lastSent).toBe('R1:0:2::\r\n');
 });
 
 test('change not at cursor is sent as replaced text', async () => {
