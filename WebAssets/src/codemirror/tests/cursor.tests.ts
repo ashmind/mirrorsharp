@@ -1,4 +1,4 @@
-import { TestDriver } from '../../../testing/test-driver-jest';
+import { TestDriver } from '../../testing/test-driver-jest';
 
 test('cursor move is sent to server', async () => {
     const driver = await TestDriver.new({ textWithCursor: 'a|bc' });

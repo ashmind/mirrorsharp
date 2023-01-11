@@ -1,9 +1,9 @@
 import { ViewPlugin, showTooltip } from '@codemirror/view';
-import type { Connection } from '../../connection';
-import { addEvents } from '../../../helpers/add-events';
-import type { SignatureData, SignatureInfoData, SignatureInfoParameterData, SignaturesEmptyMessage, SignaturesMessage } from '../../../interfaces/protocol';
-import { renderPartsTo } from '../../../helpers/render-parts';
-import { defineEffectField } from '../../../helpers/define-effect-field';
+import { addEvents } from '../../helpers/add-events';
+import { defineEffectField } from '../../helpers/define-effect-field';
+import { renderPartsTo } from '../../helpers/render-parts';
+import type { Connection } from '../../protocol/connection';
+import type { SignatureData, SignatureInfoData, SignatureInfoParameterData, SignaturesEmptyMessage, SignaturesMessage } from '../../protocol/messages';
 
 const [currentMessage, dispatchCurrentMessageChanged] = defineEffectField<SignaturesMessage | SignaturesEmptyMessage | undefined>();
 

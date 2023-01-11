@@ -1,9 +1,9 @@
 import type { EditorView } from '@codemirror/view';
-import type { Language, DiagnosticSeverity } from './interfaces/protocol';
-// import { SelfDebug } from './main/self-debug';
-import { Connection } from './main/connection';
 import { Editor } from './main/editor';
-import { Session } from './main/session';
+import { Connection } from './protocol/connection';
+import type { Language } from './protocol/languages';
+import type { DiagnosticSeverity } from './protocol/messages';
+import { Session } from './protocol/session';
 
 // ts-unused-exports:disable-next-line
 export type MirrorSharpLanguage = Language;
@@ -65,7 +65,9 @@ export interface MirrorSharpInstance<TExtensionServerOptions> {
 }
 
 // ts-unused-exports:disable-next-line
-export default function mirrorsharp<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
+export
+// eslint-disable-next-line import/no-default-export
+default function mirrorsharp<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
     container: HTMLElement,
     options: MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
 ): MirrorSharpInstance<TExtensionServerOptions> {

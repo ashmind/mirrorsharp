@@ -1,4 +1,4 @@
-import type { ChangeData, ChangesMessage, CompletionItemData, CompletionsMessage, DiagnosticData, InfotipMessage, Message, PartData, SignaturesMessage, UnknownMessage } from '../../interfaces/protocol';
+import type { ChangeData, ChangesMessage, CompletionItemData, CompletionsMessage, DiagnosticData, InfotipMessage, Message, PartData, SignaturesMessage, UnknownMessage } from '../../protocol/messages';
 import type { MockSocketController } from './mock-socket';
 
 export class TestReceiver {

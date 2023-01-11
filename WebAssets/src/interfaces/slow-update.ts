@@ -1,4 +1,4 @@
-import type { DiagnosticData } from './protocol';
+import type { DiagnosticData } from '../protocol/messages';
 
 export interface SlowUpdateOptions<TSlowUpdateExtensionData> {
     slowUpdateWait?: () => void;

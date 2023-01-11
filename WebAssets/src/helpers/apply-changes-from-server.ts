@@ -1,6 +1,6 @@
-import type { EditorView } from '@codemirror/view';
-import type { ChangeData } from '../interfaces/protocol';
 import type { ChangeSpec, TransactionSpec } from '@codemirror/state';
+import type { EditorView } from '@codemirror/view';
+import type { ChangeData } from '../protocol/messages';
 
 export function applyChangesFromServer(view: EditorView, changesFromServer: ReadonlyArray<ChangeData>) {
     const [selection] = view.state.selection.ranges;

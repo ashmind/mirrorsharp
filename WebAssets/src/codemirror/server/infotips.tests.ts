@@ -1,4 +1,4 @@
-import { TestDriver, timers } from '../../../testing/test-driver-jest';
+import { TestDriver, timers } from '../../testing/test-driver-jest';
 import { INFOTIP_EVENTHANDLER } from './infotips.test.data';
 
 const mockHoverDependencies = (driver: TestDriver) => {

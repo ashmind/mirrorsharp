@@ -1,4 +1,4 @@
-import type { SignatureData } from '../../../interfaces/protocol';
+import type { SignatureData } from '../../protocol/messages';
 
 export const SIGNATURES_INDEX_OF: ReadonlyArray<SignatureData> = [
     {

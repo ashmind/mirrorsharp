@@ -1,7 +1,8 @@
-import { testDriverStory } from '../../../testing/storybook/test-driver-story';
-import { TestDriver } from '../../../testing/test-driver-storybook';
+import { testDriverStory } from '../../testing/storybook/test-driver-story';
+import { TestDriver } from '../../testing/test-driver-storybook';
 import { SIGNATURES_INDEX_OF, SIGNATURES_SUBSTRING_NONE_SELECTED, SIGNATURES_SUBSTRING_SECOND_PARAMETER } from './signature-help.test.data';
 
+// eslint-disable-next-line import/no-default-export
 export default {
     title: 'Signature Help',
     component: {}

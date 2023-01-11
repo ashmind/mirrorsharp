@@ -1,5 +1,6 @@
 // import type * as CodeMirror from 'codemirror';
-import type { Connection, ConnectionEventMap } from '../main/connection';
+
+import type { Connection, ConnectionEventMap } from '../protocol/connection';
 
 // Workaround for https://github.com/microsoft/TypeScript/issues/37204
 // and https://github.com/microsoft/TypeScript/issues/37263

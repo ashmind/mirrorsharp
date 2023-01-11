@@ -1,5 +1,5 @@
-import { LANGUAGE_FSHARP, LANGUAGE_IL, LANGUAGE_PHP, LANGUAGE_VB } from '../../interfaces/protocol';
-import { TestDriver } from '../../testing/test-driver-jest';
+import { LANGUAGE_FSHARP, LANGUAGE_IL, LANGUAGE_PHP, LANGUAGE_VB } from '../protocol/languages';
+import { TestDriver } from '../testing/test-driver-jest';
 import { CODE_CSHARP, CODE_FSHARP, CODE_IL, CODE_PHP, CODE_VB } from './languages/test.data';
 
 test('C# highlighting applies expected classes', async () => {

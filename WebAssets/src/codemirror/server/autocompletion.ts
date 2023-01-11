@@ -1,11 +1,11 @@
-import type { Connection } from '../../connection';
-import type { CompletionsMessage, CompletionInfoMessage } from '../../../interfaces/protocol';
+import { startCompletion, acceptCompletion, closeCompletion, completionStatus, autocompletion, CompletionSource, Completion } from '@codemirror/autocomplete';
 import { Prec } from '@codemirror/state';
 import { ViewPlugin, EditorView, keymap } from '@codemirror/view';
-import { startCompletion, acceptCompletion, closeCompletion, completionStatus, autocompletion, CompletionSource, Completion } from '@codemirror/autocomplete';
-import { addEvents } from '../../../helpers/add-events';
-import { applyChangesFromServer } from '../../../helpers/apply-changes-from-server';
-import { renderParts } from '../../../helpers/render-parts';
+import { addEvents } from '../../helpers/add-events';
+import { applyChangesFromServer } from '../../helpers/apply-changes-from-server';
+import { renderParts } from '../../helpers/render-parts';
+import type { Connection } from '../../protocol/connection';
+import type { CompletionInfoMessage, CompletionsMessage } from '../../protocol/messages';
 
 export const autocompletionFromServer = <O, U>(connection: Connection<O, U>) => {
     // Since completions are scoped per connection (server will have one active completion list per connection),

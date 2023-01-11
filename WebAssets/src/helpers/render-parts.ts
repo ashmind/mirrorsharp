@@ -1,4 +1,4 @@
-import type { PartData } from '../interfaces/protocol';
+import type { PartData } from '../protocol/messages';
 
 /*
     const partKindClassMap = {

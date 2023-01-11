@@ -1,19 +1,18 @@
+import { Extension, StateEffect } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
-import {
+import { createExtensions, createState } from '../codemirror/create';
+import { switchLanguageExtension } from '../codemirror/languages';
+import { addEvents } from '../helpers/add-events';
+import type { SlowUpdateOptions } from '../interfaces/slow-update';
+import type { Connection } from '../protocol/connection';
+import { type Language, LANGUAGE_DEFAULT } from '../protocol/languages';
+import type {
     Message,
     SlowUpdateMessage,
     DiagnosticSeverity,
-    ServerOptions,
-    Language,
-    LANGUAGE_DEFAULT
-} from '../interfaces/protocol';
-import type { SlowUpdateOptions } from '../interfaces/slow-update';
-import type { Connection } from './connection';
-import { createExtensions, createState } from './codemirror/create';
-import { addEvents } from '../helpers/add-events';
-import type { Session } from './session';
-import { Extension, StateEffect } from '@codemirror/state';
-import { switchLanguageExtension } from './codemirror/languages';
+    ServerOptions
+} from '../protocol/messages';
+import type { Session } from '../protocol/session';
 
 interface EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly language?: Language;

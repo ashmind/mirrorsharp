@@ -1,5 +1,5 @@
-import { TestDriver } from '../../../testing/test-driver-jest';
 import { completionStatus, currentCompletions, acceptCompletion, moveCompletionSelection } from '@codemirror/autocomplete';
+import { TestDriver } from '../../testing/test-driver-jest';
 
 const typeCharacterUsingDOM = (driver: TestDriver, character: string) => {
     driver.domEvents.keydown(character);

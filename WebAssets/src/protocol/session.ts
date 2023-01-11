@@ -1,6 +1,7 @@
 import { addEvents } from '../helpers/add-events';
-import { LANGUAGE_DEFAULT, Message, ServerOptions } from '../interfaces/protocol';
 import type { Connection, ReplaceTextCommand } from './connection';
+import { LANGUAGE_DEFAULT } from './languages';
+import type { Message, ServerOptions } from './messages';
 
 const UPDATE_PERIOD = 500;
 

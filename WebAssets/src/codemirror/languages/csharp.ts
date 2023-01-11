@@ -1,6 +1,6 @@
-import { parser } from 'lezer-csharp-simple';
 import { LRLanguage } from '@codemirror/language';
 import { styleTags, tags } from '@lezer/highlight';
+import { parser } from 'lezer-csharp-simple';
 
 const csharpSyntax = LRLanguage.define({
     parser: parser.configure({

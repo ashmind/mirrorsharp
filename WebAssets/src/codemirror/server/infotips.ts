@@ -1,9 +1,9 @@
 import { EditorView, ViewPlugin, hoverTooltip, Tooltip } from '@codemirror/view';
-import type { Connection } from '../../connection';
-import { addEvents } from '../../../helpers/add-events';
-import { defineEffectField } from '../../../helpers/define-effect-field';
-import type { InfotipMessage } from '../../../interfaces/protocol';
-import { renderPartsTo } from '../../../helpers/render-parts';
+import { addEvents } from '../../helpers/add-events';
+import { defineEffectField } from '../../helpers/define-effect-field';
+import { renderPartsTo } from '../../helpers/render-parts';
+import type { Connection } from '../../protocol/connection';
+import type { InfotipMessage } from '../../protocol/messages';
 
 const [lastInfotipRequest, dispatchLastInfotipRequestChanged] = defineEffectField<{ pos: number; resolve: ((tooltip: Tooltip) => void) }|null>(null);
 

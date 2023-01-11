@@ -1,7 +1,8 @@
 import { userEvent as user } from '@storybook/testing-library';
-import { testDriverStory } from '../../../testing/storybook/test-driver-story';
-import { TestDriver } from '../../../testing/test-driver-storybook';
+import { testDriverStory } from '../../testing/storybook/test-driver-story';
+import { TestDriver } from '../../testing/test-driver-storybook';
 
+// eslint-disable-next-line import/no-default-export
 export default {
     title: 'Linting',
     component: {}

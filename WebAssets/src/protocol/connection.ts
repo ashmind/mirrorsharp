@@ -1,7 +1,6 @@
-import type { Message, ServerOptions } from '../interfaces/protocol';
-// import type { SelfDebug } from './self-debug';
 import { addEvents } from '../helpers/add-events';
 import { ensureDefined } from '../helpers/ensure-defined';
+import type { Message, ServerOptions } from './messages';
 
 const eventKeys = ['open', 'message', 'error', 'close'] as const;
 

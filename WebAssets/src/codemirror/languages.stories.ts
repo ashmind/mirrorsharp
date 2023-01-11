@@ -1,8 +1,9 @@
-import { Language, LANGUAGE_CSHARP, LANGUAGE_FSHARP, LANGUAGE_IL, LANGUAGE_PHP, LANGUAGE_VB } from '../../interfaces/protocol';
-import { testDriverStory } from '../../testing/storybook/test-driver-story';
-import { TestDriver } from '../../testing/test-driver-storybook';
+import { Language, LANGUAGE_CSHARP, LANGUAGE_FSHARP, LANGUAGE_IL, LANGUAGE_PHP, LANGUAGE_VB } from '../protocol/languages';
+import { testDriverStory } from '../testing/storybook/test-driver-story';
+import { TestDriver } from '../testing/test-driver-storybook';
 import { CODE_CSHARP, CODE_FSHARP, CODE_IL, CODE_PHP, CODE_VB } from './languages/test.data';
 
+// eslint-disable-next-line import/no-default-export
 export default {
     title: 'Languages',
     component: {}

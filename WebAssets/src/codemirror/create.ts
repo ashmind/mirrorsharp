@@ -1,19 +1,19 @@
-import { EditorState, EditorSelection, Extension } from '@codemirror/state';
-import { indentUnit, syntaxHighlighting } from '@codemirror/language';
 import { history } from '@codemirror/commands';
-import type { Connection } from '../connection';
-import type { SlowUpdateOptions } from '../../interfaces/slow-update';
-import lineSeparator from './line-separator';
-import keymap from './keymap';
-import { sendChangesToServer } from './server/send-changes';
-import { lintingFromServer } from './server/linting';
+import { indentUnit, syntaxHighlighting } from '@codemirror/language';
+import { EditorState, EditorSelection, Extension } from '@codemirror/state';
+import { classHighlighter } from '@lezer/highlight';
+import type { SlowUpdateOptions } from '../interfaces/slow-update';
+import type { Connection } from '../protocol/connection';
+import type { Language } from '../protocol/languages';
+import { lineSeparator } from '../protocol/line-separator';
+import type { Session } from '../protocol/session';
+import { keymaps } from './keymaps';
+import { languageExtensions } from './languages';
+import { autocompletionFromServer } from './server/autocompletion';
 import { connectionState } from './server/connection-state';
 import { infotipsFromServer } from './server/infotips';
-import { autocompletionFromServer } from './server/autocompletion';
-import { classHighlighter } from '@lezer/highlight';
-import type { Session } from '../session';
-import { languageExtensions } from './languages';
-import type { Language } from '../../interfaces/protocol';
+import { lintingFromServer } from './server/linting';
+import { sendChangesToServer } from './server/send-changes';
 import { signatureHelpFromServer } from './server/signature-help';
 
 export const createExtensions = <O, U>(
@@ -38,7 +38,7 @@ export const createExtensions = <O, U>(
 
     // has to go last so that more specific keymaps
     // in e.g. autocomplete have more priority
-    keymap
+    keymaps
 ];
 
 export const createState = (

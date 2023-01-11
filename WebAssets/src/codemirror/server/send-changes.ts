@@ -1,6 +1,7 @@
 import type { Text, ChangeSet } from '@codemirror/state';
 import { ViewPlugin, PluginValue } from '@codemirror/view';
-import type { Session } from '../../session';
+import { lineSeparator } from '../../protocol/line-separator';
+import type { Session } from '../../protocol/session';
 
 const sendReplace = (session: Session, from: number, to: number, text: string | Text, cursorOffset: number) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -40,7 +41,8 @@ const sendChanges = (session: Session, changes: ChangeSet, prevCursorOffset: num
         if (from === prevCursorOffset && to === from && text.length === 1) {
             const char = text.line(1).text.charAt(0);
             if (char === '' && text.lines === 2 && text.line(1).length === 0) {
-                sendReplace(session, from, to, '\r\n', cursorOffset);
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                sendReplace(session, from, to, lineSeparator, cursorOffset);
                 return;
             }
 

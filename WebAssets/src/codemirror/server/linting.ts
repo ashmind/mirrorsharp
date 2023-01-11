@@ -1,10 +1,10 @@
-import { ViewPlugin } from '@codemirror/view';
 import { Action, Diagnostic, setDiagnostics, lintGutter } from '@codemirror/lint';
-import type { Connection } from '../../connection';
-import type { SlowUpdateOptions } from '../../../interfaces/slow-update';
-import type { DiagnosticActionData, DiagnosticData, DiagnosticSeverity } from '../../../interfaces/protocol';
-import { addEvents } from '../../../helpers/add-events';
-import { applyChangesFromServer } from '../../../helpers/apply-changes-from-server';
+import { ViewPlugin } from '@codemirror/view';
+import { addEvents } from '../../helpers/add-events';
+import { applyChangesFromServer } from '../../helpers/apply-changes-from-server';
+import type { SlowUpdateOptions } from '../../interfaces/slow-update';
+import type { Connection } from '../../protocol/connection';
+import type { DiagnosticActionData, DiagnosticData, DiagnosticSeverity } from '../../protocol/messages';
 
 const receiveSlowUpdateResultsFromServer = <TExtensionData>(
     connection: Connection<unknown, TExtensionData>,

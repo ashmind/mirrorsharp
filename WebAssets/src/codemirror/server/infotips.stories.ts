@@ -1,8 +1,9 @@
-import { testDriverStory } from '../../../testing/storybook/test-driver-story';
-import { TestDriver } from '../../../testing/test-driver-storybook';
-import { INFOTIP_EVENTHANDLER } from './infotips.test.data';
 import { userEvent as user, within } from '@storybook/testing-library';
+import { testDriverStory } from '../../testing/storybook/test-driver-story';
+import { TestDriver } from '../../testing/test-driver-storybook';
+import { INFOTIP_EVENTHANDLER } from './infotips.test.data';
 
+// eslint-disable-next-line import/no-default-export
 export default {
     title: 'QuickInfo',
     component: {}

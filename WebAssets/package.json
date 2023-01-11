@@ -87,6 +87,8 @@
         "babel-plugin-add-import-extension": "^1.0.0",
         "depcheck": "^1.4.3",
         "eslint": "^8.30.0",
+        "eslint-import-resolver-typescript": "^3.5.2",
+        "eslint-plugin-import": "^2.26.0",
         "execa": "^5.0.0",
         "fast-glob": "^3.2.2",
         "fs-jetpack": "^2.1.0",

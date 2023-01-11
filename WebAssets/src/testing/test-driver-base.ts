@@ -1,5 +1,5 @@
-import type { EditorView } from '@codemirror/view';
 import type { TransactionSpec } from '@codemirror/state';
+import type { EditorView } from '@codemirror/view';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../mirrorsharp';
 import { installMockSocket, MockSocket, MockSocketController } from './shared/mock-socket';
 import { TestReceiver } from './shared/test-receiver';
