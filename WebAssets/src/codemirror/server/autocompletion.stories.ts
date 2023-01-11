@@ -1,3 +1,4 @@
+import { storyWithDarkTheme } from '../../testing/storybook/story-with-dark-theme';
 import { testDriverStory } from '../../testing/storybook/test-driver-story';
 import { TestDriver } from '../../testing/test-driver-storybook';
 
@@ -22,6 +23,8 @@ const completionListStory = (kinds: ReadonlyArray<string>) => testDriverStory(as
 export const Completions1 = completionListStory(['class', 'constant', 'delegate', 'enum', 'enummember', 'event', 'extensionmethod']);
 export const Completions2 = completionListStory(['field', 'interface', 'keyword', 'local', 'method', 'module', 'namespace']);
 export const Completions3 = completionListStory(['parameter', 'property', 'structure', 'typeparameter', 'union']);
+
+export const Completions1Dark = storyWithDarkTheme(Completions1);
 
 export const Info = testDriverStory(async () => {
     const driver = await TestDriver.new({ text: '' });
@@ -54,3 +57,4 @@ export const Info = testDriverStory(async () => {
 
     return driver;
 });
+export const InfoDark = storyWithDarkTheme(Info);

@@ -1,4 +1,5 @@
 import { userEvent as user, within } from '@storybook/testing-library';
+import { storyWithDarkTheme } from '../../testing/storybook/story-with-dark-theme';
 import { testDriverStory } from '../../testing/storybook/test-driver-story';
 import { TestDriver } from '../../testing/test-driver-storybook';
 import { INFOTIP_EVENTHANDLER } from './infotips.test.data';
@@ -9,11 +10,7 @@ export default {
     component: {}
 };
 
-export const Simple = testDriverStory(async () => {
-    const driver = await TestDriver.new({ text: 'EventHandler e;' });
-    await driver.completeBackgroundWork();
-    return driver;
-});
+export const Simple = testDriverStory(() => TestDriver.new({ text: 'EventHandler e;' }));
 Simple.play = async ({ canvasElement, loaded: { driver } }) => {
     const canvas = within(canvasElement);
 
@@ -32,3 +29,5 @@ Simple.play = async ({ canvasElement, loaded: { driver } }) => {
     await driver.completeBackgroundWork();
     driver.disableAllFurtherInteractionEvents();
 };
+
+export const Dark = storyWithDarkTheme(Simple);

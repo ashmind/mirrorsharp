@@ -11,28 +11,57 @@
     font-family: inherit;
 }
 
-.mirrorsharp .tok-keyword,
-.mirrorsharp .tok-bool,
-.mirrorsharp .tok-null {
+.mirrorsharp-theme-light .tok-keyword,
+.mirrorsharp-theme-light .tok-bool,
+.mirrorsharp-theme-light .tok-null {
     color: #0000ff;
 }
-.mirrorsharp .tok-number {
+.mirrorsharp-theme-light .tok-number {
     color: #000000;
 }
-.mirrorsharp .tok-string {
+.mirrorsharp-theme-light .tok-string {
     color: #a31515;
 }
-.mirrorsharp .tok-comment {
+.mirrorsharp-theme-light .tok-comment {
     color: #008000;
 }
-.mirrorsharp .tok-type,
+.mirrorsharp-theme-light .tok-type,
 /* These are from server only: */
-.mirrorsharp .tok-class,
-.mirrorsharp .tok-struct,
-.mirrorsharp .tok-interface,
-.mirrorsharp .tok-enum,
-.mirrorsharp .tok-delegate {
+.mirrorsharp-theme-light .tok-class,
+.mirrorsharp-theme-light .tok-struct,
+.mirrorsharp-theme-light .tok-interface,
+.mirrorsharp-theme-light .tok-enum,
+.mirrorsharp-theme-light .tok-delegate {
     color: #2b91af;
+}
+
+.mirrorsharp-theme-dark {
+    background-color: #1e1e1e;
+    color: #dcdcdc;
+}
+
+.mirrorsharp-theme-dark .tok-keyword,
+.mirrorsharp-theme-dark .tok-bool,
+.mirrorsharp-theme-dark .tok-null {
+    color: #569cd6;
+}
+.mirrorsharp-theme-dark .tok-number {
+    color: #b5cea8;
+}
+.mirrorsharp-theme-dark .tok-string {
+    color: #d69d85;
+}
+.mirrorsharp-theme-dark .tok-comment {
+    color: #57a64a;
+}
+.mirrorsharp-theme-dark .tok-type,
+/* These are from server only: */
+.mirrorsharp-theme-dark .tok-class,
+.mirrorsharp-theme-dark .tok-struct,
+.mirrorsharp-theme-dark .tok-interface,
+.mirrorsharp-theme-dark .tok-enum,
+.mirrorsharp-theme-dark .tok-delegate {
+    color: #4ec9b0;
 }
 
 .mirrorsharp .cm-lintRange-unnecessary {
@@ -159,15 +188,25 @@
     /* Can be removed after https://github.com/codemirror/dev/issues/1053 */
     cursor: pointer;
     align-self: flex-start;
-    background-color: #ddd;
-    border: 1px solid #aaa;
+    border: 1px solid;
     margin-left: 13px;
-    color: #000;
     padding: 4px 6px;
 }
 
-.mirrorsharp .cm-diagnosticAction:hover {
+.mirrorsharp-theme-light .cm-diagnosticAction {
+    background-color: #ddd;
+    border-color: #aaa;
+    color: inherit;
+}
+
+.mirrorsharp-theme-light .cm-diagnosticAction:hover {
     background-color: #eee;
+}
+
+.mirrorsharp-theme-dark .cm-diagnosticAction {
+    background-color: #575760;
+    border-color: #ccccd0;
+    color: inherit;
 }
 
 .mirrorsharp .cm-diagnosticAction::before {

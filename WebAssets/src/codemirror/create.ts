@@ -1,8 +1,10 @@
 import { history } from '@codemirror/commands';
 import { indentUnit, syntaxHighlighting } from '@codemirror/language';
 import { EditorState, EditorSelection, Extension } from '@codemirror/state';
+import { EditorView } from '@codemirror/view';
 import { classHighlighter } from '@lezer/highlight';
 import type { SlowUpdateOptions } from '../interfaces/slow-update';
+import { Theme, THEME_DARK } from '../interfaces/theme';
 import type { Connection } from '../protocol/connection';
 import type { Language } from '../protocol/languages';
 import { lineSeparator } from '../protocol/line-separator';
@@ -19,7 +21,10 @@ import { signatureHelpFromServer } from './server/signature-help';
 export const createExtensions = <O, U>(
     connection: Connection<O, U>,
     session: Session<O>,
-    options: { initialLanguage: Language } & SlowUpdateOptions<U>
+    options: {
+        initialLanguage: Language;
+        theme: Theme;
+    } & SlowUpdateOptions<U>
 ): ReadonlyArray<Extension> => [
     indentUnit.of('    '),
     EditorState.lineSeparator.of(lineSeparator),
@@ -38,7 +43,9 @@ export const createExtensions = <O, U>(
 
     // has to go last so that more specific keymaps
     // in e.g. autocomplete have more priority
-    keymaps
+    keymaps,
+
+    EditorView.theme({}, { dark: options.theme === THEME_DARK })
 ];
 
 export const createState = (

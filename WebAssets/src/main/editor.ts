@@ -4,6 +4,7 @@ import { createExtensions, createState } from '../codemirror/create';
 import { switchLanguageExtension } from '../codemirror/languages';
 import { addEvents } from '../helpers/add-events';
 import type { SlowUpdateOptions } from '../interfaces/slow-update';
+import { Theme, THEME_LIGHT } from '../interfaces/theme';
 import type { Connection } from '../protocol/connection';
 import { type Language, LANGUAGE_DEFAULT } from '../protocol/languages';
 import type {
@@ -18,6 +19,7 @@ type EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = {
     readonly language?: Language | undefined;
     readonly initialText?: string | undefined;
     readonly initialCursorOffset?: number | undefined;
+    readonly theme?: Theme | undefined;
 
     readonly on?: ({
         readonly textChange?: (getText: () => string) => void;
@@ -129,11 +131,14 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         // };
         // this.#cm.addKeyMap(this.#keyMap);
 
+        const theme = options.theme ?? THEME_LIGHT;
+
         this.#wrapper = document.createElement('div');
-        this.#wrapper.classList.add('mirrorsharp');
+        this.#wrapper.classList.add('mirrorsharp', `mirrorsharp-theme-${theme}`);
         container.appendChild(this.#wrapper);
         this.#cmExtensions = createExtensions(this.#connection, this.#session, {
-            initialLanguage: this.#language
+            initialLanguage: this.#language,
+            theme
         });
         this.#cmView = new EditorView({
             state: createState(this.#cmExtensions, {

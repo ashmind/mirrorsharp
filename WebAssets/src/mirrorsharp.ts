@@ -1,4 +1,5 @@
 import type { EditorView } from '@codemirror/view';
+import type { Theme } from './interfaces/theme';
 import { Editor } from './main/editor';
 import { Connection } from './protocol/connection';
 import type { Language } from './protocol/languages';
@@ -9,6 +10,9 @@ import { Session } from './protocol/session';
 export type MirrorSharpLanguage = Language;
 // ts-unused-exports:disable-next-line
 export type MirrorSharpConnectionState = 'open' | 'error' | 'close';
+
+// ts-unused-exports:disable-next-line
+export type MirrorSharpTheme = Theme;
 
 // ts-unused-exports:disable-next-line
 export interface MirrorSharpDiagnostic {
@@ -30,6 +34,7 @@ export type MirrorSharpOptions<TExtensionServerOptions = void, TSlowUpdateExtens
     readonly serviceUrl: string;
 
     readonly language?: MirrorSharpLanguage | undefined;
+    readonly theme?: MirrorSharpTheme | undefined;
     readonly initialText?: string | undefined;
     readonly initialCursorOffset?: number | undefined;
 

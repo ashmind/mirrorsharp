@@ -1,9 +1,11 @@
+import type { Theme } from '../interfaces/theme';
 import { timers } from './storybook/browser-fake-timers';
 import { MockSocketWithActionLog } from './storybook/mock-socket-with-action-log';
 import { setTimers, TestDriverBase, TestDriverConstructorArguments, TestDriverOptions } from './test-driver-base';
 
 setTimers(timers);
 export class TestDriver<TExtensionServerOptions = never> extends TestDriverBase<TExtensionServerOptions> {
+    static nextTheme?: Theme | null;
     #windowListenersToRemoveWhenDisablingEvents = [] as Array<{
         type: string;
         listener: EventListenerOrEventListenerObject;
@@ -27,6 +29,12 @@ export class TestDriver<TExtensionServerOptions = never> extends TestDriverBase<
     static override async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
         options: TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
     ) {
+        if (this.nextTheme) {
+            if (options.options?.theme)
+                throw new Error('Cannot have both options.theme and nextTheme set');
+            options.options = { ...(options.options ?? {}), theme: this.nextTheme };
+        }
+
         return await super.new(options) as TestDriver;
     }
 

@@ -1,3 +1,4 @@
+import { storyWithDarkTheme } from '../../testing/storybook/story-with-dark-theme';
 import { testDriverStory } from '../../testing/storybook/test-driver-story';
 import { TestDriver } from '../../testing/test-driver-storybook';
 import { SIGNATURES_INDEX_OF, SIGNATURES_SUBSTRING_NONE_SELECTED, SIGNATURES_SUBSTRING_SECOND_PARAMETER } from './signature-help.test.data';
@@ -42,3 +43,5 @@ export const NoneSelected = testDriverStory(async () => {
 
     return driver;
 });
+
+export const Dark = storyWithDarkTheme(Simple);

@@ -3,7 +3,6 @@ module.exports = {
         "../src/**/*.stories.ts"
     ],
     addons: [
-        "@storybook/addon-links",
         "@storybook/addon-viewport",
         "@storybook/addon-measure",
         "@storybook/addon-outline",
