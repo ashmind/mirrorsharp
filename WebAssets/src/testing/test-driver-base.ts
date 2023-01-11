@@ -97,6 +97,10 @@ export class TestDriverBase<TExtensionServerOptions = never> {
         timers.advanceTimersByTime(100);
     }
 
+    protected static newMockSocket(): MockSocket {
+        return new MockSocket();
+    }
+
     static async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
         options: TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
     ) {
@@ -109,7 +113,7 @@ export class TestDriverBase<TExtensionServerOptions = never> {
         const container = document.createElement('div');
         document.body.appendChild(container);
 
-        const socket = new MockSocket();
+        const socket = this.newMockSocket();
         installMockSocket(socket);
 
         const msOptions = {

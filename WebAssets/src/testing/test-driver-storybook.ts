@@ -1,4 +1,5 @@
 import { timers } from './storybook/browser-fake-timers';
+import { MockSocketWithActionLog } from './storybook/mock-socket-with-action-log';
 import { setTimers, TestDriverBase, TestDriverConstructorArguments, TestDriverOptions } from './test-driver-base';
 
 setTimers(timers);
@@ -17,6 +18,10 @@ export class TestDriver<TExtensionServerOptions = never> extends TestDriverBase<
             savedAddEventListener(...args);
             this.#windowListenersToRemoveWhenDisablingEvents.push({ type, listener });
         };
+    }
+
+    protected static override newMockSocket() {
+        return new MockSocketWithActionLog();
     }
 
     static override async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
