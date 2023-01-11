@@ -19,7 +19,7 @@ export class TestDriver<TExtensionServerOptions = never> extends TestDriverBase<
         };
     }
 
-    static async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
+    static override async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
         options: TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
     ) {
         return await super.new(options) as TestDriver;

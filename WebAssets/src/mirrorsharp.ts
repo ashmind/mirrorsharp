@@ -8,7 +8,7 @@ import { Session } from './protocol/session';
 // ts-unused-exports:disable-next-line
 export type MirrorSharpLanguage = Language;
 // ts-unused-exports:disable-next-line
-export type MirrorSharpConnectionState = 'open'|'error'|'close';
+export type MirrorSharpConnectionState = 'open' | 'error' | 'close';
 
 // ts-unused-exports:disable-next-line
 export interface MirrorSharpDiagnostic {
@@ -18,19 +18,20 @@ export interface MirrorSharpDiagnostic {
 }
 
 // ts-unused-exports:disable-next-line
-export interface MirrorSharpSlowUpdateResult<TExtensionData = never> {
+export type MirrorSharpSlowUpdateResult<TExtensionData = void> = void extends TExtensionData ? {
+    readonly diagnostics: ReadonlyArray<MirrorSharpDiagnostic>
+} : {
     readonly diagnostics: ReadonlyArray<MirrorSharpDiagnostic>;
     readonly x: TExtensionData;
-}
+};
 
 // ts-unused-exports:disable-next-line
-export interface MirrorSharpOptions<TExtensionServerOptions = never, TSlowUpdateExtensionData = never> {
+export type MirrorSharpOptions<TExtensionServerOptions = void, TSlowUpdateExtensionData = void> = {
     readonly serviceUrl: string;
 
-    readonly selfDebugEnabled?: boolean;
-    readonly language?: MirrorSharpLanguage;
-    readonly initialText?: string;
-    readonly initialCursorOffset?: number;
+    readonly language?: MirrorSharpLanguage | undefined;
+    readonly initialText?: string | undefined;
+    readonly initialCursorOffset?: number | undefined;
 
     // See EditorOptions<TExtensionData>['on']. This is not DRY, but
     // it's good to be explicit on what we are exporting.
@@ -44,11 +45,11 @@ export interface MirrorSharpOptions<TExtensionServerOptions = never, TSlowUpdate
             (event: 'close', e: CloseEvent): void;
         };
         readonly serverError?: (message: string) => void;
-    };
+    } | undefined;
 
-    readonly noInitialConnection?: boolean;
-    readonly initialServerOptions?: TExtensionServerOptions;
-}
+    readonly noInitialConnection?: boolean | undefined;
+    readonly initialServerOptions?: TExtensionServerOptions | undefined;
+};
 
 // ts-unused-exports:disable-next-line
 export interface MirrorSharpInstance<TExtensionServerOptions> {
@@ -67,14 +68,13 @@ export interface MirrorSharpInstance<TExtensionServerOptions> {
 // ts-unused-exports:disable-next-line
 export
 // eslint-disable-next-line import/no-default-export
-default function mirrorsharp<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
+default function mirrorsharp<TExtensionServerOptions = void, TSlowUpdateExtensionData = void>(
     container: HTMLElement,
     options: MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
 ): MirrorSharpInstance<TExtensionServerOptions> {
-    // const selfDebug = options.selfDebugEnabled ? new SelfDebug() : null;
-    const connection = new Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(options.serviceUrl/*, selfDebug, */, { delayedOpen: options.noInitialConnection });
+    const connection = new Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(options.serviceUrl, { delayedOpen: options.noInitialConnection });
     const session = new Session<TExtensionServerOptions>(connection as Connection<TExtensionServerOptions>);
-    const editor = new Editor(container, connection, session/*, selfDebug*/, options);
+    const editor = new Editor(container, connection, session, options);
 
     let connectCalled = false;
     return Object.freeze({

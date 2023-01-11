@@ -14,12 +14,12 @@ import type {
 } from '../protocol/messages';
 import type { Session } from '../protocol/session';
 
-interface EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> {
-    readonly language?: Language;
-    readonly initialText?: string;
-    readonly initialCursorOffset?: number;
+type EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = {
+    readonly language?: Language | undefined;
+    readonly initialText?: string | undefined;
+    readonly initialCursorOffset?: number | undefined;
 
-    readonly on?: {
+    readonly on?: ({
         readonly textChange?: (getText: () => string) => void;
         readonly connectionChange?: {
             (event: 'open', e: Event): void;
@@ -27,10 +27,10 @@ interface EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> {
             (event: 'close', e: CloseEvent): void;
         };
         readonly serverError?: (message: string) => void;
-    } & SlowUpdateOptions<TSlowUpdateExtensionData>;
+    } & SlowUpdateOptions<TSlowUpdateExtensionData>) | undefined;
 
-    readonly initialServerOptions?: TExtensionServerOptions;
-}
+    readonly initialServerOptions?: TExtensionServerOptions | undefined;
+};
 
 export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly #connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>;

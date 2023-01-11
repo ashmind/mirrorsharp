@@ -44,8 +44,8 @@ export const createExtensions = <O, U>(
 export const createState = (
     extensions: ReadonlyArray<Extension>,
     options: {
-        initialText?: string;
-        initialCursorOffset?: number;
+        initialText?: string | undefined;
+        initialCursorOffset?: number | undefined;
     } = {}
 ) => {
     return EditorState.create({

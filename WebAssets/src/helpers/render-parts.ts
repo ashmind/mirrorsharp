@@ -10,7 +10,7 @@ import type { PartData } from '../protocol/messages';
 
 type Options<TPartData> = {
     splitLinesToSections?: boolean;
-    getExtraClassNames?: (part: TPartData) => ReadonlyArray<string>;
+    getExtraClassNames?: ((part: TPartData) => ReadonlyArray<string>) | undefined;
 };
 
 const createSection = () => {

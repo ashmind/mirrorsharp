@@ -14,7 +14,7 @@ export function applyChangesFromServer(view: EditorView, changesFromServer: Read
             insert: text
         };
         transaction.changes.push(change);
-        if (selection.from >= change.from && selection.from <= change.to)
+        if (selection && selection.from >= change.from && selection.from <= change.to)
             transaction.selection = { anchor: change.from + change.insert.length };
     }
 

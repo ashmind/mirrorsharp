@@ -13,7 +13,7 @@ Range.prototype.getClientRects = () => [{}] as unknown as DOMRectList;
 
 export const timers = setTimers(jest);
 
-export class TestDriver<TExtensionServerOptions = never> extends TestDriverBase {
+export class TestDriver<TExtensionServerOptions = void> extends TestDriverBase {
     public readonly text: TestText;
     public readonly domEvents: TestDomEvents;
 
@@ -25,7 +25,7 @@ export class TestDriver<TExtensionServerOptions = never> extends TestDriverBase 
         this.domEvents = new TestDomEvents(cmView);
     }
 
-    static async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
+    static override async new<TExtensionServerOptions = void, TSlowUpdateExtensionData = void>(
         options: TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
     ) {
         return await super.new(options) as TestDriver<TExtensionServerOptions>;

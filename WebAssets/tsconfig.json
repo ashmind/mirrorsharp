@@ -5,12 +5,19 @@
     ],
     "compilerOptions": {
         "target": "ESNext",
+
         "moduleResolution": "node",
         "module": "ES2022",
-        "noEmit": true,
-        "strict": true,
-        "importsNotUsedAsValues": "error",
+        "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
-        "esModuleInterop": true
+
+        "strict": true,
+        "noImplicitOverride": true,
+        "importsNotUsedAsValues": "error",
+        "noImplicitReturns": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "noUncheckedIndexedAccess": true,
+
+        "noEmit": true
     }
 }

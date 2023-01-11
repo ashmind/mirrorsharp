@@ -47,7 +47,7 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
 
     #removeEvents: () => void;
 
-    constructor(url: string, /* selfDebug: SelfDebug|null, */ { delayedOpen }: { delayedOpen?: boolean } = {}) {
+    constructor(url: string, /* selfDebug: SelfDebug|null, */ { delayedOpen }: { delayedOpen?: boolean | undefined } = {}) {
         this.#url = url;
         // this.#selfDebug = selfDebug;
 
