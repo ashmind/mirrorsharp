@@ -1,6 +1,6 @@
-import jetpack from 'fs-jetpack';
-import fg from 'fast-glob';
 import { transformFileAsync } from '@babel/core';
+import fg from 'fast-glob';
+import jetpack from 'fs-jetpack';
 import { task, exec, build } from 'oldowan';
 import './build/storybook.ts';
 

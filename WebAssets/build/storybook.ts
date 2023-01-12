@@ -1,18 +1,27 @@
+import { createRequire } from 'module';
 import { fileURLToPath } from 'node:url';
 import path from 'path';
 import { promisify } from 'util';
-import kill from 'tree-kill';
+import execa from 'execa';
 import jetpack from 'fs-jetpack';
 import { task } from 'oldowan';
+import kill from 'tree-kill';
 import waitOn from 'wait-on';
-import execa from 'execa';
+
+const require = createRequire(import.meta.url);
+const resolvePlaywrightPath = (relativePath: string) => path.resolve(
+    path.dirname(require.resolve('playwright-core')), relativePath
+);
+const getPlaywrightVersion = async () => ((await jetpack.readAsync(
+    resolvePlaywrightPath('package.json'), 'json'
+)) as { version: string }).version;
 
 export const root = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '..');
 export const sourceRoot = path.resolve(root, 'src');
 
 const UPDATE_SNAPSHOTS_KEY = 'SHARPLAB_TEST_UPDATE_SNAPSHOTS';
 
-const exec2 = (command: string, args: ReadonlyArray<string>) => execa(command, args, {
+const exec2 = (command: string, args?: ReadonlyArray<string>) => execa(command, args, {
     preferLocal: true,
     stdout: process.stdout,
     stderr: process.stderr
@@ -38,6 +47,7 @@ task('storybook:test:in-container', async () => {
     finally {
         if (!server.killed) {
             console.log('http-server: terminating');
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             await promisify(kill)(server.pid!);
         }
     }
@@ -46,7 +56,9 @@ task('storybook:test:in-container', async () => {
 });
 
 const test = task('storybook:test', async () => {
-    console.log('Starting Docker...');
+    const playwrightVersion = await getPlaywrightVersion();
+    const containerName = `playwright:v${playwrightVersion}-focal`;
+    console.log(`Starting ${containerName} in Docker...`);
     await exec2('docker', [
         'run',
         '--rm',
@@ -55,7 +67,7 @@ const test = task('storybook:test', async () => {
         '--workdir=/work',
         ...(process.env[UPDATE_SNAPSHOTS_KEY] === 'true' ? ['--env', `${UPDATE_SNAPSHOTS_KEY}=true`] : []),
         // Note: Playwright version must match dependency of @storybook/test-runner
-        'mcr.microsoft.com/playwright:v1.29.2-focal',
+        `mcr.microsoft.com/${containerName}`,
         './node_modules/.bin/ts-node-esm', './build.ts', 'storybook:test:in-container'
     ]);
 }, {
