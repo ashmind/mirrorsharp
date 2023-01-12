@@ -1,6 +1,5 @@
 import { Action, Diagnostic, setDiagnostics, lintGutter } from '@codemirror/lint';
 import { ViewPlugin } from '@codemirror/view';
-import { addEvents } from '../../helpers/add-events';
 import { applyChangesFromServer } from '../../helpers/apply-changes-from-server';
 import type { SlowUpdateOptions } from '../../interfaces/slow-update';
 import type { Connection } from '../../protocol/connection';
@@ -36,7 +35,7 @@ const receiveSlowUpdateResultsFromServer = <TExtensionData>(
         actions: actions?.map(mapAction)
     });
 
-    const removeConnectionEvents = addEvents(connection, {
+    const removeConnectionListeners = connection.addEventListeners({
         message(message) {
             if (message.type !== 'slowUpdate')
                 return;
@@ -55,14 +54,14 @@ const receiveSlowUpdateResultsFromServer = <TExtensionData>(
     });
 
     return {
-        destroy: () => removeConnectionEvents()
+        destroy: () => removeConnectionListeners()
     };
 });
 
 const receiveFixChangesFromServer = <TExtensionData>(
     connection: Connection<unknown, TExtensionData>
 ) => ViewPlugin.define(view => {
-    const removeConnectionEvents = addEvents(connection, {
+    const removeListeners = connection.addEventListeners({
         message(message) {
             if (message.type !== 'changes' || message.reason !== 'fix')
                 return;
@@ -72,7 +71,7 @@ const receiveFixChangesFromServer = <TExtensionData>(
     });
 
     return {
-        destroy: () => removeConnectionEvents()
+        destroy: () => removeListeners()
     };
 });
 

@@ -1,5 +1,4 @@
 import { ViewPlugin, showTooltip } from '@codemirror/view';
-import { addEvents } from '../../helpers/add-events';
 import { defineEffectField } from '../../helpers/define-effect-field';
 import { renderPartsTo } from '../../helpers/render-parts';
 import type { Connection } from '../../protocol/connection';
@@ -8,7 +7,7 @@ import type { SignatureData, SignatureInfoData, SignatureInfoParameterData, Sign
 const [currentMessage, dispatchCurrentMessageChanged] = defineEffectField<SignaturesMessage | SignaturesEmptyMessage | undefined>();
 
 const receiveSignatureHelpFromServer = (connection: Connection) => ViewPlugin.define(view => {
-    const removeEvents = addEvents(connection, {
+    const removeListeners = connection.addEventListeners({
         message: message => {
             if (message.type !== 'signatures')
                 return;
@@ -18,7 +17,7 @@ const receiveSignatureHelpFromServer = (connection: Connection) => ViewPlugin.de
     });
 
     return {
-        destroy: removeEvents
+        destroy: removeListeners
     };
 });
 

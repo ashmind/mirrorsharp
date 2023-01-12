@@ -1,7 +1,6 @@
 import { Extension, StateEffect } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { createExtensions, createState, ExtensionSwitcher } from '../codemirror/create';
-import { addEvents } from '../helpers/add-events';
 import type { SlowUpdateOptions } from '../interfaces/slow-update';
 import { Theme, THEME_LIGHT } from '../interfaces/theme';
 import type { Connection } from '../protocol/connection';
@@ -44,7 +43,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly #extensionSwitcher: ExtensionSwitcher;
 
     // readonly #removeCodeMirrorEvents: () => void;
-    readonly #removeConnectionEvents: () => void;
+    readonly #removeConnectionListeners: () => void;
 
     #language: Language;
     #serverOptions: ServerOptions & TExtensionServerOptions;
@@ -150,7 +149,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
         this.#wrapper.appendChild(this.#cmView.dom);
 
-        this.#removeConnectionEvents = addEvents(connection, {
+        this.#removeConnectionListeners = connection.addEventListeners({
             open: this.#onConnectionOpen,
             message: this.#onConnectionMessage,
             error: this.#onConnectionCloseOrError,
@@ -317,7 +316,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
     destroy(destroyOptions: { readonly keepCodeMirror?: boolean } = {}) {
         // this.#cm.save();
-        this.#removeConnectionEvents();
+        this.#removeConnectionListeners();
         if (!destroyOptions.keepCodeMirror) {
             // this.#cm.toTextArea();
             return;

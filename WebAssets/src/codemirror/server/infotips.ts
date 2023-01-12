@@ -1,5 +1,4 @@
 import { EditorView, ViewPlugin, hoverTooltip, Tooltip } from '@codemirror/view';
-import { addEvents } from '../../helpers/add-events';
 import { defineEffectField } from '../../helpers/define-effect-field';
 import { renderPartsTo } from '../../helpers/render-parts';
 import type { Connection } from '../../protocol/connection';
@@ -39,7 +38,7 @@ export const infotipsFromServer = <O, U>(connection: Connection<O, U>) => {
     };
 
     const receiveInfotipFromServer = ViewPlugin.define(view => {
-        const removeEvents = addEvents(connection, {
+        const removeListeners = connection.addEventListeners({
             message: message => {
                 if (message.type !== 'infotip')
                     return;
@@ -61,7 +60,7 @@ export const infotipsFromServer = <O, U>(connection: Connection<O, U>) => {
         });
 
         return {
-            destroy: removeEvents
+            destroy: removeListeners
         };
     });
 

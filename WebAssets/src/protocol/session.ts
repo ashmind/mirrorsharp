@@ -1,4 +1,3 @@
-import { addEvents } from '../helpers/add-events';
 import type { Connection, ReplaceTextCommand } from './connection';
 import { LANGUAGE_DEFAULT } from './languages';
 import type { Message, ServerOptions } from './messages';
@@ -24,7 +23,7 @@ export class Session<TExtensionServerOptions = unknown> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(connection: Connection<TExtensionServerOptions>) {
         this.#connection = connection;
-        this.#removeConnectionEvents = addEvents(connection, {
+        this.#removeConnectionEvents = connection.addEventListeners({
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             open: () => this.#resendAllOnOpen(),
             message: e => this.#receiveMessage(e)

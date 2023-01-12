@@ -1,4 +1,3 @@
-import { addEvents } from '../helpers/add-events';
 import { ensureDefined } from '../helpers/ensure-defined';
 import type { Message, ServerOptions } from './messages';
 
@@ -18,22 +17,25 @@ export type ReplaceTextCommand = {
     reason?: string | null
 };
 
-export type ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData> = {
-    open: (e: Event) => void;
-    message: (data: Message<TExtensionServerOptions, TSlowUpdateExtensionData>, e: MessageEvent) => void;
-    error: (e: ErrorEvent) => void;
-    close: (e: CloseEvent) => void;
+type HandlerMap<O, U> = {
+    open:    (e: Event) => void,
+    message: (data: Message<O, U>, e: MessageEvent) => void,
+    error:   (e: ErrorEvent) => void,
+    close:   (e: CloseEvent) => void
 };
 
-export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionData = unknown> {
+export class Connection<TExtensionServerOptions = void, TSlowUpdateExtensionData = void> {
     readonly #url: string;
 
     readonly #handlers = {
-        open:    [] as Array<ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>['open']>,
-        message: [] as Array<ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>['message']>,
-        error:   [] as Array<ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>['error']>,
-        close:   [] as Array<ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>['close']>
-    } as const;
+        open:    [],
+        message: [],
+        error:   [],
+        close:   []
+    } as {
+        [K in keyof HandlerMap<TExtensionServerOptions, TSlowUpdateExtensionData>]:
+            Array<HandlerMap<TExtensionServerOptions, TSlowUpdateExtensionData>[K]>
+    };
 
     #socket: WebSocket | undefined;
     #openPromise!: Promise<void>;
@@ -44,7 +46,7 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
     #reopenPeriodResetTimer: ReturnType<typeof setTimeout> | undefined | null;
     #reopening = false;
 
-    #removeEvents: () => void;
+    #removeInternalListeners: () => void;
 
     constructor(url: string, { delayedOpen }: { delayedOpen?: boolean | undefined } = {}) {
         this.#url = url;
@@ -58,10 +60,36 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
             });
         }
 
-        this.#removeEvents = addEvents(this, {
+        this.#removeInternalListeners = this.addEventListeners({
             error: this.#tryToReopen,
             close: this.#tryToReopen
         });
+    }
+
+    addEventListeners(handlers: Partial<HandlerMap<TExtensionServerOptions, TSlowUpdateExtensionData>>) {
+        const removeEach = [] as Array<() => void>;
+        for (const key in handlers) {
+            const list = this.#handlers[key as keyof typeof handlers];
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const handler = handlers[key as keyof typeof handlers]!;
+
+            list.push(
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                handler as any
+            );
+            removeEach.push(() => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
+                const index = list.indexOf(handler as any);
+                if (index >= 0)
+                    list.splice(index, 1);
+            });
+        }
+
+        return () => {
+            for (const remove of removeEach) {
+                remove();
+            }
+        };
     }
 
     open = () => {
@@ -89,16 +117,12 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
                             (entry as { time: Date }).time = new Date(entry.time as unknown as string);
                         }
                     }
-                    // if (this.#selfDebug)
-                    //     this.#selfDebug.log('before', JSON.stringify(data));
                     (handlerArguments as [Message<unknown, unknown>, MessageEvent]).unshift(data);
                 }
                 for (const handler of handlersByKey) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
                     (handler as any)(...handlerArguments);
                 }
-                // if (this.#selfDebug && key === 'message')
-                //     this.#selfDebug.log('after', JSON.stringify(handlerArguments[0]));
             });
         }
     };
@@ -134,25 +158,6 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.#socket!.send(command);
     };
-
-    on<TKey extends keyof ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>>(
-        key: TKey,
-        handler: ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>[TKey]
-    ) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
-        this.#handlers[key].push(handler as any);
-    }
-
-    off<TKey extends keyof ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>>(
-        key: TKey,
-        handler: ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>[TKey]
-    ) {
-        const list = this.#handlers[key];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
-        const index = list.indexOf(handler as any);
-        if (index >= 0)
-            list.splice(index, 1);
-    }
 
     isOpen() {
         return this.#socket?.readyState === WebSocket.OPEN;
@@ -210,7 +215,7 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
 
     close() {
         this.#mustBeClosed = true;
-        this.#removeEvents();
+        this.#removeInternalListeners();
         this.#socket?.close();
     }
 }

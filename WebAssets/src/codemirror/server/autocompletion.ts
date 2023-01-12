@@ -1,7 +1,6 @@
 import { startCompletion, acceptCompletion, closeCompletion, completionStatus, autocompletion, CompletionSource, Completion } from '@codemirror/autocomplete';
 import { Prec } from '@codemirror/state';
 import { ViewPlugin, EditorView, keymap } from '@codemirror/view';
-import { addEvents } from '../../helpers/add-events';
 import { applyChangesFromServer } from '../../helpers/apply-changes-from-server';
 import { renderParts } from '../../helpers/render-parts';
 import type { Connection } from '../../protocol/connection';
@@ -65,7 +64,7 @@ export const autocompletionFromServer = <O, U>(connection: Connection<O, U>) => 
     }) satisfies CompletionSource;
 
     const receiveCompletionMessagesFromServer = ViewPlugin.define(view => {
-        const removeEvents = addEvents(connection, {
+        const removeListeners = connection.addEventListeners({
             message: message => {
                 if (message.type === 'completions') {
                     currentCompletionsMessage = message;
@@ -85,7 +84,7 @@ export const autocompletionFromServer = <O, U>(connection: Connection<O, U>) => 
         });
 
         return {
-            destroy: removeEvents
+            destroy: removeListeners
         };
     });
 
