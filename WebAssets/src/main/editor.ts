@@ -1,6 +1,7 @@
 import { Extension, StateEffect } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { createExtensions, createState, ExtensionSwitcher } from '../codemirror/create';
+import { validateOptionKeys } from '../helpers/validate-option-keys';
 import type { SlowUpdateOptions } from '../interfaces/slow-update';
 import { Theme, THEME_LIGHT } from '../interfaces/theme';
 import type { Connection } from '../protocol/connection';
@@ -30,6 +31,9 @@ type EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = {
     } & SlowUpdateOptions<TSlowUpdateExtensionData>) | undefined;
 
     readonly serverOptions?: TExtensionServerOptions | undefined;
+    readonly codeMirror?: {
+        extensions?: ReadonlyArray<Extension>;
+    }
 };
 
 export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
@@ -54,11 +58,32 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         session: Session<TExtensionServerOptions>,
         options: EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
     ) {
+        validateOptionKeys(options, [
+            'language',
+            'text',
+            'cursorOffset',
+            'theme',
+            'serverOptions',
+            'on',
+            'codeMirror'
+        ]);
+        validateOptionKeys(options.on, [
+            'textChange',
+            'connectionChange',
+            'serverError',
+            'slowUpdateWait',
+            'slowUpdateResult'
+        ], 'on');
+        validateOptionKeys(options.codeMirror, ['extensions'], 'codeMirror');
+
         this.#connection = connection;
         this.#session = session;
 
+        const language = options.language ?? LANGUAGE_DEFAULT;
+        const theme = options.theme ?? THEME_LIGHT;
         options = {
-            language: LANGUAGE_DEFAULT,
+            language,
+            theme,
             ...options,
             on: {
                 slowUpdateWait:   () => ({}),
@@ -130,15 +155,14 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         // };
         // this.#cm.addKeyMap(this.#keyMap);
 
-        const theme = options.theme ?? THEME_LIGHT;
-
         this.#wrapper = document.createElement('div');
         this.#wrapper.classList.add('mirrorsharp');
         this.#setThemeClass(theme);
         container.appendChild(this.#wrapper);
         [this.#cmExtensions, this.#extensionSwitcher] = createExtensions(this.#connection, this.#session, {
-            initialLanguage: this.#language,
-            theme
+            language,
+            theme,
+            extraExtensions: options.codeMirror?.extensions
         });
         this.#cmView = new EditorView({
             state: createState(this.#cmExtensions, {

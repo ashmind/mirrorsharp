@@ -1,4 +1,5 @@
 import { language } from '@codemirror/language';
+import { Facet } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { vbLanguage } from './codemirror/languages/vb';
 import { THEME_DARK, THEME_LIGHT } from './interfaces/theme';
@@ -36,4 +37,17 @@ test('setTheme updates theme', async () => {
         .toBe(true);
     expect(driver.mirrorsharp.getRootElement().classList)
         .toContain('mirrorsharp-theme-dark');
+});
+
+test('configuration extensions are added to CodeMirror', async () => {
+    const facet = Facet.define<string>();
+
+    const driver = await TestDriver.new({
+        codeMirror: {
+            extensions: [ facet.of('test') ]
+        }
+    });
+
+    expect(driver.getCodeMirrorView().state.facet(facet))
+        .toEqual(['test']);
 });

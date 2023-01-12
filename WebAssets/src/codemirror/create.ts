@@ -23,11 +23,12 @@ export const createExtensions = <O, U>(
     connection: Connection<O, U>,
     session: Session<O>,
     options: {
-        initialLanguage: Language;
+        language: Language;
         theme: Theme;
+        extraExtensions?: ReadonlyArray<Extension>;
     } & SlowUpdateOptions<U>
 ) => {
-    const language = switchableExtension(options.initialLanguage, l => languageExtensions[l]);
+    const language = switchableExtension(options.language, l => languageExtensions[l]);
     const theme = switchableExtension(options.theme, t => EditorView.theme({}, { dark: t === THEME_DARK }));
     const initialExtensions = [
         indentUnit.of('    '),
@@ -50,7 +51,7 @@ export const createExtensions = <O, U>(
         keymaps,
 
         theme.extension
-    ];
+    ].concat(options.extraExtensions ?? []);
 
     return [
         initialExtensions,

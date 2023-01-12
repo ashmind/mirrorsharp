@@ -1,4 +1,7 @@
+import type { Extension } from '@codemirror/state';
 import type { EditorView } from '@codemirror/view';
+import { omit } from './helpers/omit';
+import { validateOptionKeys } from './helpers/validate-option-keys';
 import type { Theme } from './interfaces/theme';
 import { Editor } from './main/editor';
 import { Connection } from './protocol/connection';
@@ -54,6 +57,10 @@ export type MirrorSharpOptions<TExtensionServerOptions = void, TSlowUpdateExtens
 
     readonly disconnected?: boolean | undefined;
     readonly serverOptions?: TExtensionServerOptions | undefined;
+
+    readonly codeMirror?: {
+        extensions?: ReadonlyArray<Extension>;
+    }
 };
 
 // ts-unused-exports:disable-next-line
@@ -78,9 +85,29 @@ default function mirrorsharp<TExtensionServerOptions = void, TSlowUpdateExtensio
     container: HTMLElement,
     options: MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
 ): MirrorSharpInstance<TExtensionServerOptions> {
+    validateOptionKeys(options, [
+        'serviceUrl',
+        'language',
+        'text',
+        'cursorOffset',
+        'theme',
+        'serverOptions',
+        'on',
+        'codeMirror',
+        'disconnected'
+    ]);
+    validateOptionKeys(options.on, [
+        'textChange',
+        'connectionChange',
+        'serverError',
+        'slowUpdateWait',
+        'slowUpdateResult'
+    ], 'on');
+    validateOptionKeys(options.codeMirror, ['extensions'], 'codeMirror');
+
     const connection = new Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(options.serviceUrl, { delayedOpen: options.disconnected });
     const session = new Session<TExtensionServerOptions>(connection as Connection<TExtensionServerOptions>);
-    const editor = new Editor(container, connection, session, options);
+    const editor = new Editor(container, connection, session, omit(options, ['serviceUrl']));
 
     let connectCalled = false;
     return Object.freeze({
