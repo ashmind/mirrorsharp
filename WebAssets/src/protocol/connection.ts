@@ -27,7 +27,6 @@ export type ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData
 
 export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionData = unknown> {
     readonly #url: string;
-    // readonly #selfDebug: SelfDebug|null;
 
     readonly #handlers = {
         open:    [] as Array<ConnectionEventMap<TExtensionServerOptions, TSlowUpdateExtensionData>['open']>,
@@ -47,9 +46,8 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
 
     #removeEvents: () => void;
 
-    constructor(url: string, /* selfDebug: SelfDebug|null, */ { delayedOpen }: { delayedOpen?: boolean | undefined } = {}) {
+    constructor(url: string, { delayedOpen }: { delayedOpen?: boolean | undefined } = {}) {
         this.#url = url;
-        // this.#selfDebug = selfDebug;
 
         if (!delayedOpen) {
             this.open();
@@ -133,8 +131,6 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
             return;
         }
 
-        // if (this.#selfDebug)
-        //     this.#selfDebug.log('send', command);
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.#socket!.send(command);
     };

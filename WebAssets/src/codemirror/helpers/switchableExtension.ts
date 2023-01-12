@@ -17,5 +17,3 @@ export const switchableExtension = <T>(initialState: T, getExtension: (state: T)
         }
     } as const;
 };
-
-export type SwitchExtension<T> = ReturnType<typeof switchableExtension<T>>['switch'];
