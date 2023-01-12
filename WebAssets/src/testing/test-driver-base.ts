@@ -4,14 +4,9 @@ import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../mirrors
 import { installMockSocket, MockSocket, MockSocketController } from './shared/mock-socket';
 import { TestReceiver } from './shared/test-receiver';
 
-export type TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = (object | { text: string; cursor?: number } | { textWithCursor: string }) & {
+export type TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = (object | { text: string; cursorOffset?: number } | { textWithCursor: string }) & {
     keepSocketClosed?: boolean;
-    options?: Partial<MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>> & {
-        initialText?: never;
-        initialCursorOffset?: never;
-        configureCodeMirror?: never;
-    };
-};
+} & Omit<Partial<MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>>, 'text' | 'cursorOffset'>;
 
 export type TestDriverTimers = {
     runOnlyPendingTimers(): void;
@@ -53,14 +48,14 @@ export class TestDriverBase<TExtensionServerOptions = never> {
     }
 
     setTextWithCursor(value: string) {
-        const { text, cursor } = parseTextWithCursor(value);
+        const { text, cursorOffset } = parseTextWithCursor(value);
         this.dispatchCodeMirrorTransaction({
             changes: [{
                 from: 0,
                 to: this.#cmView.state.doc.length,
                 insert: text
             }],
-            selection: { anchor: cursor }
+            selection: { anchor: cursorOffset }
         });
     }
 
@@ -108,7 +103,7 @@ export class TestDriverBase<TExtensionServerOptions = never> {
         if (!timers)
             throw new Error('setTimers must be called before TestDriver instances can be created.');
 
-        const initial = getInitialState(options);
+        options = normalizeOptions(options);
 
         const container = document.createElement('div');
         document.body.appendChild(container);
@@ -116,12 +111,8 @@ export class TestDriverBase<TExtensionServerOptions = never> {
         const socket = this.newMockSocket();
         installMockSocket(socket);
 
-        const msOptions = {
-            ...(options.options ?? {}),
-            initialText: initial.text ?? '',
-            initialCursorOffset: initial.cursor
-        } as MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>;
-        const ms = mirrorsharp(container, msOptions);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const ms = mirrorsharp(container, { ...options, serviceUrl: null! });
 
         const driver = new this(socket.mock, ms);
 
@@ -137,19 +128,19 @@ export class TestDriverBase<TExtensionServerOptions = never> {
     }
 }
 
-function getInitialState(options: object | { text: string; cursor?: number } | { textWithCursor: string }) {
-    let { text, cursor } = options as { text?: string; cursor?: number };
-    if ('textWithCursor' in options)
-        ({ text, cursor } = parseTextWithCursor(options.textWithCursor));
-    return { text, cursor };
-}
+const normalizeOptions = <O, U>(options: TestDriverOptions<O, U>) => {
+    if ('textWithCursor' in options) {
+        const { text, cursorOffset } = parseTextWithCursor(options.textWithCursor);
+        return { ...options, text, cursorOffset };
+    }
 
-function parseTextWithCursor(value: string) {
-    return {
-        text: value.replace('|', ''),
-        cursor: value.indexOf('|')
-    };
-}
+    return options;
+};
+
+const parseTextWithCursor = (value: string) => ({
+    text: value.replace('|', ''),
+    cursorOffset: value.indexOf('|')
+});
 
 export type TestDriverConstructorArguments<TExtensionServerOptions> = [
     MockSocketController,

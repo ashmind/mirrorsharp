@@ -1,7 +1,6 @@
 import { Extension, StateEffect } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
-import { createExtensions, createState } from '../codemirror/create';
-import { switchLanguageExtension } from '../codemirror/languages';
+import { createExtensions, createState, ExtensionSwitcher } from '../codemirror/create';
 import { addEvents } from '../helpers/add-events';
 import type { SlowUpdateOptions } from '../interfaces/slow-update';
 import { Theme, THEME_LIGHT } from '../interfaces/theme';
@@ -17,8 +16,8 @@ import type { Session } from '../protocol/session';
 
 type EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = {
     readonly language?: Language | undefined;
-    readonly initialText?: string | undefined;
-    readonly initialCursorOffset?: number | undefined;
+    readonly text?: string | undefined;
+    readonly cursorOffset?: number | undefined;
     readonly theme?: Theme | undefined;
 
     readonly on?: ({
@@ -31,7 +30,7 @@ type EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = {
         readonly serverError?: (message: string) => void;
     } & SlowUpdateOptions<TSlowUpdateExtensionData>) | undefined;
 
-    readonly initialServerOptions?: TExtensionServerOptions | undefined;
+    readonly serverOptions?: TExtensionServerOptions | undefined;
 };
 
 export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
@@ -42,6 +41,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly #wrapper: HTMLElement;
     readonly #cmView: EditorView;
     #cmExtensions: ReadonlyArray<Extension>;
+    readonly #extensionSwitcher: ExtensionSwitcher;
 
     // readonly #removeCodeMirrorEvents: () => void;
     readonly #removeConnectionEvents: () => void;
@@ -87,7 +87,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.#language = options.language!;
         this.#serverOptions = {
-            ...(options.initialServerOptions ?? {}),
+            ...(options.serverOptions ?? {}),
             language: this.#language
         } as ServerOptions & TExtensionServerOptions;
 
@@ -134,16 +134,17 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         const theme = options.theme ?? THEME_LIGHT;
 
         this.#wrapper = document.createElement('div');
-        this.#wrapper.classList.add('mirrorsharp', `mirrorsharp-theme-${theme}`);
+        this.#wrapper.classList.add('mirrorsharp');
+        this.#setThemeClass(theme);
         container.appendChild(this.#wrapper);
-        this.#cmExtensions = createExtensions(this.#connection, this.#session, {
+        [this.#cmExtensions, this.#extensionSwitcher] = createExtensions(this.#connection, this.#session, {
             initialLanguage: this.#language,
             theme
         });
         this.#cmView = new EditorView({
             state: createState(this.#cmExtensions, {
-                initialText: options.initialText,
-                initialCursorOffset: options.initialCursorOffset
+                text: options.text,
+                cursorOffset: options.cursorOffset
             })
         });
 
@@ -291,7 +292,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         this.#session.setOptions(
             ({ language: value } satisfies Partial<ServerOptions>) as Partial<ServerOptions> & Partial<TExtensionServerOptions>
         );
-        this.#cmExtensions = switchLanguageExtension(this.#cmExtensions, value);
+        this.#cmExtensions = this.#extensionSwitcher.switchLanguageExtension(this.#cmExtensions, value);
         this.#cmView.dispatch({
             effects: StateEffect.reconfigure.of(this.#cmExtensions)
         });
@@ -299,6 +300,19 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
     setServerOptions(value: TExtensionServerOptions) {
         this.#session.setOptions(value as Partial<TExtensionServerOptions>);
+    }
+
+    #setThemeClass(theme: Theme) {
+        this.#wrapper.classList.remove('mirrorsharp-theme-light', 'mirrorsharp-theme-dark');
+        this.#wrapper.classList.add(`mirrorsharp-theme-${theme}`);
+    }
+
+    setTheme(value: Theme) {
+        this.#cmExtensions = this.#extensionSwitcher.switchThemeExtension(this.#cmExtensions, value);
+        this.#cmView.dispatch({
+            effects: StateEffect.reconfigure.of(this.#cmExtensions)
+        });
+        this.#setThemeClass(value);
     }
 
     destroy(destroyOptions: { readonly keepCodeMirror?: boolean } = {}) {

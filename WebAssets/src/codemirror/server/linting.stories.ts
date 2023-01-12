@@ -11,7 +11,7 @@ export default {
 
 const GutterTooltipTemplate = (theme: Theme = THEME_LIGHT) => {
     const Story = testDriverStory(async () => {
-        const driver = await TestDriver.new({ text: 'class X : EventArgs {}', options: { theme } });
+        const driver = await TestDriver.new({ text: 'class X : EventArgs {}', theme });
         driver.receive.slowUpdate([
             {
                 id: 'CS0246',

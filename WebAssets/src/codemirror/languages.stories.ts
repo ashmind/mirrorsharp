@@ -11,9 +11,7 @@ export default {
 };
 
 const highlightingStory = (language: Language, text: string) => testDriverStory(async () => {
-    const driver = await TestDriver.new({
-        options: { language }, text
-    });
+    const driver = await TestDriver.new({ language, text });
     await driver.completeBackgroundWork();
 
     return driver;

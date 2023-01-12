@@ -35,8 +35,8 @@ export type MirrorSharpOptions<TExtensionServerOptions = void, TSlowUpdateExtens
 
     readonly language?: MirrorSharpLanguage | undefined;
     readonly theme?: MirrorSharpTheme | undefined;
-    readonly initialText?: string | undefined;
-    readonly initialCursorOffset?: number | undefined;
+    readonly text?: string | undefined;
+    readonly cursorOffset?: number | undefined;
 
     // See EditorOptions<TExtensionData>['on']. This is not DRY, but
     // it's good to be explicit on what we are exporting.
@@ -52,8 +52,8 @@ export type MirrorSharpOptions<TExtensionServerOptions = void, TSlowUpdateExtens
         readonly serverError?: (message: string) => void;
     } | undefined;
 
-    readonly noInitialConnection?: boolean | undefined;
-    readonly initialServerOptions?: TExtensionServerOptions | undefined;
+    readonly disconnected?: boolean | undefined;
+    readonly serverOptions?: TExtensionServerOptions | undefined;
 };
 
 // ts-unused-exports:disable-next-line
@@ -66,6 +66,7 @@ export interface MirrorSharpInstance<TExtensionServerOptions> {
     getLanguage(): MirrorSharpLanguage;
     setLanguage(value: MirrorSharpLanguage): void;
     setServerOptions(value: TExtensionServerOptions): void;
+    setTheme(value: MirrorSharpTheme): void;
     connect(): void;
     destroy(destroyOptions: { keepCodeMirror?: boolean }): void;
 }
@@ -77,7 +78,7 @@ default function mirrorsharp<TExtensionServerOptions = void, TSlowUpdateExtensio
     container: HTMLElement,
     options: MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
 ): MirrorSharpInstance<TExtensionServerOptions> {
-    const connection = new Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(options.serviceUrl, { delayedOpen: options.noInitialConnection });
+    const connection = new Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(options.serviceUrl, { delayedOpen: options.disconnected });
     const session = new Session<TExtensionServerOptions>(connection as Connection<TExtensionServerOptions>);
     const editor = new Editor(container, connection, session, options);
 
@@ -86,15 +87,16 @@ default function mirrorsharp<TExtensionServerOptions = void, TSlowUpdateExtensio
         getCodeMirrorView: () => editor.getCodeMirrorView(),
         getRootElement: () => editor.getRootElement(),
         getText: () => editor.getText(),
-        getCursorOffset: () => editor.getCursorOffset(),
         setText: (text: string) => editor.setText(text),
+        getCursorOffset: () => editor.getCursorOffset(),
         getLanguage: () => editor.getLanguage(),
         setLanguage: (value: Language) => editor.setLanguage(value),
         setServerOptions: (value: TExtensionServerOptions) => editor.setServerOptions(value),
+        setTheme: (theme: MirrorSharpTheme) => editor.setTheme(theme),
 
         connect: () => {
-            if (!options.noInitialConnection)
-                throw new Error('Connect can only be called if options.noInitialConnection was set.');
+            if (!options.disconnected)
+                throw new Error('Connect can only be called if options.disconnected was set.');
             if (connectCalled)
                 throw new Error('Connect can only be called once per mirrorsharp instance (on start).');
             connection.open();

@@ -2,7 +2,7 @@ import { TestDriver } from '../testing/test-driver-jest';
 
 test('does not send default options on connection open', async () => {
     const driver = await TestDriver.new({
-        options: { language: 'C#' },
+        language: 'C#',
         keepSocketClosed: true
     });
     driver.socket.open();
@@ -13,7 +13,7 @@ test('does not send default options on connection open', async () => {
 
 test('sends non-default language on connection open', async () => {
     const driver = await TestDriver.new({
-        options: { language: 'Visual Basic' },
+        language: 'Visual Basic',
         keepSocketClosed: true
     });
     driver.socket.open();
@@ -24,7 +24,7 @@ test('sends non-default language on connection open', async () => {
 
 test('re-sends non-default language on next connection open', async () => {
     const driver = await TestDriver.new({
-        options: { language: 'Visual Basic' },
+        language: 'Visual Basic',
         keepSocketClosed: true
     });
 
@@ -41,7 +41,7 @@ test('always sends options before slow update', async () => {
     const driver = await TestDriver.new({
         keepSocketClosed: true,
         text: 'test',
-        options: { language: 'Visual Basic' }
+        language: 'Visual Basic'
     });
 
     await driver.advanceTimeToSlowUpdateAndCompleteWork();
@@ -57,9 +57,7 @@ test('always sends options before slow update', async () => {
 
 test('sends extended options on connection open', async () => {
     const driver = await TestDriver.new({
-        options: {
-            initialServerOptions: { 'x-test': 'value' }
-        },
+        serverOptions: { 'x-test': 'value' },
         keepSocketClosed: true
     });
     driver.socket.open();
@@ -86,9 +84,7 @@ test('options echo without a language does not unset default language', async ()
 
 test('options echo without extended option does not unset extended option for next open', async () => {
     const driver = await TestDriver.new({
-        options: {
-            initialServerOptions: { 'x-test': 'value' }
-        }
+        serverOptions: { 'x-test': 'value' }
     });
     driver.receive.optionsEcho({});
     driver.socket.open();

@@ -30,9 +30,9 @@ export class TestDriver<TExtensionServerOptions = never> extends TestDriverBase<
         options: TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
     ) {
         if (this.nextTheme) {
-            if (options.options?.theme)
+            if (options.theme)
                 throw new Error('Cannot have both options.theme and nextTheme set');
-            options.options = { ...(options.options ?? {}), theme: this.nextTheme };
+            options = { ...options, theme: this.nextTheme };
         }
 
         return await super.new(options) as TestDriver;

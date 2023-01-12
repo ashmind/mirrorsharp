@@ -9,6 +9,7 @@ import type { Connection } from '../protocol/connection';
 import type { Language } from '../protocol/languages';
 import { lineSeparator } from '../protocol/line-separator';
 import type { Session } from '../protocol/session';
+import { switchableExtension } from './helpers/switchableExtension';
 import { keymaps } from './keymaps';
 import { languageExtensions } from './languages';
 import { autocompletionFromServer } from './server/autocompletion';
@@ -25,39 +26,53 @@ export const createExtensions = <O, U>(
         initialLanguage: Language;
         theme: Theme;
     } & SlowUpdateOptions<U>
-): ReadonlyArray<Extension> => [
-    indentUnit.of('    '),
-    EditorState.lineSeparator.of(lineSeparator),
+) => {
+    const language = switchableExtension(options.initialLanguage, l => languageExtensions[l]);
+    const theme = switchableExtension(options.theme, t => EditorView.theme({}, { dark: t === THEME_DARK }));
+    const initialExtensions = [
+        indentUnit.of('    '),
+        EditorState.lineSeparator.of(lineSeparator),
 
-    history(),
+        history(),
 
-    languageExtensions[options.initialLanguage],
-    syntaxHighlighting(classHighlighter),
+        language.extension,
+        syntaxHighlighting(classHighlighter),
 
-    connectionState(connection),
-    sendChangesToServer(session as Session),
-    lintingFromServer(connection as Connection<unknown, U>, options),
-    infotipsFromServer(connection),
-    signatureHelpFromServer(connection as Connection),
-    autocompletionFromServer(connection),
+        connectionState(connection),
+        sendChangesToServer(session as Session),
+        lintingFromServer(connection as Connection<unknown, U>, options),
+        infotipsFromServer(connection),
+        signatureHelpFromServer(connection as Connection),
+        autocompletionFromServer(connection),
 
-    // has to go last so that more specific keymaps
-    // in e.g. autocomplete have more priority
-    keymaps,
+        // has to go last so that more specific keymaps
+        // in e.g. autocomplete have more priority
+        keymaps,
 
-    EditorView.theme({}, { dark: options.theme === THEME_DARK })
-];
+        theme.extension
+    ];
+
+    return [
+        initialExtensions,
+        {
+            switchLanguageExtension: language.switch,
+            switchThemeExtension: theme.switch
+        }
+    ] as const;
+};
+
+export type ExtensionSwitcher = ReturnType<typeof createExtensions>[1];
 
 export const createState = (
     extensions: ReadonlyArray<Extension>,
     options: {
-        initialText?: string | undefined;
-        initialCursorOffset?: number | undefined;
+        text?: string | undefined;
+        cursorOffset?: number | undefined;
     } = {}
 ) => {
     return EditorState.create({
-        ...(options.initialText ? { doc: options.initialText } : {}),
-        ...(options.initialCursorOffset ? { selection: EditorSelection.single(options.initialCursorOffset) } : {}),
+        ...(options.text ? { doc: options.text } : {}),
+        ...(options.cursorOffset ? { selection: EditorSelection.single(options.cursorOffset) } : {}),
         extensions
     });
 };

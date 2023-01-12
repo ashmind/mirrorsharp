@@ -13,8 +13,8 @@ test('C# highlighting applies expected classes', async () => {
 
 test('VB highlighting applies expected classes', async () => {
     const driver = await TestDriver.new({
-        text: CODE_VB,
-        options: { language: LANGUAGE_VB }
+        language: LANGUAGE_VB,
+        text: CODE_VB
     });
     await driver.completeBackgroundWork();
 
@@ -25,8 +25,8 @@ test('VB highlighting applies expected classes', async () => {
 
 test('F# highlighting applies expected classes', async () => {
     const driver = await TestDriver.new({
-        text: CODE_FSHARP,
-        options: { language: LANGUAGE_FSHARP }
+        language: LANGUAGE_FSHARP,
+        text: CODE_FSHARP
     });
     await driver.completeBackgroundWork();
 
@@ -37,8 +37,8 @@ test('F# highlighting applies expected classes', async () => {
 
 test('IL highlighting applies expected classes', async () => {
     const driver = await TestDriver.new({
-        text: CODE_IL,
-        options: { language: LANGUAGE_IL }
+        language: LANGUAGE_IL,
+        text: CODE_IL
     });
     await driver.completeBackgroundWork();
 
@@ -49,8 +49,8 @@ test('IL highlighting applies expected classes', async () => {
 
 test('PHP highlighting applies expected classes', async () => {
     const driver = await TestDriver.new({
-        text: CODE_PHP,
-        options: { language: LANGUAGE_PHP }
+        language: LANGUAGE_PHP,
+        text: CODE_PHP
     });
     await driver.completeBackgroundWork();
 
