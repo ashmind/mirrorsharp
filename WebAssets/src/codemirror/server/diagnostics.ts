@@ -4,7 +4,7 @@ import { applyChangesFromServer } from '../../helpers/apply-changes-from-server'
 import type { Connection } from '../../protocol/connection';
 import type { DiagnosticActionData, DiagnosticData, DiagnosticSeverity } from '../../protocol/messages';
 
-const receiveSlowUpdateResultsFromServer = <TExtensionData>(
+const receiveSlowUpdateFromServer = <TExtensionData>(
     connection: Connection<unknown, TExtensionData>
 ) => ViewPlugin.define(view => {
     const mapSeverity = (severity: DiagnosticSeverity, tags: ReadonlyArray<string>) => {
@@ -38,7 +38,9 @@ const receiveSlowUpdateResultsFromServer = <TExtensionData>(
             if (message.type !== 'slowUpdate')
                 return;
 
-            const diagnostics = message.diagnostics.map(mapDiagnostic);
+            const diagnostics = message.diagnostics
+                .filter(d => d.severity !== 'hidden')
+                .map(mapDiagnostic);
             diagnostics.sort((a, b) => {
                 if (a.from > b.from) return  1;
                 if (b.from > a.from) return -1;
@@ -70,10 +72,10 @@ const receiveFixChangesFromServer = <TExtensionData>(
     };
 });
 
-export const lintingFromServer = <TExtensionData>(
+export const diagnosticsFromServer = <TExtensionData>(
     connection: Connection<unknown, TExtensionData>
 ) => [
-    receiveSlowUpdateResultsFromServer(connection),
+    receiveSlowUpdateFromServer(connection),
     receiveFixChangesFromServer(connection),
     lintGutter()
 ];

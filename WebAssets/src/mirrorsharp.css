@@ -64,8 +64,14 @@
     color: #4ec9b0;
 }
 
-.mirrorsharp .cm-lintRange-unnecessary {
-    opacity: 0.5;
+.mirrorsharp-theme-light .cm-lintRange-unnecessary {
+    /* minimum for AAA */
+    opacity: 0.66;
+}
+
+.mirrorsharp-theme-dark .cm-lintRange-unnecessary {
+    /* minimum for AAA */
+    opacity: 0.73;
 }
 
 .mirrorsharp .cm-completionIcon.cm-completionIcon,

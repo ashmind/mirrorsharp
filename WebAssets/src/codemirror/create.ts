@@ -13,8 +13,8 @@ import { keymaps } from './keymaps';
 import { languageExtensions } from './languages';
 import { autocompletionFromServer } from './server/autocompletion';
 import { connectionState } from './server/connection-state';
+import { diagnosticsFromServer } from './server/diagnostics';
 import { infotipsFromServer } from './server/infotips';
-import { lintingFromServer } from './server/linting';
 import { sendChangesToServer } from './server/send-changes';
 import { signatureHelpFromServer } from './server/signature-help';
 
@@ -40,7 +40,7 @@ export const createExtensions = <O, U>(
 
         connectionState(connection),
         sendChangesToServer(session as Session),
-        lintingFromServer(connection as Connection<unknown, U>),
+        diagnosticsFromServer(connection as Connection<unknown, U>),
         infotipsFromServer(connection),
         signatureHelpFromServer(connection as Connection),
         autocompletionFromServer(connection),
