@@ -1,13 +1,11 @@
 import { Action, Diagnostic, setDiagnostics, lintGutter } from '@codemirror/lint';
 import { ViewPlugin } from '@codemirror/view';
 import { applyChangesFromServer } from '../../helpers/apply-changes-from-server';
-import type { SlowUpdateOptions } from '../../interfaces/slow-update';
 import type { Connection } from '../../protocol/connection';
 import type { DiagnosticActionData, DiagnosticData, DiagnosticSeverity } from '../../protocol/messages';
 
 const receiveSlowUpdateResultsFromServer = <TExtensionData>(
-    connection: Connection<unknown, TExtensionData>,
-    { slowUpdateResult }: SlowUpdateOptions<TExtensionData>
+    connection: Connection<unknown, TExtensionData>
 ) => ViewPlugin.define(view => {
     const mapSeverity = (severity: DiagnosticSeverity, tags: ReadonlyArray<string>) => {
         if (severity === 'error' || severity === 'warning')
@@ -42,14 +40,11 @@ const receiveSlowUpdateResultsFromServer = <TExtensionData>(
 
             const diagnostics = message.diagnostics.map(mapDiagnostic);
             diagnostics.sort((a, b) => {
-                if (a.from > b.from) return 1;
+                if (a.from > b.from) return  1;
                 if (b.from > a.from) return -1;
                 return 0;
             });
             view.dispatch(setDiagnostics(view.state, diagnostics));
-
-            if (slowUpdateResult)
-                slowUpdateResult({ diagnostics: message.diagnostics, x: message.x });
         }
     });
 
@@ -76,10 +71,9 @@ const receiveFixChangesFromServer = <TExtensionData>(
 });
 
 export const lintingFromServer = <TExtensionData>(
-    connection: Connection<unknown, TExtensionData>,
-    options: SlowUpdateOptions<TExtensionData>
+    connection: Connection<unknown, TExtensionData>
 ) => [
-    receiveSlowUpdateResultsFromServer(connection, options),
+    receiveSlowUpdateResultsFromServer(connection),
     receiveFixChangesFromServer(connection),
     lintGutter()
 ];

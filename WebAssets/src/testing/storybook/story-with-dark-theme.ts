@@ -1,4 +1,4 @@
-import { THEME_DARK } from '../../interfaces/theme';
+import { THEME_DARK } from '../../main/theme';
 import { TestDriver } from '../test-driver-storybook';
 import type { TestDriverStory } from './test-driver-story';
 

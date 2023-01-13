@@ -2,51 +2,44 @@ import { Extension, StateEffect } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { createExtensions, createState, ExtensionSwitcher } from '../codemirror/create';
 import { validateOptionKeys } from '../helpers/validate-option-keys';
-import type { SlowUpdateOptions } from '../interfaces/slow-update';
-import { Theme, THEME_LIGHT } from '../interfaces/theme';
 import type { Connection } from '../protocol/connection';
 import { type Language, LANGUAGE_DEFAULT } from '../protocol/languages';
-import type {
-    Message,
-    SlowUpdateMessage,
-    DiagnosticSeverity,
-    ServerOptions
-} from '../protocol/messages';
+import type { Message, ServerOptions } from '../protocol/messages';
 import type { Session } from '../protocol/session';
+import { Theme, THEME_LIGHT } from './theme';
 
-type EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = {
-    readonly language?: Language | undefined;
-    readonly text?: string | undefined;
-    readonly cursorOffset?: number | undefined;
-    readonly theme?: Theme | undefined;
+export type EditorOptions<TExtensionServerOptions> = {
+    readonly language: Language | undefined;
+    readonly text: string | undefined;
+    readonly cursorOffset: number | undefined;
+    readonly theme: Theme | undefined;
 
-    readonly on?: ({
-        readonly textChange?: (getText: () => string) => void;
-        readonly connectionChange?: {
+    readonly on: {
+        readonly textChange: ((getText: () => string) => void) | undefined;
+        readonly connectionChange: ({
             (event: 'open', e: Event): void;
             (event: 'error', e: ErrorEvent): void;
             (event: 'close', e: CloseEvent): void;
-        };
-        readonly serverError?: (message: string) => void;
-    } & SlowUpdateOptions<TSlowUpdateExtensionData>) | undefined;
+        }) | undefined;
+        readonly serverError: ((message: string) => void) | undefined;
+    };
 
-    readonly serverOptions?: TExtensionServerOptions | undefined;
-    readonly codeMirror?: {
+    readonly serverOptions: TExtensionServerOptions | undefined;
+    readonly codeMirror: {
         extensions?: ReadonlyArray<Extension>;
-    }
+    };
 };
 
 export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly #connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>;
-    readonly #session: Session<TExtensionServerOptions>;
-    readonly #options: EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData>;
+    readonly #session: Session<TExtensionServerOptions, TSlowUpdateExtensionData>;
+    readonly #options: EditorOptions<TExtensionServerOptions>;
 
     readonly #wrapper: HTMLElement;
     readonly #cmView: EditorView;
     #cmExtensions: ReadonlyArray<Extension>;
     readonly #extensionSwitcher: ExtensionSwitcher;
 
-    // readonly #removeCodeMirrorEvents: () => void;
     readonly #removeConnectionListeners: () => void;
 
     #language: Language;
@@ -55,8 +48,8 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     constructor(
         container: HTMLElement,
         connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>,
-        session: Session<TExtensionServerOptions>,
-        options: EditorOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
+        session: Session<TExtensionServerOptions, TSlowUpdateExtensionData>,
+        options: EditorOptions<TExtensionServerOptions>
     ) {
         validateOptionKeys(options, [
             'language',
@@ -70,9 +63,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         validateOptionKeys(options.on, [
             'textChange',
             'connectionChange',
-            'serverError',
-            'slowUpdateWait',
-            'slowUpdateResult'
+            'serverError'
         ], 'on');
         validateOptionKeys(options.codeMirror, ['extensions'], 'codeMirror');
 
@@ -81,19 +72,6 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
         const language = options.language ?? LANGUAGE_DEFAULT;
         const theme = options.theme ?? THEME_LIGHT;
-        options = {
-            language,
-            theme,
-            ...options,
-            on: {
-                slowUpdateWait:   () => ({}),
-                slowUpdateResult: () => ({}),
-                textChange:       () => ({}),
-                connectionChange: () => ({}),
-                serverError:      (message: string) => { throw new Error(message); },
-                ...options.on
-            }
-        };
         this.#options = options;
 
         // const cmOptions = {
@@ -109,7 +87,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         // } as CodeMirror.EditorConfiguration & { lineSeparator: string };
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.#language = options.language!;
+        this.#language = language;
         this.#serverOptions = {
             ...(options.serverOptions ?? {}),
             language: this.#language
@@ -162,7 +140,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         [this.#cmExtensions, this.#extensionSwitcher] = createExtensions(this.#connection, this.#session, {
             language,
             theme,
-            extraExtensions: options.codeMirror?.extensions
+            extraExtensions: options.codeMirror.extensions
         });
         this.#cmView = new EditorView({
             state: createState(this.#cmExtensions, {
@@ -179,84 +157,38 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
             error: this.#onConnectionCloseOrError,
             close: this.#onConnectionCloseOrError
         });
-
-        // this.#removeCodeMirrorEvents = addEvents(this.#cm, {
-        //     beforeChange: this.#onCodeMirrorBeforeChange,
-        //     cursorActivity: this.#onCodeMirrorCursorActivity,
-        //     changes: this.#onCodeMirrorChanges
-        // });
     }
 
     #onConnectionOpen = (e: Event) => {
         this.#hideConnectionLoss();
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.#options.on!.connectionChange!('open', e);
+        if (this.#options.on.connectionChange)
+            this.#options.on.connectionChange('open', e);
     };
 
     #onConnectionMessage = (message: Message<TExtensionServerOptions, TSlowUpdateExtensionData>) => {
         switch (message.type) {
-            case 'slowUpdate':
-                this.#showSlowUpdate(message);
-                break;
-
             case 'error':
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                this.#options.on!.serverError!(message.message);
+                if (this.#options.on.serverError) {
+                    this.#options.on.serverError(message.message);
+                }
+                else {
+                    throw new Error(message.message);
+                }
                 break;
         }
     };
 
     #onConnectionCloseOrError = (e: CloseEvent|ErrorEvent) => {
         this.#showConnectionLoss();
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const connectionChange = this.#options.on!.connectionChange!;
+        const { connectionChange } = this.#options.on;
+        if (!connectionChange)
+            return;
         if (e instanceof CloseEvent) {
             connectionChange('close', e);
         }
         else {
             connectionChange('error', e);
         }
-    };
-
-    #showSlowUpdate = (update: SlowUpdateMessage<TSlowUpdateExtensionData>) => {
-        // const annotations: Array<DiagnosticAnnotation> = [];
-
-        // Higher severities must go last -- CodeMirror uses last one for the icon.
-        // Unless one is error, in which case it's always error -- but still makes
-        // sense to handle this consistently.
-        const priorityBySeverity = { hidden: 0, info: 1, warning: 2, error: 3 };
-        const diagnostics = update.diagnostics.slice(0);
-        diagnostics.sort((a, b) => {
-            const aOrder = priorityBySeverity[a.severity];
-            const bOrder = priorityBySeverity[b.severity];
-            return aOrder !== bOrder ? (aOrder > bOrder ? 1 : -1) : 0;
-        });
-
-        for (const diagnostic of diagnostics) {
-            let severity: DiagnosticSeverity|'unnecessary' = diagnostic.severity;
-            const isUnnecessary = diagnostic.tags.includes('unnecessary');
-            if (severity === 'hidden' && !isUnnecessary)
-                continue;
-
-            if (isUnnecessary && (severity === 'hidden' || severity === 'info'))
-                severity = 'unnecessary';
-
-            // const range = this.#spanToRange(diagnostic.span);
-            // annotations.push({
-            //     severity,
-            //     message: diagnostic.message,
-            //     from: range.from,
-            //     to: range.to,
-            //     diagnostic
-            // });
-        }
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        // this.#capturedUpdateLinting(this.#cm, annotations);
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.#options.on!.slowUpdateResult!({
-            diagnostics: update.diagnostics,
-            x: update.x
-        });
     };
 
     #connectionLossElement: HTMLDivElement|undefined;

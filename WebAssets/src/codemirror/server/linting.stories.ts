@@ -1,5 +1,5 @@
 import { userEvent as user } from '@storybook/testing-library';
-import { Theme, THEME_DARK, THEME_LIGHT } from '../../interfaces/theme';
+import { Theme, THEME_DARK, THEME_LIGHT } from '../../main/theme';
 import { testDriverStory } from '../../testing/storybook/test-driver-story';
 import { TestDriver } from '../../testing/test-driver-storybook';
 

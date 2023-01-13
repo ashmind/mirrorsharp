@@ -1,10 +1,11 @@
-import type { Theme } from '../interfaces/theme';
+import type { Theme } from '../main/theme';
 import { timers } from './storybook/browser-fake-timers';
 import { MockSocketWithActionLog } from './storybook/mock-socket-with-action-log';
 import { setTimers, TestDriverBase, TestDriverConstructorArguments, TestDriverOptions } from './test-driver-base';
 
 setTimers(timers);
-export class TestDriver<TExtensionServerOptions = never> extends TestDriverBase<TExtensionServerOptions> {
+export class TestDriver<TExtensionServerOptions = void, TSlowUpdateExtensionData = void>
+    extends TestDriverBase<TExtensionServerOptions, TSlowUpdateExtensionData> {
     static nextTheme?: Theme | null;
     #windowListenersToRemoveWhenDisablingEvents = [] as Array<{
         type: string;
@@ -26,7 +27,7 @@ export class TestDriver<TExtensionServerOptions = never> extends TestDriverBase<
         return new MockSocketWithActionLog();
     }
 
-    static override async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
+    static override async new<TExtensionServerOptions = void, TSlowUpdateExtensionData = void>(
         options: TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
     ) {
         if (this.nextTheme) {
@@ -35,7 +36,7 @@ export class TestDriver<TExtensionServerOptions = never> extends TestDriverBase<
             options = { ...options, theme: this.nextTheme };
         }
 
-        return await super.new(options) as TestDriver;
+        return await super.new(options) as TestDriver<TExtensionServerOptions, TSlowUpdateExtensionData>;
     }
 
     disableAllFurtherInteractionEvents() {

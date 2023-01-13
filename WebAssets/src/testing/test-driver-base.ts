@@ -1,6 +1,5 @@
 import type { TransactionSpec } from '@codemirror/state';
 import type { EditorView } from '@codemirror/view';
-import { omit } from '../helpers/omit';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../mirrorsharp';
 import { installMockSocket, MockSocket, MockSocketController } from './shared/mock-socket';
 import { TestReceiver } from './shared/test-receiver';
@@ -19,10 +18,10 @@ export type TestDriverTimers = {
 let timers: TestDriverTimers;
 export const setTimers = (value: TestDriverTimers) => timers = value;
 
-export class TestDriverBase<TExtensionServerOptions = never> {
+export class TestDriverBase<TExtensionServerOptions = void, TSlowUpdateExtensionData = void> {
     public readonly socket: MockSocketController;
     public readonly mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>;
-    public readonly receive: TestReceiver;
+    public readonly receive: TestReceiver<TSlowUpdateExtensionData>;
 
     readonly #cmView: EditorView;
 
@@ -97,7 +96,7 @@ export class TestDriverBase<TExtensionServerOptions = never> {
         return new MockSocket();
     }
 
-    static async new<TExtensionServerOptions = never, TSlowUpdateExtensionData = never>(
+    static async new<TExtensionServerOptions = void, TSlowUpdateExtensionData = void>(
         options: TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData>
     ) {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -105,6 +104,7 @@ export class TestDriverBase<TExtensionServerOptions = never> {
             throw new Error('setTimers must be called before TestDriver instances can be created.');
 
         options = normalizeOptions(options);
+        const { keepSocketClosed, ...mirrorsharpOptions } = options;
 
         const container = document.createElement('div');
         document.body.appendChild(container);
@@ -112,15 +112,15 @@ export class TestDriverBase<TExtensionServerOptions = never> {
         const socket = this.newMockSocket();
         installMockSocket(socket);
 
-        const ms = mirrorsharp(container, {
-            ...omit(options, ['keepSocketClosed', 'textWithCursor' as keyof TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData>]),
+        const ms = mirrorsharp<TExtensionServerOptions, TSlowUpdateExtensionData>(container, {
+            ...mirrorsharpOptions,
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             serviceUrl: null!
         });
 
-        const driver = new this(socket.mock, ms);
+        const driver = new this<TExtensionServerOptions, TSlowUpdateExtensionData>(socket.mock, ms);
 
-        if (options.keepSocketClosed)
+        if (keepSocketClosed)
             return driver;
 
         driver.socket.open();
@@ -134,8 +134,9 @@ export class TestDriverBase<TExtensionServerOptions = never> {
 
 const normalizeOptions = <O, U>(options: TestDriverOptions<O, U>) => {
     if ('textWithCursor' in options) {
-        const { text, cursorOffset } = parseTextWithCursor(options.textWithCursor);
-        return { ...options, text, cursorOffset };
+        const { textWithCursor, ...rest } = options;
+        const { text, cursorOffset } = parseTextWithCursor(textWithCursor);
+        return { ...rest, text, cursorOffset };
     }
 
     return options;

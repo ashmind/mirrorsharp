@@ -1,13 +1,15 @@
 import type { Extension } from '@codemirror/state';
 import type { EditorView } from '@codemirror/view';
-import { omit } from './helpers/omit';
 import { validateOptionKeys } from './helpers/validate-option-keys';
-import type { Theme } from './interfaces/theme';
-import { Editor } from './main/editor';
+import { Editor, EditorOptions } from './main/editor';
+import type { Theme } from './main/theme';
 import { Connection } from './protocol/connection';
 import type { Language } from './protocol/languages';
 import type { DiagnosticSeverity } from './protocol/messages';
 import { Session } from './protocol/session';
+
+// ts-unused-exports:disable-next-line
+export type MirrorSharpDiagnosticSeverity = DiagnosticSeverity;
 
 // ts-unused-exports:disable-next-line
 export type MirrorSharpLanguage = Language;
@@ -20,7 +22,7 @@ export type MirrorSharpTheme = Theme;
 // ts-unused-exports:disable-next-line
 export interface MirrorSharpDiagnostic {
     readonly id: string;
-    readonly severity: DiagnosticSeverity;
+    readonly severity: MirrorSharpDiagnosticSeverity;
     readonly message: string;
 }
 
@@ -29,7 +31,7 @@ export type MirrorSharpSlowUpdateResult<TExtensionData = void> = void extends TE
     readonly diagnostics: ReadonlyArray<MirrorSharpDiagnostic>
 } : {
     readonly diagnostics: ReadonlyArray<MirrorSharpDiagnostic>;
-    readonly x: TExtensionData;
+    readonly extensionResult: TExtensionData;
 };
 
 // ts-unused-exports:disable-next-line
@@ -45,7 +47,7 @@ export type MirrorSharpOptions<TExtensionServerOptions = void, TSlowUpdateExtens
     // it's good to be explicit on what we are exporting.
     readonly on?: {
         readonly slowUpdateWait?: () => void;
-        readonly slowUpdateResult?: (args: MirrorSharpSlowUpdateResult<TSlowUpdateExtensionData>) => void;
+        readonly slowUpdateResult?: (result: MirrorSharpSlowUpdateResult<TSlowUpdateExtensionData>) => void;
         readonly textChange?: (getText: () => string) => void;
         readonly connectionChange?: {
             (event: 'open', e: Event): void;
@@ -78,6 +80,25 @@ export interface MirrorSharpInstance<TExtensionServerOptions> {
     destroy(destroyOptions: { keepCodeMirror?: boolean }): void;
 }
 
+const toEditorOptions = <O, U>(options: MirrorSharpOptions<O, U>) => {
+    const { language, text, cursorOffset, theme, serverOptions, on, codeMirror } = options;
+    return {
+        language,
+        text,
+        cursorOffset,
+        theme,
+        serverOptions,
+        on: {
+            connectionChange: on?.connectionChange,
+            textChange: on?.textChange,
+            serverError: on?.serverError
+        },
+        codeMirror: {
+            extensions: codeMirror?.extensions
+        }
+    } as const satisfies EditorOptions<O>;
+};
+
 // ts-unused-exports:disable-next-line
 export
 // eslint-disable-next-line import/no-default-export
@@ -106,8 +127,11 @@ default function mirrorsharp<TExtensionServerOptions = void, TSlowUpdateExtensio
     validateOptionKeys(options.codeMirror, ['extensions'], 'codeMirror');
 
     const connection = new Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(options.serviceUrl, { delayedOpen: options.disconnected });
-    const session = new Session<TExtensionServerOptions>(connection as Connection<TExtensionServerOptions>);
-    const editor = new Editor(container, connection, session, omit(options, ['serviceUrl']));
+    const session = new Session<TExtensionServerOptions, TSlowUpdateExtensionData>(connection, {
+        slowUpdateWait: options.on?.slowUpdateWait,
+        slowUpdateResult: options.on?.slowUpdateResult
+    });
+    const editor = new Editor(container, connection, session, toEditorOptions(options));
 
     let connectCalled = false;
     return Object.freeze({

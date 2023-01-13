@@ -9,7 +9,6 @@
     "editor.codeActionsOnSave": {
         "source.fixAll": true
     },
-    "jest.pathToJest": "npm run test:skip-render --",
     "jest.showCoverageOnLoad": true,
     "cSpell.ignorePaths": [
         "**/node_modules/**",

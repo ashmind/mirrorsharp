@@ -3,8 +3,7 @@ import { indentUnit, syntaxHighlighting } from '@codemirror/language';
 import { EditorState, EditorSelection, Extension } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { classHighlighter } from '@lezer/highlight';
-import type { SlowUpdateOptions } from '../interfaces/slow-update';
-import { Theme, THEME_DARK } from '../interfaces/theme';
+import { Theme, THEME_DARK } from '../main/theme';
 import type { Connection } from '../protocol/connection';
 import type { Language } from '../protocol/languages';
 import { lineSeparator } from '../protocol/line-separator';
@@ -21,12 +20,12 @@ import { signatureHelpFromServer } from './server/signature-help';
 
 export const createExtensions = <O, U>(
     connection: Connection<O, U>,
-    session: Session<O>,
+    session: Session<O, U>,
     options: {
         language: Language;
         theme: Theme;
         extraExtensions?: ReadonlyArray<Extension>;
-    } & SlowUpdateOptions<U>
+    }
 ) => {
     const language = switchableExtension(options.language, l => languageExtensions[l]);
     const theme = switchableExtension(options.theme, t => EditorView.theme({}, { dark: t === THEME_DARK }));
@@ -41,7 +40,7 @@ export const createExtensions = <O, U>(
 
         connectionState(connection),
         sendChangesToServer(session as Session),
-        lintingFromServer(connection as Connection<unknown, U>, options),
+        lintingFromServer(connection as Connection<unknown, U>),
         infotipsFromServer(connection),
         signatureHelpFromServer(connection as Connection),
         autocompletionFromServer(connection),

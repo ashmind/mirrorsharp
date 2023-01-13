@@ -1,6 +1,6 @@
 import type { Connection, ReplaceTextCommand } from './connection';
 import { LANGUAGE_DEFAULT } from './languages';
-import type { Message, ServerOptions } from './messages';
+import type { DiagnosticSeverity, Message, ServerOptions, SlowUpdateMessage } from './messages';
 
 const UPDATE_PERIOD = 500;
 
@@ -9,10 +9,27 @@ type FullTextContext = {
     getCursorIndex: () => number;
 };
 
-export class Session<TExtensionServerOptions = unknown> {
-    readonly #connection: Connection<TExtensionServerOptions>;
+type SlowUpdateResultDiagnostic = {
+    readonly id: string;
+    readonly severity: DiagnosticSeverity;
+    readonly message: string;
+};
+
+interface SessionEventHandlers<TSlowUpdateExtensionData> {
+    slowUpdateWait: (() => void) | undefined;
+    slowUpdateResult?: ((args: {
+        diagnostics: ReadonlyArray<SlowUpdateResultDiagnostic>;
+        extensionResult: TSlowUpdateExtensionData;
+    }) => void) | undefined;
+}
+
+// Defaults are 'unknown' rather than 'void', as it exists for internal convenience,
+// and we assume in most cases this is not 'void'. Anything public should have 'void' though.
+export class Session<TExtensionServerOptions = unknown, TSlowUpdateExtensionData = unknown> {
+    readonly #connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>;
     readonly #slowUpdateTimer: ReturnType<typeof setTimeout>;
     readonly #removeConnectionEvents: () => void;
+    readonly #on: SessionEventHandlers<TSlowUpdateExtensionData>;
 
     #textSent = false;
     #hadChangesSinceLastSlowUpdate = false;
@@ -21,13 +38,17 @@ export class Session<TExtensionServerOptions = unknown> {
     #fullTextContext?: FullTextContext;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    constructor(connection: Connection<TExtensionServerOptions>) {
+    constructor(
+        connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>,
+        on: SessionEventHandlers<TSlowUpdateExtensionData>
+    ) {
         this.#connection = connection;
         this.#removeConnectionEvents = connection.addEventListeners({
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             open: () => this.#resendAllOnOpen(),
             message: e => this.#receiveMessage(e)
         });
+        this.#on = on;
         this.#slowUpdateTimer = setInterval(() => this.#requestSlowUpdate(), UPDATE_PERIOD);
     }
 
@@ -112,16 +133,36 @@ export class Session<TExtensionServerOptions = unknown> {
         if (!this.#textSent)
             return;
 
+        if (this.#on.slowUpdateWait)
+            this.#on.slowUpdateWait();
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.#connection.sendSlowUpdate();
         this.#hadChangesSinceLastSlowUpdate = false;
     }
 
-    #receiveMessage(data: Message<TExtensionServerOptions, unknown>) {
-        if (data.type !== 'optionsEcho')
+    #receiveSlowUpdate(message: SlowUpdateMessage<TSlowUpdateExtensionData>) {
+        if (!this.#on.slowUpdateResult)
             return;
 
-        this.#fullOptions = { ...this.#fullOptions, ...data.options };
+        const diagnostics = message.diagnostics.map(
+            ({ id, message, severity }) => ({ id, message, severity })
+        );
+        this.#on.slowUpdateResult({
+            diagnostics,
+            extensionResult: message.x
+        });
+    }
+
+    #receiveMessage(message: Message<TExtensionServerOptions, TSlowUpdateExtensionData>) {
+        switch (message.type) {
+            case 'optionsEcho':
+                this.#fullOptions = { ...this.#fullOptions, ...message.options };
+                break;
+
+            case 'slowUpdate':
+                this.#receiveSlowUpdate(message);
+                break;
+        }
     }
 
     destroy() {

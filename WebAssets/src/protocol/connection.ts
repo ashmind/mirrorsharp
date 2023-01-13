@@ -24,7 +24,9 @@ type HandlerMap<O, U> = {
     close:   (e: CloseEvent) => void
 };
 
-export class Connection<TExtensionServerOptions = void, TSlowUpdateExtensionData = void> {
+// Defaults are 'unknown' rather than 'void', as it exists for internal convenience,
+// and we assume in most cases this is not 'void'. Anything public should have 'void' though.
+export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionData = unknown> {
     readonly #url: string;
 
     readonly #handlers = {

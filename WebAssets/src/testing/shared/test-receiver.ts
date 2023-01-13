@@ -1,7 +1,7 @@
 import type { ChangeData, ChangesMessage, CompletionItemData, CompletionsMessage, DiagnosticData, InfotipMessage, Message, PartData, SignaturesMessage, UnknownMessage } from '../../protocol/messages';
 import type { MockSocketController } from './mock-socket';
 
-export class TestReceiver {
+export class TestReceiver<TSlowUpdateExtensionData = void> {
     readonly #socket: MockSocketController;
 
     constructor(socket: MockSocketController) {
@@ -41,15 +41,17 @@ export class TestReceiver {
         this.#message({ type: 'signatures', ...message });
     }
 
-    slowUpdate(diagnostics: ReadonlyArray<DiagnosticData>, x?: unknown) {
+    slowUpdate = ((diagnostics: ReadonlyArray<Partial<DiagnosticData>>, x?: TSlowUpdateExtensionData) => {
         this.#message({
             type: 'slowUpdate',
-            diagnostics,
+            diagnostics: diagnostics as Array<DiagnosticData>,
             x
         });
-    }
+    }) as void extends TSlowUpdateExtensionData
+        ? (diagnostics: ReadonlyArray<Partial<DiagnosticData>>) => void
+        : (diagnostics: ReadonlyArray<Partial<DiagnosticData>>, x?: TSlowUpdateExtensionData) => void;
 
-    #message = (message: Partial<Exclude<Message<unknown, unknown>, UnknownMessage>>) => {
+    #message(message: Partial<Exclude<Message<unknown, TSlowUpdateExtensionData>, UnknownMessage>>) {
         this.#socket.receive({ data: JSON.stringify(message) });
-    };
+    }
 }
