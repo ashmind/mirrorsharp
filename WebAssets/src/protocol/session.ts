@@ -16,7 +16,7 @@ type SlowUpdateResultDiagnostic = {
 };
 
 export interface SessionEventListeners<TSlowUpdateExtensionData> {
-    readonly connectionChange: ((event: 'open' | 'lost') => void) | undefined;
+    readonly connectionChange: ((event: 'open' | 'loss') => void) | undefined;
     readonly slowUpdateWait: (() => void) | undefined;
     readonly slowUpdateResult?: ((args: {
         diagnostics: ReadonlyArray<SlowUpdateResultDiagnostic>;
@@ -52,7 +52,7 @@ export class Session<TExtensionServerOptions = unknown, TSlowUpdateExtensionData
             },
             message: e => this.#receiveMessage(e),
             close: () => {
-                on.connectionChange?.('lost');
+                on.connectionChange?.('loss');
             }
         });
         this.#on = on;

@@ -49,7 +49,7 @@ export type MirrorSharpOptions<TExtensionServerOptions = void, TSlowUpdateExtens
         readonly slowUpdateWait?: () => void;
         readonly slowUpdateResult?: (result: MirrorSharpSlowUpdateResult<TSlowUpdateExtensionData>) => void;
         readonly textChange?: (getText: () => string) => void;
-        readonly connectionChange?: (event: 'open' | 'lost') => void;
+        readonly connectionChange?: (event: 'open' | 'loss') => void;
         readonly serverError?: (message: string) => void;
     } | undefined;
 

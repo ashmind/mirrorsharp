@@ -112,7 +112,7 @@ test('connectionChange is called when connection is lost', async () => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     expect(connectionChange.mock.calls).toEqual([
         ['open'],
-        ['lost']
+        ['loss']
     ]);
 });
 
