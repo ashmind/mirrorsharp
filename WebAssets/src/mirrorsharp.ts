@@ -84,10 +84,7 @@ const toEditorOptions = <O, U>(options: MirrorSharpOptions<O, U>) => {
         cursorOffset,
         theme,
         serverOptions,
-        on: {
-            textChange: on?.textChange,
-            serverError: on?.serverError
-        },
+        onTextChange: on?.textChange,
         codeMirror: {
             extensions: codeMirror?.extensions
         }
@@ -95,11 +92,12 @@ const toEditorOptions = <O, U>(options: MirrorSharpOptions<O, U>) => {
 };
 
 const toSessionListeners = <O, U>(options: MirrorSharpOptions<O, U>) => {
-    const { connectionChange, slowUpdateWait, slowUpdateResult } = options.on ?? {};
+    const { connectionChange, slowUpdateWait, slowUpdateResult, serverError } = options.on ?? {};
     return {
         connectionChange,
         slowUpdateWait,
-        slowUpdateResult
+        slowUpdateResult,
+        serverError
     } as const satisfies SessionEventListeners<U>;
 };
 

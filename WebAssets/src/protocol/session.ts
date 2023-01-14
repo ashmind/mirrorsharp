@@ -1,6 +1,6 @@
 import type { Connection, ReplaceTextCommand } from './connection';
 import { LANGUAGE_DEFAULT } from './languages';
-import type { DiagnosticSeverity, Message, ServerOptions, SlowUpdateMessage } from './messages';
+import type { DiagnosticSeverity, ErrorMessage, Message, ServerOptions, SlowUpdateMessage } from './messages';
 
 const UPDATE_PERIOD = 500;
 
@@ -18,10 +18,11 @@ type SlowUpdateResultDiagnostic = {
 export interface SessionEventListeners<TSlowUpdateExtensionData> {
     readonly connectionChange: ((event: 'open' | 'loss') => void) | undefined;
     readonly slowUpdateWait: (() => void) | undefined;
-    readonly slowUpdateResult?: ((args: {
+    readonly slowUpdateResult: ((args: {
         diagnostics: ReadonlyArray<SlowUpdateResultDiagnostic>;
         extensionResult: TSlowUpdateExtensionData;
     }) => void) | undefined;
+    readonly serverError: ((message: string) => void) | undefined;
 }
 
 // Defaults are 'unknown' rather than 'void', as it exists for internal convenience,
@@ -159,6 +160,12 @@ export class Session<TExtensionServerOptions = unknown, TSlowUpdateExtensionData
         });
     }
 
+    #receiveServerError({ message }: ErrorMessage) {
+        if (!this.#on.serverError)
+            throw new Error(message);
+        this.#on.serverError(message);
+    }
+
     #receiveMessage(message: Message<TExtensionServerOptions, TSlowUpdateExtensionData>) {
         switch (message.type) {
             case 'optionsEcho':
@@ -167,6 +174,10 @@ export class Session<TExtensionServerOptions = unknown, TSlowUpdateExtensionData
 
             case 'slowUpdate':
                 this.#receiveSlowUpdate(message);
+                break;
+
+            case 'error':
+                this.#receiveServerError(message);
                 break;
         }
     }

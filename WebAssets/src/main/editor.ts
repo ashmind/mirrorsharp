@@ -3,7 +3,7 @@ import { EditorView } from '@codemirror/view';
 import { createExtensions, createState, ExtensionSwitcher } from '../codemirror/create';
 import type { Connection } from '../protocol/connection';
 import { type Language, LANGUAGE_DEFAULT } from '../protocol/languages';
-import type { Message, ServerOptions } from '../protocol/messages';
+import type { ServerOptions } from '../protocol/messages';
 import type { Session } from '../protocol/session';
 import { Theme, THEME_LIGHT } from './theme';
 
@@ -12,11 +12,7 @@ export type EditorOptions<TExtensionServerOptions> = {
     readonly text: string | undefined;
     readonly cursorOffset: number | undefined;
     readonly theme: Theme | undefined;
-
-    readonly on: {
-        readonly textChange: ((getText: () => string) => void) | undefined;
-        readonly serverError: ((message: string) => void) | undefined;
-    };
+    readonly onTextChange: ((getText: () => string) => void) | undefined;
 
     readonly serverOptions: TExtensionServerOptions | undefined;
     readonly codeMirror: {
@@ -120,7 +116,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
             theme,
             extraExtensions: options.codeMirror.extensions,
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            onTextChange: options.on.textChange && (() => options.on.textChange!(() => this.getText()))
+            onTextChange: options.onTextChange && (() => options.onTextChange!(() => this.getText()))
         });
         this.#cmView = new EditorView({
             state: createState(this.#cmExtensions, {
@@ -133,26 +129,12 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
         this.#removeConnectionListeners = connection.addEventListeners({
             open: this.#onConnectionOpen,
-            message: this.#onConnectionMessage,
             close: this.#onConnectionClose
         });
     }
 
     #onConnectionOpen = () => {
         this.#hideConnectionLoss();
-    };
-
-    #onConnectionMessage = (message: Message<TExtensionServerOptions, TSlowUpdateExtensionData>) => {
-        switch (message.type) {
-            case 'error':
-                if (this.#options.on.serverError) {
-                    this.#options.on.serverError(message.message);
-                }
-                else {
-                    throw new Error(message.message);
-                }
-                break;
-        }
     };
 
     #onConnectionClose = () => {

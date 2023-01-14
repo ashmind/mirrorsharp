@@ -51,6 +51,10 @@ export class TestReceiver<TSlowUpdateExtensionData = void> {
         ? (diagnostics: ReadonlyArray<Partial<DiagnosticData>>) => void
         : (diagnostics: ReadonlyArray<Partial<DiagnosticData>>, x?: TSlowUpdateExtensionData) => void;
 
+    error(message: string) {
+        this.#message({ type: 'error', message });
+    }
+
     #message(message: Partial<Exclude<Message<unknown, TSlowUpdateExtensionData>, UnknownMessage>>) {
         this.#socket.receive({ data: JSON.stringify(message) });
     }

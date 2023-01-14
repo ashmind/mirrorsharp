@@ -157,8 +157,6 @@ export interface SelfDebugLogEntryData {
     readonly cursor: number;
 }
 
-// Temporary, investigate
-// ts-unused-exports:disable-next-line
 export interface ErrorMessage {
     readonly type: 'error';
     readonly message: string;
