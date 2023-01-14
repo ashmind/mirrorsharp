@@ -4,7 +4,6 @@
         "storybook-static/"
     ],
     "ignores": [
-        "@storybook/addon-links",
         "@storybook/addon-measure",
         "@storybook/addon-outline",
         "@storybook/addon-viewport",
