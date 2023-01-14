@@ -3,6 +3,7 @@ import { indentUnit, syntaxHighlighting } from '@codemirror/language';
 import { EditorState, EditorSelection, Extension } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { classHighlighter } from '@lezer/highlight';
+import type { StyleSpec } from 'style-mod';
 import { Theme, THEME_DARK } from '../main/theme';
 import type { Connection } from '../protocol/connection';
 import type { Language } from '../protocol/languages';
@@ -25,12 +26,16 @@ export const createExtensions = <O, U>(
     options: {
         language: Language;
         theme: Theme;
+        themeSpec: { [selector: string]: StyleSpec; };
         onTextChange: (() => void) | undefined,
-        extraExtensions?: ReadonlyArray<Extension>;
+        extraExtensions: ReadonlyArray<Extension>;
     }
 ) => {
     const language = switchableExtension(options.language, l => languageExtensions[l]);
-    const theme = switchableExtension(options.theme, t => EditorView.theme({}, { dark: t === THEME_DARK }));
+    const theme = switchableExtension(
+        options.theme,
+        t => EditorView.theme(options.themeSpec, { dark: t === THEME_DARK })
+    );
     const initialExtensions = [
         indentUnit.of('    '),
         EditorState.lineSeparator.of(lineSeparator),
@@ -54,7 +59,7 @@ export const createExtensions = <O, U>(
         keymaps,
 
         theme.extension
-    ].concat(options.extraExtensions ?? []);
+    ].concat(options.extraExtensions);
 
     return [
         initialExtensions,

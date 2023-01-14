@@ -62,7 +62,8 @@
         "@codemirror/state": "^6.1.2",
         "@codemirror/view": "^6.3.0",
         "@lezer/highlight": "^1.1.1",
-        "lezer-csharp-simple": "^0.9.1"
+        "lezer-csharp-simple": "^0.9.1",
+        "style-mod": "^4.0.0"
     },
     "devDependencies": {
         "@babel/core": "^7.9.0",

@@ -1,5 +1,6 @@
 import type { Extension } from '@codemirror/state';
 import type { EditorView } from '@codemirror/view';
+import type { StyleSpec } from 'style-mod';
 import { validateOptionKeys } from './helpers/validate-option-keys';
 import { Editor, EditorOptions } from './main/editor';
 import type { Theme } from './main/theme';
@@ -58,6 +59,7 @@ export type MirrorSharpOptions<TExtensionServerOptions = void, TSlowUpdateExtens
 
     readonly codeMirror?: {
         extensions?: ReadonlyArray<Extension>;
+        theme?: { [selector: string]: StyleSpec; }
     }
 };
 
@@ -86,7 +88,8 @@ const toEditorOptions = <O, U>(options: MirrorSharpOptions<O, U>) => {
         serverOptions,
         onTextChange: on?.textChange,
         codeMirror: {
-            extensions: codeMirror?.extensions
+            extensions: codeMirror?.extensions,
+            theme: codeMirror?.theme
         }
     } as const satisfies EditorOptions<O>;
 };
@@ -126,7 +129,7 @@ default function mirrorsharp<TExtensionServerOptions = void, TSlowUpdateExtensio
         'slowUpdateWait',
         'slowUpdateResult'
     ], 'on');
-    validateOptionKeys(options.codeMirror, ['extensions'], 'codeMirror');
+    validateOptionKeys(options.codeMirror, ['extensions', 'theme'], 'codeMirror');
 
     const connection = new Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(
         options.serviceUrl, { closed: options.disconnected }

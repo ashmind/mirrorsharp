@@ -1,5 +1,6 @@
 import { Extension, StateEffect } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
+import type { StyleSpec } from 'style-mod';
 import { createExtensions, createState, ExtensionSwitcher } from '../codemirror/create';
 import type { Connection } from '../protocol/connection';
 import { type Language, LANGUAGE_DEFAULT } from '../protocol/languages';
@@ -18,6 +19,7 @@ export type EditorOptions<TExtensionServerOptions> = {
     readonly serverOptions: TExtensionServerOptions | undefined;
     readonly codeMirror: {
         extensions?: ReadonlyArray<Extension>;
+        theme?: { [selector: string]: StyleSpec; }
     };
 };
 
@@ -82,7 +84,8 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         [this.#cmExtensions, this.#extensionSwitcher] = createExtensions(this.#connection, this.#session, {
             language,
             theme,
-            extraExtensions: options.codeMirror.extensions,
+            themeSpec: options.codeMirror.theme ?? {},
+            extraExtensions: options.codeMirror.extensions ?? [],
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             onTextChange: options.onTextChange && (() => options.onTextChange!(() => this.getText()))
         });
