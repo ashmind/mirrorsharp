@@ -271,6 +271,37 @@
     font-weight: bold;
 }
 
+.mirrorsharp--connection-lost {
+    position: relative;
+}
+
+.mirrorsharp-connection-loss-message {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.2em 0.4em;
+    border-left: 5px solid #d11;
+    font-family: var(--mirrorsharp-font-family-sans-serif);
+    font-weight: bold;
+}
+
+.mirrorsharp-theme-light .mirrorsharp-connection-loss-message {
+    background-color: #f5f5f5;
+}
+
+.mirrorsharp-theme-dark .mirrorsharp-connection-loss-message {
+    background-color: #333338;
+}
+
+.mirrorsharp--connection-lost .mirrorsharp-connection-loss-message {
+    display: block;
+}
+
+.mirrorsharp--connection-lost .cm-editor {
+    filter: grayscale();
+}
+
 /* Old */
 /*
 .CodeMirror,

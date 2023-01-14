@@ -5,6 +5,7 @@ import type { Connection } from '../protocol/connection';
 import { type Language, LANGUAGE_DEFAULT } from '../protocol/languages';
 import type { ServerOptions } from '../protocol/messages';
 import type { Session } from '../protocol/session';
+import { connectionLossView } from './connection-loss-view';
 import { Theme, THEME_LIGHT } from './theme';
 
 export type EditorOptions<TExtensionServerOptions> = {
@@ -23,17 +24,15 @@ export type EditorOptions<TExtensionServerOptions> = {
 export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly #connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>;
     readonly #session: Session<TExtensionServerOptions, TSlowUpdateExtensionData>;
-    readonly #options: EditorOptions<TExtensionServerOptions>;
 
     readonly #wrapper: HTMLElement;
     readonly #cmView: EditorView;
     #cmExtensions: ReadonlyArray<Extension>;
     readonly #extensionSwitcher: ExtensionSwitcher;
 
-    readonly #removeConnectionListeners: () => void;
+    readonly #destroyConnectionLossView: () => void;
 
     #language: Language;
-    #serverOptions: ServerOptions & TExtensionServerOptions;
 
     constructor(
         container: HTMLElement,
@@ -46,44 +45,13 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
         const language = options.language ?? LANGUAGE_DEFAULT;
         const theme = options.theme ?? THEME_LIGHT;
-        this.#options = options;
 
-        // const cmOptions = {
-        //     gutters: [],
-        //     indentUnit: 4,
-        //     ...options.forCodeMirror,
-        //     lineSeparator,
-        //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        //     mode: languageModes[options.language!],
-        //     lint: { async: true, getAnnotations: this.#lintGetAnnotations, hasGutters: true },
-        //     lintFix: { getFixes: this.#getLintFixes },
-        //     infotip: { async: true, delay: 500, getInfo: this.#infotipGetInfo, render: renderInfotip }
-        // } as CodeMirror.EditorConfiguration & { lineSeparator: string };
-
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.#language = language;
-        this.#serverOptions = {
+        this.#session.setOptions({
             ...(options.serverOptions ?? {}),
-            language: this.#language
-        } as ServerOptions & TExtensionServerOptions;
+            language
+        } as ServerOptions & TExtensionServerOptions);
 
-        this.#session.setOptions(this.#serverOptions);
-
-        // const cmSource = (function getCodeMirror() {
-        //     const next = textarea.nextSibling as { CodeMirror?: CodeMirror.EditorFromTextArea };
-        //     if (next?.CodeMirror) {
-        //         const existing = next.CodeMirror;
-        //         for (const key in cmOptions) {
-        //             // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
-        //             existing.setOption(key as any, cmOptions[key as keyof typeof cmOptions]);
-        //         }
-        //         return { cm: existing, existing: true };
-        //     }
-
-        //     return { cm: CodeMirror.fromTextArea(textarea, cmOptions) };
-        // })();
-
-        // this.#cm = cmSource.cm;
         // this.#keyMap = {
         //     /* eslint-disable object-shorthand */
         //     'Tab': () => {
@@ -127,37 +95,8 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
         this.#wrapper.appendChild(this.#cmView.dom);
 
-        this.#removeConnectionListeners = connection.addEventListeners({
-            open: this.#onConnectionOpen,
-            close: this.#onConnectionClose
-        });
+        this.#destroyConnectionLossView = connectionLossView(this.#wrapper, connection);
     }
-
-    #onConnectionOpen = () => {
-        this.#hideConnectionLoss();
-    };
-
-    #onConnectionClose = () => {
-        this.#showConnectionLoss();
-    };
-
-    #connectionLossElement: HTMLDivElement|undefined;
-
-    #showConnectionLoss = () => {
-        if (!this.#connectionLossElement) {
-            const connectionLossElement = document.createElement('div');
-            connectionLossElement.setAttribute('class', 'mirrorsharp-connection-issue');
-            connectionLossElement.innerText = 'Server connection lost, reconnecting…';
-            this.#wrapper.appendChild(connectionLossElement);
-            this.#connectionLossElement = connectionLossElement;
-        }
-
-        this.#wrapper.classList.add('mirrorsharp-connection-has-issue');
-    };
-
-    #hideConnectionLoss = () => {
-        this.#wrapper.classList.remove('mirrorsharp-connection-has-issue');
-    };
 
     getCodeMirrorView() {
         return this.#cmView;
@@ -222,18 +161,10 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
     destroy(destroyOptions: { readonly keepCodeMirror?: boolean } = {}) {
         // this.#cm.save();
-        this.#removeConnectionListeners();
+        this.#destroyConnectionLossView();
         if (!destroyOptions.keepCodeMirror) {
             // this.#cm.toTextArea();
             return;
         }
-        // this.#cm.removeKeyMap(this.#keyMap);
-        // this.#removeCodeMirrorEvents();
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        // this.#cm.setOption('lint', null!);
-        // this.#cm.setOption('lintFix', null);
-        // TODO: fix in infotip
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        // this.#cm.setOption('infotip', null!);
     }
 }
