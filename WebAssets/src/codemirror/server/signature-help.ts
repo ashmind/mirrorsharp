@@ -57,10 +57,10 @@ const renderSignatureList = (signatures: ReadonlyArray<SignatureData>) => {
 
     for (const { parts, selected, info } of signatures) {
         const item = document.createElement('li');
-        item.className = 'mirrorsharp-signature' + (selected ? ' mirrorsharp-signature-selected' : '');
+        item.className = 'mirrorsharp-signature' + (selected ? ' mirrorsharp-signature--selected' : '');
 
         renderPartsTo(item, parts, {
-            getExtraClassNames: part => ((part.selected) ? ['mirrorsharp-signature-part-selected'] : [])
+            getExtraClassNames: part => ((part.selected) ? ['mirrorsharp-signature-part--selected'] : [])
         });
         if (info)
             renderInfoTo(item, info);

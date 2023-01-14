@@ -37,7 +37,7 @@ test('setTheme updates theme', async () => {
     expect(driver.getCodeMirrorView().state.facet(EditorView.darkTheme))
         .toBe(true);
     expect(driver.mirrorsharp.getRootElement().classList)
-        .toContain('mirrorsharp-theme-dark');
+        .toContain('mirrorsharp--theme-dark');
 });
 
 test('configuration extensions are added to CodeMirror', async () => {

@@ -11,65 +11,65 @@
     font-family: inherit;
 }
 
-.mirrorsharp-theme-light .tok-keyword,
-.mirrorsharp-theme-light .tok-bool,
-.mirrorsharp-theme-light .tok-null {
+.mirrorsharp--theme-light .tok-keyword,
+.mirrorsharp--theme-light .tok-bool,
+.mirrorsharp--theme-light .tok-null {
     color: #0000ff;
 }
-.mirrorsharp-theme-light .tok-number {
+.mirrorsharp--theme-light .tok-number {
     color: #000000;
 }
-.mirrorsharp-theme-light .tok-string {
+.mirrorsharp--theme-light .tok-string {
     color: #a31515;
 }
-.mirrorsharp-theme-light .tok-comment {
+.mirrorsharp--theme-light .tok-comment {
     color: #008000;
 }
-.mirrorsharp-theme-light .tok-type,
+.mirrorsharp--theme-light .tok-type,
 /* These are from server only: */
-.mirrorsharp-theme-light .tok-class,
-.mirrorsharp-theme-light .tok-struct,
-.mirrorsharp-theme-light .tok-interface,
-.mirrorsharp-theme-light .tok-enum,
-.mirrorsharp-theme-light .tok-delegate {
+.mirrorsharp--theme-light .tok-class,
+.mirrorsharp--theme-light .tok-struct,
+.mirrorsharp--theme-light .tok-interface,
+.mirrorsharp--theme-light .tok-enum,
+.mirrorsharp--theme-light .tok-delegate {
     color: #2b91af;
 }
 
-.mirrorsharp-theme-dark {
+.mirrorsharp--theme-dark {
     background-color: #1e1e1e;
     color: #dcdcdc;
 }
 
-.mirrorsharp-theme-dark .tok-keyword,
-.mirrorsharp-theme-dark .tok-bool,
-.mirrorsharp-theme-dark .tok-null {
+.mirrorsharp--theme-dark .tok-keyword,
+.mirrorsharp--theme-dark .tok-bool,
+.mirrorsharp--theme-dark .tok-null {
     color: #569cd6;
 }
-.mirrorsharp-theme-dark .tok-number {
+.mirrorsharp--theme-dark .tok-number {
     color: #b5cea8;
 }
-.mirrorsharp-theme-dark .tok-string {
+.mirrorsharp--theme-dark .tok-string {
     color: #d69d85;
 }
-.mirrorsharp-theme-dark .tok-comment {
+.mirrorsharp--theme-dark .tok-comment {
     color: #57a64a;
 }
-.mirrorsharp-theme-dark .tok-type,
+.mirrorsharp--theme-dark .tok-type,
 /* These are from server only: */
-.mirrorsharp-theme-dark .tok-class,
-.mirrorsharp-theme-dark .tok-struct,
-.mirrorsharp-theme-dark .tok-interface,
-.mirrorsharp-theme-dark .tok-enum,
-.mirrorsharp-theme-dark .tok-delegate {
+.mirrorsharp--theme-dark .tok-class,
+.mirrorsharp--theme-dark .tok-struct,
+.mirrorsharp--theme-dark .tok-interface,
+.mirrorsharp--theme-dark .tok-enum,
+.mirrorsharp--theme-dark .tok-delegate {
     color: #4ec9b0;
 }
 
-.mirrorsharp-theme-light .cm-lintRange-unnecessary {
+.mirrorsharp--theme-light .cm-lintRange-unnecessary {
     /* minimum for AAA */
     opacity: 0.66;
 }
 
-.mirrorsharp-theme-dark .cm-lintRange-unnecessary {
+.mirrorsharp--theme-dark .cm-lintRange-unnecessary {
     /* minimum for AAA */
     opacity: 0.73;
 }
@@ -199,17 +199,17 @@
     padding: 4px 6px;
 }
 
-.mirrorsharp-theme-light .cm-diagnosticAction {
+.mirrorsharp--theme-light .cm-diagnosticAction {
     background-color: #ddd;
     border-color: #aaa;
     color: inherit;
 }
 
-.mirrorsharp-theme-light .cm-diagnosticAction:hover {
+.mirrorsharp--theme-light .cm-diagnosticAction:hover {
     background-color: #eee;
 }
 
-.mirrorsharp-theme-dark .cm-diagnosticAction {
+.mirrorsharp--theme-dark .cm-diagnosticAction {
     background-color: #575760;
     border-color: #ccccd0;
     color: inherit;
@@ -250,15 +250,15 @@
     line-height: 1.2;
 }
 
-.mirrorsharp-theme-light .mirrorsharp-signature-selected {
+.mirrorsharp--theme-light .mirrorsharp-signature--selected {
     background: #fff;
 }
 
-.mirrorsharp-theme-dark .mirrorsharp-signature-selected {
+.mirrorsharp--theme-dark .mirrorsharp-signature--selected {
     background: #3f3f45;
 }
 
-.mirrorsharp-signature-part-selected {
+.mirrorsharp-signature-part--selected {
     font-weight: bold;
 }
 
@@ -290,11 +290,11 @@
     font-weight: bold;
 }
 
-.mirrorsharp-theme-light .mirrorsharp-connection-loss-message {
+.mirrorsharp--theme-light .mirrorsharp-connection-loss-message {
     background-color: #f5f5f5;
 }
 
-.mirrorsharp-theme-dark .mirrorsharp-connection-loss-message {
+.mirrorsharp--theme-dark .mirrorsharp-connection-loss-message {
     background-color: #333338;
 }
 
@@ -490,11 +490,11 @@
     padding: 1px 4px;
 }
 
-.mirrorsharp-signature-selected {
+.mirrorsharp-signature--selected {
     background: #fff;
 }
 
-.mirrorsharp-signature-part-selected {
+.mirrorsharp-signature-part--selected {
     font-weight: bold;
 }
 

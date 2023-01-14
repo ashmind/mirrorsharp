@@ -147,8 +147,8 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     }
 
     #setThemeClass(theme: Theme) {
-        this.#wrapper.classList.remove('mirrorsharp-theme-light', 'mirrorsharp-theme-dark');
-        this.#wrapper.classList.add(`mirrorsharp-theme-${theme}`);
+        this.#wrapper.classList.remove('mirrorsharp--theme-light', 'mirrorsharp--theme-dark');
+        this.#wrapper.classList.add(`mirrorsharp--theme-${theme}`);
     }
 
     setTheme(value: Theme) {
