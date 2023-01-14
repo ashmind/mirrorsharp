@@ -8,10 +8,13 @@ import { task } from 'oldowan';
 import kill from 'tree-kill';
 import waitOn from 'wait-on';
 
-const require = createRequire(import.meta.url);
-const resolvePlaywrightPath = (relativePath: string) => path.resolve(
-    path.dirname(require.resolve('playwright-core')), relativePath
-);
+const resolvePlaywrightPath = (relativePath: string) => {
+    const require = createRequire(import.meta.url);
+    const requireFromStorybook = createRequire(path.dirname(require.resolve('@storybook/test-runner')));
+    const playwrightRoot = path.dirname(requireFromStorybook.resolve('playwright-core'));
+
+    return path.resolve(playwrightRoot, relativePath);
+};
 const getPlaywrightVersion = async () => ((await jetpack.readAsync(
     resolvePlaywrightPath('package.json'), 'json'
 )) as { version: string }).version;

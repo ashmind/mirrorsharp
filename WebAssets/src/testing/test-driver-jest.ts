@@ -15,6 +15,7 @@ export const timers = setTimers(jest);
 
 export class TestDriver<TExtensionServerOptions = void, TSlowUpdateExtensionData = void>
     extends TestDriverBase<TExtensionServerOptions, TSlowUpdateExtensionData>
+// eslint-disable-next-line @typescript-eslint/brace-style
 {
     public readonly text: TestText;
     public readonly domEvents: TestDomEvents;
