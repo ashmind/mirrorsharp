@@ -83,6 +83,39 @@ test('textChange is called when typing', async () => {
     expect(textChange.mock.calls[0]![0]()).toBe('initialtest');
 });
 
+test('connectionChange is called when immediate connection is opened', async () => {
+    const connectionChange = jest.fn<void, [string]>();
+    await TestDriver.new({ on: { connectionChange } });
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    expect(connectionChange.mock.calls).toEqual([['open']]);
+});
+
+test('connectionChange is called when delayed connection is opened', async () => {
+    const connectionChange = jest.fn<void, [string]>();
+    const driver = await TestDriver.new({ on: { connectionChange }, disconnected: true });
+
+    // eslint-disable-next-line no-debugger
+    driver.mirrorsharp.connect();
+    await driver.completeBackgroundWork();
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    expect(connectionChange.mock.calls).toEqual([['open']]);
+});
+
+test('connectionChange is called when connection is lost', async () => {
+    const connectionChange = jest.fn<void, [string]>();
+    const driver = await TestDriver.new({ on: { connectionChange } });
+
+    driver.socket.close();
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    expect(connectionChange.mock.calls).toEqual([
+        ['open'],
+        ['lost']
+    ]);
+});
+
 test('slowUpdateWait is called while waiting for slow update result', async () => {
     const slowUpdateWait = jest.fn<void, []>();
     const driver = await TestDriver.new<void, string>({
@@ -92,7 +125,8 @@ test('slowUpdateWait is called while waiting for slow update result', async () =
 
     await driver.advanceTimeToSlowUpdateAndCompleteWork();
 
-    expect(slowUpdateWait).toBeCalledTimes(1);
+    // Expecting two calls: one on open and one on timer
+    expect(slowUpdateWait).toBeCalledTimes(2);
 });
 
 test('slowUpdateResult is called with results of slow update', async () => {

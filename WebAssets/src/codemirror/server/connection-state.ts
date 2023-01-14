@@ -10,7 +10,6 @@ export const connectionState = <O, TExtensionData>(
     return [isConnected, ViewPlugin.define(view => {
         const removeListeners = connection.addEventListeners({
             open: () => dispatchIsConnectedChanged(view, true),
-            error: () => dispatchIsConnectedChanged(view, false),
             close: () => dispatchIsConnectedChanged(view, false)
         });
 

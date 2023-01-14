@@ -5,7 +5,7 @@ import { installMockSocket, MockSocket, MockSocketController } from './shared/mo
 import { TestReceiver } from './shared/test-receiver';
 
 export type TestDriverOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = (object | { text: string; cursorOffset?: number } | { textWithCursor: string }) & {
-    keepSocketClosed?: boolean;
+    skipSocketOpen?: boolean;
 } & Omit<Partial<MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>>, 'text' | 'cursorOffset'>;
 
 export type TestDriverTimers = {
@@ -104,13 +104,13 @@ export class TestDriverBase<TExtensionServerOptions = void, TSlowUpdateExtension
             throw new Error('setTimers must be called before TestDriver instances can be created.');
 
         options = normalizeOptions(options);
-        const { keepSocketClosed, ...mirrorsharpOptions } = options;
+        const { skipSocketOpen, ...mirrorsharpOptions } = options;
 
         const container = document.createElement('div');
         document.body.appendChild(container);
 
         const socket = this.newMockSocket();
-        installMockSocket(socket);
+        installMockSocket(socket, { manualOpen: skipSocketOpen });
 
         const ms = mirrorsharp<TExtensionServerOptions, TSlowUpdateExtensionData>(container, {
             ...mirrorsharpOptions,
@@ -120,10 +120,9 @@ export class TestDriverBase<TExtensionServerOptions = void, TSlowUpdateExtension
 
         const driver = new this<TExtensionServerOptions, TSlowUpdateExtensionData>(socket.mock, ms);
 
-        if (keepSocketClosed)
+        if (skipSocketOpen)
             return driver;
 
-        driver.socket.open();
         await driver.completeBackgroundWork();
 
         timers.runOnlyPendingTimers();

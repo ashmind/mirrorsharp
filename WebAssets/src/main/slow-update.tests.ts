@@ -2,7 +2,7 @@ import { TestDriver } from '../testing/test-driver-jest';
 
 test('slowUpdate is not sent if there is no initial text', async () => {
     const driver = await TestDriver.new({
-        keepSocketClosed: true
+        skipSocketOpen: true
     });
 
     driver.socket.open();
@@ -13,8 +13,8 @@ test('slowUpdate is not sent if there is no initial text', async () => {
 
 test('slowUpdate is sent if there is initial text', async () => {
     const driver = await TestDriver.new({
-        keepSocketClosed: true,
-        text: 'Test'
+        text: 'Test',
+        skipSocketOpen: true
     });
 
     driver.socket.open();
@@ -28,8 +28,8 @@ test('slowUpdate is sent if there is initial text', async () => {
 
 test('slowUpdate is sent after initial text even if lint runs before connection is open', async () => {
     const driver = await TestDriver.new({
-        keepSocketClosed: true,
-        text: 'Test'
+        text: 'Test',
+        skipSocketOpen: true
     });
 
     await driver.advanceTimeToSlowUpdateAndCompleteWork();
@@ -44,7 +44,7 @@ test('slowUpdate is sent after initial text even if lint runs before connection 
 
 test('slowUpdate is sent if text is set after initial setup', async () => {
     const driver = await TestDriver.new({
-        keepSocketClosed: true
+        skipSocketOpen: true
     });
 
     driver.socket.open();
@@ -61,8 +61,8 @@ test('slowUpdate is sent if text is set after initial setup', async () => {
 
 test('slowUpdate is sent only once on reopen if connection is closed', async () => {
     const driver = await TestDriver.new({
-        keepSocketClosed: true,
-        textWithCursor: 'a|'
+        textWithCursor: 'a|',
+        skipSocketOpen: true
     });
 
     await driver.advanceTimeToSlowUpdateAndCompleteWork();

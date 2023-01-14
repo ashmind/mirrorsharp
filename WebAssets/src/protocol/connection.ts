@@ -1,8 +1,6 @@
 import { ensureDefined } from '../helpers/ensure-defined';
 import type { Message, ServerOptions } from './messages';
 
-const eventKeys = ['open', 'message', 'error', 'close'] as const;
-
 const stateCommandMap = { cancel: 'X', force: 'F' } as Readonly<{
     cancel: 'X';
     force: 'F';
@@ -18,10 +16,9 @@ export type ReplaceTextCommand = {
 };
 
 type HandlerMap<O, U> = {
-    open:    (e: Event) => void,
-    message: (data: Message<O, U>, e: MessageEvent) => void,
-    error:   (e: ErrorEvent) => void,
-    close:   (e: CloseEvent) => void
+    open:    () => void,
+    message: (data: Message<O, U>) => void,
+    close:   () => void
 };
 
 // Defaults are 'unknown' rather than 'void', as it exists for internal convenience,
@@ -29,10 +26,9 @@ type HandlerMap<O, U> = {
 export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionData = unknown> {
     readonly #url: string;
 
-    readonly #handlers = {
+    readonly #listeners = {
         open:    [],
         message: [],
-        error:   [],
         close:   []
     } as {
         [K in keyof HandlerMap<TExtensionServerOptions, TSlowUpdateExtensionData>]:
@@ -50,10 +46,10 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
 
     #removeInternalListeners: () => void;
 
-    constructor(url: string, { delayedOpen }: { delayedOpen?: boolean | undefined } = {}) {
+    constructor(url: string, { closed }: { closed: boolean | undefined }) {
         this.#url = url;
 
-        if (!delayedOpen) {
+        if (!closed) {
             this.open();
         }
         else {
@@ -63,25 +59,24 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
         }
 
         this.#removeInternalListeners = this.addEventListeners({
-            error: this.#tryToReopen,
-            close: this.#tryToReopen
+            close: () => this.#tryToReopen()
         });
     }
 
-    addEventListeners(handlers: Partial<HandlerMap<TExtensionServerOptions, TSlowUpdateExtensionData>>) {
+    addEventListeners(listeners: Partial<HandlerMap<TExtensionServerOptions, TSlowUpdateExtensionData>>) {
         const removeEach = [] as Array<() => void>;
-        for (const key in handlers) {
-            const list = this.#handlers[key as keyof typeof handlers];
+        for (const key in listeners) {
+            const list = this.#listeners[key as keyof typeof listeners];
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const handler = handlers[key as keyof typeof handlers]!;
+            const listener = listeners[key as keyof typeof listeners]!;
 
             list.push(
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                handler as any
+                listener as any
             );
             removeEach.push(() => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
-                const index = list.indexOf(handler as any);
+                const index = list.indexOf(listener as any);
                 if (index >= 0)
                     list.splice(index, 1);
             });
@@ -94,7 +89,7 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
         };
     }
 
-    open = () => {
+    open() {
         this.#socket = new WebSocket(this.#url);
         this.#openPromise = new Promise(resolve => {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -107,29 +102,32 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
                 resolve();
             });
         });
+        this.#addEventListenersToSocket();
+    }
 
-        for (const key of eventKeys) {
-            const handlersByKey = this.#handlers[key];
-            this.#socket.addEventListener(key, e => {
-                const handlerArguments = [e] as [CloseEvent|Event]|[Message<unknown, unknown>, MessageEvent];
-                if (key === 'message') {
-                    const data = JSON.parse((e as MessageEvent).data as string) as Message<unknown, unknown>;
-                    if (data.type === 'self:debug') {
-                        for (const entry of data.log) {
-                            (entry as { time: Date }).time = new Date(entry.time as unknown as string);
-                        }
-                    }
-                    (handlerArguments as [Message<unknown, unknown>, MessageEvent]).unshift(data);
-                }
-                for (const handler of handlersByKey) {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
-                    (handler as any)(...handlerArguments);
-                }
-            });
-        }
-    };
+    #addEventListenersToSocket() {
+        if (!this.#socket)
+            throw new Error('Internal error: Socket was not created before adding listeners.');
 
-    #tryToReopen = () => {
+        this.#socket.addEventListener('open', () => {
+            for (const listener of this.#listeners['open']) {
+                listener();
+            }
+        });
+        this.#socket.addEventListener('message', e => {
+            const data = JSON.parse(e.data as string) as Message<TExtensionServerOptions, TSlowUpdateExtensionData>;
+            for (const listener of this.#listeners['message']) {
+                listener(data);
+            }
+        });
+        this.#socket.addEventListener('close', () => {
+            for (const listener of this.#listeners['close']) {
+                listener();
+            }
+        });
+    }
+
+    #tryToReopen() {
         if (this.#mustBeClosed || this.#reopening)
             return;
 
@@ -145,9 +143,9 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
         }, this.#reopenPeriod);
         if (this.#reopenPeriod < 60000)
             this.#reopenPeriod = Math.min(5 * (this.#reopenPeriod + 200), 60000);
-    };
+    }
 
-    #sendIfOpen = async (command: string) => {
+    async #sendIfOpen(command: string) {
         if (this.#mustBeClosed)
             throw `Cannot send command '${command}' after the close() call.`;
 
@@ -159,7 +157,7 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.#socket!.send(command);
-    };
+    }
 
     isOpen() {
         return this.#socket?.readyState === WebSocket.OPEN;

@@ -1,7 +1,6 @@
 import { Extension, StateEffect } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { createExtensions, createState, ExtensionSwitcher } from '../codemirror/create';
-import { validateOptionKeys } from '../helpers/validate-option-keys';
 import type { Connection } from '../protocol/connection';
 import { type Language, LANGUAGE_DEFAULT } from '../protocol/languages';
 import type { Message, ServerOptions } from '../protocol/messages';
@@ -16,11 +15,6 @@ export type EditorOptions<TExtensionServerOptions> = {
 
     readonly on: {
         readonly textChange: ((getText: () => string) => void) | undefined;
-        readonly connectionChange: ({
-            (event: 'open', e: Event): void;
-            (event: 'error', e: ErrorEvent): void;
-            (event: 'close', e: CloseEvent): void;
-        }) | undefined;
         readonly serverError: ((message: string) => void) | undefined;
     };
 
@@ -51,22 +45,6 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         session: Session<TExtensionServerOptions, TSlowUpdateExtensionData>,
         options: EditorOptions<TExtensionServerOptions>
     ) {
-        validateOptionKeys(options, [
-            'language',
-            'text',
-            'cursorOffset',
-            'theme',
-            'serverOptions',
-            'on',
-            'codeMirror'
-        ]);
-        validateOptionKeys(options.on, [
-            'textChange',
-            'connectionChange',
-            'serverError'
-        ], 'on');
-        validateOptionKeys(options.codeMirror, ['extensions'], 'codeMirror');
-
         this.#connection = connection;
         this.#session = session;
 
@@ -156,14 +134,12 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         this.#removeConnectionListeners = connection.addEventListeners({
             open: this.#onConnectionOpen,
             message: this.#onConnectionMessage,
-            error: this.#onConnectionCloseOrError,
-            close: this.#onConnectionCloseOrError
+            close: this.#onConnectionClose
         });
     }
 
-    #onConnectionOpen = (e: Event) => {
+    #onConnectionOpen = () => {
         this.#hideConnectionLoss();
-        this.#options.on.connectionChange?.('open', e);
     };
 
     #onConnectionMessage = (message: Message<TExtensionServerOptions, TSlowUpdateExtensionData>) => {
@@ -179,14 +155,8 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         }
     };
 
-    #onConnectionCloseOrError = (e: CloseEvent|ErrorEvent) => {
+    #onConnectionClose = () => {
         this.#showConnectionLoss();
-        if (e instanceof CloseEvent) {
-            this.#options.on.connectionChange?.('close', e);
-        }
-        else {
-            this.#options.on.connectionChange?.('error', e);
-        }
     };
 
     #connectionLossElement: HTMLDivElement|undefined;

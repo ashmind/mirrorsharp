@@ -5,8 +5,8 @@ import type { DiagnosticSeverity, Message, ServerOptions, SlowUpdateMessage } fr
 const UPDATE_PERIOD = 500;
 
 type FullTextContext = {
-    getText: () => string;
-    getCursorIndex: () => number;
+    readonly getText: () => string;
+    readonly getCursorIndex: () => number;
 };
 
 type SlowUpdateResultDiagnostic = {
@@ -15,9 +15,10 @@ type SlowUpdateResultDiagnostic = {
     readonly message: string;
 };
 
-interface SessionEventHandlers<TSlowUpdateExtensionData> {
-    slowUpdateWait: (() => void) | undefined;
-    slowUpdateResult?: ((args: {
+export interface SessionEventListeners<TSlowUpdateExtensionData> {
+    readonly connectionChange: ((event: 'open' | 'lost') => void) | undefined;
+    readonly slowUpdateWait: (() => void) | undefined;
+    readonly slowUpdateResult?: ((args: {
         diagnostics: ReadonlyArray<SlowUpdateResultDiagnostic>;
         extensionResult: TSlowUpdateExtensionData;
     }) => void) | undefined;
@@ -29,7 +30,7 @@ export class Session<TExtensionServerOptions = unknown, TSlowUpdateExtensionData
     readonly #connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>;
     readonly #slowUpdateTimer: ReturnType<typeof setTimeout>;
     readonly #removeConnectionEvents: () => void;
-    readonly #on: SessionEventHandlers<TSlowUpdateExtensionData>;
+    readonly #on: SessionEventListeners<TSlowUpdateExtensionData>;
 
     #textSent = false;
     #hadChangesSinceLastSlowUpdate = false;
@@ -40,13 +41,19 @@ export class Session<TExtensionServerOptions = unknown, TSlowUpdateExtensionData
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(
         connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>,
-        on: SessionEventHandlers<TSlowUpdateExtensionData>
+        on: SessionEventListeners<TSlowUpdateExtensionData>
     ) {
         this.#connection = connection;
         this.#removeConnectionEvents = connection.addEventListeners({
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            open: () => this.#resendAllOnOpen(),
-            message: e => this.#receiveMessage(e)
+            open: () => {
+                on.connectionChange?.('open');
+                this.#resendAllOnOpen();
+            },
+            message: e => this.#receiveMessage(e),
+            close: () => {
+                on.connectionChange?.('lost');
+            }
         });
         this.#on = on;
         this.#slowUpdateTimer = setInterval(() => this.#requestSlowUpdate(), UPDATE_PERIOD);
@@ -133,8 +140,7 @@ export class Session<TExtensionServerOptions = unknown, TSlowUpdateExtensionData
         if (!this.#textSent)
             return;
 
-        if (this.#on.slowUpdateWait)
-            this.#on.slowUpdateWait();
+        this.#on.slowUpdateWait?.();
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.#connection.sendSlowUpdate();
         this.#hadChangesSinceLastSlowUpdate = false;

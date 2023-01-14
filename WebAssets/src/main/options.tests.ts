@@ -3,7 +3,7 @@ import { TestDriver } from '../testing/test-driver-jest';
 test('does not send default options on connection open', async () => {
     const driver = await TestDriver.new({
         language: 'C#',
-        keepSocketClosed: true
+        skipSocketOpen: true
     });
     driver.socket.open();
     await driver.completeBackgroundWork();
@@ -14,7 +14,7 @@ test('does not send default options on connection open', async () => {
 test('sends non-default language on connection open', async () => {
     const driver = await TestDriver.new({
         language: 'Visual Basic',
-        keepSocketClosed: true
+        skipSocketOpen: true
     });
     driver.socket.open();
     await driver.completeBackgroundWork();
@@ -25,7 +25,7 @@ test('sends non-default language on connection open', async () => {
 test('re-sends non-default language on next connection open', async () => {
     const driver = await TestDriver.new({
         language: 'Visual Basic',
-        keepSocketClosed: true
+        skipSocketOpen: true
     });
 
     driver.socket.open();
@@ -39,9 +39,9 @@ test('re-sends non-default language on next connection open', async () => {
 
 test('always sends options before slow update', async () => {
     const driver = await TestDriver.new({
-        keepSocketClosed: true,
         text: 'test',
-        language: 'Visual Basic'
+        language: 'Visual Basic',
+        skipSocketOpen: true
     });
 
     await driver.advanceTimeToSlowUpdateAndCompleteWork();
@@ -58,7 +58,7 @@ test('always sends options before slow update', async () => {
 test('sends extended options on connection open', async () => {
     const driver = await TestDriver.new({
         serverOptions: { 'x-test': 'value' },
-        keepSocketClosed: true
+        skipSocketOpen: true
     });
     driver.socket.open();
     await driver.completeBackgroundWork();

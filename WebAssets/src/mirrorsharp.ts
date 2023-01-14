@@ -6,7 +6,7 @@ import type { Theme } from './main/theme';
 import { Connection } from './protocol/connection';
 import type { Language } from './protocol/languages';
 import type { DiagnosticSeverity } from './protocol/messages';
-import { Session } from './protocol/session';
+import { Session, SessionEventListeners } from './protocol/session';
 
 // ts-unused-exports:disable-next-line
 export type MirrorSharpDiagnosticSeverity = DiagnosticSeverity;
@@ -49,11 +49,7 @@ export type MirrorSharpOptions<TExtensionServerOptions = void, TSlowUpdateExtens
         readonly slowUpdateWait?: () => void;
         readonly slowUpdateResult?: (result: MirrorSharpSlowUpdateResult<TSlowUpdateExtensionData>) => void;
         readonly textChange?: (getText: () => string) => void;
-        readonly connectionChange?: {
-            (event: 'open', e: Event): void;
-            (event: 'error', e: ErrorEvent): void;
-            (event: 'close', e: CloseEvent): void;
-        };
+        readonly connectionChange?: (event: 'open' | 'lost') => void;
         readonly serverError?: (message: string) => void;
     } | undefined;
 
@@ -89,7 +85,6 @@ const toEditorOptions = <O, U>(options: MirrorSharpOptions<O, U>) => {
         theme,
         serverOptions,
         on: {
-            connectionChange: on?.connectionChange,
             textChange: on?.textChange,
             serverError: on?.serverError
         },
@@ -97,6 +92,15 @@ const toEditorOptions = <O, U>(options: MirrorSharpOptions<O, U>) => {
             extensions: codeMirror?.extensions
         }
     } as const satisfies EditorOptions<O>;
+};
+
+const toSessionListeners = <O, U>(options: MirrorSharpOptions<O, U>) => {
+    const { connectionChange, slowUpdateWait, slowUpdateResult } = options.on ?? {};
+    return {
+        connectionChange,
+        slowUpdateWait,
+        slowUpdateResult
+    } as const satisfies SessionEventListeners<U>;
 };
 
 // ts-unused-exports:disable-next-line
@@ -126,11 +130,10 @@ default function mirrorsharp<TExtensionServerOptions = void, TSlowUpdateExtensio
     ], 'on');
     validateOptionKeys(options.codeMirror, ['extensions'], 'codeMirror');
 
-    const connection = new Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(options.serviceUrl, { delayedOpen: options.disconnected });
-    const session = new Session<TExtensionServerOptions, TSlowUpdateExtensionData>(connection, {
-        slowUpdateWait: options.on?.slowUpdateWait,
-        slowUpdateResult: options.on?.slowUpdateResult
-    });
+    const connection = new Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(
+        options.serviceUrl, { closed: options.disconnected }
+    );
+    const session = new Session<TExtensionServerOptions, TSlowUpdateExtensionData>(connection, toSessionListeners(options));
     const editor = new Editor(container, connection, session, toEditorOptions(options));
 
     let connectCalled = false;
