@@ -53,6 +53,36 @@ test('configuration extensions are added to CodeMirror', async () => {
         .toEqual(['test']);
 });
 
+test('textChange is called for setText', async () => {
+    const textChange = jest.fn<void, [() => string]>();
+    const driver = await TestDriver.new({
+        text: 'initial',
+        on: { textChange }
+    });
+
+    driver.mirrorsharp.setText('updated');
+    await driver.completeBackgroundWork();
+
+    expect(textChange).toBeCalledTimes(1);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    expect(textChange.mock.calls[0]![0]()).toBe('updated');
+});
+
+test('textChange is called when typing', async () => {
+    const textChange = jest.fn<void, [() => string]>();
+    const driver = await TestDriver.new({
+        textWithCursor: 'initial|',
+        on: { textChange }
+    });
+
+    driver.text.type('test');
+    await driver.completeBackgroundWork();
+
+    expect(textChange).toBeCalledTimes('test'.length);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    expect(textChange.mock.calls[0]![0]()).toBe('initialtest');
+});
+
 test('slowUpdateWait is called while waiting for slow update result', async () => {
     const slowUpdateWait = jest.fn<void, []>();
     const driver = await TestDriver.new<void, string>({

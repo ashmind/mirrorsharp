@@ -11,6 +11,7 @@ import type { Session } from '../protocol/session';
 import { switchableExtension } from './helpers/switchableExtension';
 import { keymaps } from './keymaps';
 import { languageExtensions } from './languages';
+import { notifyOnTextChanges } from './notify-on-text-changes';
 import { autocompletionFromServer } from './server/autocompletion';
 import { connectionState } from './server/connection-state';
 import { diagnosticsFromServer } from './server/diagnostics';
@@ -24,6 +25,7 @@ export const createExtensions = <O, U>(
     options: {
         language: Language;
         theme: Theme;
+        onTextChange: (() => void) | undefined,
         extraExtensions?: ReadonlyArray<Extension>;
     }
 ) => {
@@ -44,6 +46,8 @@ export const createExtensions = <O, U>(
         infotipsFromServer(connection),
         signatureHelpFromServer(connection as Connection),
         autocompletionFromServer(connection),
+
+        ...(options.onTextChange ? [notifyOnTextChanges(options.onTextChange)] : []),
 
         // has to go last so that more specific keymaps
         // in e.g. autocomplete have more priority

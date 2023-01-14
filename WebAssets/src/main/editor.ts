@@ -140,7 +140,9 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         [this.#cmExtensions, this.#extensionSwitcher] = createExtensions(this.#connection, this.#session, {
             language,
             theme,
-            extraExtensions: options.codeMirror.extensions
+            extraExtensions: options.codeMirror.extensions,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            onTextChange: options.on.textChange && (() => options.on.textChange!(() => this.getText()))
         });
         this.#cmView = new EditorView({
             state: createState(this.#cmExtensions, {
@@ -161,8 +163,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
     #onConnectionOpen = (e: Event) => {
         this.#hideConnectionLoss();
-        if (this.#options.on.connectionChange)
-            this.#options.on.connectionChange('open', e);
+        this.#options.on.connectionChange?.('open', e);
     };
 
     #onConnectionMessage = (message: Message<TExtensionServerOptions, TSlowUpdateExtensionData>) => {
@@ -180,14 +181,11 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
 
     #onConnectionCloseOrError = (e: CloseEvent|ErrorEvent) => {
         this.#showConnectionLoss();
-        const { connectionChange } = this.#options.on;
-        if (!connectionChange)
-            return;
         if (e instanceof CloseEvent) {
-            connectionChange('close', e);
+            this.#options.on.connectionChange?.('close', e);
         }
         else {
-            connectionChange('error', e);
+            this.#options.on.connectionChange?.('error', e);
         }
     };
 
