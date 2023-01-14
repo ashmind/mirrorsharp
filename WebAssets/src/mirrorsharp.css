@@ -250,8 +250,12 @@
     line-height: 1.2;
 }
 
-.mirrorsharp-signature-selected {
+.mirrorsharp-theme-light .mirrorsharp-signature-selected {
     background: #fff;
+}
+
+.mirrorsharp-theme-dark .mirrorsharp-signature-selected {
+    background: #3f3f45;
 }
 
 .mirrorsharp-signature-part-selected {

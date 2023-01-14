@@ -61,8 +61,8 @@ const ts = task('ts', async () => {
 });
 
 const css = task('css',
-    () => jetpack.copyAsync('src', 'dist', { matching: ['*.css', '*.less'], overwrite: true }),
-    { watch: ['src/*.css', 'src/*.less'] }
+    () => jetpack.copyAsync('src', 'dist', { matching: ['*.css'], overwrite: true }),
+    { watch: ['src/*.css'] }
 );
 
 const files = task('files', async () => {
