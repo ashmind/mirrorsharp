@@ -40,6 +40,39 @@ test('setTheme updates theme', async () => {
         .toContain('mirrorsharp--theme-dark');
 });
 
+test('setServiceUrl connects to new URL', async () => {
+    const driver = await TestDriver.new({});
+    driver.mirrorsharp.setServiceUrl('new-url');
+
+    await driver.completeBackgroundWork();
+
+    expect(driver.socket.url).toBe('new-url');
+    expect(driver.socket.createdCount).toBe(2);
+    expect(driver.socket.readyState).toBe(WebSocket.OPEN);
+});
+
+test('setServiceUrl does not connect to new URL if disconnected is requested', async () => {
+    const driver = await TestDriver.new({});
+    driver.mirrorsharp.setServiceUrl('new-url', { disconnected: true });
+
+    await driver.completeBackgroundWork();
+
+    expect(driver.socket.createdCount).toBe(1);
+    expect(driver.socket.readyState).toBe(WebSocket.CLOSED);
+});
+
+test('connect after disconnected setServiceUrl connects to new URL', async () => {
+    const driver = await TestDriver.new({});
+    driver.mirrorsharp.setServiceUrl('new-url', { disconnected: true });
+
+    await driver.completeBackgroundWork();
+    driver.mirrorsharp.connect();
+
+    expect(driver.socket.url).toBe('new-url');
+    expect(driver.socket.createdCount).toBe(2);
+    expect(driver.socket.readyState).toBe(WebSocket.OPEN);
+});
+
 test('configuration extensions are added to CodeMirror', async () => {
     const facet = Facet.define<string>();
 

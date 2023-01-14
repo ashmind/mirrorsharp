@@ -24,7 +24,7 @@ type HandlerMap<O, U> = {
 // Defaults are 'unknown' rather than 'void', as it exists for internal convenience,
 // and we assume in most cases this is not 'void'. Anything public should have 'void' though.
 export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionData = unknown> {
-    readonly #url: string;
+    #url: string;
 
     readonly #listeners = {
         open:    [],
@@ -36,29 +36,23 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
     };
 
     #socket: WebSocket | undefined;
-    #openPromise!: Promise<void>;
-    #resolveDelayedOpenPromise: (() => void) | undefined | null;
 
-    #mustBeClosed = false;
+    #manuallyClosed = false;
+
     #reopenPeriod = 0;
+    #reopenTimer: ReturnType<typeof setTimeout> | undefined | null;
     #reopenPeriodResetTimer: ReturnType<typeof setTimeout> | undefined | null;
-    #reopening = false;
 
-    #removeInternalListeners: () => void;
+    readonly #removeInternalListeners: () => void;
+    #removeSocketListeners: (() => void) | undefined;
 
     constructor(url: string, { closed }: { closed: boolean | undefined }) {
         this.#url = url;
-
-        if (!closed) {
+        if (!closed)
             this.open();
-        }
-        else {
-            this.#openPromise = new Promise(resolve => {
-                this.#resolveDelayedOpenPromise = resolve;
-            });
-        }
 
         this.#removeInternalListeners = this.addEventListeners({
+            open: () => this.#resetReopenPeriod(),
             close: () => this.#tryToReopen()
         });
     }
@@ -91,44 +85,45 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
 
     open() {
         this.#socket = new WebSocket(this.#url);
-        this.#openPromise = new Promise(resolve => {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            this.#socket!.addEventListener('open', () => {
-                this.#reopenPeriodResetTimer = setTimeout(() => { this.#reopenPeriod = 0; }, this.#reopenPeriod);
-                if (this.#resolveDelayedOpenPromise) {
-                    this.#resolveDelayedOpenPromise();
-                    this.#resolveDelayedOpenPromise = null;
-                }
-                resolve();
-            });
-        });
-        this.#addEventListenersToSocket();
+        this.#removeSocketListeners = this.#addSocketListeners(this.#socket);
     }
 
-    #addEventListenersToSocket() {
-        if (!this.#socket)
-            throw new Error('Internal error: Socket was not created before adding listeners.');
+    #addSocketListeners(socket: WebSocket) {
+        const on = {
+            open: () => {
+                for (const listener of this.#listeners['open']) {
+                    listener();
+                }
+            },
+            message: (e: MessageEvent) => {
+                const data = JSON.parse(e.data as string) as Message<TExtensionServerOptions, TSlowUpdateExtensionData>;
+                for (const listener of this.#listeners['message']) {
+                    listener(data);
+                }
+            },
+            close: () => {
+                for (const listener of this.#listeners['close']) {
+                    listener();
+                }
+            }
+        };
+        socket.addEventListener('open', on.open);
+        socket.addEventListener('message', on.message);
+        socket.addEventListener('close', on.close);
 
-        this.#socket.addEventListener('open', () => {
-            for (const listener of this.#listeners['open']) {
-                listener();
-            }
-        });
-        this.#socket.addEventListener('message', e => {
-            const data = JSON.parse(e.data as string) as Message<TExtensionServerOptions, TSlowUpdateExtensionData>;
-            for (const listener of this.#listeners['message']) {
-                listener(data);
-            }
-        });
-        this.#socket.addEventListener('close', () => {
-            for (const listener of this.#listeners['close']) {
-                listener();
-            }
-        });
+        return () => {
+            socket.removeEventListener('open', on.open);
+            socket.removeEventListener('message', on.message);
+            socket.removeEventListener('close', on.close);
+        };
+    }
+
+    #resetReopenPeriod() {
+        this.#reopenPeriodResetTimer = setTimeout(() => { this.#reopenPeriod = 0; }, this.#reopenPeriod);
     }
 
     #tryToReopen() {
-        if (this.#mustBeClosed || this.#reopening)
+        if (this.#manuallyClosed || this.#reopenTimer)
             return;
 
         if (this.#reopenPeriodResetTimer) {
@@ -136,17 +131,21 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
             this.#reopenPeriodResetTimer = null;
         }
 
-        this.#reopening = true;
-        setTimeout(() => {
+        this.#reopenTimer = setTimeout(() => {
             this.open();
-            this.#reopening = false;
+            this.#reopenTimer = null;
         }, this.#reopenPeriod);
-        if (this.#reopenPeriod < 60000)
-            this.#reopenPeriod = Math.min(5 * (this.#reopenPeriod + 200), 60000);
+
+        if (this.#reopenPeriod < 60000) {
+            this.#reopenPeriod = this.#reopenPeriod > 0
+                ? Math.min(2 * this.#reopenPeriod, 60000)
+                : 1000;
+            console.log('reopen period: ', this.#reopenPeriod);
+        }
     }
 
     async #sendIfOpen(command: string) {
-        if (this.#mustBeClosed)
+        if (this.#manuallyClosed)
             throw `Cannot send command '${command}' after the close() call.`;
 
         if (!this.isOpen()) {
@@ -209,12 +208,32 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
         return this.#sendIfOpen('O' + optionPairs.join(','));
     }
 
-    sendRequestSelfDebugData() {
-        return this.#sendIfOpen('Y');
+    // hopefully just for SharpLab
+    setUrl(url: string, { closed }: { closed: boolean | undefined }) {
+        this.#removeSocketListeners?.();
+        if (this.isOpen()) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.#socket!.close();
+        }
+
+        if (this.#reopenTimer) {
+            clearTimeout(this.#reopenTimer);
+            this.#reopenTimer = null;
+        }
+
+        if (this.#reopenPeriodResetTimer) {
+            clearTimeout(this.#reopenPeriodResetTimer);
+            this.#reopenPeriodResetTimer = null;
+        }
+
+        this.#reopenPeriod = 0;
+        this.#url = url;
+        if (!closed)
+            this.open();
     }
 
     close() {
-        this.#mustBeClosed = true;
+        this.#manuallyClosed = true;
         this.#removeInternalListeners();
         this.#socket?.close();
     }

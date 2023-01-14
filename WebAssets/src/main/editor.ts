@@ -24,7 +24,6 @@ export type EditorOptions<TExtensionServerOptions> = {
 };
 
 export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
-    readonly #connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>;
     readonly #session: Session<TExtensionServerOptions, TSlowUpdateExtensionData>;
 
     readonly #wrapper: HTMLElement;
@@ -42,7 +41,6 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         session: Session<TExtensionServerOptions, TSlowUpdateExtensionData>,
         options: EditorOptions<TExtensionServerOptions>
     ) {
-        this.#connection = connection;
         this.#session = session;
 
         const language = options.language ?? LANGUAGE_DEFAULT;
@@ -81,7 +79,7 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         this.#wrapper.classList.add('mirrorsharp');
         this.#setThemeClass(theme);
         container.appendChild(this.#wrapper);
-        [this.#cmExtensions, this.#extensionSwitcher] = createExtensions(this.#connection, this.#session, {
+        [this.#cmExtensions, this.#extensionSwitcher] = createExtensions(connection, this.#session, {
             language,
             theme,
             themeSpec: options.codeMirror.theme ?? {},
@@ -112,10 +110,6 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
     getText() {
         return this.#cmView.state.sliceDoc();
     }
-
-    // setText(text: string) {
-    //     this.#cm.setValue(text.replace(/(\r\n|\r|\n)/g, '\r\n'));
-    // }
 
     setText(text: string) {
         this.#cmView.dispatch({
@@ -162,12 +156,8 @@ export class Editor<TExtensionServerOptions, TSlowUpdateExtensionData> {
         this.#setThemeClass(value);
     }
 
-    destroy(destroyOptions: { readonly keepCodeMirror?: boolean } = {}) {
-        // this.#cm.save();
+    destroy() {
         this.#destroyConnectionLossView();
-        if (!destroyOptions.keepCodeMirror) {
-            // this.#cm.toTextArea();
-            return;
-        }
+        this.#wrapper.remove();
     }
 }

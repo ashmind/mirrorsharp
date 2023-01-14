@@ -74,8 +74,9 @@ export interface MirrorSharpInstance<TExtensionServerOptions> {
     setLanguage(value: MirrorSharpLanguage): void;
     setServerOptions(value: TExtensionServerOptions): void;
     setTheme(value: MirrorSharpTheme): void;
+    setServiceUrl(url: string, options?: ({ disconnected?: boolean } | undefined)): void;
     connect(): void;
-    destroy(destroyOptions: { keepCodeMirror?: boolean }): void;
+    destroy(): void;
 }
 
 const toEditorOptions = <O, U>(options: MirrorSharpOptions<O, U>) => {
@@ -131,8 +132,9 @@ default function mirrorsharp<TExtensionServerOptions = void, TSlowUpdateExtensio
     ], 'on');
     validateOptionKeys(options.codeMirror, ['extensions', 'theme'], 'codeMirror');
 
+    let { disconnected } = options;
     const connection = new Connection<TExtensionServerOptions, TSlowUpdateExtensionData>(
-        options.serviceUrl, { closed: options.disconnected }
+        options.serviceUrl, { closed: disconnected }
     );
     const session = new Session<TExtensionServerOptions, TSlowUpdateExtensionData>(connection, toSessionListeners(options));
     const editor = new Editor(container, connection, session, toEditorOptions(options));
@@ -141,16 +143,26 @@ default function mirrorsharp<TExtensionServerOptions = void, TSlowUpdateExtensio
     return Object.freeze({
         getCodeMirrorView: () => editor.getCodeMirrorView(),
         getRootElement: () => editor.getRootElement(),
+
         getText: () => editor.getText(),
         setText: (text: string) => editor.setText(text),
+
         getCursorOffset: () => editor.getCursorOffset(),
+
         getLanguage: () => editor.getLanguage(),
         setLanguage: (value: Language) => editor.setLanguage(value),
+
         setServerOptions: (value: TExtensionServerOptions) => editor.setServerOptions(value),
         setTheme: (theme: MirrorSharpTheme) => editor.setTheme(theme),
 
+        setServiceUrl: (url: string, options: { disconnected?: boolean } = {}) => {
+            ({ disconnected } = options);
+            connectCalled = false;
+            connection.setUrl(url, { closed: disconnected });
+        },
+
         connect: () => {
-            if (!options.disconnected)
+            if (!disconnected)
                 throw new Error('Connect can only be called if options.disconnected was set.');
             if (connectCalled)
                 throw new Error('Connect can only be called once per mirrorsharp instance (on start).');
@@ -158,8 +170,8 @@ default function mirrorsharp<TExtensionServerOptions = void, TSlowUpdateExtensio
             connectCalled = true;
         },
 
-        destroy(destroyOptions?: { keepCodeMirror?: boolean }) {
-            editor.destroy(destroyOptions);
+        destroy() {
+            editor.destroy();
             session.destroy();
             connection.close();
         }

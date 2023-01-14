@@ -26,6 +26,7 @@ export class MockSocketController {
         | typeof MockSocket.CLOSED
     );
 
+    url?: string;
     createdCount = 0;
     sent = [] as Array<string>;
 
@@ -65,6 +66,12 @@ export class MockSocketController {
     addEventListener<TEvent extends keyof MockSocketListenerMap>(event: TEvent, listener: MockSocketListenerMap[TEvent]) {
         this.#listeners[event].push(listener);
     }
+
+    removeEventListener<TEvent extends keyof MockSocketListenerMap>(event: TEvent, listener: MockSocketListenerMap[TEvent]) {
+        const index = this.#listeners[event].indexOf(listener);
+        if (index > 0)
+            this.#listeners[event].splice(index, 1);
+    }
 }
 
 export class MockSocket {
@@ -74,6 +81,10 @@ export class MockSocket {
     static readonly CLOSED = 3;
 
     readonly mock = new MockSocketController();
+
+    get url() {
+        return this.mock.url;
+    }
 
     get readyState() {
         return this.mock.readyState;
@@ -86,14 +97,23 @@ export class MockSocket {
     addEventListener<TEvent extends keyof MockSocketListenerMap>(event: TEvent, listener: MockSocketListenerMap[TEvent]) {
         this.mock.addEventListener(event, listener);
     }
+
+    removeEventListener<TEvent extends keyof MockSocketListenerMap>(event: TEvent, listener: MockSocketListenerMap[TEvent]) {
+        this.mock.removeEventListener(event, listener);
+    }
+
+    close() {
+        this.mock.close();
+    }
 }
 
-export const installMockSocket = (socket: MockSocket, { manualOpen }: { manualOpen: boolean | undefined }) => {
+export const installMockSocket = (socket: MockSocket, { manualOpen }: { manualOpen?: boolean | undefined } = {}) => {
     if (globalThis.WebSocket instanceof MockSocket)
         throw new Error(`Global WebSocket is already set up in this context.`);
 
     // eslint-disable-next-line func-style
-    const WebSocket = function() {
+    const WebSocket = function(url: string) {
+        socket.mock.url = url;
         socket.mock.createdCount += 1;
         if (!manualOpen && socket.readyState !== MockSocket.OPEN)
             socket.mock.open({ asyncEvents: true });
@@ -104,5 +124,6 @@ export const installMockSocket = (socket: MockSocket, { manualOpen }: { manualOp
     WebSocket.CLOSING = MockSocket.CLOSING;
     WebSocket.CLOSED = MockSocket.CLOSED;
 
-    (globalThis as unknown as { WebSocket: () => Partial<WebSocket> }).WebSocket = WebSocket;
+    (globalThis as unknown as { WebSocket: (url: string) => Partial<WebSocket> }).WebSocket = WebSocket;
+    return socket;
 };
