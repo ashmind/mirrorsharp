@@ -15,29 +15,33 @@ const sendReplace = (session: Session, from: number, to: number, text: string | 
 
 const sendChanges = (session: Session, changes: ChangeSet, prevCursorOffset: number, cursorOffset: number) => {
     let changeCount = 0;
-    let first: {
+    let single: {
         from: number,
         to: number,
         text: Text
-    } | undefined;
+    } | undefined | null;
+    let startOffset = 0;
     changes.iterChanges((from, to, _f, _t, inserted) => {
         changeCount += 1;
         if (changeCount === 1) {
-            first = { from, to, text: inserted };
+            single = { from, to, text: inserted };
             return;
         }
 
-        if (changeCount === 2) {
+        if (single) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            sendReplace(session, first!.from, first!.to, first!.text, cursorOffset);
+            sendReplace(session, single.from, single.to, single.text, cursorOffset);
+            startOffset += single.text.length - (single.to - single.from);
+            single = null;
         }
 
-        sendReplace(session, from, to, inserted, cursorOffset);
+        sendReplace(session, startOffset + from, startOffset + to, inserted, cursorOffset);
+        startOffset += inserted.length - (to - from);
     });
 
-    if (changeCount === 1) {
+    if (single) {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const { from, to, text } = first!;
+        const { from, to, text } = single;
         if (from === prevCursorOffset && to === from && text.length === 1) {
             const char = text.line(1).text.charAt(0);
             if (char === '' && text.lines === 2 && text.line(1).length === 0) {

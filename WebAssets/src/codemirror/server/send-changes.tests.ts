@@ -1,3 +1,4 @@
+import { indentLess, indentMore, selectAll } from '@codemirror/commands';
 import { TestDriver } from '../../testing/test-driver-jest';
 
 test('change at cursor is sent as typed text', async () => {
@@ -44,7 +45,7 @@ test('two changes are sent as individual replaced text', async () => {
     const lastSent = driver.socket.sent.filter(c => !c.startsWith('U'));
     expect(lastSent).toEqual([
         'R1:0:1::x',
-        'R2:0:1::y'
+        'R3:0:1::y'
     ]);
 });
 
@@ -59,8 +60,40 @@ test('three changes are sent as individual replaced text', async () => {
     const lastSent = driver.socket.sent.filter(c => !c.startsWith('U'));
     expect(lastSent).toEqual([
         'R1:0:1::x',
-        'R2:0:1::y',
-        'R3:0:1::z'
+        'R3:0:1::y',
+        'R5:0:1::z'
+    ]);
+});
+
+test('indentMore command sends expected changes', async () => {
+    const driver = await TestDriver.new({ text: 'abc\r\ncde\r\ndef' });
+    selectAll(driver.getCodeMirrorView());
+    driver.socket.sent = [];
+
+    indentMore(driver.getCodeMirrorView());
+    await driver.completeBackgroundWork();
+
+    const lastSent = driver.socket.sent.filter(c => !c.startsWith('U'));
+    expect(lastSent).toEqual([
+        'R0:0:4::    ',
+        'R8:0:4::    ',
+        'R16:0:4::    '
+    ]);
+});
+
+test('indentLess command sends expected changes', async () => {
+    const driver = await TestDriver.new({ text: '    abc\r\n    cde\r\n    def' });
+    selectAll(driver.getCodeMirrorView());
+    driver.socket.sent = [];
+
+    indentLess(driver.getCodeMirrorView());
+    await driver.completeBackgroundWork();
+
+    const lastSent = driver.socket.sent.filter(c => !c.startsWith('U'));
+    expect(lastSent).toEqual([
+        'R0:4:0::',
+        'R4:4:0::',
+        'R8:4:0::'
     ]);
 });
 
