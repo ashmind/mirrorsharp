@@ -1,4 +1,5 @@
-import { ViewPlugin, showTooltip } from '@codemirror/view';
+import { Prec } from '@codemirror/state';
+import { ViewPlugin, showTooltip, keymap } from '@codemirror/view';
 import { defineEffectField } from '../../helpers/define-effect-field';
 import { renderPartsTo } from '../../helpers/render-parts';
 import type { Connection } from '../../protocol/connection';
@@ -82,8 +83,16 @@ const convertSignatureHelpToTooltip = showTooltip.from(currentMessage, message =
     };
 });
 
+const forceSignatureHelpOnCtrlShiftSpace = (connection: Connection) => Prec.highest(keymap.of([{ key: 'Ctrl-Shift-Space', run: () => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    connection.sendSignatureHelpState('force');
+    return true;
+} }]));
+
+
 export const signatureHelpFromServer = (connection: Connection) => [
     currentMessage,
+    forceSignatureHelpOnCtrlShiftSpace(connection),
     receiveSignatureHelpFromServer(connection),
     convertSignatureHelpToTooltip
 ];

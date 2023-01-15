@@ -50,10 +50,9 @@ const getLanguageAndCode = () => {
 const initial = getLanguageAndCode();
 const ms = mirrorsharp(document.getElementById('editor-container'), {
     serviceUrl: window.location.href.replace(/^http(s?:\/\/[^/]+).*$/i, 'ws$1/mirrorsharp'),
-    selfDebugEnabled: true,
     language: initial.language,
-    initialText: initial.code,
-    initialServerOptions: (initial.mode !== 'regular' ? { 'x-mode': initial.mode } : {})
+    text: initial.code,
+    serverOptions: (initial.mode !== 'regular' ? { 'x-mode': initial.mode } : {})
 });
 
 window.addEventListener('hashchange', () => {

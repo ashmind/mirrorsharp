@@ -12,29 +12,12 @@ import { ContainerRoot } from './container-root';
 import { Theme, THEME_LIGHT } from './theme';
 
 // this.#keyMap = {
-//     /* eslint-disable object-shorthand */
-//     'Tab': () => {
-//         if (this.#cm.somethingSelected()) {
-//             this.#cm.execCommand('indentMore');
-//             return;
-//         }
-//         this.#cm.replaceSelection('    ', 'end');
-//     },
-//     'Shift-Tab': 'indentLess',
-//     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-//     'Ctrl-Space': () => { connection.sendCompletionState('force'); },
 //     // eslint-disable-next-line @typescript-eslint/no-floating-promises
 //     'Shift-Ctrl-Space': () => { connection.sendSignatureHelpState('force'); },
-//     'Ctrl-.': 'lintFixShow',
-//     'Shift-Ctrl-Y': selfDebug ? () => {
-//         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-//         selfDebug.requestData(connection);
-//     } : false
-//     /* eslint-enable object-shorthand */
 // };
 // this.#cm.addKeyMap(this.#keyMap);
 
-export type CreateInstanceOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = {
+type CreateInstanceOptions<TExtensionServerOptions, TSlowUpdateExtensionData> = {
     readonly serviceUrl: string;
 
     readonly language: Language | undefined;

@@ -104,7 +104,7 @@ default function mirrorsharp<TExtensionServerOptions = void, TSlowUpdateExtensio
         serverOptions,
         codeMirror,
         ...rest
-    } = options as MirrorSharpOptions<TExtensionServerOptions, TSlowUpdateExtensionData>;
+    } = options;
     ensureNoUnknownOptions('', rest);
 
     const {

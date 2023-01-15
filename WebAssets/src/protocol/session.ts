@@ -15,7 +15,7 @@ type SlowUpdateResultDiagnostic = {
     readonly message: string;
 };
 
-export type SlowUpdateResult<TSlowUpdateExtensionData> = {
+type SlowUpdateResult<TSlowUpdateExtensionData> = {
     readonly diagnostics: ReadonlyArray<SlowUpdateResultDiagnostic>;
     readonly extensionResult: TSlowUpdateExtensionData;
 };

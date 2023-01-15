@@ -1,4 +1,4 @@
-import type { ChangeData, ChangesMessage, CompletionItemData, CompletionsMessage, DiagnosticData, InfotipMessage, Message, PartData, ServerOptions, SignaturesMessage, UnknownMessage } from '../../protocol/messages';
+import type { ChangeData, ChangesMessage, CompletionItemData, CompletionsMessage, DiagnosticData, InfotipMessage, Message, PartData, ServerOptions, SignaturesEmptyMessage, SignaturesMessage, UnknownMessage } from '../../protocol/messages';
 import type { MockSocketController } from './mock-socket';
 
 export class TestReceiver<TExtensionServerOptions, TSlowUpdateExtensionData> {
@@ -37,7 +37,7 @@ export class TestReceiver<TExtensionServerOptions, TSlowUpdateExtensionData> {
         this.#message({ type: 'completionInfo', index, parts });
     }
 
-    signatures(message: Omit<SignaturesMessage, 'type'>) {
+    signatures(message: Omit<SignaturesMessage | SignaturesEmptyMessage, 'type'>) {
         this.#message({ type: 'signatures', ...message });
     }
 
