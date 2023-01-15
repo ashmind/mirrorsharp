@@ -12,6 +12,7 @@ const kindsToClassNames = (kinds: ReadonlyArray<string>) => {
 
 const renderInfotip = ({ sections, kinds }: InfotipMessage) => {
     const wrapper = document.createElement('div');
+    wrapper.classList.add('mirrorsharp-infotip');
     sections.forEach((section, index) => {
         const element = document.createElement('div');
         element.className = 'mirrorsharp-parts-section';

@@ -25,7 +25,6 @@ test('hover requests infotip', async () => {
     expect(driver.socket.sent).toContain('I0');
 });
 
-
 test('hover applies received infotip', async () => {
     const driver = await TestDriver.new({ text: 'test' });
     mockHoverDependencies(driver);
