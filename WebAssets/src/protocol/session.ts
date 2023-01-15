@@ -15,15 +15,17 @@ type SlowUpdateResultDiagnostic = {
     readonly message: string;
 };
 
-export interface SessionEventListeners<TSlowUpdateExtensionData> {
+export type SlowUpdateResult<TSlowUpdateExtensionData> = {
+    readonly diagnostics: ReadonlyArray<SlowUpdateResultDiagnostic>;
+    readonly extensionResult: TSlowUpdateExtensionData;
+};
+
+export type SessionEventListeners<TSlowUpdateExtensionData> = {
     readonly connectionChange: ((event: 'open' | 'loss') => void) | undefined;
     readonly slowUpdateWait: (() => void) | undefined;
-    readonly slowUpdateResult: ((args: {
-        diagnostics: ReadonlyArray<SlowUpdateResultDiagnostic>;
-        extensionResult: TSlowUpdateExtensionData;
-    }) => void) | undefined;
+    readonly slowUpdateResult: ((args: SlowUpdateResult<TSlowUpdateExtensionData>) => void) | undefined;
     readonly serverError: ((message: string) => void) | undefined;
-}
+};
 
 // Defaults are 'unknown' rather than 'void', as it exists for internal convenience,
 // and we assume in most cases this is not 'void'. Anything public should have 'void' though.
@@ -36,12 +38,13 @@ export class Session<TExtensionServerOptions = unknown, TSlowUpdateExtensionData
     #textSent = false;
     #hadChangesSinceLastSlowUpdate = false;
 
-    #fullOptions = {} as ServerOptions & Partial<TExtensionServerOptions>;
+    #fullOptions: ServerOptions & Partial<TExtensionServerOptions>;
     #fullTextContext?: FullTextContext;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(
         connection: Connection<TExtensionServerOptions, TSlowUpdateExtensionData>,
+        serverOptions: ServerOptions & TExtensionServerOptions,
         on: SessionEventListeners<TSlowUpdateExtensionData>
     ) {
         this.#connection = connection;
@@ -58,6 +61,7 @@ export class Session<TExtensionServerOptions = unknown, TSlowUpdateExtensionData
         });
         this.#on = on;
         this.#slowUpdateTimer = setInterval(() => this.#requestSlowUpdate(), UPDATE_PERIOD);
+        this.#fullOptions = serverOptions;
     }
 
     #resendAllOnOpen() {

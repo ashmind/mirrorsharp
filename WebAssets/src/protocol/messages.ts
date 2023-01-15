@@ -137,7 +137,7 @@ export interface OptionsEchoMessage<TExtensionServerOptions> {
 }
 
 export interface ServerOptions {
-    language?: Language;
+    language: Language;
 }
 
 // Temporary, until self-debug is restored or removed

@@ -63,7 +63,7 @@ test('sends extended options on connection open', async () => {
     driver.socket.open();
     await driver.completeBackgroundWork();
 
-    expect(driver.socket.sent).toEqual(['Ox-test=value,language=C#']);
+    expect(driver.socket.sent).toEqual(['Olanguage=C#,x-test=value']);
 });
 
 /*test('options echo without a language does not unset language', async () => {
@@ -90,5 +90,5 @@ test('options echo without extended option does not unset extended option for ne
     driver.socket.open();
     await driver.completeBackgroundWork();
 
-    expect(driver.socket.sent).toEqual(['Ox-test=value,language=C#']);
+    expect(driver.socket.sent).toEqual(['Olanguage=C#,x-test=value']);
 });

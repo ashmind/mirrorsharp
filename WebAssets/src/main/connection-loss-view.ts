@@ -1,20 +1,21 @@
 import type { Connection } from '../protocol/connection';
+import type { ContainerRoot } from './container-root';
 
-export const connectionLossView = <O, U>(container: HTMLElement, connection: Connection<O, U>) => {
+export const installConnectionLossView = <O, U>(root: ContainerRoot, connection: Connection<O, U>) => {
     let messageElement: HTMLDivElement | undefined;
     const show = () => {
         if (!messageElement) {
             messageElement = document.createElement('div');
             messageElement.setAttribute('class', 'mirrorsharp-connection-loss-message');
             messageElement.innerText = 'Server connection lost, reconnecting…';
-            container.appendChild(messageElement);
+            root.element.appendChild(messageElement);
         }
 
-        container.classList.add('mirrorsharp--connection-lost');
+        root.element.classList.add('mirrorsharp--connection-lost');
     };
 
     const hide = () => {
-        container.classList.remove('mirrorsharp--connection-lost');
+        root.element.classList.remove('mirrorsharp--connection-lost');
     };
 
     const removeConnectionListeners = connection.addEventListeners({

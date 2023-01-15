@@ -21,7 +21,7 @@ export const setTimers = (value: TestDriverTimers) => timers = value;
 export class TestDriverBase<TExtensionServerOptions = void, TSlowUpdateExtensionData = void> {
     public readonly socket: MockSocketController;
     public readonly mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>;
-    public readonly receive: TestReceiver<TSlowUpdateExtensionData>;
+    public readonly receive: TestReceiver<TExtensionServerOptions, TSlowUpdateExtensionData>;
 
     readonly #cmView: EditorView;
 
@@ -103,8 +103,7 @@ export class TestDriverBase<TExtensionServerOptions = void, TSlowUpdateExtension
         if (!timers)
             throw new Error('setTimers must be called before TestDriver instances can be created.');
 
-        options = normalizeOptions(options);
-        const { skipSocketOpen, ...mirrorsharpOptions } = options;
+        const { skipSocketOpen, ...mirrorsharpOptions } = normalizeOptions(options);
 
         const container = document.createElement('div');
         document.body.appendChild(container);

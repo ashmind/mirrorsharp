@@ -27,7 +27,7 @@ export const createExtensions = <O, U>(
         language: Language;
         theme: Theme;
         themeSpec: { [selector: string]: StyleSpec; };
-        onTextChange: (() => void) | undefined,
+        onTextChange: ((getText: () => string) => void) | undefined,
         extraExtensions: ReadonlyArray<Extension>;
     }
 ) => {

@@ -1,7 +1,7 @@
-import type { ChangeData, ChangesMessage, CompletionItemData, CompletionsMessage, DiagnosticData, InfotipMessage, Message, PartData, SignaturesMessage, UnknownMessage } from '../../protocol/messages';
+import type { ChangeData, ChangesMessage, CompletionItemData, CompletionsMessage, DiagnosticData, InfotipMessage, Message, PartData, ServerOptions, SignaturesMessage, UnknownMessage } from '../../protocol/messages';
 import type { MockSocketController } from './mock-socket';
 
-export class TestReceiver<TSlowUpdateExtensionData = void> {
+export class TestReceiver<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly #socket: MockSocketController;
 
     constructor(socket: MockSocketController) {
@@ -12,8 +12,8 @@ export class TestReceiver<TSlowUpdateExtensionData = void> {
         this.#message({ type: 'changes', changes, reason });
     }
 
-    optionsEcho(options = {}) {
-        this.#message({ type: 'optionsEcho', options });
+    optionsEcho(options: Partial<ServerOptions> & Partial<TExtensionServerOptions> = {}) {
+        this.#message({ type: 'optionsEcho', options: options as (ServerOptions & TExtensionServerOptions) });
     }
 
     /**
@@ -55,7 +55,7 @@ export class TestReceiver<TSlowUpdateExtensionData = void> {
         this.#message({ type: 'error', message });
     }
 
-    #message(message: Partial<Exclude<Message<unknown, TSlowUpdateExtensionData>, UnknownMessage>>) {
+    #message(message: Partial<Exclude<Message<TExtensionServerOptions, TSlowUpdateExtensionData>, UnknownMessage>>) {
         this.#socket.receive({ data: JSON.stringify(message) });
     }
 }
