@@ -1,6 +1,6 @@
 ## Overview
 
-MirrorSharp is a code editor `<textarea>` built on Roslyn and [CodeMirror](https://codemirror.net/).
+MirrorSharp is a reusable client-server code editor component built on [Roslyn](https://github.com/dotnet/roslyn) and [CodeMirror](https://codemirror.net/).
 
 ### Features
 #### Code completion
@@ -27,7 +27,7 @@ You'll need the following:
 
 ### Server
 
-[![build](https://img.shields.io/github/workflow/status/ashmind/mirrorsharp/Server%20%28C%23%29.svg?style=flat-square)](https://github.com/ashmind/mirrorsharp/actions?query=workflow%3A%22Server+%28C%23%29%22)
+[![build](https://img.shields.io/github/actions/workflow/status/ashmind/mirrorsharp/dotnet.yml?style=flat-square)](https://github.com/ashmind/mirrorsharp/actions/workflows/dotnet.yml)
 
 #### MirrorSharp.AspNetCore
 [![NuGet](https://img.shields.io/nuget/v/MirrorSharp.AspNetCore.svg?style=flat-square)](https://www.nuget.org/packages/MirrorSharp.AspNetCore)
@@ -63,46 +63,33 @@ app.MapMirrorSharp("/mirrosharp");
 
 ### Client
 
-[![build](https://img.shields.io/github/workflow/status/ashmind/mirrorsharp/Client%20%28JS%29.svg?style=flat-square)](https://github.com/ashmind/mirrorsharp/actions?query=workflow%3A%22Client+%28JS%29%22)  
+[![build](https://img.shields.io/github/actions/workflow/status/ashmind/mirrorsharp/web-assets.yml?style=flat-square)](https://github.com/ashmind/mirrorsharp/actions/workflows/web-assets.yml)
 [![npm](https://img.shields.io/npm/v/mirrorsharp.svg?style=flat-square)](https://www.npmjs.com/package/mirrorsharp)
 
 ```
 npm install mirrorsharp --save
 ```
 
-#### CSS
+#### Build
 
-If you are using LESS, CSS references can be done automatically by including `mirrorsharp/mirrorsharp.less`.
-
-Otherwise, make sure to include the following:
-
-1. `codemirror/lib/codemirror.css`
-2. `codemirror/addon/lint/lint.css`
-3. `codemirror/addon/hint/show-hint.css`
-4. `codemirror-addon-infotip/dist/infotip.css`
-5. `codemirror-addon-lint-fix/dist/lint-fix.css`
-6. `mirrorsharp/mirrorsharp.css`
-
-#### JS
-
-Since mirrorsharp JS files are not bundled, you'll need to either:
-1. Use a bundler such as [Webpack](https://webpack.js.org) or [Parcel](https://parceljs.org/)
-2. Use `<script type="module">`.
+Since mirrorsharp JS files are not bundled, you'll need to use a bundler such as [Webpack](https://webpack.js.org), [Parcel](https://parceljs.org/) or [ESBuild](https://esbuild.github.io/).
 
 You can see a Parcel example in AspNetCore.Demo.  
 
 Note that mirrorsharp is written in TypeScript, and the package includes full TypeScript types.
 
+**Note:** You need to manually require/import `mirrorsharp/mirrorsharp.css` into your bundle.
+
 #### Usage
 ```javascript
 import mirrorsharp from 'mirrorsharp';
 
-mirrorsharp(textarea, { serviceUrl: 'wss://your_app_root/mirrorsharp' })
+mirrorsharp(container, { serviceUrl: 'wss://your_app_root/mirrorsharp' });
 ```
 
 If you're not using HTTPS, you'll likely need `ws://` instead of `wss://`.
 
-Note that `textarea` is an actual textarea element, and not a CSS selector or jQuery object.
+Note that the container is an actual HTML element, and not a CSS selector.
 
 ## API
 
