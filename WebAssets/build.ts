@@ -14,7 +14,15 @@ const deps = task('deps', () => Promise.all([
     depsDepcheck()
 ]));
 
-const tsESLint = task('ts:eslint', () => exec('eslint ./src --max-warnings 0 --ext .js,.jsx,.ts,.tsx'));
+const tsESLint = task('ts:eslint', async () => {
+    // https://github.com/import-js/eslint-import-resolver-typescript/issues/208
+    if (import.meta.url.includes('%23')) {
+        console.warn("Linting is not possible ('#' in path).");
+        return;
+    }
+
+    await exec('eslint ./src --max-warnings 0 --ext .js,.jsx,.ts,.tsx');
+});
 const tsUnusedExports = task('ts:unused-exports', async () => {
     console.log('ts-unused-exports: dist');
     await exec('ts-unused-exports ./src/tsconfig.json --ignoreFiles=\\.(stories|tests)$ --ignoreFiles=test\\.data --ignoreFiles=testing');
