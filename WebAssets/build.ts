@@ -2,6 +2,8 @@ import { transformFileAsync } from '@babel/core';
 import fg from 'fast-glob';
 import jetpack from 'fs-jetpack';
 import { task, exec, build } from 'oldowan';
+// @ts-expect-error (https://github.com/microsoft/TypeScript/issues/38149)
+import { addImportExtensions } from './build/plugins/add-import-extensions.ts';
 import './build/storybook.ts';
 
 const clean = task('clean', async () => {
@@ -47,7 +49,7 @@ const tsTransform = task('ts:transform', async () => {
             plugins: [
                 // Add .js extension to all imports.
                 // Technically TypeScript already resolves .js to .ts, but it's a hack.
-                'babel-plugin-add-import-extension'
+                addImportExtensions
             ]
         }))!;
 
@@ -75,7 +77,14 @@ const css = task('css',
 
 const files = task('files', async () => {
     await jetpack.copyAsync('./README.md', 'dist/README.md', { overwrite: true });
-    await jetpack.copyAsync('./package.json', 'dist/package.json', { overwrite: true });
+
+    // It's almost impossible to reliably convince npm not to install
+    // devDependencies (e.g. in SharpLab), so it is easier to remove them.
+    const packageJson = await jetpack.readAsync('./package.json', 'json') as {
+        devDependencies?: Record<string, string>;
+    };
+    delete packageJson.devDependencies;
+    await jetpack.writeAsync('dist/package.json', packageJson);
 }, { watch: ['./README.md', './package.json'] });
 
 task ('lint', async () => {
