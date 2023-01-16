@@ -1,7 +1,7 @@
-import FakeTimers from '@sinonjs/fake-timers';
+import { install } from '@sinonjs/fake-timers';
 import type { TestDriverTimers } from '../test-driver-base';
 
-const clock = FakeTimers.install();
+const clock = install();
 
 export const timers: TestDriverTimers = {
     setSystemTime(now?: number | Date): void {
