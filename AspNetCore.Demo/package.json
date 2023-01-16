@@ -1,5 +1,5 @@
 {
-  "name": "mirrorsharp.aspnetcore.demo",
+  "name": "mirrorsharp.demo",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -10,8 +10,6 @@
     "typeface-open-sans": "0.0.75"
   },
   "devDependencies": {
-    "@parcel/transformer-less": "^2.8.2",
-    "less": "^3.12.2",
     "parcel": "^2.8.2",
     "process": "^0.11.10"
   }
