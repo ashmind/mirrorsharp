@@ -5,8 +5,10 @@ on:
     paths:
     - '.github/workflows/web-assets.yml'
     - 'WebAssets/**'
-    - 'AspNetCore.Demo'
-    - 'Owin.Demo'
+    - '*.Demo*/**/*.ts'
+    - '*.Demo*/**/*.css'
+    - '*.Demo*/**/*.html'
+    - '*.Demo*/**/package.json'
   pull_request:
 
 jobs:

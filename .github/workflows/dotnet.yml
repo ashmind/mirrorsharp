@@ -5,6 +5,10 @@ on:
     paths-ignore:
     - '.github/workflows/web-assets.yml'
     - 'WebAssets/**'
+    - '*.Demo*/**/*.cs'
+    - '*.Demo*/**/*.css'
+    - '*.Demo*/**/*.html'
+    - '*.Demo*/**/package.json'
   pull_request:
 
 jobs:
