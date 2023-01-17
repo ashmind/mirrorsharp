@@ -6,7 +6,7 @@
     "build": "parcel build index.html --dist-dir wwwroot --no-optimize --no-cache"
   },
   "dependencies": {
-    "mirrorsharp": "file:../WebAssets/dist",
+    "mirrorsharp-codemirror-6-preview": "file:../WebAssets/dist",
     "typeface-open-sans": "0.0.75"
   },
   "devDependencies": {

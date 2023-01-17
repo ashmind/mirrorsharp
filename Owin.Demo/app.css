@@ -1,4 +1,4 @@
-@import './node_modules/mirrorsharp/mirrorsharp.css';
+@import './node_modules/mirrorsharp-codemirror-6-preview/mirrorsharp.css';
 @import './node_modules/typeface-open-sans/index.css';
 
 * { box-sizing: border-box; }

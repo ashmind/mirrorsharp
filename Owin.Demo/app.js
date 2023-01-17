@@ -1,4 +1,4 @@
-import mirrorsharp from 'mirrorsharp';
+import mirrorsharp from 'mirrorsharp-codemirror-6-preview';
 
 const getCode = (language, mode) => {
     if (mode === 'script') {
