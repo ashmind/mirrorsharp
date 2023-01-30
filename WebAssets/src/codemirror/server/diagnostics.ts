@@ -43,7 +43,7 @@ const receiveSlowUpdateFromServer = <TExtensionData>(
                 .map(mapDiagnostic)
                 // If slow update is received after a text change
                 // some diagnostics might be outside document boundaries
-                .filter(d => d.from + d.to < view.state.doc.length);
+                .filter(d => d.to <= view.state.doc.length);
             diagnostics.sort((a, b) => {
                 if (a.from > b.from) return  1;
                 if (b.from > a.from) return -1;
