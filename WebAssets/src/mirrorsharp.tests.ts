@@ -7,16 +7,28 @@ import type { MirrorSharpDiagnostic, MirrorSharpSlowUpdateResult } from './mirro
 import { LANGUAGE_CSHARP, LANGUAGE_DEFAULT, LANGUAGE_VB } from './protocol/languages';
 import { TestDriver } from './testing/test-driver-jest';
 
+test('configuration text is sent with expected newlines', async () => {
+    const driver = await TestDriver.new({
+        text: 'line 1\r\nline 2',
+        skipSocketOpen: true
+    });
+
+    driver.socket.open();
+    await driver.completeBackgroundWork();
+
+    expect(driver.socket.sent).toContain(`R0:0:0::line 1\r\nline 2`);
+});
+
 test('setText replaces document text', async () => {
     const driver = await TestDriver.new({
         text: 'initial'
     });
 
-    driver.mirrorsharp.setText('updated');
+    driver.mirrorsharp.setText('updated 1\r\nupdated 2');
     await driver.completeBackgroundWork();
 
-    expect(driver.mirrorsharp.getText()).toBe('updated');
-    expect(driver.socket.sent).toContain(`R0:7:0::updated`);
+    expect(driver.mirrorsharp.getText()).toBe('updated 1\r\nupdated 2');
+    expect(driver.socket.sent).toContain(`R0:7:0::updated 1\r\nupdated 2`);
 });
 
 test('setLanguage updates language', async () => {

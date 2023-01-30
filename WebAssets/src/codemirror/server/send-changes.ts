@@ -4,14 +4,19 @@ import { lineSeparator } from '../../protocol/line-separator';
 import type { ServerPosition } from '../../protocol/messages';
 import type { Session } from '../../protocol/session';
 import { convertToServerPosition, getLength } from '../helpers/convert-position';
+import { getString, getText } from '../helpers/get-text';
 
 const sendReplace = (session: Session, doc: Text, from: number, to: number, newText: string | Text, cursorIndexAfter: ServerPosition) => {
     const start = convertToServerPosition(doc, from);
+    const newTextString = typeof newText === 'string'
+        ? newText
+        : getString(newText);
+
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     session.sendPartialText({
         start,
         length: getLength(start, convertToServerPosition(doc, to)),
-        newText: typeof newText === 'string' ? newText : newText.toString(),
+        newText: newTextString,
         cursorIndexAfter
     });
 };
@@ -67,7 +72,7 @@ const sendChanges = (session: Session, startState: EditorState, changes: ChangeS
 
 export const sendChangesToServer = (session: Session) => ViewPlugin.define(view => {
     session.setFullText({
-        getText: () => view.state.doc.toString(),
+        getText: () => getText(view),
         getCursorIndex: () => convertToServerPosition(view.state.doc, view.state.selection.main.from)
     });
 
