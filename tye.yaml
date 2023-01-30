@@ -8,9 +8,9 @@ services:
 - name: aspnetcore-demo-assets  
   executable: pwsh
   args: -Command "npm run watch"
-  workingDirectory: AspNetCore.Demo
+  workingDirectory: AspNetCore.Demo.Net6
 
 - name: aspnetcore-demo-dotnet
-  project: AspNetCore.Demo/AspNetCore.Demo.csproj
+  project: AspNetCore.Demo.Net6/AspNetCore.Demo.Net6.csproj
   bindings:
   - protocol: http

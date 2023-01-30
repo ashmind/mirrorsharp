@@ -1,4 +1,4 @@
-import type { TransactionSpec } from '@codemirror/state';
+import { EditorState, Transaction, TransactionSpec } from '@codemirror/state';
 import type { EditorView } from '@codemirror/view';
 import mirrorsharp, { MirrorSharpOptions, MirrorSharpInstance } from '../mirrorsharp';
 import { installMockSocket, MockSocket, MockSocketController } from './shared/mock-socket';
@@ -22,6 +22,7 @@ export class TestDriverBase<TExtensionServerOptions = void, TSlowUpdateExtension
     public readonly socket: MockSocketController;
     public readonly mirrorsharp: MirrorSharpInstance<TExtensionServerOptions>;
     public readonly receive: TestReceiver<TExtensionServerOptions, TSlowUpdateExtensionData>;
+    public codeMirrorTransactions: Array<Transaction> = [];
 
     readonly #cmView: EditorView;
 
@@ -111,8 +112,19 @@ export class TestDriverBase<TExtensionServerOptions = void, TSlowUpdateExtension
         const socket = this.newMockSocket();
         installMockSocket(socket, { manualOpen: skipSocketOpen });
 
+        const extensions = [
+            ...(mirrorsharpOptions.codeMirror?.extensions ?? []),
+            EditorState.transactionFilter.of(t => {
+                driver.codeMirrorTransactions.push(t);
+                return t;
+            })
+        ];
         const ms = mirrorsharp<TExtensionServerOptions, TSlowUpdateExtensionData>(container, {
             ...mirrorsharpOptions,
+            codeMirror: {
+                ...(mirrorsharpOptions.codeMirror ?? {}),
+                extensions
+            },
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             serviceUrl: null!
         });

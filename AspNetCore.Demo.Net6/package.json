@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "parcel build index.html --dist-dir wwwroot --no-optimize --no-cache"
+    "build": "parcel build index.html --dist-dir wwwroot --no-optimize --no-cache",
+    "watch": "parcel watch index.html --dist-dir wwwroot --no-cache"
   },
   "dependencies": {
     "mirrorsharp-codemirror-6-preview": "file:../WebAssets/dist",
