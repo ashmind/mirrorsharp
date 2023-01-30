@@ -4,7 +4,7 @@ import { EditorView } from '@codemirror/view';
 import { vbLanguage } from './codemirror/languages/vb';
 import { THEME_DARK, THEME_LIGHT } from './main/theme';
 import type { MirrorSharpDiagnostic, MirrorSharpSlowUpdateResult } from './mirrorsharp';
-import { LANGUAGE_CSHARP, LANGUAGE_VB } from './protocol/languages';
+import { LANGUAGE_CSHARP, LANGUAGE_DEFAULT, LANGUAGE_VB } from './protocol/languages';
 import { TestDriver } from './testing/test-driver-jest';
 
 test('setText replaces document text', async () => {
@@ -27,6 +27,22 @@ test('setLanguage updates language', async () => {
     expect(driver.getCodeMirrorView().state.facet(language))
         .toBe(vbLanguage);
     expect(driver.socket.sent).toContain('Olanguage=Visual Basic');
+});
+
+test('setLanguage does not send language if same as default', async () => {
+    const driver = await TestDriver.new({});
+
+    driver.mirrorsharp.setLanguage(LANGUAGE_DEFAULT);
+
+    expect(driver.socket.sent).toEqual([]);
+});
+
+test('setLanguage does not send language if same as current', async () => {
+    const driver = await TestDriver.new({ language: LANGUAGE_VB });
+
+    driver.mirrorsharp.setLanguage(LANGUAGE_VB);
+
+    expect(driver.socket.sent).toEqual([]);
 });
 
 test('setTheme updates theme', async () => {

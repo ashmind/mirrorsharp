@@ -93,6 +93,9 @@ class Instance<TExtensionServerOptions, U> {
     }
 
     setLanguage(value: Language) {
+        if (value === this.#context.language)
+            return;
+
         const { session, codeMirror } = this.#context;
 
         session.setOptions(
