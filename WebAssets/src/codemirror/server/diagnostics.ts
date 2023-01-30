@@ -3,7 +3,7 @@ import { ViewPlugin } from '@codemirror/view';
 import type { Connection } from '../../protocol/connection';
 import type { DiagnosticActionData, DiagnosticData, DiagnosticSeverity } from '../../protocol/messages';
 import { applyChangesFromServer } from '../helpers/apply-changes-from-server';
-import { convertFromServerPosition } from '../helpers/convert-position';
+import { convertFromServerPosition, getEnd } from '../helpers/convert-position';
 
 const receiveSlowUpdateFromServer = <TExtensionData>(
     connection: Connection<unknown, TExtensionData>
@@ -28,7 +28,7 @@ const receiveSlowUpdateFromServer = <TExtensionData>(
 
     const mapDiagnostic = ({ span: { start, length }, message, severity, actions, tags }: DiagnosticData): Diagnostic => ({
         from: convertFromServerPosition(view.state.doc, start),
-        to: convertFromServerPosition(view.state.doc, start + length),
+        to: convertFromServerPosition(view.state.doc, getEnd(start, length)),
         message,
         severity: mapSeverity(severity, tags),
         actions: actions?.map(mapAction)

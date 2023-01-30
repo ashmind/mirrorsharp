@@ -1,5 +1,5 @@
 import { ensureDefined } from '../helpers/ensure-defined';
-import type { Message, ServerOptions } from './messages';
+import type { Message, ServerOptions, ServerPosition } from './messages';
 
 const stateCommandMap = { cancel: 'X', force: 'F' } as Readonly<{
     cancel: 'X';
@@ -8,10 +8,10 @@ const stateCommandMap = { cancel: 'X', force: 'F' } as Readonly<{
 }>;
 
 export type ReplaceTextCommand = {
-    start: number,
+    start: ServerPosition,
     length: number,
     newText: string,
-    cursorIndexAfter: number,
+    cursorIndexAfter: ServerPosition,
     reason?: string | null
 };
 
@@ -163,11 +163,13 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
     }
 
     sendReplaceText({ start, length, cursorIndexAfter, newText, reason }: ReplaceTextCommand) {
-        return this.#sendIfOpen('R' + start + ':' + length + ':' + cursorIndexAfter + ':' + (reason ?? '') + ':' + newText);
+        return this.#sendIfOpen(
+            `R${start as unknown as number}:${length}:${cursorIndexAfter as unknown as number}:${reason ?? ''}:${newText}`
+        );
     }
 
-    sendMoveCursor(cursorIndex: number) {
-        return this.#sendIfOpen('M' + cursorIndex);
+    sendMoveCursor(cursorIndex: ServerPosition) {
+        return this.#sendIfOpen('M' + (cursorIndex as unknown as number));
     }
 
     sendTypeChar(char: string) {
@@ -188,8 +190,8 @@ export class Connection<TExtensionServerOptions = unknown, TSlowUpdateExtensionD
         return this.#sendIfOpen('P' + stateCommandMap[command]);
     }
 
-    sendRequestInfoTip(cursorIndex: number) {
-        return this.#sendIfOpen('I' + cursorIndex);
+    sendRequestInfoTip(cursorIndex: ServerPosition) {
+        return this.#sendIfOpen('I' + (cursorIndex as unknown as number));
     }
 
     sendSlowUpdate() {

@@ -3,8 +3,13 @@ import { defineEffectField } from '../../helpers/define-effect-field';
 import { renderPartsTo } from '../../helpers/render-parts';
 import type { Connection } from '../../protocol/connection';
 import type { InfotipMessage } from '../../protocol/messages';
+import { convertFromServerPosition, convertToServerPosition, getEnd } from '../helpers/convert-position';
 
-const [lastInfotipRequest, dispatchLastInfotipRequestChanged] = defineEffectField<{ pos: number; resolve: ((tooltip: Tooltip) => void) }|null>(null);
+const [lastInfotipRequest, dispatchLastInfotipRequestChanged] = defineEffectField<{
+    pos: number;
+    promise: Promise<Tooltip>;
+    resolve: ((tooltip: Tooltip) => void)
+} | null>(null);
 
 const kindsToClassNames = (kinds: ReadonlyArray<string>) => {
     return kinds.map(kind => 'mirrorsharp-infotip-icon-' + kind);
@@ -30,12 +35,17 @@ const renderInfotip = ({ sections, kinds }: InfotipMessage) => {
 
 export const infotipsFromServer = <O, U>(connection: Connection<O, U>) => {
     const requestInfotip = (view: EditorView, pos: number) => {
-        const infotip = new Promise<Tooltip>(resolve => {
-            dispatchLastInfotipRequestChanged(view, { pos, resolve });
-        });
+        const lastRequest = view.state.field(lastInfotipRequest);
+        if (lastRequest?.pos === pos)
+            return lastRequest.promise;
+
+        let resolve: (tooltip: Tooltip) => void;
+        const promise = new Promise<Tooltip>(r => resolve = r);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        dispatchLastInfotipRequestChanged(view, { pos, promise, resolve: resolve! });
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        connection.sendRequestInfoTip(pos);
-        return infotip;
+        connection.sendRequestInfoTip(convertToServerPosition(view.state.doc, pos));
+        return promise;
     };
 
     const receiveInfotipFromServer = ViewPlugin.define(view => {
@@ -49,12 +59,14 @@ export const infotipsFromServer = <O, U>(connection: Connection<O, U>) => {
                     return;
 
                 const { span } = message;
-                if (request.pos < span.start || request.pos > span.start + span.length)
+                const start = convertFromServerPosition(view.state.doc, span.start);
+                const end = convertFromServerPosition(view.state.doc, getEnd(span.start, span.length));
+                if (request.pos < start || request.pos > end)
                     return;
 
                 request.resolve({
                     pos: request.pos,
-                    end: span.start + span.length,
+                    end,
                     create: () => ({ dom: renderInfotip(message) })
                 });
             }

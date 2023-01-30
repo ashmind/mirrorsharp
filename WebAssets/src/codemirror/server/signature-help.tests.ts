@@ -5,10 +5,7 @@ import { SIGNATURES_INDEX_OF } from './signature-help.test.data';
 test('signature help message shows signature help', async () => {
     const driver = await TestDriver.new({ text: '_' });
 
-    driver.receive.signatures({
-        span: { start: 0, length: 1 },
-        signatures: SIGNATURES_INDEX_OF }
-    );
+    driver.receive.signatures(SIGNATURES_INDEX_OF, { start: 0, length: 1 });
     await driver.completeBackgroundWork();
 
     const view = driver.getCodeMirrorView();
@@ -22,12 +19,9 @@ test('signature help message shows signature help', async () => {
 test('signature help message with empty signatures hides signature help', async () => {
     const driver = await TestDriver.new({ text: '_' });
 
-    driver.receive.signatures({
-        span: { start: 0, length: 1 },
-        signatures: SIGNATURES_INDEX_OF }
-    );
+    driver.receive.signatures(SIGNATURES_INDEX_OF, { start: 0, length: 1 });
     await driver.completeBackgroundWork();
-    driver.receive.signatures({});
+    driver.receive.signatures();
 
     const view = driver.getCodeMirrorView();
     const tooltips = view.state.facet(showTooltip).filter(t => t) as ReadonlyArray<Tooltip>;

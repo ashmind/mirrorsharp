@@ -4,6 +4,7 @@ import { defineEffectField } from '../../helpers/define-effect-field';
 import { renderPartsTo } from '../../helpers/render-parts';
 import type { Connection } from '../../protocol/connection';
 import type { SignatureData, SignatureInfoData, SignatureInfoParameterData, SignaturesEmptyMessage, SignaturesMessage } from '../../protocol/messages';
+import { convertFromServerPosition, getEnd } from '../helpers/convert-position';
 
 const [currentMessage, dispatchCurrentMessageChanged] = defineEffectField<SignaturesMessage | SignaturesEmptyMessage | undefined>();
 
@@ -71,14 +72,15 @@ const renderSignatureList = (signatures: ReadonlyArray<SignatureData>) => {
     return list;
 };
 
-const convertSignatureHelpToTooltip = showTooltip.from(currentMessage, message => {
+const convertSignatureHelpToTooltip = showTooltip.compute([currentMessage, 'doc'], state => {
+    const message = state.field(currentMessage);
     if (!message?.signatures)
         return null;
 
     const { span } = message;
     return {
-        pos: span.start,
-        end: span.start + span.length,
+        pos: convertFromServerPosition(state.doc, span.start),
+        end: convertFromServerPosition(state.doc, getEnd(span.start, span.length)),
         create: () => ({ dom: renderSignatureList(message.signatures) })
     };
 });

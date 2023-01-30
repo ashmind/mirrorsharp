@@ -1,5 +1,8 @@
 import type { Language } from './languages';
 
+declare const PositionSymbol: unique symbol;
+export type ServerPosition = { [PositionSymbol]: never };
+
 export type Message<TExtensionServerOptions, TSlowUpdateExtensionData> = ChangesMessage
                     | CompletionsMessage
                     | CompletionInfoMessage
@@ -21,7 +24,7 @@ export interface ChangesMessage {
 }
 
 export interface ChangeData {
-    readonly start: number;
+    readonly start: ServerPosition;
     readonly length: number;
     readonly text: string;
 }
@@ -174,6 +177,6 @@ export interface PartData {
 
 // ts-unused-exports:disable-next-line
 export interface SpanData {
-    readonly start: number;
+    readonly start: ServerPosition;
     readonly length: number;
 }

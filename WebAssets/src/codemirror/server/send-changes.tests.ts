@@ -18,7 +18,7 @@ test('enter at cursor is sent as typed newline', async () => {
     await driver.completeBackgroundWork();
 
     const lastSent = driver.socket.sent.filter(c => !c.startsWith('U')).slice(-1)[0];
-    expect(lastSent).toBe('R1:0:2::\r\n');
+    expect(lastSent).toBe('R1:0:3::\r\n');
 });
 
 test('change not at cursor is sent as replaced text', async () => {
@@ -75,9 +75,9 @@ test('indentMore command sends expected changes', async () => {
 
     const lastSent = driver.socket.sent.filter(c => !c.startsWith('U'));
     expect(lastSent).toEqual([
-        'R0:0:5::    ',
-        'R9:0:5::    ',
-        'R18:0:5::    '
+        'R0:0:4::    ',
+        'R9:0:4::    ',
+        'R18:0:4::    '
     ]);
 });
 

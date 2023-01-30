@@ -1,21 +1,22 @@
 import type { Text, ChangeSet, EditorState } from '@codemirror/state';
 import { ViewPlugin, PluginValue } from '@codemirror/view';
 import { lineSeparator } from '../../protocol/line-separator';
+import type { ServerPosition } from '../../protocol/messages';
 import type { Session } from '../../protocol/session';
-import { convertToServerPosition } from '../helpers/convert-position';
+import { convertToServerPosition, getLength } from '../helpers/convert-position';
 
-const sendReplace = (session: Session, doc: Text, from: number, to: number, newText: string | Text, cursorOffset: number) => {
+const sendReplace = (session: Session, doc: Text, from: number, to: number, newText: string | Text, cursorIndexAfter: ServerPosition) => {
     const start = convertToServerPosition(doc, from);
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     session.sendPartialText({
         start,
-        length: convertToServerPosition(doc, to) - start,
+        length: getLength(start, convertToServerPosition(doc, to)),
         newText: typeof newText === 'string' ? newText : newText.toString(),
-        cursorIndexAfter: convertToServerPosition(doc, cursorOffset)
+        cursorIndexAfter
     });
 };
 
-const sendChanges = (session: Session, startState: EditorState, changes: ChangeSet, prevCursorOffset: number, cursorOffset: number) => {
+const sendChanges = (session: Session, startState: EditorState, changes: ChangeSet, prevCursorOffset: number, cursorIndexAfter: ServerPosition) => {
     let changeCount = 0;
     let single: {
         from: number,
@@ -33,13 +34,13 @@ const sendChanges = (session: Session, startState: EditorState, changes: ChangeS
 
         if (single) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            sendReplace(session, lastDoc, single.from, single.to, single.text, cursorOffset);
+            sendReplace(session, lastDoc, single.from, single.to, single.text, cursorIndexAfter);
             lastDoc = lastDoc.replace(from, to, inserted);
             startOffset += single.text.length - (single.to - single.from);
             single = null;
         }
 
-        sendReplace(session, lastDoc, startOffset + from, startOffset + to, inserted, cursorOffset);
+        sendReplace(session, lastDoc, startOffset + from, startOffset + to, inserted, cursorIndexAfter);
         startOffset += inserted.length - (to - from);
         lastDoc = lastDoc.replace(from, to, inserted);
     });
@@ -51,7 +52,7 @@ const sendChanges = (session: Session, startState: EditorState, changes: ChangeS
             const char = text.line(1).text.charAt(0);
             if (char === '' && text.lines === 2 && text.line(1).length === 0) {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                sendReplace(session, startState.doc, from, to, lineSeparator, cursorOffset);
+                sendReplace(session, startState.doc, from, to, lineSeparator, cursorIndexAfter);
                 return;
             }
 
@@ -60,29 +61,29 @@ const sendChanges = (session: Session, startState: EditorState, changes: ChangeS
             return;
         }
 
-        sendReplace(session, startState.doc, from, to, text, cursorOffset);
+        sendReplace(session, startState.doc, from, to, text, cursorIndexAfter);
     }
 };
 
 export const sendChangesToServer = (session: Session) => ViewPlugin.define(view => {
     session.setFullText({
         getText: () => view.state.doc.toString(),
-        getCursorIndex: () => view.state.selection.main.from
+        getCursorIndex: () => convertToServerPosition(view.state.doc, view.state.selection.main.from)
     });
 
     return {
         update({ docChanged, selectionSet, changes, state, startState }) {
             const prevCursorOffset = startState.selection.main.from;
-            const cursorOffset = state.selection.main.from;
+            const cursorIndex = convertToServerPosition(state.doc, state.selection.main.from);
 
             if (docChanged) {
-                sendChanges(session, startState, changes, prevCursorOffset, cursorOffset);
+                sendChanges(session, startState, changes, prevCursorOffset, cursorIndex);
                 return; // this will send selection move so we don't have to repeat
             }
 
             if (selectionSet) {
                 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                session.sendMoveCursor(convertToServerPosition(startState.doc, cursorOffset));
+                session.sendMoveCursor(cursorIndex);
             }
         }
     } as PluginValue;

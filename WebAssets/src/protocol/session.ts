@@ -1,12 +1,12 @@
 import type { Connection, ReplaceTextCommand } from './connection';
 import { LANGUAGE_DEFAULT } from './languages';
-import type { DiagnosticSeverity, ErrorMessage, Message, ServerOptions, SlowUpdateMessage } from './messages';
+import type { DiagnosticSeverity, ErrorMessage, Message, ServerOptions, ServerPosition, SlowUpdateMessage } from './messages';
 
 const UPDATE_PERIOD = 500;
 
 type FullTextContext = {
     readonly getText: () => string;
-    readonly getCursorIndex: () => number;
+    readonly getCursorIndex: () => ServerPosition;
 };
 
 type SlowUpdateResultDiagnostic = {
@@ -107,7 +107,7 @@ export class Session<TExtensionServerOptions = unknown, TSlowUpdateExtensionData
 
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.#connection.sendReplaceText({
-            start: 0,
+            start: 0 as unknown as ServerPosition,
             length: 0,
             newText: getText(),
             cursorIndexAfter: getCursorIndex()
@@ -130,7 +130,7 @@ export class Session<TExtensionServerOptions = unknown, TSlowUpdateExtensionData
         this.#textSent = true;
     }
 
-    sendMoveCursor(cursorIndex: number) {
+    sendMoveCursor(cursorIndex: ServerPosition) {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.#connection.sendMoveCursor(cursorIndex);
     }
