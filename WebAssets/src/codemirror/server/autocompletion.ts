@@ -1,7 +1,7 @@
 import { startCompletion, acceptCompletion, closeCompletion, completionStatus, autocompletion, CompletionSource, Completion } from '@codemirror/autocomplete';
 import { Prec } from '@codemirror/state';
 import { ViewPlugin, EditorView, keymap } from '@codemirror/view';
-import { applyChangesFromServer } from '../../helpers/apply-changes-from-server';
+import { applyChangesFromServer } from '../helpers/apply-changes-from-server';
 import { renderParts } from '../../helpers/render-parts';
 import type { Connection } from '../../protocol/connection';
 import type { CompletionInfoMessage, CompletionsMessage } from '../../protocol/messages';

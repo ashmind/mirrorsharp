@@ -1,16 +1,17 @@
 import type { ChangeSpec, TransactionSpec } from '@codemirror/state';
 import type { EditorView } from '@codemirror/view';
-import type { ChangeData } from '../protocol/messages';
+import type { ChangeData } from '../../protocol/messages';
+import { convertFromServerPosition } from './convert-position';
 
-export function applyChangesFromServer(view: EditorView, changesFromServer: ReadonlyArray<ChangeData>) {
+export const applyChangesFromServer = (view: EditorView, changesFromServer: ReadonlyArray<ChangeData>) => {
     const [selection] = view.state.selection.ranges;
     const transaction = { changes: [] } as Omit<TransactionSpec, 'changes'> & {
         changes: Array<ChangeSpec>;
     };
     for (const { start, length, text } of changesFromServer) {
         const change = {
-            from: start,
-            to: start + length,
+            from: convertFromServerPosition(view.state.doc, start),
+            to: convertFromServerPosition(view.state.doc, start + length),
             insert: text
         };
         transaction.changes.push(change);
@@ -19,4 +20,4 @@ export function applyChangesFromServer(view: EditorView, changesFromServer: Read
     }
 
     view.dispatch(transaction);
-}
+};

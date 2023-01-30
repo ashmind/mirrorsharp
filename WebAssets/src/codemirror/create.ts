@@ -9,7 +9,7 @@ import type { Connection } from '../protocol/connection';
 import type { Language } from '../protocol/languages';
 import { lineSeparator } from '../protocol/line-separator';
 import type { Session } from '../protocol/session';
-import { switchableExtension } from './helpers/switchableExtension';
+import { switchableExtension } from './helpers/switchable-extension';
 import { keymaps } from './keymaps';
 import { languageExtensions } from './languages';
 import { notifyOnTextChanges } from './notify-on-text-changes';

@@ -44,7 +44,7 @@ export class TestReceiver<TExtensionServerOptions, TSlowUpdateExtensionData> {
     slowUpdate = ((diagnostics: ReadonlyArray<Partial<DiagnosticData>>, x?: TSlowUpdateExtensionData) => {
         this.#message({
             type: 'slowUpdate',
-            diagnostics: diagnostics as Array<DiagnosticData>,
+            diagnostics: diagnostics.map(d => ({ tags: [], ...d })) as Array<DiagnosticData>,
             x
         });
     }) as void extends TSlowUpdateExtensionData
