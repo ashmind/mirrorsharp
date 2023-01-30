@@ -15,8 +15,8 @@ export class TestReceiver<TExtensionServerOptions, TSlowUpdateExtensionData> {
         this.#socket = socket;
     }
 
-    changes(reason: ChangesMessage['reason'], changes: ReadonlyArray<ChangeData> = []) {
-        this.#message({ type: 'changes', changes, reason });
+    changes(reason: ChangesMessage['reason'], changes: ReadonlyArray<SimplifyServerPosition<ChangeData>> = []) {
+        this.#message({ type: 'changes', changes: changes as ReadonlyArray<ChangeData>, reason });
     }
 
     optionsEcho(options: Partial<ServerOptions> & Partial<TExtensionServerOptions> = {}) {
