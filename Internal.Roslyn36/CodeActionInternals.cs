@@ -12,6 +12,11 @@ namespace MirrorSharp.Internal.Roslyn36 {
             return action.IsInlinable;
         }
 
+        public Roslyn.Internals.CodeActionPriority GetPriority(CodeAction action) {
+            Argument.NotNull(nameof(action), action);
+            return (Roslyn.Internals.CodeActionPriority)(int)action.Priority;
+        }
+
         public ImmutableArray<CodeAction> GetNestedCodeActions(CodeAction action) {
             Argument.NotNull(nameof(action), action);
             return action.NestedCodeActions;

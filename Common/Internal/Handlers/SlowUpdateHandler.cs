@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using MirrorSharp.Advanced;
 using MirrorSharp.Internal.Results;
+using MirrorSharp.Internal.Roslyn;
 
 namespace MirrorSharp.Internal.Handlers {
     internal class SlowUpdateHandler : ICommandHandler {
@@ -101,8 +102,7 @@ namespace MirrorSharp.Internal.Handlers {
             // ReSharper disable once HeapView.ClosureAllocation
             ImmutableArray<CodeAction>.Builder? actionsBuilder = null;
             Action<CodeAction, ImmutableArray<Diagnostic>> registerCodeFix = (action, _) => {
-                if (actionsBuilder == null)
-                    actionsBuilder = ImmutableArray.CreateBuilder<CodeAction>();
+                actionsBuilder ??= ImmutableArray.CreateBuilder<CodeAction>();
                 actionsBuilder.Add(action);
             };
             var fixContext = new CodeFixContext(session.Roslyn.Document, diagnostic, registerCodeFix, cancellationToken);
@@ -113,6 +113,7 @@ namespace MirrorSharp.Internal.Handlers {
             foreach (var provider in providers) {
                 await provider.RegisterCodeFixesAsync(fixContext).ConfigureAwait(false);
             }
+            actionsBuilder?.Sort(session.Roslyn.CodeActionPriorityComparison);
             return actionsBuilder?.ToImmutable() ?? ImmutableArray<CodeAction>.Empty;
         }
     }
