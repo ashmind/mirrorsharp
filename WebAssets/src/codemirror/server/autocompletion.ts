@@ -91,7 +91,7 @@ export const autocompletionFromServer = <O, U>(connection: Connection<O, U>) => 
     const sendCancelCompletionToServer = ViewPlugin.define(() => ({
         update: u => {
             const previousStatus = completionStatus(u.startState);
-            if (previousStatus !== 'active')
+            if (previousStatus === null)
                 return;
 
             const currentStatus = completionStatus(u.state);
@@ -100,6 +100,7 @@ export const autocompletionFromServer = <O, U>(connection: Connection<O, U>) => 
 
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             connection.sendCompletionState('cancel');
+            currentCompletionsMessage = null;
         }
     }));
 
@@ -133,9 +134,10 @@ export const autocompletionFromServer = <O, U>(connection: Connection<O, U>) => 
         // overrides default autocompletion binding
         forceCompletionOnCtrlSpace,
         autocompletion({
-            activateOnTyping: true,
+            activateOnTyping: false,
             override: [getAndFilterCompletions]
         }),
+        //closeCompletionsWhenFullyFilteredOut,
         receiveCompletionMessagesFromServer,
         sendCancelCompletionToServer,
         acceptCompletionOnCommitChar,

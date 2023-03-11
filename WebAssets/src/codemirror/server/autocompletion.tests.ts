@@ -1,4 +1,4 @@
-import { completionStatus, currentCompletions, acceptCompletion, moveCompletionSelection } from '@codemirror/autocomplete';
+import { completionStatus, currentCompletions, acceptCompletion, moveCompletionSelection, closeCompletion } from '@codemirror/autocomplete';
 import { TestDriver } from '../../testing/test-driver-jest';
 
 const typeCharacterUsingDOM = (driver: TestDriver, character: string) => {
@@ -21,6 +21,46 @@ test('completions message shows completion list', async () => {
         label: 'Test',
         type: 'class'
     }]);
+});
+
+test('closing completion sends expected message', async () => {
+    const driver = await TestDriver.new({ text: '' });
+
+    driver.receive.completions([{ displayText: 'Test', kinds: ['class'] }]);
+    await driver.completeBackgroundWork();
+
+    closeCompletion(driver.getCodeMirrorView());
+
+    expect(driver.socket.sent.slice(-1)[0]).toBe('SX');
+});
+
+test('completion does not show stale list from previous message after close', async () => {
+    const driver = await TestDriver.new({ text: '' });
+
+    driver.receive.completions([{ displayText: 'Test', kinds: ['class'] }]);
+    await driver.completeBackgroundWork();
+
+    closeCompletion(driver.getCodeMirrorView());
+
+    typeCharacterUsingDOM(driver, '.');
+    await driver.completeBackgroundWork();
+
+    const state = driver.getCodeMirrorView().state;
+    expect(completionStatus(state)).toBeNull();
+});
+
+test('completion sends cancel message when fully filtered out', async () => {
+    const driver = await TestDriver.new({ text: '' });
+
+    driver.receive.completions([{ displayText: 'Test', kinds: ['class'] }]);
+    await driver.completeBackgroundWork();
+
+    typeCharacterUsingDOM(driver, 'X');
+    await driver.completeBackgroundWork();
+
+    const state = driver.getCodeMirrorView().state;
+    expect(completionStatus(state)).toBeNull();
+    expect(driver.socket.sent.slice(-1)[0]).toBe('SX');
 });
 
 test('applying completion sends expected message', async () => {
@@ -184,7 +224,7 @@ test('completion does not request same info twice', async () => {
     moveCompletionSelection(false, 'option')(driver.getCodeMirrorView());
     await driver.completeBackgroundWork();
 
-    expect(driver.socket.sent).toMatchObject([
+    expect(driver.socket.sent).toEqual([
         'SI0',
         'SI1'
     ]);

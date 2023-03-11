@@ -29,15 +29,20 @@ export class TestReceiver<TExtensionServerOptions, TSlowUpdateExtensionData> {
     readonly kinds: ReadonlyArray<string>;
     readonly sections: ReadonlyArray<InfotipSectionData>;
      */
-    infotip(args: Omit<InfotipMessage, 'type'>) {
-        this.#message({ type: 'infotip', ...args });
+    infotip(args: SimplifyServerPosition<Omit<InfotipMessage, 'type'>>) {
+        this.#message({ type: 'infotip', ...(args as Omit<InfotipMessage, 'type'>) });
     }
 
     completions(
         completions: ReadonlyArray<CompletionItemData> = [],
         other: Partial<Omit<CompletionsMessage, 'completions'|'type'>> = {}
     ) {
-        this.#message({ type: 'completions', completions, ...other });
+        this.#message({
+            type: 'completions',
+            completions,
+            commitChars: '',
+            ...other
+        });
     }
 
     completionInfo(index: number, parts: ReadonlyArray<PartData>) {
