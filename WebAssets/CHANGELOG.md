@@ -1,5 +1,18 @@
 # Changelog
 
+## [codemirror-6-preview 1.0.0] - 2023-03-12
+
+### Added
+- Option `theme` to allow choice between dark and light theme
+- Instance methods:
+  - Method `getRootElement()` to get the root element of the editor
+  - Method `setTheme()` to change editor dark/light theme
+  - Method `setServiceUrl()` to reconnect editor to a different backend
+
+### Changed
+- Migrated underlying editor to CodeMirror 6
+- See [migration-from-2](docs/migration-from-2.md) for full list of changes
+
 ## [2.1.0] - 2022-04-01
 
 ### Added
