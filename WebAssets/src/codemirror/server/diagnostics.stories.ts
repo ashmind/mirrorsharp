@@ -17,10 +17,10 @@ export const All = testDriverStory(async () => {
 
     driver.receive.slowUpdate([
         { id: 'I1', message: 'info', severity: 'info', tags: [], span: { start: 0, length: 4 } },
-        { id: 'W1', message: 'warning', severity: 'warning', tags: [], span: { start: 5, length: 7 } },
-        { id: 'E1', message: 'error', severity: 'error', tags: [], span: { start: 13, length: 5 } },
-        { id: 'H1', message: 'hidden', severity: 'hidden', tags: [], span: { start: 19, length: 6 } },
-        { id: 'U1', message: 'unnecessary', severity: 'info', tags: ['unnecessary'], span: { start: 26, length: 11 } }
+        { id: 'W1', message: 'warning', severity: 'warning', tags: [], span: { start: 6, length: 7 } },
+        { id: 'E1', message: 'error', severity: 'error', tags: [], span: { start: 15, length: 5 } },
+        { id: 'H1', message: 'hidden', severity: 'hidden', tags: [], span: { start: 22, length: 6 } },
+        { id: 'U1', message: 'unnecessary', severity: 'info', tags: ['unnecessary'], span: { start: 30, length: 11 } }
     ]);
     await driver.completeBackgroundWork();
 
