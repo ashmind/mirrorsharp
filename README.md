@@ -64,11 +64,21 @@ app.MapMirrorSharp("/mirrosharp");
 ### Client
 
 [![build](https://img.shields.io/github/actions/workflow/status/ashmind/mirrorsharp/web-assets.yml?style=flat-square)](https://github.com/ashmind/mirrorsharp/actions/workflows/web-assets.yml)
-[![npm](https://img.shields.io/npm/v/mirrorsharp.svg?style=flat-square)](https://www.npmjs.com/package/mirrorsharp)
+
+| Library     | Type   | NPM                                                                                                                                                                                 |
+|-------------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| mirrorsharp-codemirror-6-preview | Latest  | [![npm](https://img.shields.io/npm/v/mirrorsharp-codemirror-6-preview.svg?style=flat-square)](https://www.npmjs.com/package/mirrorsharp-codemirror-6-preview) |
+| mirrorsharp                      | Stable  | [![npm](https://img.shields.io/npm/v/mirrorsharp.svg?style=flat-square)](https://www.npmjs.com/package/mirrorsharp)                                           |
 
 ```
-npm install mirrorsharp --save
+npm install mirrorsharp-codemirror-6-preview --save
 ```
+
+Note: The name is temporary — once all testing on 6-preview is completed, it will become mirrorsharp 3.
+
+#### Breaking Changes
+
+Version `mirrorsharp-codemirror-6-preview` (future mirrorsharp 3.0+) includes a number of breaking changes — see [migration-from-2.md](WebAssets/docs/migration-from-2.md) for the full migration guide.
 
 #### Build
 
@@ -82,7 +92,7 @@ Note that mirrorsharp is written in TypeScript, and the package includes full Ty
 
 #### Usage
 ```javascript
-import mirrorsharp from 'mirrorsharp';
+import mirrorsharp from 'mirrorsharp-codemirror-6-preview';
 
 mirrorsharp(container, { serviceUrl: 'wss://your_app_root/mirrorsharp' });
 ```

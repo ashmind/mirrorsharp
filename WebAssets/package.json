@@ -1,10 +1,10 @@
 {
     "name": "mirrorsharp-codemirror-6-preview",
-    "version": "0.13.0",
+    "version": "1.0.0",
     "engines": {
         "node": ">=16.17.1"
     },
-    "description": "Experimental version of mirrorsharp based on CodeMirror 6 preview.",
+    "description": "Preview version of mirrorsharp based on CodeMirror 6.",
     "authors": [
         "Andrey Shchekin (https://github.com/ashmind)"
     ],
