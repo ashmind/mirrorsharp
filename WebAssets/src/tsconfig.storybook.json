@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig.json",
+    "include": [],
+    "files": [
+        "mirrorsharp.ts"
+    ],
+    "compilerOptions": {
+        "noEmit": false
+    }
+}

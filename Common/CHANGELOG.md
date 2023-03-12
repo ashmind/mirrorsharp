@@ -3,7 +3,7 @@
 ## [3.0.5] - 2023-03-12
 
 ### Fixed
-- Fix autocompletion sometimes disappearing for the durration of the session when using newer Microsoft.CodeAnalysis
+- Fix autocompletion sometimes disappearing for the duration of the session when using newer Microsoft.CodeAnalysis
 
 ## [3.0.4] - 2023-01-06
 

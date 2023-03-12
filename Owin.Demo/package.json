@@ -1,19 +1,16 @@
 {
-  "name": "mirrorsharp.owin.demo",
+  "name": "mirrorsharp.demo",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "parcel build index.html --out-dir wwwroot --no-minify"
+    "build": "parcel build index.html --dist-dir wwwroot --no-optimize --no-cache"
   },
   "dependencies": {
-    "codemirror": "^5.18.2",
-    "codemirror-addon-infotip": "1.0.0-pre-20180923",
-    "codemirror-addon-lint-fix": "^1.0.1-pre-20170118",
-    "mirrorsharp": "file:../WebAssets/dist",
+    "mirrorsharp-codemirror-6-preview": "file:../WebAssets/dist",
     "typeface-open-sans": "0.0.75"
   },
   "devDependencies": {
-    "less": "^3.11.1",
-    "parcel": "^1.12.4"
+    "parcel": "^2.8.2",
+    "process": "^0.11.10"
   }
 }

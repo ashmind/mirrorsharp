@@ -1,0 +1,1 @@
+export const lineSeparator = '\r\n';

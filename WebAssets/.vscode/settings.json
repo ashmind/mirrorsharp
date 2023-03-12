@@ -3,12 +3,12 @@
         "**/.git": true,
         "bin/": true,
         "obj/": true,
-        "*.csproj*": true
+        "*.csproj*": true,
+        "Properties/": true
     },
     "editor.codeActionsOnSave": {
         "source.fixAll": true
     },
-    "jest.pathToJest": "npm run test --",
     "jest.showCoverageOnLoad": true,
     "cSpell.ignorePaths": [
         "**/node_modules/**",
@@ -18,33 +18,41 @@
     ],
     "search.exclude": {
         "**/node_modules": true,
-        "**/bower_components": true,
-        "**/coverage/**": true
+        "**/coverage/**": true,
+        "**/.temp/**": true,
+        "**/dist/**": true,
+        "**/storybook-static/**": true
     },
     "cSpell.words": [
         "Andrey",
         "Cpath",
         "Csvg",
+        "Olanguage",
+        "Prec",
         "Segoe",
         "Shchekin",
         "Typer",
         "browserslist",
         "clike",
         "codemirror",
+        "devtools",
         "enummember",
         "execa",
         "extensionmethod",
         "httpd",
         "infotip",
+        "infotips",
         "jetpack",
         "jsparts",
-        "keysim",
+        "lezer",
+        "linebreak",
         "lintfix",
         "mirrorsharp",
         "nocheck",
         "oldowan",
         "outdent",
         "sharplab",
+        "sinonjs",
         "struct",
         "typeparameter",
         "xmlns"
