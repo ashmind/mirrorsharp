@@ -12,9 +12,8 @@ export default {
 export const Simple = testDriverStory(async () => {
     const driver = await TestDriver.new({ textWithCursor: '"x".IndexOf(|' });
 
-    driver.receive.signatures({
-        span: { start: 0, length: 12 },
-        signatures: SIGNATURES_INDEX_OF
+    driver.receive.signatures(SIGNATURES_INDEX_OF, {
+        start: 0, length: 12
     });
     await driver.completeBackgroundWork();
 
@@ -24,9 +23,8 @@ export const Simple = testDriverStory(async () => {
 export const SecondSelected = testDriverStory(async () => {
     const driver = await TestDriver.new({ textWithCursor: '"x".Substring(1, 2|' });
 
-    driver.receive.signatures({
-        span: { start: 0, length: 14 },
-        signatures: SIGNATURES_SUBSTRING_SECOND_PARAMETER
+    driver.receive.signatures(SIGNATURES_SUBSTRING_SECOND_PARAMETER, {
+        start: 0, length: 14
     });
     await driver.completeBackgroundWork();
 
@@ -35,9 +33,8 @@ export const SecondSelected = testDriverStory(async () => {
 
 export const NoneSelected = testDriverStory(async () => {
     const driver = await TestDriver.new({ textWithCursor: '"x".Substring(1, 2, |' });
-    driver.receive.signatures({
-        span: { start: 0, length: 16 },
-        signatures: SIGNATURES_SUBSTRING_NONE_SELECTED
+    driver.receive.signatures(SIGNATURES_SUBSTRING_NONE_SELECTED, {
+        start: 0, length: 16
     });
     await driver.completeBackgroundWork();
 
