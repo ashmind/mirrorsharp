@@ -5,7 +5,7 @@
     <AssemblyName>MirrorSharp.Common</AssemblyName>
     <RootNamespace>MirrorSharp</RootNamespace>
     <TargetFrameworks>netstandard2.0; netcoreapp3.1</TargetFrameworks>
-    <VersionPrefix>3.0.5</VersionPrefix>
+    <VersionPrefix>3.0.6</VersionPrefix>
     <Description>MirrorSharp shared server library. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;CodeMirror</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -20,22 +20,36 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Internal.Roslyn33\Internal.Roslyn33.csproj" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\Internal.Roslyn36\Internal.Roslyn36.csproj" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\Internal.Roslyn41\Internal.Roslyn41.csproj" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\Internal.Roslyn42\Internal.Roslyn42.csproj" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\Internal.Roslyn43\Internal.Roslyn43.csproj" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\Internal.Roslyn44\Internal.Roslyn44.csproj" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\Internal.Roslyn45\Internal.Roslyn45.csproj" ReferenceOutputAssembly="false" />
+    <InternalsVisibleTo Include="MirrorSharp.AspNetCore" />
+    <InternalsVisibleTo Include="MirrorSharp.Benchmarks" />
+    <InternalsVisibleTo Include="MirrorSharp.CSharp.Scripting" />
+    <InternalsVisibleTo Include="MirrorSharp.FSharp" />
+    <InternalsVisibleTo Include="MirrorSharp.VisualBasic" />
+    <InternalsVisibleTo Include="MirrorSharp.Php" />
+    <InternalsVisibleTo Include="MirrorSharp.IL" />
+    <InternalsVisibleTo Include="MirrorSharp.Owin" />
+    <InternalsVisibleTo Include="MirrorSharp.Testing" />
+    <InternalsVisibleTo Include="MirrorSharp.Tests" />
+    <InternalsVisibleTo Include="SharpLab.Server" />
+    <InternalsVisibleTo Include="SharpLab.Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 
   <ItemGroup>
-    <_RoslynInternalsProject Include="@(ProjectReference->WithMetadataValue('ReferenceOutputAssembly', 'false'))" />
-    
+    <_RoslynInternalsProject Include="../Internal.Roslyn??/*.csproj" />
+    <ProjectReference Include="@(_RoslynInternalsProject)" ReferenceOutputAssembly="false" />
+
     <EmbeddedResource
       Include="@(_RoslynInternalsProject->'%(RelativeDir)\bin\$(Configuration)\netstandard2.0\MirrorSharp.%(Filename).dll')"
       Link="Internal\Roslyn\Internals\Assemblies\%(Filename)%(Extension)"
       LogicalName="%(Filename)%(Extension)" />
+
+    <InternalsVisibleTo Include="@(_RoslynInternalsProject->'MirrorSharp.%(Filename)')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_RoslynTestProject Include="../Tests.*/*.csproj" />
+    <InternalsVisibleTo Include="@(_RoslynTestProject->'MirrorSharp.%(Filename)')" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">

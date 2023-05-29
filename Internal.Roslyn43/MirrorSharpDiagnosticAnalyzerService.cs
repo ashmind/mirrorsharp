@@ -25,7 +25,7 @@ namespace MirrorSharp.Internal.Roslyn43 {
         Task<ImmutableArray<DiagnosticData>> IDiagnosticAnalyzerService.GetDiagnosticsForSpanAsync(Document document, TextSpan? range, Func<string, bool>? shouldIncludeDiagnostic, bool includeCompilerDiagnostics, bool includeSuppressedDiagnostics, CodeActionRequestPriority priority, Func<string, IDisposable?>? addOperationScope, CancellationToken cancellationToken) => throw new NotSupportedException();
         Task<ImmutableArray<DiagnosticData>> IDiagnosticAnalyzerService.GetProjectDiagnosticsForIdsAsync(Solution solution, ProjectId? projectId, ImmutableHashSet<string>? diagnosticIds, bool includeSuppressedDiagnostics, CancellationToken cancellationToken) => throw new NotSupportedException();
         Task<ImmutableArray<DiagnosticData>> IDiagnosticAnalyzerService.GetSpecificCachedDiagnosticsAsync(Workspace workspace, object id, bool includeSuppressedDiagnostics, CancellationToken cancellationToken) => throw new NotSupportedException();
-        void IDiagnosticAnalyzerService.Reanalyze(Workspace workspace, IEnumerable<ProjectId>? projectIds, IEnumerable<DocumentId>? documentIds, bool highPriority) => throw new NotImplementedException();
+        void IDiagnosticAnalyzerService.Reanalyze(Workspace workspace, IEnumerable<ProjectId>? projectIds, IEnumerable<DocumentId>? documentIds, bool highPriority) => throw new NotSupportedException();
         Task<(ImmutableArray<DiagnosticData> diagnostics, bool upToDate)> IDiagnosticAnalyzerService.TryGetDiagnosticsForSpanAsync(Document document, TextSpan range, Func<string, bool>? shouldIncludeDiagnostic, bool includeSuppressedDiagnostics, CodeActionRequestPriority priority, CancellationToken cancellationToken) => throw new NotSupportedException();
     }
 }

@@ -23,4 +23,9 @@
     <Compile Include="../Common/Internal/Argument.cs" />
     <Compile Include="../Common/Internal/Roslyn/Internals/**/*.cs" />
   </ItemGroup>
+
+  <ItemGroup>
+    <_RoslynInternalsProject Include="../Internal.Roslyn??/*.csproj" />
+    <InternalsVisibleTo Include="@(_RoslynInternalsProject->'MirrorSharp.%(Filename)')" />
+  </ItemGroup>
 </Project>

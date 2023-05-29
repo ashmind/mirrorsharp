@@ -5,7 +5,8 @@
     <AssemblyName>MirrorSharp.Tests.RoslynLatest</AssemblyName>
     <RootNamespace>MirrorSharp.Tests</RootNamespace>
     <IsPackable>false</IsPackable>
-    <NoWarn>VSTHRD200</NoWarn>
+    <NoWarn>VSTHRD200; RS1035</NoWarn>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -17,9 +18,9 @@
 
   <ItemGroup>
     <!-- https://dev.azure.com/dnceng/public/_artifacts/feed/dotnet-tools -->
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.5.0-2.22580.13" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.5.0-2.22580.13" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="4.5.0-2.22580.13" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.7.0-2.23276.4" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.7.0-2.23276.4" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="4.7.0-2.23276.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="SourceMock" Version="0.10.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
