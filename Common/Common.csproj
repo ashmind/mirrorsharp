@@ -37,32 +37,12 @@
 
   <ItemGroup>
     <_RoslynInternalsProject Include="../Internal.Roslyn??/*.csproj" />
-    <ProjectReference Include="..\Internal.Roslyn33\Internal.Roslyn33.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\Internal.Roslyn36\Internal.Roslyn36.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\Internal.Roslyn41\Internal.Roslyn41.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\Internal.Roslyn42\Internal.Roslyn42.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\Internal.Roslyn43\Internal.Roslyn43.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\Internal.Roslyn44\Internal.Roslyn44.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\Internal.Roslyn45\Internal.Roslyn45.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\Internal.Roslyn46\Internal.Roslyn46.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
+    <ProjectReference Include="@(_RoslynInternalsProject)" ReferenceOutputAssembly="false" />
 
-    <EmbeddedResource Include="@(_RoslynInternalsProject->'%(RelativeDir)\bin\$(Configuration)\netstandard2.0\MirrorSharp.%(Filename).dll')" Link="Internal\Roslyn\Internals\Assemblies\%(Filename)%(Extension)" LogicalName="%(Filename)%(Extension)" />
+    <EmbeddedResource
+      Include="@(_RoslynInternalsProject->'%(RelativeDir)\bin\$(Configuration)\netstandard2.0\MirrorSharp.%(Filename).dll')"
+      Link="Internal\Roslyn\Internals\Assemblies\%(Filename)%(Extension)"
+      LogicalName="%(Filename)%(Extension)" />
 
     <InternalsVisibleTo Include="@(_RoslynInternalsProject->'MirrorSharp.%(Filename)')" />
   </ItemGroup>
