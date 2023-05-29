@@ -2,16 +2,16 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
-    <AssemblyName>MirrorSharp.Tests.Roslyn44</AssemblyName>
+    <AssemblyName>MirrorSharp.Tests.Roslyn45</AssemblyName>
     <RootNamespace>MirrorSharp.Tests</RootNamespace>
     <IsPackable>false</IsPackable>
     <NoWarn>VSTHRD200</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="4.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.5.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.5.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="4.5.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="SourceMock" Version="0.10.0" />
     <PackageReference Include="xunit" Version="2.4.1" />

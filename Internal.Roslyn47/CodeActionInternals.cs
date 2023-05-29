@@ -3,7 +3,7 @@ using System.Composition;
 using Microsoft.CodeAnalysis.CodeActions;
 using MirrorSharp.Internal.Roslyn.Internals;
 
-namespace MirrorSharp.Internal.Roslyn45 {
+namespace MirrorSharp.Internal.Roslyn47 {
     [Shared]
     [Export(typeof(ICodeActionInternals))]
     internal class CodeActionInternals : ICodeActionInternals {
