@@ -168,6 +168,10 @@ namespace MirrorSharp.FSharp.Internal {
                 || directory.Contains("lib/mono/");
         }
 
+        public string ChangeExtensionShim(string path, string extension) {
+            throw new NotSupportedException();
+        }
+
         public IAssemblyLoader AssemblyLoader { get; }
 
         private static void EnsureIsAssemblyFile(string fileName) {

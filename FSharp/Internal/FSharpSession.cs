@@ -55,8 +55,10 @@ namespace MirrorSharp.FSharp.Internal {
                 enableBackgroundItemKeyStoreAndSemanticClassification: false,
                 // allows for using signature files to speed up compilation, but mutually exclusive with `keepAssemblyContents`
                 enablePartialTypeChecking: false,
-                enableParallelCheckingWithSignatureFiles: false,
-                parallelReferenceResolution: false
+                parallelReferenceResolution: false,
+                captureIdentifiersWhenParsing: false,
+                documentSource: null,
+                useSyntaxTreeCache: null
             );
             // Checker.ImplicitlyStartBackgroundWork = false;
             AssemblyReferencePaths = options.AssemblyReferencePaths;
