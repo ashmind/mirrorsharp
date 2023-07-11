@@ -19,7 +19,7 @@ namespace MirrorSharp.Tests {
                 open System
 
                 [<EntryPoint>]
-                let main argv = 
+                let main argv =
                     printfn ""Hello World""
                     0
             ".Trim().Replace("                ", "");
@@ -33,7 +33,7 @@ namespace MirrorSharp.Tests {
             var driver = MirrorSharpTestDriver.New(Options, FSharpLanguage.Name);
             await driver.SendReplaceTextAsync("xyz");
             var result = await driver.SendSlowUpdateAsync();
-            
+
             Assert.Equal(
                 new[] { new {
                     Severity = "error",
@@ -55,7 +55,7 @@ namespace MirrorSharp.Tests {
                 type Test() =
                     member this.Method() = ()
 
-                let test = 
+                let test =
                     let t = new Test()
                     t|
             ".Trim().Replace("                ", ""));
@@ -72,7 +72,7 @@ namespace MirrorSharp.Tests {
                     new { DisplayText = "ToString", Kind = "method" },
                 },
                 // https://github.com/xunit/assert.xunit/pull/36#issuecomment-578990557
-                result!.Completions.Select(c => new { c.DisplayText, Kind = c.Kinds.SingleOrDefault() })
+                result!.Completions.Select(c => new { c.DisplayText, Kind = c.Kinds.SingleOrDefault() })!
             );
         }
 
@@ -90,7 +90,7 @@ namespace MirrorSharp.Tests {
             Assert.Contains(
                 new { DisplayText = "Y", Kind = "delegate" },
                 // https://github.com/xunit/assert.xunit/pull/36#issuecomment-578990557
-                result!.Completions.Select(c => new { c.DisplayText, Kind = c.Kinds.SingleOrDefault() })
+                result!.Completions.Select(c => new { c.DisplayText, Kind = c.Kinds.SingleOrDefault() })!
             );
         }
 
@@ -101,7 +101,7 @@ namespace MirrorSharp.Tests {
                 type Test() =
                     member this.Method() = ()
 
-                let test = 
+                let test =
                     let t = new Test()
                     t|
             ".Trim().Replace("                ", ""));

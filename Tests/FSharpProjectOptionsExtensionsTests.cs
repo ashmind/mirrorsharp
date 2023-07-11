@@ -3,7 +3,7 @@ using Microsoft.FSharp.Collections;
 using FSharp.Compiler.CodeAnalysis;
 using MirrorSharp.FSharp.Advanced;
 using Xunit;
-using range = FSharp.Compiler.Text.Range;
+using Range = FSharp.Compiler.Text.Range;
 using Microsoft.FSharp.Core;
 
 namespace MirrorSharp.Tests {
@@ -105,7 +105,7 @@ namespace MirrorSharp.Tests {
                 false,
                 DateTime.MinValue,
                 FSharpOption<FSharpUnresolvedReferencesSet>.None,
-                FSharpList<Tuple<range, string, string>>.Empty,
+                FSharpList<Tuple<Range, string, string>>.Empty,
                 FSharpOption<long>.None
             );
         }

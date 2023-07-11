@@ -113,7 +113,7 @@ namespace MirrorSharp.FSharp.Internal {
             throw new NotSupportedException();
         }
 
-        public DirectoryInfo DirectoryCreateShim(string path) {
+        public string DirectoryCreateShim(string path) {
             throw new NotSupportedException();
         }
 
@@ -166,6 +166,10 @@ namespace MirrorSharp.FSharp.Internal {
                 || directory.Contains("packages/")
                 || directory.Contains("packages\\")
                 || directory.Contains("lib/mono/");
+        }
+
+        public string ChangeExtensionShim(string path, string extension) {
+            throw new NotSupportedException();
         }
 
         public IAssemblyLoader AssemblyLoader { get; }

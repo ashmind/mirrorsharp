@@ -45,7 +45,7 @@ namespace MirrorSharp.FSharp.Internal {
             _memoryStreamManager = memoryStreamManager;
 
             Checker = FSharpChecker.Create(
-                null,
+                projectCacheSize: null,
                 keepAssemblyContents: true,
                 keepAllBackgroundResolutions: true,
                 legacyReferenceResolver: null,
@@ -54,7 +54,11 @@ namespace MirrorSharp.FSharp.Internal {
                 keepAllBackgroundSymbolUses: false,
                 enableBackgroundItemKeyStoreAndSemanticClassification: false,
                 // allows for using signature files to speed up compilation, but mutually exclusive with `keepAssemblyContents`
-                enablePartialTypeChecking: false
+                enablePartialTypeChecking: false,
+                parallelReferenceResolution: false,
+                captureIdentifiersWhenParsing: false,
+                documentSource: null,
+                useSyntaxTreeCache: null
             );
             // Checker.ImplicitlyStartBackgroundWork = false;
             AssemblyReferencePaths = options.AssemblyReferencePaths;
