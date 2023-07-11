@@ -245,6 +245,20 @@ namespace MirrorSharp.Internal.Roslyn {
             return newText.GetTextChanges(_sourceText);
         }
 
+        private Comparison<CodeAction>? _codeActionPriorityComparison;
+        public Comparison<CodeAction> CodeActionPriorityComparison {
+            get {
+                if (_codeActionPriorityComparison == null) {
+                    var actionInternals = RoslynInternals.CodeAction;
+                    _codeActionPriorityComparison = (a, b) => Math.Sign(
+                        (int)actionInternals.GetPriority(b) - (int)actionInternals.GetPriority(a)
+                    );
+                }
+
+                return _codeActionPriorityComparison;
+            }
+        }
+
         public void Dispose() {
             _workspace?.Dispose();
         }

@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Mocks;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
-using MirrorSharp.Advanced;
 using MirrorSharp.Advanced.Mocks;
 using MirrorSharp.Internal;
 using MirrorSharp.Testing;
@@ -44,12 +41,12 @@ namespace MirrorSharp.Tests {
             var diagnostic = result.Diagnostics.Single(d => d.Message?.Contains("Action") ?? false);
             Assert.Equal(
                 new[] {
+                    "using System;",
                     "Generate class 'Action'",
                     "Generate nested class 'Action'",
-                    "System.Action",
-                    "using System;"
+                    "System.Action"
                 },
-                diagnostic.Actions.Select(a => a.Title).OrderBy(t => t).ToArray()
+                diagnostic.Actions.Select(a => a.Title).ToArray()
             );
         }
 
@@ -99,7 +96,7 @@ namespace MirrorSharp.Tests {
         [DiagnosticAnalyzer(LanguageNames.CSharp)]
         private class TestAnalyzer : DiagnosticAnalyzer {
             #pragma warning disable RS2008 // Enable analyzer release tracking
-            private static readonly DiagnosticDescriptor Descriptor = new DiagnosticDescriptor("T01", "Test", "Test", "Test", DiagnosticSeverity.Warning, isEnabledByDefault: true);
+            private static readonly DiagnosticDescriptor Descriptor = new ("T01", "Test", "Test", "Test", DiagnosticSeverity.Warning, isEnabledByDefault: true);
             #pragma warning restore RS2008
 
             public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(Descriptor);

@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.0.6] - 2023-05-29
+
+### Fixed
+- Fixed support for Microsoft.CodeAnalysis 4.7.0 (preview versions)
+- Fixed support for Microsoft.CodeAnalysis 4.6.0
+
+## [3.0.5] - 2023-03-12
+
+### Fixed
+- Fix autocompletion sometimes disappearing for the duration of the session when using newer Microsoft.CodeAnalysis
+
+## [3.0.4] - 2023-01-06
+
+### Fixed
+- Fixed sorting order of diagnostic quickfix actions (C#/VB)
+
 ## [3.0.3] - 2022-12-15
 
 ### Fixed

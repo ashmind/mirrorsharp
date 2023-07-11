@@ -1,0 +1,21 @@
+{
+    "include": [
+        "."
+    ],
+    "compilerOptions": {
+        "target": "ESNext",
+
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+
+        "strict": true,
+        "importsNotUsedAsValues": "error",
+        "noImplicitOverride": true,
+        "noImplicitReturns": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "noUncheckedIndexedAccess": true,
+
+        "noEmit": true,
+    }
+}

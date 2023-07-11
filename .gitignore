@@ -1,10 +1,12 @@
 *.user
 project.lock.json
 .vs/
+.tye/
 .idea/
-bower_components/
 node_modules/
 .cache/
+.parcel-cache/
+storybook-static/
 .temp/
 bin/
 obj/

@@ -77,6 +77,14 @@ namespace MirrorSharp.Tests {
             Assert.Equal(maxPriority, dayOfWeek.Priority);
         }
 
+        [Fact]
+        public async Task ExecuteAsync_DoesNotProduceCompletion_IfCompletionListIsEmpty() {
+            var driver = MirrorSharpTestDriver.New().SetTextWithCursor(@"class C { void M() { Console| } }");
+            var result = await driver.SendWithOptionalResultAsync<CompletionsResult>(TypeChar, '.');
+
+            Assert.Null(result);
+        }
+
         [Theory]
         [InlineData("void M(int a) {}", new[] { "void C.M(int a)" })]
         [InlineData("void M(int a, string b) {}", new[] { "void C.M(int a, string b)" })]
