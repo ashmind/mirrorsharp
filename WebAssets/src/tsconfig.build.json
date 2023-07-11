@@ -1,0 +1,12 @@
+{
+    "extends": "./tsconfig.json",
+    "include": [],
+    "files": [
+        "mirrorsharp.ts"
+    ],
+    "compilerOptions": {
+        "module": "ES2015",
+        "noEmit": false,
+        "declaration": true
+    }
+}

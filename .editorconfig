@@ -16,6 +16,9 @@ indent_size = 2
 [project.json]
 indent_size = 2
 
+[package.json]
+indent_size = 2
+
 [*.cs]
 csharp_new_line_before_open_brace = none
 csharp_style_var_for_built_in_types = true:warning

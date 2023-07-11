@@ -19,5 +19,16 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
-
+  
+  <ItemGroup>
+    <InternalsVisibleTo Include="MirrorSharp.Benchmarks" />
+    <InternalsVisibleTo Include="MirrorSharp.Tests" />
+    <InternalsVisibleTo Include="SharpLab.Tests" />
+    <InternalsVisibleTo Include="SharpLab.Tests.NetCore" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <_RoslynTestProject Include="../Tests.*/*.csproj" />
+    <InternalsVisibleTo Include="@(_RoslynTestProject->'MirrorSharp.%(Filename)')" />
+  </ItemGroup>
 </Project>

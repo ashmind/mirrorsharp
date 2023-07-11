@@ -7,14 +7,15 @@ namespace MirrorSharp.Owin.Demo.Extensions {
             if (name != "x-mode")
                 return false;
 
-            if (!session.IsRoslyn)
-                throw new NotSupportedException("Only Roslyn sessions support script mode.");
-
             switch (value) {
                 case "script":
+                    if (!session.IsRoslyn)
+                        throw new NotSupportedException("Only Roslyn sessions support script mode.");
                     session.Roslyn.SetScriptMode(true, typeof(Random));
                     break;
                 case "regular":
+                    if (!session.IsRoslyn)
+                        return true;
                     session.Roslyn.SetScriptMode(false);
                     break;
                 default:

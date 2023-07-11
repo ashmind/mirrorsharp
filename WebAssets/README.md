@@ -1,6 +1,7 @@
 ## Overview
 
-MirrorSharp is a code editor `<textarea>` built on Roslyn and [CodeMirror](https://codemirror.net/).  
-This component (mirrorsharp.js) is only a client part and can't function without a server.
+MirrorSharp is a reusable client-server code editor component built on [Roslyn](https://github.com/dotnet/roslyn) and [CodeMirror](https://codemirror.net/).
 
-See [main readme](https://github.com/ashmind/mirrorsharp/blob/master/README.md) for full details.
+This library (`mirrorsharp.js`) is the browser-side client component which requires MirrorSharp .NET server to function.
+
+See [main README](https://github.com/ashmind/mirrorsharp/blob/master/README.md) for full details.

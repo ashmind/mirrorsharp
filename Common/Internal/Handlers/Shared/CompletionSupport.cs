@@ -104,7 +104,7 @@ namespace MirrorSharp.Internal.Handlers.Shared {
 
         private async Task TriggerCompletionAsync(WorkSession session, ICommandResultSender sender, CancellationToken cancellationToken, CompletionTrigger trigger) {
             var completionList = await session.LanguageSession.GetCompletionsAsync(session.CursorPosition, trigger, cancellationToken: cancellationToken).ConfigureAwait(false);
-            if (completionList == null)
+            if (completionList == null || completionList.Items.IsEmpty)
                 return;
 
             session.CurrentCompletion.ResetPending();

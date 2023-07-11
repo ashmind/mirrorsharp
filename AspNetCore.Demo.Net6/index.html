@@ -3,37 +3,20 @@
   <head>
     <meta charset="utf-8">
     <title>MirrorSharp Demo</title>
-    <link rel="stylesheet" href="app.less">
+    <link rel="stylesheet" href="app.css">
   </head>
   <body>
     <nav>
       Language:
       <ul>
-        <li><a href="index.html?language=CSharp">C#</a></li>
-        <li><a href="index.html?language=CSharp&mode=script">C# (Script)</a></li>
-        <li><a href="index.html?language=FSharp">F#</a></li>
-        <li><a href="index.html?language=IL">IL</a></li>
+        <li><a href="#language=CSharp">C#</a></li>
+        <li><a href="#language=CSharp&mode=script">C# (Script)</a></li>
+        <li><a href="#language=FSharp">F#</a></li>
+        <li><a href="#language=IL">IL</a></li>
       </ul>
     </nav>
-    <textarea>using System;
-class C {
-    const int C2 = 5;
-    string f;
-    string P { get; set; }
-    event EventHandler e;
-    event EventHandler E { add {} remove {} }
+    <div id="editor-container"></div>
 
-    C() {
-    }
-
-    void M(int p) {
-        var l = p;
-    }
-}
-
-class G&lt;T&gt; {
-}</textarea>
-
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
   </body>
 </html>
