@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.3.1" />
-    <PackageReference Include="FSharp.Compiler.Service" Version="43.7.200" />
-    <PackageReference Include="FSharp.Core" Version="7.0.200" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="43.7.300" />
+    <PackageReference Include="FSharp.Core" Version="7.0.300" />
   </ItemGroup>
 </Project>

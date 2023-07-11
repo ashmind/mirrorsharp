@@ -86,23 +86,23 @@
       },
       "FSharp.Compiler.Service": {
         "type": "Transitive",
-        "resolved": "43.7.200",
-        "contentHash": "RpO8Ly7mTRGnZANzjKMDsxsrkpVyyPP3d211+95TBVrDh5XU8LS+F/tPsJ9y+10kphzOmplZ9xaEc44OtveWzw==",
+        "resolved": "43.7.300",
+        "contentHash": "DEK/xFw8Xvp5/DfCY8cX2ZTo9OBi8Y5MI2RrjD5LpthMBjQwAcQ2GNkIdtXMYcVEK6HJsgbHIjwaBDKFlXvfJA==",
         "dependencies": {
-          "FSharp.Core": "[7.0.200]",
+          "FSharp.Core": "[7.0.300]",
           "System.Buffers": "4.5.1",
           "System.Collections.Immutable": "6.0.0",
           "System.Diagnostics.DiagnosticSource": "6.0.0",
           "System.Memory": "4.5.5",
           "System.Reflection.Emit": "4.7.0",
-          "System.Reflection.Metadata": "6.0.0",
+          "System.Reflection.Metadata": "6.0.1",
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }
       },
       "FSharp.Core": {
         "type": "Transitive",
-        "resolved": "7.0.200",
-        "contentHash": "NmgUnpNH6Zu9B0SPIhojyo38gnPdkdYFYQfbd6zosEH32kbGY/g/Klk7PfOWe1NAe/O1YOMmK9KhwQ2OWsWEbg=="
+        "resolved": "7.0.300",
+        "contentHash": "8vvItREJ1l5lcp3vBCSJ1mFevVAhR48I34DuF/EoUa7o1KlFpQpagyuZkVYMAsHPIjdp47ZxM9sI4eqeXaeWkA=="
       },
       "Humanizer.Core": {
         "type": "Transitive",
@@ -1712,8 +1712,8 @@
       "MirrorSharp.FSharp": {
         "type": "Project",
         "dependencies": {
-          "FSharp.Compiler.Service": "[43.7.200, )",
-          "FSharp.Core": "[7.0.200, )",
+          "FSharp.Compiler.Service": "[43.7.300, )",
+          "FSharp.Core": "[7.0.300, )",
           "Microsoft.IO.RecyclableMemoryStream": "[2.3.1, )",
           "MirrorSharp.Common": "[3.0.6, )"
         }
