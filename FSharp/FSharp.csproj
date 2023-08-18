@@ -4,7 +4,7 @@
   <PropertyGroup>
     <AssemblyName>MirrorSharp.FSharp</AssemblyName>
     <RootNamespace>MirrorSharp.FSharp</RootNamespace>
-    <TargetFrameworks>netstandard2.0; net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0; net471</TargetFrameworks>
     <VersionPrefix>2.0.0</VersionPrefix>
     <Description>MirrorSharp F# support library. $(DescriptionSuffix)</Description>
     <PackageTags>F#;CodeMirror</PackageTags>
@@ -18,7 +18,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.0.0" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.2.0" />
-    <PackageReference Include="FSharp.Compiler.Service" Version="41.0.1" />
-    <PackageReference Include="FSharp.Core" Version="6.0.1" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="43.7.400" />
+    <PackageReference Include="FSharp.Core" Version="7.0.400" />
   </ItemGroup>
 </Project>
