@@ -216,5 +216,13 @@ namespace MirrorSharp.FSharp.Internal {
             => _virtualFiles.TryGetValue(path, out var file)
              ? file
              : null;
+
+        string IFileSystem.DirectoryCreateShim(string path) {
+            throw new NotImplementedException();
+        }
+
+        public string ChangeExtensionShim(string path, string extension) {
+            throw new NotImplementedException();
+        }
     }
 }
