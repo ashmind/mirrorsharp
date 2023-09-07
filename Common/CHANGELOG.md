@@ -1,7 +1,6 @@
 # Changelog
 
-## [Unreleased]
-
+## [3.0.7] - 2023-09-07
 - Fixed support for Microsoft.CodeAnalysis 4.8.0 (preview versions)
 
 ## [3.0.6] - 2023-05-29
@@ -13,7 +12,7 @@
 ## [3.0.5] - 2023-03-12
 
 ### Fixed
-- Fix autocompletion sometimes disappearing for the duration of the session when using newer Microsoft.CodeAnalysis
+- Fixed autocompletion sometimes disappearing for the durration of the session when using newer Microsoft.CodeAnalysis
 
 ## [3.0.4] - 2023-01-06
 
