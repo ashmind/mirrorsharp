@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Fixed support for Microsoft.CodeAnalysis 4.9.0 (preview versions)
+
 ## [3.0.7] - 2023-09-07
 - Fixed support for Microsoft.CodeAnalysis 4.8.0 (preview versions)
 
