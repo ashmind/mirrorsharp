@@ -23,7 +23,7 @@
     <ProjectReference Include="..\Testing\Testing.csproj" />
     <ProjectReference Include="..\VisualBasic\VisualBasic.csproj" />
   </ItemGroup>
-  
+
   <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
     <ItemGroup>
       <ReferencePath Condition="'%(FileName)' == 'Peachpie.Microsoft.CodeAnalysis'">
@@ -46,5 +46,15 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
+  </Target>
+
+  <ItemGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net471')) ">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" GeneratePathProperty="true" />
+  </ItemGroup>
+  <Target Name="WriteToFileMscorelibPath" AfterTargets="Build" Condition=" '$(PkgMicrosoft_NETFramework_ReferenceAssemblies)' != '' ">
+    <WriteLinesToFile
+      File="$(OutputPath)\PkgMicrosoft_NETFramework_ReferenceAssemblies.txt"
+      Overwrite="true"
+      Lines="$(PkgMicrosoft_NETFramework_ReferenceAssemblies)\..\..\microsoft.netframework.referenceassemblies.net471\1.0.3\build\.NETFramework\v4.7.1\mscorlib.dll" />
   </Target>
 </Project>

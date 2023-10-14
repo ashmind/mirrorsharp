@@ -2,6 +2,15 @@
   "version": 1,
   "dependencies": {
     ".NETFramework,Version=v4.6.1": {
+      "Microsoft.NETFramework.ReferenceAssemblies": {
+        "type": "Direct",
+        "requested": "[1.0.3, )",
+        "resolved": "1.0.3",
+        "contentHash": "vUc9Npcs14QsyOD01tnv/m8sQUnGTGOw1BCmKcv77LBJY7OxhJ+zJF7UD/sCL3lYNFuqmQEVlkfS4Quif6FyYg==",
+        "dependencies": {
+          "Microsoft.NETFramework.ReferenceAssemblies.net461": "1.0.3"
+        }
+      },
       "Microsoft.Owin": {
         "type": "Direct",
         "requested": "[3.0.1, )",
@@ -203,6 +212,11 @@
         "type": "Transitive",
         "resolved": "1.0.0",
         "contentHash": "ZYVcoDM0LnSyT5nWoRGfShYdOecCw2sOXWwP6j1Z0u48Xq3+BVvZ+EiPCX9/8Gz439giW+O1H1kWF9Eb/w6rVg=="
+      },
+      "Microsoft.NETFramework.ReferenceAssemblies.net461": {
+        "type": "Transitive",
+        "resolved": "1.0.3",
+        "contentHash": "AmOJZwCqnOCNp6PPcf9joyogScWLtwy0M1WkqfEQ0M9nYwyDD7EX9ZjscKS5iYnyvteX7kzSKFCKt9I9dXA6mA=="
       },
       "Microsoft.Owin.FileSystems": {
         "type": "Transitive",
@@ -526,14 +540,14 @@
           "FSharp.Core": "[6.0.1, )",
           "Microsoft.Build.Utilities.Core": "[17.0.0, )",
           "Microsoft.IO.RecyclableMemoryStream": "[2.2.0, )",
-          "MirrorSharp.Common": "[3.0.1, )"
+          "MirrorSharp.Common": "[3.0.2, )"
         }
       },
       "MirrorSharp.Owin": {
         "type": "Project",
         "dependencies": {
           "Microsoft.Owin": "[3.0.1, )",
-          "MirrorSharp.Common": "[3.0.1, )",
+          "MirrorSharp.Common": "[3.0.2, )",
           "Owin": "[1.0.0, )"
         }
       }

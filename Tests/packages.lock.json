@@ -2175,6 +2175,15 @@
           "Microsoft.CodeCoverage": "16.2.0"
         }
       },
+      "Microsoft.NETFramework.ReferenceAssemblies": {
+        "type": "Direct",
+        "requested": "[1.0.3, )",
+        "resolved": "1.0.3",
+        "contentHash": "vUc9Npcs14QsyOD01tnv/m8sQUnGTGOw1BCmKcv77LBJY7OxhJ+zJF7UD/sCL3lYNFuqmQEVlkfS4Quif6FyYg==",
+        "dependencies": {
+          "Microsoft.NETFramework.ReferenceAssemblies.net471": "1.0.3"
+        }
+      },
       "SourceMock": {
         "type": "Direct",
         "requested": "[0.10.0, )",
@@ -2449,6 +2458,11 @@
         "type": "Transitive",
         "resolved": "1.0.0",
         "contentHash": "ZYVcoDM0LnSyT5nWoRGfShYdOecCw2sOXWwP6j1Z0u48Xq3+BVvZ+EiPCX9/8Gz439giW+O1H1kWF9Eb/w6rVg=="
+      },
+      "Microsoft.NETFramework.ReferenceAssemblies.net471": {
+        "type": "Transitive",
+        "resolved": "1.0.3",
+        "contentHash": "Kf3vusy+mwHzn+0osmJAMrZNG00/UkwywjwfFKLUWSYEXiIMD6SEMGP9bG3sH1B54IiydxAneLubS5/Ajjn/Tw=="
       },
       "Microsoft.Win32.Registry": {
         "type": "Transitive",
