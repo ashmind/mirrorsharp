@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <_RoslynInternalsProject Include="../Internal.Roslyn??/*.csproj" />
+    <_RoslynInternalsProject Include="../Internal.Roslyn*/*.csproj" Exclude="Internal.RoslynInternals.csproj" />
     <InternalsVisibleTo Include="@(_RoslynInternalsProject->'MirrorSharp.%(Filename)')" />
   </ItemGroup>
 </Project>

@@ -10,17 +10,17 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <!-- https://dev.azure.com/dnceng/public/_artifacts/feed/dotnet-tools -->
     <RestoreAdditionalProjectSources>
       https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json;
       https://pkgs.dev.azure.com/azure-public/vside/_packaging/vs-impl/nuget/v3/index.json
     </RestoreAdditionalProjectSources>
-  </PropertyGroup>  
+  </PropertyGroup>
 
   <ItemGroup>
-    <!-- https://dev.azure.com/dnceng/public/_artifacts/feed/dotnet-tools -->
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.9.0-1.23513.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.9.0-1.23513.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="4.9.0-1.23513.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.11.0-3.24281.8" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.11.0-3.24281.8" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Features" Version="4.11.0-3.24281.8" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="SourceMock" Version="0.10.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
