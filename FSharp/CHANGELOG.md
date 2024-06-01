@@ -15,7 +15,7 @@
 ## [2.0.1] - 2024-06-01
 
 ### Added
-- F# 8 support by @psfinaki (additional thanks to prevous F# upgrade PRs by @vzarytovskii and @rstm-sf)
+- F# 8 support by @psfinaki (additional thanks to previous F# 7 upgrade PRs by @vzarytovskii and @rstm-sf)
 
 ## [2.0.0] - 2022-08-13
 
