@@ -1,4 +1,3 @@
-using FSharp.Compiler.IO;
 using Microsoft.IO;
 using MirrorSharp.Internal;
 using MirrorSharp.Internal.Abstraction;
