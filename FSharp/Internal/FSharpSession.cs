@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Control;
+using Microsoft.FSharp.Core;
 using Microsoft.IO;
 using MirrorSharp.FSharp.Advanced;
 using MirrorSharp.Internal;
@@ -54,7 +55,12 @@ namespace MirrorSharp.FSharp.Internal {
                 keepAllBackgroundSymbolUses: false,
                 enableBackgroundItemKeyStoreAndSemanticClassification: false,
                 // allows for using signature files to speed up compilation, but mutually exclusive with `keepAssemblyContents`
-                enablePartialTypeChecking: false
+                enablePartialTypeChecking: false,
+                parallelReferenceResolution: false,
+                captureIdentifiersWhenParsing: false,
+                documentSource: FSharpOption<DocumentSource>.Some(DocumentSource.FileSystem),
+                useSyntaxTreeCache: false,
+                useTransparentCompiler: false
             );
             // Checker.ImplicitlyStartBackgroundWork = false;
             AssemblyReferencePaths = options.AssemblyReferencePaths;

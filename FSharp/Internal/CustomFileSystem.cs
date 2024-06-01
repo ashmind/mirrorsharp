@@ -113,7 +113,7 @@ namespace MirrorSharp.FSharp.Internal {
             throw new NotSupportedException();
         }
 
-        public DirectoryInfo DirectoryCreateShim(string path) {
+        public string DirectoryCreateShim(string path) {
             throw new NotSupportedException();
         }
 
@@ -137,6 +137,10 @@ namespace MirrorSharp.FSharp.Internal {
 
         public IEnumerable<string> EnumerateDirectoriesShim(string path) {
             throw new NotSupportedException();
+        }
+
+        public string ChangeExtensionShim(string path, string extension) {
+            throw new NotImplementedException();
         }
 
         public string GetTempPathShim() {
