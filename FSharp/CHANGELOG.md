@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- Added IFSharpSession.CompileAsync
+
+## Changed
+- Changed required .NET Framework version to 4.6.2 as required by dependent packages
+
+### Removed
+- (Breaking) Removed MirrorSharpFSharpOptions.Debug (F# PDB generation is not currently supported by MirrorSharp)
+- (Breaking) Removed FSharpProjectOptionsExtensions.WithOtherOptionDebug
+
 ## [2.0.1] - 2024-06-01
 
 ### Added

@@ -34,15 +34,10 @@
 
   <Target Name="CopySdkReferenceAssemblies" AfterTargets="ResolveReferences" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <ItemGroup>
-      <Content Include="@(Reference->'%(RootDir)%(Directory)%(Filename)%(Extension)')"
-               Link="@(Reference->'ref-assemblies\%(Filename)%(Extension)')"
-               Condition="$([System.String]::new('%(Filename)').StartsWith('System')) or '%(Filename)' == 'netstandard'">
+      <Content Include="@(Reference->'%(RootDir)%(Directory)%(Filename)%(Extension)')" Link="@(Reference->'ref-assemblies\%(Filename)%(Extension)')" Condition="$([System.String]::new('%(Filename)').StartsWith('System')) or '%(Filename)' == 'netstandard'">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-      <Content Include="@(Reference->'%(RootDir)%(Directory)%(Filename).xml')"
-               Link="@(Reference->'ref-assemblies\%(Filename).xml')"
-               Condition="($([System.String]::new('%(Filename)').StartsWith('System')) or '%(Filename)' == 'netstandard')
-                          and Exists('%(RootDir)%(Directory)%(Filename).xml')">
+      <Content Include="@(Reference->'%(RootDir)%(Directory)%(Filename).xml')" Link="@(Reference->'ref-assemblies\%(Filename).xml')" Condition="($([System.String]::new('%(Filename)').StartsWith('System')) or '%(Filename)' == 'netstandard')&#xD;&#xA;                          and Exists('%(RootDir)%(Directory)%(Filename).xml')">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

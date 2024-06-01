@@ -1,13 +1,19 @@
-﻿using System.IO;
+using System;
+using System.IO;
+using System.Threading;
 
 namespace MirrorSharp.FSharp.Internal {
-    internal class NonDisposingStreamWrapper : Stream {
-        private readonly Stream _stream;
+    internal class ReusableMemoryStreamWrapper : Stream {
+        private readonly MemoryStream _stream;
+        private readonly string _name;
+        private int _inUse = 0;
 
-        public NonDisposingStreamWrapper(Stream stream) {
+        public ReusableMemoryStreamWrapper(MemoryStream stream, string name) {
             _stream = stream;
+            _name = name;
         }
 
+        internal Stream InnerStream => _stream;
         public override void Flush() => _stream.Flush();
         public override long Seek(long offset, SeekOrigin origin) => _stream.Seek(offset, origin);
         public override void SetLength(long value) => _stream.SetLength(value);
@@ -25,6 +31,14 @@ namespace MirrorSharp.FSharp.Internal {
 
         public override void Close() {
             Flush();
+            Position = 0;
+            _inUse = 0;
+        }
+
+        internal ReusableMemoryStreamWrapper Reuse() {
+            if (Interlocked.CompareExchange(ref _inUse, 1, 0) == 1)
+                throw new InvalidOperationException($"Stream {_name} is currently in use, parallel access is not supported.");
+            return this;
         }
     }
 }

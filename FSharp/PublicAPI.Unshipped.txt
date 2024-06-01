@@ -1,0 +1,1 @@
+MirrorSharp.FSharp.Advanced.IFSharpSession.CompileAsync(System.IO.MemoryStream! assemblyStream, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<System.Tuple<FSharp.Compiler.Diagnostics.FSharpDiagnostic![]!, int>!>

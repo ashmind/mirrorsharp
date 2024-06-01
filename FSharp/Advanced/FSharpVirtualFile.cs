@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using MirrorSharp.FSharp.Internal;
+using IO = System.IO;
 
 namespace MirrorSharp.FSharp.Advanced {
     /// <summary>Represents a virtual (in-memory) file within <see cref="FSharpFileSystem" />.</summary>
     public abstract class FSharpVirtualFile : IDisposable {
         private readonly ConcurrentDictionary<string, FSharpVirtualFile> _ownerCollection;
+        private ReusableMemoryStreamWrapper? _lastStreamWrapper;
 
         private protected FSharpVirtualFile(
             string path,
@@ -19,6 +22,15 @@ namespace MirrorSharp.FSharp.Advanced {
         public string Path { get; }
 
         internal abstract MemoryStream GetStream();
+        internal ReusableMemoryStreamWrapper GetStreamWrapper() {
+            var stream = GetStream();
+            if (stream == _lastStreamWrapper?.InnerStream)
+                return _lastStreamWrapper!;
+
+            var wrapper = new ReusableMemoryStreamWrapper(stream, IO.Path.GetFileName(Path));
+            _lastStreamWrapper = wrapper;
+            return wrapper;
+        }
 
         internal DateTime LastWriteTime { get; set; }
 

@@ -25,19 +25,23 @@ namespace MirrorSharp.FSharp.Internal {
         }
 
         public Stream OpenFileForReadShim(string filePath, FSharpOption<bool> useMemoryMappedFile, FSharpOption<bool> shouldShadowCopy) {
-            if (GetVirtualFile(filePath) is {} virtualFile)
-                return new NonDisposingStreamWrapper(virtualFile.GetStream());
+            if (GetVirtualFile(filePath) is { } virtualFile)
+                return virtualFile.GetStreamWrapper().Reuse();
 
             EnsureIsAssemblyFile(filePath);
             // For some reason, F# compiler requests this for same file many, many times.
             // Obviously, repeated IO is a bad idea.
             // Caching isn't great either, but will do for now.
+            //
+            // Note: This has to create a new MemoryStream for now. CustomFileSystem is shared between
+            // multiple sessions, and dlls/assemblies are the same (as compared to "virtual files"
+            // which are added per session and have unique names).
             return new MemoryStream(_fileBytesCache.GetOrAdd(filePath, f => File.ReadAllBytes(f)));
         }
 
         public Stream OpenFileForWriteShim(string filePath, FSharpOption<FileMode> fileMode, FSharpOption<FileAccess> fileAccess, FSharpOption<FileShare> fileShare) {
             if (GetVirtualFile(filePath) is {} virtualFile)
-                return new NonDisposingStreamWrapper(virtualFile.GetStream());
+                return virtualFile.GetStreamWrapper().Reuse();
 
             throw new NotSupportedException();
         }
@@ -182,7 +186,8 @@ namespace MirrorSharp.FSharp.Internal {
         private static bool IsAssemblyFile(string fileName) {
             return fileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)
                 || fileName.EndsWith(".optdata", StringComparison.OrdinalIgnoreCase)
-                || fileName.EndsWith(".sigdata", StringComparison.OrdinalIgnoreCase);
+                || fileName.EndsWith(".sigdata", StringComparison.OrdinalIgnoreCase)
+                || fileName.EndsWith(".win32manifest", StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool IsSpecialRangeFileName(string fileName) {

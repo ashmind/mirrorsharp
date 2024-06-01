@@ -5,6 +5,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.FSharp.Collections;
 using FSharp.Compiler.CodeAnalysis;
 using FSharp.Compiler.Diagnostics;
+using System.IO;
+using System;
 
 namespace MirrorSharp.FSharp.Advanced {
     /// <summary>Represents a user session based on F# parser.</summary>
@@ -21,6 +23,12 @@ namespace MirrorSharp.FSharp.Advanced {
         /// <summary>Return last check result (if text hasn't changed since), but doesn't force a new check.</summary>
         /// <returns>Last <see cref="FSharpCheckFileAnswer"/> if still valid, otherwise <c>null</c>.</returns>
         FSharpCheckFileAnswer? GetLastCheckAnswer();
+
+        /// <summary>Attempts to compile an F# assembly based on the current session.</summary>
+        /// <param name="assemblyStream">Stream to compile the assembly to.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> that can be used to cancel the call.</param>
+        /// <returns>A tuple returned from the F# compilation call.</returns>
+        ValueTask<Tuple<FSharpDiagnostic[], int>> CompileAsync(MemoryStream assemblyStream, CancellationToken cancellationToken);
 
         /// <summary>Converts <see cref="FSharpDiagnostic" /> to a <see cref="Diagnostic" />.</summary>
         /// <param name="diagnostic"><see cref="FSharpDiagnostic" /> value to convert.</param>

@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="../Tests/**/*.cs" Exclude="../Tests/obj/**; ../Tests/Php*.cs; ../Tests/FSharp*.cs" />
+    <Compile Include="../Tests/**/*.cs" Exclude="../Tests/obj/**; ../Tests/Php*.cs; ../Tests/FSharp/*.cs" />
   </ItemGroup>
 
   <Target Name="CopySdkReferenceAssemblies" AfterTargets="ResolveReferences">

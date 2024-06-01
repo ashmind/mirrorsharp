@@ -23,8 +23,6 @@ MirrorSharp.FSharp.Advanced.WorkSessionExtensions
 MirrorSharp.FSharp.MirrorSharpFSharpOptions
 MirrorSharp.FSharp.MirrorSharpFSharpOptions.AssemblyReferencePaths.get -> System.Collections.Immutable.ImmutableArray<string!>
 MirrorSharp.FSharp.MirrorSharpFSharpOptions.AssemblyReferencePaths.set -> void
-MirrorSharp.FSharp.MirrorSharpFSharpOptions.Debug.get -> bool?
-MirrorSharp.FSharp.MirrorSharpFSharpOptions.Debug.set -> void
 MirrorSharp.FSharp.MirrorSharpFSharpOptions.LangVersion.get -> string?
 MirrorSharp.FSharp.MirrorSharpFSharpOptions.LangVersion.set -> void
 MirrorSharp.FSharp.MirrorSharpFSharpOptions.Optimize.get -> bool?
@@ -39,7 +37,6 @@ const MirrorSharp.FSharp.Advanced.FSharpTargets.Library = "library" -> string!
 const MirrorSharp.FSharp.Advanced.FSharpTargets.Module = "module" -> string!
 const MirrorSharp.FSharp.Advanced.FSharpTargets.WinExe = "winexe" -> string!
 static MirrorSharp.FSharp.Advanced.FSharpFileSystem.RegisterVirtualFile(System.IO.MemoryStream! stream) -> MirrorSharp.FSharp.Advanced.FSharpVirtualFile!
-static MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions.WithOtherOptionDebug(this FSharp.Compiler.CodeAnalysis.FSharpProjectOptions! options, bool? debug) -> FSharp.Compiler.CodeAnalysis.FSharpProjectOptions!
 static MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions.WithOtherOptionDefine(this FSharp.Compiler.CodeAnalysis.FSharpProjectOptions! options, string! symbol, bool defined = true) -> FSharp.Compiler.CodeAnalysis.FSharpProjectOptions!
 static MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions.WithOtherOptionOptimize(this FSharp.Compiler.CodeAnalysis.FSharpProjectOptions! options, bool? optimize) -> FSharp.Compiler.CodeAnalysis.FSharpProjectOptions!
 static MirrorSharp.FSharp.Advanced.FSharpProjectOptionsExtensions.WithOtherOptionTarget(this FSharp.Compiler.CodeAnalysis.FSharpProjectOptions! options, string? target) -> FSharp.Compiler.CodeAnalysis.FSharpProjectOptions!

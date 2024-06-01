@@ -8,23 +8,6 @@ namespace MirrorSharp.FSharp.Advanced {
     public static class FSharpProjectOptionsExtensions {
         /// <summary>
         /// Returns a new instance of <see cref="FSharpProjectOptions" /> with
-        /// <see cref="FSharpProjectOptions.OtherOptions"/> <c>--debug</c> option set to the provided value; if
-        /// it already matches the provided value, returns <paramref name="options" />.
-        /// </summary>
-        /// <param name="options">The options to use as a base for the returned value.</param>
-        /// <param name="debug">The new value for the <c>--debug</c> option; if <c>null</c>, means option should be removed.</param>
-        /// <returns>
-        /// Either a new instance of <see cref="FSharpProjectOptions" /> with the option set; or <paramref name="options" />
-        /// if it already matches the provided value.
-        /// </returns>
-        public static FSharpProjectOptions WithOtherOptionDebug(this FSharpProjectOptions options, bool? debug) {
-            return options.WithOtherOptions(
-                options.OtherOptions.WithSwitch("--debug", debug)
-            );
-        }
-
-        /// <summary>
-        /// Returns a new instance of <see cref="FSharpProjectOptions" /> with
         /// <see cref="FSharpProjectOptions.OtherOptions"/> <c>--optimize</c> option set to the provided value; if
         /// it already matches the provided value, returns <paramref name="options" />.
         /// </summary>
@@ -108,6 +91,14 @@ namespace MirrorSharp.FSharp.Advanced {
                 options.OriginalLoadReferences,
                 options.Stamp
             );
+        }
+
+        internal static FSharpProjectOptions WithOtherOption(this FSharpProjectOptions options, string option) {
+            return options.WithOtherOptions(options.OtherOptions.With(option));
+        }
+
+        internal static FSharpProjectOptions WithoutOtherOption(this FSharpProjectOptions options, string option) {
+            return options.WithOtherOptions(options.OtherOptions.Without(option));
         }
 
         private static string[] WithSwitch(this string[] otherOptions, string prefix, bool? value) {
