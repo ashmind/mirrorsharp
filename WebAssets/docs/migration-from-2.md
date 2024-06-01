@@ -6,7 +6,7 @@ The goal of this document is to help with migration.
 
 ## Container
 
-The most noticeable change is in the `mirrosharp()` contract, which now uses a container element instead of a `textearea`.
+The most noticeable change is in the `mirrosharp()` contract, which now uses a container element instead of a `textarea`.
 
 ```typescript
 // New:
