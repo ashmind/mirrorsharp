@@ -7,7 +7,7 @@
         "Properties/": true
     },
     "editor.codeActionsOnSave": {
-        "source.fixAll": true
+        "source.fixAll": "explicit"
     },
     "jest.showCoverageOnLoad": true,
     "cSpell.ignorePaths": [
