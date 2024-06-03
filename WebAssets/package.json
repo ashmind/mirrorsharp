@@ -2,7 +2,7 @@
     "name": "mirrorsharp-codemirror-6-preview",
     "version": "1.0.0",
     "engines": {
-        "node": ">=16.17.1"
+        "node": ">=20.14.0"
     },
     "description": "Preview version of mirrorsharp based on CodeMirror 6.",
     "authors": [
@@ -25,15 +25,15 @@
         "Safari >= 15"
     ],
     "scripts": {
-        "lint": "ts-node-esm ./build.ts lint",
-        "build": "ts-node-esm ./build.ts",
-        "watch": "ts-node-esm ./build.ts --watch",
-        "build-local": "ts-node-esm ./build.ts && cd dist && npm install",
+        "lint": "tsx ./build.ts lint",
+        "build": "tsx ./build.ts",
+        "watch": "tsx ./build.ts --watch",
+        "build-local": "tsx ./build.ts && cd dist && npm install",
         "test": "jest",
         "storybook": "start-storybook -p 6006",
         "build-storybook": "build-storybook",
-        "test-storybook": "ts-node-esm ./build.ts storybook:test",
-        "test-storybook-with-update": "ts-node-esm ./build.ts storybook:test:update"
+        "test-storybook": "tsx ./build.ts storybook:test",
+        "test-storybook-with-update": "tsx ./build.ts storybook:test:update"
     },
     "jest": {
         "preset": "ts-jest/presets/js-with-ts",
@@ -101,8 +101,8 @@
         "tree-kill": "^1.2.2",
         "ts-jest": "^29.0.3",
         "ts-loader": "^9.4.2",
-        "ts-node": "^10.9.1",
         "ts-unused-exports": "^9.0.1",
+        "tsx": "^4.11.2",
         "typescript": "^4.9.4",
         "wait-on": "^7.0.1"
     }
