@@ -49,16 +49,17 @@ namespace MirrorSharp.Internal.Roslyn {
             // CI build. TODO: SharpLab only?
             if (roslynVersion.Major == 42 && roslynVersion.Minor == 42) {
                 // Try previous versions, in case CI is not on newest yet
-                assembly = GetAssemblyOrNullIfTypesFailToLoad(assembly)
-                        ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 10)))
-                        ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 9)))
-                        ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 8)))
-                        ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 7)))
-                        ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 6)))
-                        ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 5)))
-                        ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 4)))
-                        ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 3)))
-                        ?? LoadInternalsAssemblySlow(new Version(4, 2));
+                var fallback = GetAssemblyOrNullIfTypesFailToLoad(assembly)
+                            ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 10)))
+                            ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 9)))
+                            ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 8)))
+                            ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 7)))
+                            ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 6)))
+                            ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 5)))
+                            ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 4)))
+                            ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 3)))
+                            ?? GetAssemblyOrNullIfTypesFailToLoad(LoadInternalsAssemblySlow(new Version(4, 2)));
+                assembly = fallback ?? assembly;
             }
 
             PreloadInternalsAssemblyDependenciesSlow(assembly);
