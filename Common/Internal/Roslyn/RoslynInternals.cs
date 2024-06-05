@@ -61,7 +61,8 @@ namespace MirrorSharp.Internal.Roslyn {
                         ?? LoadInternalsAssemblySlow(new Version(4, 2));
             }
 
-            PreloadInternalAssemblyDependenciesSlow(assembly);
+            PreloadInternalsAssemblyDependenciesSlow(assembly);
+            EnsureInternalsTypesCanLoad(assembly);
             return assembly;
         }
 
@@ -74,6 +75,20 @@ namespace MirrorSharp.Internal.Roslyn {
             }
 
             return assembly;
+        }
+
+        private static void EnsureInternalsTypesCanLoad(Assembly assembly) {
+            try {
+                _ = assembly.DefinedTypes;
+            }
+            catch (ReflectionTypeLoadException ex) {
+                throw new Exception(
+                    $"Failed to load MirrorSharp Roslyn internals.{Environment.NewLine}" +
+                    $"  * Microsoft.CodeAnalysis {RoslynAssemblies.MicrosoftCodeAnalysis.GetName().Version}.{Environment.NewLine}" +
+                    $"  * {assembly.GetName().Name}",
+                    ex
+                );
+            }
         }
 
         private static Assembly LoadInternalsAssemblySlow(Version roslynVersion) {
@@ -112,7 +127,7 @@ namespace MirrorSharp.Internal.Roslyn {
             #endif
         }
 
-        private static void PreloadInternalAssemblyDependenciesSlow(Assembly assembly) {
+        private static void PreloadInternalsAssemblyDependenciesSlow(Assembly assembly) {
             foreach (var reference in assembly.GetReferencedAssemblies()) {
                 Assembly.Load(reference);
             }
