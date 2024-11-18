@@ -1,13 +1,24 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+- Updated dependencies to resolve security warnings
+
 ## [3.0.9] - 2024-06-01
+
+### Fixed
 - Fixed support for Microsoft.CodeAnalysis 4.11.0 (preview versions)
 - Fixed support for Microsoft.CodeAnalysis 4.10.0 (preview versions)
 
 ## [3.0.8] - 2023-10-14
+
+### Fixed
 - Fixed support for Microsoft.CodeAnalysis 4.9.0 (preview versions)
 
 ## [3.0.7] - 2023-09-07
+
+### Fixed
 - Fixed support for Microsoft.CodeAnalysis 4.8.0 (preview versions)
 
 ## [3.0.6] - 2023-05-29
