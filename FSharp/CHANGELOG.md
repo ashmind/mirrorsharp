@@ -1,12 +1,12 @@
 # Changelog
 
-## [Unreleased]
+## [3.0.0] - 2024-11-19
 
 ### Added
 - Added IFSharpSession.CompileAsync
 
 ### Fixed
-- Updated dependencies to resolve security warnings
+- Updated dependency on Microsoft.Build.Utilities.Core to safe version to resolve security audit warnings
 
 ## Changed
 - Changed required .NET Framework version to 4.6.2 as required by dependent packages

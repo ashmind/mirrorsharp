@@ -5,7 +5,7 @@
     <AssemblyName>MirrorSharp.Common</AssemblyName>
     <RootNamespace>MirrorSharp</RootNamespace>
     <TargetFrameworks>netstandard2.0; netcoreapp3.1</TargetFrameworks>
-    <VersionPrefix>3.0.9</VersionPrefix>
+    <VersionPrefix>3.0.10</VersionPrefix>
     <Description>MirrorSharp shared server library. $(DescriptionSuffix)</Description>
     <PackageTags>Roslyn;CodeMirror</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -19,6 +19,7 @@
     <PackageReference Include="System.Memory" Version="4.5.5" />
     <!-- Avoids vulnerability in version referenced by other dependencies -->
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <!-- Avoids vulnerability in version referenced by other dependencies -->
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 

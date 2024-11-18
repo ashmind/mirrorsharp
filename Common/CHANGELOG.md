@@ -1,12 +1,13 @@
 # Changelog
 
-## [Unreleased]
+## [3.0.10] - 2024-11-19
 
 ### Fixed
-- Updated dependencies to resolve security warnings
 - Fixed support for Microsoft.CodeAnalysis 4.12.0 (preview)
-- Fixed support for Microsoft.CodeAnalysis 4.11.0 (final)
-- Fixed support for Microsoft.CodeAnalysis 4.10.0 (final)
+- Fixed support for Microsoft.CodeAnalysis 4.11.0 (final) with help from @Sicos1977
+- Fixed support for Microsoft.CodeAnalysis 4.10.0 (final) with help from @Sicos1977
+- Added explicit dependency on safe version of System.Net.Http to resolve security audit warnings
+- Added explicit dependency on safe version of System.Text.RegularExpressions to resolve security audit warnings
 
 ## [3.0.9] - 2024-06-01
 

@@ -5,7 +5,7 @@
     <AssemblyName>MirrorSharp.Php</AssemblyName>
     <RootNamespace>MirrorSharp.Php</RootNamespace>
     <TargetFrameworks>netstandard2</TargetFrameworks>
-    <VersionPrefix>0.16</VersionPrefix>
+    <VersionPrefix>0.17</VersionPrefix>
     <Description>MirrorSharp PHP support library, implemented using Peachpie. $(DescriptionSuffix)</Description>
     <PackageTags>PHP;Peachpie;CodeMirror</PackageTags>    
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

@@ -1,9 +1,10 @@
 # Changelog
 
-## [Unreleased]
+## [0.17] - 2024-11-19
 
 ### Fixed
-- Updated dependencies to resolve security warnings
+- Added explicit dependency on safe version of Newtonsoft.Json to resolve security audit warnings
+- Added explicit dependency on safe version of System.Data.SqlClient to resolve security audit warnings
 
 ## [0.16] - 2022-04-04
 ## [0.16-test-2021-04-02-1] - 2021-04-02

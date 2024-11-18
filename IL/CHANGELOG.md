@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3] - 2024-11-19
+
+### Fixed
+- Added explicit dependency on safe version of System.Drawing.Common to resolve security audit warnings
+
 ## [0.2] - 2022-04-04
 ## [0.2-test-2021-04-02-1] - 2021-04-02
 ## [0.2-test-2021-04-01-1] - 2021-04-01
