@@ -38,6 +38,15 @@
         "resolved": "13.0.3",
         "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
       },
+      "SourceMock": {
+        "type": "Direct",
+        "requested": "[0.10.0, )",
+        "resolved": "0.10.0",
+        "contentHash": "Dd/YMTTRZSDR34HgVEgfMoZfOTId3Ns0vehFcdLVwMuKLgMcg7/4Oj80qX112np9siR2C4vL3qfT1I9ahzxu9Q==",
+        "dependencies": {
+          "System.Collections.Immutable": "5.0.0"
+        }
+      },
       "System.Buffers": {
         "type": "Direct",
         "requested": "[4.5.1, )",
@@ -135,8 +144,11 @@
       },
       "System.Collections.Immutable": {
         "type": "Transitive",
-        "resolved": "1.5.0",
-        "contentHash": "EXKiDFsChZW0RjrZ4FYHu9aW6+P4MCgEDCklsVseRfhoO0F+dXeMSsMRAlVXIo06kGJ/zv+2w1a2uc2+kxxSaQ=="
+        "resolved": "5.0.0",
+        "contentHash": "FXkLXiK0sVVewcso0imKQoOxjoPAj42R8HtjjbSjVPAzwDfzoyoznWxgA3c38LDbN9SJux1xXoXYAhz98j7r2g==",
+        "dependencies": {
+          "System.Memory": "4.5.4"
+        }
       },
       "System.Composition": {
         "type": "Transitive",

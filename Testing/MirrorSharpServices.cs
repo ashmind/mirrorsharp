@@ -18,12 +18,15 @@ namespace MirrorSharp.Testing {
         /// <summary>Defines a <see cref="IExceptionLogger" /> called for any unhandled exception.</summary>
         public IExceptionLogger? ExceptionLogger { get; set; }
 
+        internal IWorkSessionTracker? SessionTracker { get; set; }
+
         internal ImmutableExtensionServices ToImmutable() {
             return new ImmutableExtensionServices(
                 SetOptionsFromClient, SlowUpdate,
                 RoslynSourceTextGuard, RoslynCompilationGuard,
                 ConnectionSendViewer,
-                ExceptionLogger
+                ExceptionLogger,
+                SessionTracker
             );
         }
     }

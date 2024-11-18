@@ -11,27 +11,26 @@ using MirrorSharp.Internal.Handlers;
 using MirrorSharp.Internal.Results;
 
 namespace MirrorSharp.Internal {
-    internal class Connection : ICommandResultSender, IDisposable {
+    internal class Connection : IConnection, ICommandResultSender {
         public static int InputBufferSize => 4096;
 
-        private readonly ArrayPool<byte> _bufferPool;
+        private readonly ArrayPool<byte> _inputBufferPool;
         private readonly IConnectionSendViewer? _sendViewer;
         private readonly WebSocket _socket;
         private readonly WorkSession _session;
         private readonly ImmutableArray<ICommandHandler> _handlers;
         private readonly byte[] _inputBuffer;
 
-        private readonly FastUtf8JsonWriter _messageWriter;
+        private readonly ConnectionMessageWriter _messageWriter;
         private readonly IConnectionOptions? _options;
         private readonly IExceptionLogger? _exceptionLogger;
-
-        private string? _currentMessageTypeName;
 
         public Connection(
             WebSocket socket,
             WorkSession session,
+            ArrayPool<byte> inputBufferPool,
             ImmutableArray<ICommandHandler> handlers,
-            ArrayPool<byte> bufferPool,
+            ConnectionMessageWriter messageWriter,
             IConnectionSendViewer? sendViewer,
             IExceptionLogger? exceptionLogger,
             IConnectionOptions? options
@@ -39,12 +38,12 @@ namespace MirrorSharp.Internal {
             _socket = socket;
             _session = session;
             _handlers = handlers;
-            _messageWriter = new FastUtf8JsonWriter(bufferPool);
+            _messageWriter = messageWriter;
             _options = options;
             _sendViewer = sendViewer;
             _exceptionLogger = exceptionLogger;
-            _bufferPool = bufferPool;
-            _inputBuffer = bufferPool.Rent(InputBufferSize);
+            _inputBufferPool = inputBufferPool;
+            _inputBuffer = inputBufferPool.Rent(InputBufferSize);
         }
 
         public bool IsConnected => _socket.State == WebSocketState.Open;
@@ -138,23 +137,19 @@ namespace MirrorSharp.Internal {
         }
 
         private Task SendErrorAsync(string message, CancellationToken cancellationToken) {
-            var writer = StartJsonMessage("error");
-            writer.WriteProperty("message", message);
+            _messageWriter.WriteErrorStart(message);
             return SendJsonMessageAsync(cancellationToken);
         }
 
-        private FastUtf8JsonWriter StartJsonMessage(string messageTypeName) {
-            _messageWriter.Reset();
-            _messageWriter.WriteStartObject();
-            _messageWriter.WriteProperty("type", messageTypeName);
-            _currentMessageTypeName = messageTypeName;
-            return _messageWriter;
-        }
-
         private Task SendJsonMessageAsync(CancellationToken cancellationToken) {
-            _messageWriter.WriteEndObject();
+            _messageWriter.WriteMessageEnd();
 
-            var viewTask = _sendViewer?.ViewDuringSendAsync(_currentMessageTypeName!, _messageWriter.WrittenSegment, _session, cancellationToken);
+            var viewTask = _sendViewer?.ViewDuringSendAsync(
+                _messageWriter.CurrentMessageTypeName!,
+                _messageWriter.WrittenSegment,
+                _session,
+                cancellationToken
+            );
             var sendTask = _socket.SendAsync(
                 _messageWriter.WrittenSegment,
                 WebSocketMessageType.Text, true, cancellationToken
@@ -172,12 +167,24 @@ namespace MirrorSharp.Internal {
         }
 
         public void Dispose() {
-            _bufferPool.Return(_inputBuffer);
-            _messageWriter.Dispose();
-            _session.Dispose();
+            try {
+                try {
+                    _inputBufferPool.Return(_inputBuffer);
+                }
+                finally {
+                    _messageWriter.Dispose();
+                }
+            }
+            finally {
+                _session.Dispose();
+            }
         }
 
-        IFastJsonWriter ICommandResultSender.StartJsonMessage(string messageTypeName) => StartJsonMessage(messageTypeName);
+        IFastJsonWriter ICommandResultSender.StartJsonMessage(string messageTypeName) {
+            _messageWriter.WriteMessageStart(messageTypeName);
+            return _messageWriter.JsonWriter;
+        }
+
         Task ICommandResultSender.SendJsonMessageAsync(CancellationToken cancellationToken) => SendJsonMessageAsync(cancellationToken);
     }
 }

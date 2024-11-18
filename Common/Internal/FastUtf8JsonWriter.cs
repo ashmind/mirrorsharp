@@ -36,7 +36,7 @@ namespace MirrorSharp.Internal {
             _encoder = Encoding.UTF8.GetEncoder();
         }
 
-        public ArraySegment<byte> WrittenSegment => new ArraySegment<byte>(_buffer, 0, _position);
+        public ArraySegment<byte> WrittenSegment => new (_buffer, 0, _position);
 
         public void WriteStartObject() {
             WriteStartValue();

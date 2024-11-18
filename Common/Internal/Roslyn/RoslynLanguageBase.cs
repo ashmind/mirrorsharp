@@ -46,16 +46,27 @@ namespace MirrorSharp.Internal.Roslyn {
         }
 
         private CompositionHost CreateCompositionHost(string featuresAssemblyName, string workspacesAssemblyName) {
+            var roslynInternalsAssembly = RoslynInternals.GetInternalsAssemblySlow();
             var types = new[] {
                 RoslynAssemblies.MicrosoftCodeAnalysisWorkspaces,
                 RoslynAssemblies.MicrosoftCodeAnalysisFeatures,
                 Assembly.Load(new AssemblyName(featuresAssemblyName)),
                 Assembly.Load(new AssemblyName(workspacesAssemblyName)),
-                RoslynInternals.GetInternalsAssemblySlow()
+                roslynInternalsAssembly
             }.SelectMany(a => a.DefinedTypes).Where(ShouldConsiderForHostServices);
 
             var configuration = new ContainerConfiguration().WithParts(types);
-            return configuration.CreateContainer();
+            try {
+                return configuration.CreateContainer();
+            }
+            catch (MissingMethodException ex) {
+                throw new Exception(
+                    $"Failed to initialize MirrorSharp {GetType().Name}.{Environment.NewLine}" +
+                    $"  Microsoft.CodeAnalysis {RoslynAssemblies.MicrosoftCodeAnalysis.GetName().Version}.{Environment.NewLine}" +
+                    $"  {roslynInternalsAssembly.GetName().Name}",
+                    ex
+                );
+            }
         }
 
         protected virtual bool ShouldConsiderForHostServices(Type type)

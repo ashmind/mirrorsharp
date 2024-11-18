@@ -61,8 +61,9 @@ namespace MirrorSharp.Tests {
 
         private Connection CreateConnection(WebSocket socketMock, WorkSession session, CommandHandlerMock handler) {
             return new Connection(
-                socketMock, session, CreateCommandHandlers(handler),
-                ArrayPool<byte>.Shared,
+                socketMock, session, ArrayPool<byte>.Shared,
+                CreateCommandHandlers(handler),
+                new ConnectionMessageWriter(new FastUtf8JsonWriter(ArrayPool<byte>.Shared)),
                 sendViewer: null, exceptionLogger: null, options: null
             );
         }

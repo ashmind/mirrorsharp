@@ -39,6 +39,10 @@ namespace MirrorSharp.Testing.Internal {
             return new HandlerTestArgument(data);
         }
 
+        public byte[] ToBytes(char commandId) {
+
+        }
+
         public AsyncData ToAsyncData(char commandId) {
             var nextIndex = 1;
 

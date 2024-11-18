@@ -92,10 +92,19 @@ namespace MirrorSharp.Internal {
 
         protected async Task WebSocketLoopAsync(WebSocket socket, CancellationToken cancellationToken) {
             WorkSession? session = null;
-            Connection? connection = null;
+            FastUtf8JsonWriter? messageJsonWriter = null;
+            ConnectionMessageWriter? messageWriter = null;
+            IConnection? connection = null;
             try {
-                session = StartWorkSession();
-                connection = new Connection(socket, session, _handlers, ArrayPool<byte>.Shared, _extensions.ConnectionSendViewer, _extensions.ExceptionLogger, _options);
+                messageJsonWriter = new FastUtf8JsonWriter(ArrayPool<byte>.Shared);
+                messageWriter = new ConnectionMessageWriter(messageJsonWriter);
+                try {
+                    session = StartWorkSession();
+                    connection = new Connection(socket, session, ArrayPool<byte>.Shared, _handlers, messageWriter, _extensions.ConnectionSendViewer, _extensions.ExceptionLogger, _options);
+                }
+                catch (Exception ex) {
+                    connection = new StartupFailedConnection(socket, ex, ArrayPool<byte>.Shared, messageWriter, _options);
+                }
 
                 while (connection.IsConnected) {
                     try {
@@ -111,7 +120,17 @@ namespace MirrorSharp.Internal {
                     connection.Dispose();
                 }
                 else {
-                    session?.Dispose();
+                    try {
+                        if (messageWriter != null) {
+                            messageWriter.Dispose();
+                        }
+                        else {
+                            messageJsonWriter?.Dispose();
+                        }
+                    }
+                    finally {
+                        session?.Dispose();
+                    }
                 }
             }
         }

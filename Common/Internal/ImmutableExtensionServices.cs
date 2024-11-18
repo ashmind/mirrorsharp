@@ -9,7 +9,8 @@ namespace MirrorSharp.Internal {
             IRoslynSourceTextGuard? roslynSourceTextGuard,
             IRoslynCompilationGuard? roslynCompilationGuard,
             IConnectionSendViewer? connectionSendViewer,
-            IExceptionLogger? exceptionLogger
+            IExceptionLogger? exceptionLogger,
+            IWorkSessionTracker? sessionTracker
         ) {
             SetOptionsFromClient = setOptionsFromClient;
             SlowUpdate = slowUpdate;
@@ -17,6 +18,7 @@ namespace MirrorSharp.Internal {
             RoslynCompilationGuard = roslynCompilationGuard;
             ConnectionSendViewer = connectionSendViewer;
             ExceptionLogger = exceptionLogger;
+            SessionTracker = sessionTracker;
         }
 
         public ISetOptionsFromClientExtension? SetOptionsFromClient { get; }
@@ -25,5 +27,6 @@ namespace MirrorSharp.Internal {
         public IRoslynCompilationGuard? RoslynCompilationGuard { get; }
         public IConnectionSendViewer? ConnectionSendViewer { get; }
         public IExceptionLogger? ExceptionLogger { get; }
+        public IWorkSessionTracker? SessionTracker { get; }
     }
 }

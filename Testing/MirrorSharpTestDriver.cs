@@ -16,25 +16,30 @@ using Newtonsoft.Json;
 // ReSharper disable HeapView.ObjectAllocation
 
 namespace MirrorSharp.Testing {
-    public class MirrorSharpTestDriver {
+    public class MirrorSharpTestDriver: IWorkSessionTracker {
         private static readonly MirrorSharpOptions DefaultOptions = new();
-        private static readonly MirrorSharpServices DefaultServices = new();
         private static readonly ConcurrentDictionary<MirrorSharpOptions, LanguageManager> LanguageManagerCache = new();
 
         private readonly TestMiddleware _middleware;
         private readonly MirrorSharpServices _services;
 
+        private WorkSession? _session;
+
         private MirrorSharpTestDriver(MirrorSharpOptions? options = null, MirrorSharpServices? services = null, string languageName = LanguageNames.CSharp) {
+            if (services?.SessionTracker != null)
+                throw new ArgumentException("Custom session trackers are not supported.", nameof(services));
+
             options ??= DefaultOptions;
-            services ??= DefaultServices;
+            services ??= new();
+
+            services.SessionTracker = this;
 
             _services = services;
-            var language = GetLanguageManager(options).GetLanguage(languageName);
-            _middleware = new TestMiddleware(options, services);
-            Session = new WorkSession(language, options, services.ToImmutable());
+            _middleware = new TestMiddleware(GetLanguageManager(options), options, services.ToImmutable());
         }
-        
-        internal WorkSession Session { get; }
+
+        internal WorkSession Session => _session
+            ?? throw new InvalidOperationException("Work session has not been captured yet.");
 
         // Obsolete: will be removed in the next major version. However no changes are required on caller side.
         public static MirrorSharpTestDriver New() {
@@ -119,7 +124,9 @@ namespace MirrorSharp.Testing {
         internal async Task<TResult?> SendWithOptionalResultAsync<TResult>(char commandId, HandlerTestArgument? argument = null)
             where TResult : class
         {
-            var sender = new StubCommandResultSender(Session, _services.ConnectionSendViewer);
+            var socket = new TestSocket();
+            socket.SetupToReceive(argument?.ToAsyncData(commandId));
+
             await _middleware.GetHandler(commandId).ExecuteAsync(argument?.ToAsyncData(commandId) ?? AsyncData.Empty, Session, sender, CancellationToken.None);
             return sender.LastMessageJson != null
                 ? JsonConvert.DeserializeObject<TResult>(sender.LastMessageJson)
@@ -139,9 +146,11 @@ namespace MirrorSharp.Testing {
             return LanguageManagerCache.GetOrAdd(options, _ => new LanguageManager(options));
         }
 
-        private class TestMiddleware : MiddlewareBase {
-            public TestMiddleware(MirrorSharpOptions options, MirrorSharpServices services) : base(GetLanguageManager(options), options, services.ToImmutable()) {
-            }
+        void IWorkSessionTracker.TrackNewWorkSession(WorkSession session) {
+            if (_session != null)
+                throw new InvalidOperationException("Attempted to capture work session twice for the same driver.");
+
+            _session = session;
         }
     }
 }
