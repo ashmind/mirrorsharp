@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using MirrorSharp.Internal.Roslyn.Internals;
 
-namespace MirrorSharp.Internal.Roslyn47 {
+namespace MirrorSharp.Internal.Roslyn410 {
     [Shared]
     [Export(typeof(IWorkspaceAnalyzerOptionsInternals))]
     internal class WorkspaceAnalyzerOptionsInternals : IWorkspaceAnalyzerOptionsInternals {
