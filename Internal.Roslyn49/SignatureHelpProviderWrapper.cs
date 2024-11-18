@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.SignatureHelp;
 using MirrorSharp.Internal.Roslyn.Internals;
 using SignatureHelpTriggerReason = Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpTriggerReason;
 
-namespace MirrorSharp.Internal.Roslyn47 {
+namespace MirrorSharp.Internal.Roslyn49 {
     internal class SignatureHelpProviderWrapper : ISignatureHelpProviderWrapper {
         private readonly ISignatureHelpProvider _provider;
 
