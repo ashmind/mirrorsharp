@@ -17,10 +17,10 @@ jobs:
     name: Build and Publish
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         lfs: 'true'
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
         node-version: '16.17.1'
         cache: 'npm'
@@ -45,8 +45,8 @@ jobs:
       run: npm run test-storybook
       working-directory: WebAssets
 
-    - name: "[Failure] Run actions/upload-artifact@v2 (diff output)"
-      uses: actions/upload-artifact@v2
+    - name: "[Failure] Run actions/upload-artifact@v4 (diff output)"
+      uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: __diff_output__
@@ -58,8 +58,8 @@ jobs:
       working-directory: WebAssets
       if: failure()
 
-    - name: "[Failure] Run actions/upload-artifact@v2 (updated snapshots)"
-      uses: actions/upload-artifact@v2
+    - name: "[Failure] Run actions/upload-artifact@v4 (updated snapshots)"
+      uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: '__image_snapshots__ (updated)'
