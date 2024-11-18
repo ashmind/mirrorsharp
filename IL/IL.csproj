@@ -8,15 +8,23 @@
     <VersionPrefix>0.2</VersionPrefix>
     <Description>MirrorSharp IL support library. $(DescriptionSuffix)</Description>
     <PackageTags>IL;CodeMirror</PackageTags>
-    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
   </PropertyGroup>
 
   <PropertyGroup>
     <UseLocalILAsm Condition="Exists('..\..\Mobius.ILasm\Mobius.ILASM\Mobius.ILasm.csproj')">True</UseLocalILAsm>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <RestorePackagesWithLockFile Condition="'$(UseLocalILAsm)' == 'True'">false</RestorePackagesWithLockFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Condition="'$(UseLocalILAsm)' != 'True'" Include="Mobius.ILasm" Version="0.1.0" />
+    <!--
+      Avoids vulnerability in version referenced by Mobius.ILasm.
+      TOOD: Upgrade dependencies of Mobius.ILasm.
+    -->
+    <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>

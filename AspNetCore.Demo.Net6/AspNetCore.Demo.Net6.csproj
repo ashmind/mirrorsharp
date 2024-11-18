@@ -5,7 +5,6 @@
     <AssemblyName>MirrorSharp.AspNetCore.Demo.Net6</AssemblyName>
     <RootNamespace>MirrorSharp.AspNetCore.Demo.Net6</RootNamespace>
     <IsPackable>false</IsPackable>
-    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
   </PropertyGroup>
 
   <ItemGroup>

@@ -362,7 +362,11 @@
         }
       },
       "MirrorSharp.Common": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.CodeAnalysis": "[3.3.1, )",
+          "Microsoft.CodeAnalysis.Features": "[3.3.1, )"
+        }
       }
     }
   }

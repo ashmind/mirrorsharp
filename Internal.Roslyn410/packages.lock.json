@@ -4,9 +4,9 @@
     ".NETStandard,Version=v2.0": {
       "IgnoresAccessChecksToGenerator": {
         "type": "Direct",
-        "requested": "[0.7.0, )",
-        "resolved": "0.7.0",
-        "contentHash": "EJAf6FpUFmFjWWuKQ9swJe87KmE7mW32QDwjUWXMP4HKMJOjznm2Zol+zlMohG3j1jtXAgHG0CX2rvjAINxvfQ=="
+        "requested": "[0.5.0, )",
+        "resolved": "0.5.0",
+        "contentHash": "p0ZdbdGRAmRAhSm1HWZ4luy/RjLZlhGPmg9OWmVFYhrq526AtxmL5Pik7uZWf3Hr3PQRR8iTH+Kyf3eHyLAGCQ=="
       },
       "Microsoft.CodeAnalysis": {
         "type": "Direct",
@@ -66,9 +66,9 @@
       },
       "Microsoft.CodeAnalysis.PublicApiAnalyzers": {
         "type": "Direct",
-        "requested": "[3.3.4, )",
-        "resolved": "3.3.4",
-        "contentHash": "kNLTfXtXUWDHVt5iaPkkiPuyHYlMgLI6SOFT4w88bfeI2vqSeGgHunFkdvlaCM8RDfcY0t2+jnesQtidRJJ/DA=="
+        "requested": "[3.3.0, )",
+        "resolved": "3.3.0",
+        "contentHash": "upaG6u/PxjkOj39Kk0DLmmA75acYChmv6/HnOUxvSgGWul53uPcVaPxBWCzkHDfIljyiq5qeIG+CatT8x8FAEA=="
       },
       "Microsoft.CodeAnalysis.Workspaces.Common": {
         "type": "Direct",
@@ -432,7 +432,11 @@
         }
       },
       "MirrorSharp.Common": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.CodeAnalysis": "[3.3.1, )",
+          "Microsoft.CodeAnalysis.Features": "[3.3.1, )"
+        }
       }
     }
   }
