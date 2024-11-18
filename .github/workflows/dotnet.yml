@@ -9,6 +9,7 @@ on:
     - '*.Demo*/**/*.css'
     - '*.Demo*/**/*.html'
     - '*.Demo*/**/package.json'
+    - '*.Demo*/**/package-lock.json'
   pull_request:
   workflow_dispatch:
 
