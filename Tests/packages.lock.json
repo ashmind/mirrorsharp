@@ -1845,6 +1845,7 @@
         "type": "Project",
         "dependencies": {
           "MirrorSharp.Common": "[3.0.9, )",
+          "Newtonsoft.Json": "[13.0.3, )",
           "Peachpie.App": "[0.9.0-CI01101, )",
           "Peachpie.CodeAnalysis": "[0.9.0-CI01101, )",
           "System.Data.SqlClient": "[4.9.0, )"
@@ -2628,6 +2629,7 @@
         "type": "Project",
         "dependencies": {
           "MirrorSharp.Common": "[3.0.9, )",
+          "Newtonsoft.Json": "[13.0.3, )",
           "Peachpie.App": "[0.9.0-CI01101, )",
           "Peachpie.CodeAnalysis": "[0.9.0-CI01101, )",
           "System.Data.SqlClient": "[4.9.0, )"
