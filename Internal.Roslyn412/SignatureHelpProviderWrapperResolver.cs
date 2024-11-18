@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Shared.Utilities;
 using Microsoft.CodeAnalysis.SignatureHelp;
 using MirrorSharp.Internal.Roslyn.Internals;
 
-namespace MirrorSharp.Internal.Roslyn411;
+namespace MirrorSharp.Internal.Roslyn412;
 
 [Export(typeof(ISignatureHelpProviderWrapperResolver))]
 internal class SignatureHelpProviderWrapperResolver : ISignatureHelpProviderWrapperResolver {

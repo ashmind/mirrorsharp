@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.Text;
 
-namespace MirrorSharp.Internal.Roslyn411;
+namespace MirrorSharp.Internal.Roslyn412;
 
 [Shared]
 [Export(typeof(IDiagnosticAnalyzerService))]

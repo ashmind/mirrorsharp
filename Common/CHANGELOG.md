@@ -4,6 +4,9 @@
 
 ### Fixed
 - Updated dependencies to resolve security warnings
+- Fixed support for Microsoft.CodeAnalysis 4.12.0 (preview)
+- Fixed support for Microsoft.CodeAnalysis 4.11.0 (final)
+- Fixed support for Microsoft.CodeAnalysis 4.10.0 (final)
 
 ## [3.0.9] - 2024-06-01
 

@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>MirrorSharp.Internal.Roslyn410</AssemblyName>
-    <RootNamespace>MirrorSharp.Internal.Roslyn410</RootNamespace>
+    <AssemblyName>MirrorSharp.Internal.Roslyn412</AssemblyName>
+    <RootNamespace>MirrorSharp.Internal.Roslyn412</RootNamespace>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -12,9 +12,9 @@
 
   <ItemGroup>
     <PackageReference Include="IgnoresAccessChecksToGenerator" Version="0.5.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.10.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.10.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.10.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.12.0-3.final" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.12.0-3.final" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.12.0-3.final" PrivateAssets="All" />
     <!-- Avoids vulnerability in version referenced by Microsoft.CodeAnalysis.Features -->
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>

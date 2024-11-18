@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.SignatureHelp;
 using MirrorSharp.Internal.Roslyn.Internals;
 using SignatureHelpTriggerReason = Microsoft.CodeAnalysis.SignatureHelp.SignatureHelpTriggerReason;
 
-namespace MirrorSharp.Internal.Roslyn411;
+namespace MirrorSharp.Internal.Roslyn412;
 
 internal class SignatureHelpProviderWrapper : ISignatureHelpProviderWrapper {
     private readonly ISignatureHelpProvider _provider;
@@ -19,7 +19,7 @@ internal class SignatureHelpProviderWrapper : ISignatureHelpProviderWrapper {
         // This is quite complicated to implement correctly and is still shifting around.
         // For now we will only allow default options. There is no way to check if user
         // intended something different, but that can be implemented later.
-        var mappedOptions = SignatureHelpOptions.Default;
+        var mappedOptions = MemberDisplayOptions.Default;
         var mappedTriggerInfo = new SignatureHelpTriggerInfo(
             (SignatureHelpTriggerReason)(int)triggerInfo.TriggerReason,
             triggerInfo.TriggerCharacter
@@ -50,8 +50,8 @@ internal class SignatureHelpProviderWrapper : ISignatureHelpProviderWrapper {
                 i.Parameters.Length
             )),
             applicableSpan: items.ApplicableSpan,
-            argumentIndex: items.ArgumentIndex,
-            argumentCount: items.ArgumentCount,
+            argumentIndex: items.SemanticParameterIndex,
+            argumentCount: items.SyntacticArgumentCount,
             selectedItemIndex: items.SelectedItemIndex
         );
     }

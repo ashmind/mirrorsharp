@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using MirrorSharp.Internal.Roslyn.Internals;
 
-namespace MirrorSharp.Internal.Roslyn411;
+namespace MirrorSharp.Internal.Roslyn412;
 
 [Shared]
 [Export(typeof(IWorkspaceAnalyzerOptionsInternals))]
@@ -11,8 +11,6 @@ internal class WorkspaceAnalyzerOptionsInternals : IWorkspaceAnalyzerOptionsInte
     public AnalyzerOptions New(AnalyzerOptions options, Project project) {
         Argument.NotNull(nameof(options), options);
         Argument.NotNull(nameof(project), project);
-        return new WorkspaceAnalyzerOptions(
-            options, IdeAnalyzerOptions.GetDefault(project.Services)
-        );
+        return options;
     }
 }
