@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+- Updated dependencies to resolve security warnings
+
 ## [0.16] - 2022-04-04
 ## [0.16-test-2021-04-02-1] - 2021-04-02
 ## [0.16-test-2021-04-01-1] - 2021-04-01

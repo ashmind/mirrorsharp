@@ -5,6 +5,9 @@
 ### Added
 - Added IFSharpSession.CompileAsync
 
+### Fixed
+- Updated dependencies to resolve security warnings
+
 ## Changed
 - Changed required .NET Framework version to 4.6.2 as required by dependent packages
 

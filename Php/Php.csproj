@@ -18,6 +18,11 @@
   <ItemGroup>
     <PackageReference Include="Peachpie.CodeAnalysis" Version="0.9.0-CI01101" />
     <PackageReference Include="Peachpie.App" Version="0.9.0-CI01101" />
+    <!--
+      Avoids vulnerability in version referenced by other dependencies
+      TOOD: Try removing after upgrading Peachpie.CodeAnalysis/Peachpie.App.
+    -->
+    <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
   </ItemGroup>
 
   <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">

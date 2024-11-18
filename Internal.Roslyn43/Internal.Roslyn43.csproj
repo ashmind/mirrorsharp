@@ -15,6 +15,8 @@
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.3.1" PrivateAssets="All" />
     <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.3.1" PrivateAssets="All" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.3.1" PrivateAssets="All" />
+    <!-- Avoids vulnerability in version referenced by Microsoft.CodeAnalysis.Features -->
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
