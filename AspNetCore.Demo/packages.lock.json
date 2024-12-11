@@ -280,7 +280,7 @@
       "runtime.native.System.Security.Cryptography.Apple": {
         "type": "Transitive",
         "resolved": "4.3.0",
-        "contentHash": "DloMk88juo0OuOWr56QG7MNchmafTLYWvABy36izkrLI5VledI0rq28KGs1i9wbpeT9NPQrx/wTf8U2vazqQ3Q==",
+        "contentHash": "jwjwlEL0Elv6gwoyaokRn12nv/JE+UW/DXJEbzhjCPvGbef36StnHKc9XaZD/rGWqYicrphZ7eumR/jdmNcjRg==",
         "dependencies": {
           "runtime.osx.10.10-x64.runtime.native.System.Security.Cryptography.Apple": "4.3.0"
         }
@@ -315,7 +315,7 @@
       "runtime.osx.10.10-x64.runtime.native.System.Security.Cryptography.Apple": {
         "type": "Transitive",
         "resolved": "4.3.0",
-        "contentHash": "kVXCuMTrTlxq4XOOMAysuNwsXWpYeboGddNGpIgNSZmv1b6r/s/DPk0fYMB7Q5Qo4bY68o48jt4T4y5BVecbCQ=="
+        "contentHash": "Kh9W4agE0r/hK8AX1LvyQI2NrKHBL8pO0gRoDTdDb0LL6Ta1Z2OtFx3lOaAE0ZpCUc/dt9Wzs3rA7a3IsKdOVA=="
       },
       "runtime.osx.10.10-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
         "type": "Transitive",
@@ -1228,7 +1228,7 @@
       "MirrorSharp.AspNetCore": {
         "type": "Project",
         "dependencies": {
-          "MirrorSharp.Common": "[3.0.9, )"
+          "MirrorSharp.Common": "[3.0.10, )"
         }
       },
       "MirrorSharp.AspNetCore.Demo.Library": {
@@ -1253,13 +1253,13 @@
           "FSharp.Core": "[8.0.300, )",
           "Microsoft.Build.Utilities.Core": "[17.12.6, )",
           "Microsoft.IO.RecyclableMemoryStream": "[2.2.0, )",
-          "MirrorSharp.Common": "[3.0.9, )"
+          "MirrorSharp.Common": "[3.0.10, )"
         }
       },
       "MirrorSharp.IL": {
         "type": "Project",
         "dependencies": {
-          "MirrorSharp.Common": "[3.0.9, )",
+          "MirrorSharp.Common": "[3.0.10, )",
           "Mobius.ILasm": "[0.1.0, )",
           "System.Drawing.Common": "[9.0.0, )"
         }
