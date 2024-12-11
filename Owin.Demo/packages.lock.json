@@ -401,14 +401,14 @@
           "FSharp.Core": "[8.0.300, )",
           "Microsoft.Build.Utilities.Core": "[17.12.6, )",
           "Microsoft.IO.RecyclableMemoryStream": "[2.2.0, )",
-          "MirrorSharp.Common": "[3.0.9, )"
+          "MirrorSharp.Common": "[3.0.10, )"
         }
       },
       "MirrorSharp.Owin": {
         "type": "Project",
         "dependencies": {
           "Microsoft.Owin": "[4.2.2, )",
-          "MirrorSharp.Common": "[3.0.9, )",
+          "MirrorSharp.Common": "[3.0.10, )",
           "Owin": "[1.0.0, )"
         }
       }
